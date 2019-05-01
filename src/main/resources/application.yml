@@ -1,0 +1,25 @@
+cloud:
+  aws:
+    region:
+      #      auto: true
+      static: 'us-east-1'
+    stack:
+      auto: false
+
+logging:
+  level:
+    com.example.demo: INFO
+    root: WARN
+
+localstack:
+  enabled: true
+  sqs:
+    enabled: true
+#    url: http://localhost:4576
+
+spring:
+  main:
+    banner-mode: 'OFF'
+  output:
+    ansi:
+      enabled: 'ALWAYS'
