@@ -20,14 +20,12 @@ import org.springframework.cloud.aws.messaging.listener.QueueMessageHandler;
 import org.springframework.cloud.aws.messaging.listener.SendToHandlerMethodReturnValueHandler;
 import org.springframework.cloud.aws.messaging.listener.annotation.SqsListener;
 import org.springframework.context.ApplicationListener;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
-
-import java.util.concurrent.CountDownLatch;
 
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
@@ -36,22 +34,18 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.withSettings;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.beans.factory.config.ConfigurableBeanFactory.SCOPE_PROTOTYPE;
+import static org.springframework.util.CollectionUtils.isEmpty;
 
 @EnableLocalStack
 @SpringBootApplication
 public class DemoApplication {
     private static final String queueName = "foos";
-    private static final CountDownLatch latch = new CountDownLatch(1);
 
-    public static void main(final String... args)
-            throws InterruptedException {
+    public static void main(final String... args) {
         System.setProperty("aws.accessKeyId", "foo");
         System.setProperty("aws.secretKey", "bar");
 
-        try (final var context = SpringApplication
-                .run(DemoApplication.class, args)) {
-            latch.await();
-        }
+        SpringApplication.run(DemoApplication.class, args);
     }
 
     @Configuration
@@ -91,12 +85,11 @@ public class DemoApplication {
 
                 @Override
                 public QueueMessageHandler createQueueMessageHandler() {
-                    final var handler
-                            = new DemoQueueMessageHandler(
-                            CollectionUtils.isEmpty(getMessageConverters())
-                                    ? singletonList(
-                                    getDefaultMappingJackson2MessageConverter())
-                                    : getMessageConverters());
+                    final var handler = new DemoQueueMessageHandler(isEmpty(
+                            getMessageConverters())
+                            ? singletonList(
+                            getDefaultMappingJackson2MessageConverter())
+                            : getMessageConverters());
 
                     //                    if (!CollectionUtils.isEmpty(this
                     //                    .argumentResolvers)) {
@@ -164,11 +157,12 @@ public class DemoApplication {
     @RequiredArgsConstructor(onConstructor = @__(@Autowired))
     public static class Sub {
         private final Logger logger;
+        private final ConfigurableApplicationContext context;
 
         @SqsListener(queueName)
         public void receive(final Foo foo) {
             logger.info("Got a Foo! {}", foo);
-            latch.countDown();
+            context.close();
         }
     }
 
