@@ -1,30 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- sqs-queue-configuration -->
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
-
-    <bean id="messageListener1" class="com.digiburo.spring.demo.aws_sqs.SqsListener">
-        <property name="listenerNdx" value="1"/>
-    </bean>
-
-    <bean id="jmsListenerContainer1"
-          class="org.springframework.jms.listener.DefaultMessageListenerContainer">
-        <property name="connectionFactory" ref="connectionFactory"/>
-        <property name="destination" ref="sqsQueue"/>
-        <property name="messageListener" ref="messageListener1"/>
-    </bean>
-
-    <bean id="messageListener2" class="com.digiburo.spring.demo.aws_sqs.SqsListener">
-        <property name="listenerNdx" value="2"/>
-    </bean>
-
-    <bean id="jmsListenerContainer2"
-          class="org.springframework.jms.listener.DefaultMessageListenerContainer">
-        <property name="connectionFactory" ref="connectionFactory"/>
-        <property name="destination" ref="sqsQueue"/>
-        <property name="messageListener" ref="messageListener2"/>
-    </bean>
 </beans>

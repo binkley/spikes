@@ -5,9 +5,14 @@ cloud:
       static: 'us-east-1'
     stack:
       auto: false
+    credentials:
+      access-key: foo
+      secret-key: bar
 
 logging:
   level:
+    com.amazonaws:
+      request: DEBUG
     com.example.demo: INFO
     root: WARN
 
@@ -15,7 +20,6 @@ localstack:
   enabled: true
   sqs:
     enabled: true
-#    url: http://localhost:4576
 
 spring:
   main:

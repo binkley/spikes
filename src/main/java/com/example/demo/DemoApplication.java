@@ -1,5 +1,7 @@
 package com.example.demo;
 
+import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.auth.SystemPropertiesCredentialsProvider;
 import com.amazonaws.services.sqs.AmazonSQSAsync;
 import com.amazonaws.services.sqs.model.PurgeQueueRequest;
 import io.smartup.localstack.EnableLocalStack;
@@ -41,14 +43,24 @@ public class DemoApplication {
     private static final String queueName = "foos";
     private static final CountDownLatch latch = new CountDownLatch(1);
 
-    public static void main(final String... args) throws InterruptedException {
-        try (final var context = SpringApplication.run(DemoApplication.class, args)) {
+    public static void main(final String... args)
+            throws InterruptedException {
+        System.setProperty("aws.accessKeyId", "foo");
+        System.setProperty("aws.secretKey", "bar");
+
+        try (final var context = SpringApplication
+                .run(DemoApplication.class, args)) {
             latch.await();
         }
     }
 
     @Configuration
     public static class DemoConfiguration {
+        @Bean
+        public AWSCredentialsProvider awsCredentialsProvider() {
+            return new SystemPropertiesCredentialsProvider();
+        }
+
         @Bean
         public SimpleMessageListenerContainerFactory xxx(
                 final AmazonSQSAsync sqs) {
@@ -57,7 +69,7 @@ public class DemoApplication {
                     .verboseLogging()
                     .spiedInstance(sqs)
                     .defaultAnswer(CALLS_REAL_METHODS));
-            factory.setAmazonSqs(sqs);
+            factory.setAmazonSqs(spy);
 
             return factory;
         }
@@ -65,42 +77,50 @@ public class DemoApplication {
         @Bean
         public QueueMessageHandlerFactory yyy(final AmazonSQSAsync sqs,
                 final DemoChannelInterceptor interceptor) {
-            final var template = new DemoQueueMessagingTemplate(sqs, interceptor);
+            final var template = new DemoQueueMessagingTemplate(sqs,
+                    interceptor);
 
             final var factory = new QueueMessageHandlerFactory() {
                 private MappingJackson2MessageConverter getDefaultMappingJackson2MessageConverter() {
-                    MappingJackson2MessageConverter jacksonMessageConverter
+                    final var converter
                             = new MappingJackson2MessageConverter();
-                    jacksonMessageConverter.setSerializedPayloadClass(String.class);
-                    jacksonMessageConverter.setStrictContentTypeMatch(true);
-                    return jacksonMessageConverter;
+                    converter.setSerializedPayloadClass(String.class);
+                    converter.setStrictContentTypeMatch(true);
+                    return converter;
                 }
 
                 @Override
                 public QueueMessageHandler createQueueMessageHandler() {
-                    final var queueMessageHandler = new DemoQueueMessageHandler(
+                    final var handler
+                            = new DemoQueueMessageHandler(
                             CollectionUtils.isEmpty(getMessageConverters())
-                                    ? singletonList(getDefaultMappingJackson2MessageConverter())
+                                    ? singletonList(
+                                    getDefaultMappingJackson2MessageConverter())
                                     : getMessageConverters());
 
-//                    if (!CollectionUtils.isEmpty(this.argumentResolvers)) {
-//                        queueMessageHandler.getCustomArgumentResolvers()
-//                                .addAll(this.argumentResolvers);
-//                    }
-//                    if (!CollectionUtils.isEmpty(this.returnValueHandlers)) {
-//                        queueMessageHandler.getCustomReturnValueHandlers()
-//                                .addAll(this.returnValueHandlers);
-//                    }
+                    //                    if (!CollectionUtils.isEmpty(this
+                    //                    .argumentResolvers)) {
+                    //                        queueMessageHandler
+                    //                        .getCustomArgumentResolvers()
+                    //                                .addAll(this
+                    //                                .argumentResolvers);
+                    //                    }
+                    //                    if (!CollectionUtils.isEmpty(this
+                    //                    .returnValueHandlers)) {
+                    //                        queueMessageHandler
+                    //                        .getCustomReturnValueHandlers()
+                    //                                .addAll(this
+                    //                                .returnValueHandlers);
+                    //                    }
 
-                    SendToHandlerMethodReturnValueHandler sendToHandlerMethodReturnValueHandler;
-                        sendToHandlerMethodReturnValueHandler =
-                                new SendToHandlerMethodReturnValueHandler(template);
+                    final var sendToHandler
+                            = new SendToHandlerMethodReturnValueHandler(
+                            template);
 
-//                    sendToHandlerMethodReturnValueHandler.setBeanFactory(this.beanFactory);
-                    queueMessageHandler.getCustomReturnValueHandlers()
-                            .add(sendToHandlerMethodReturnValueHandler);
+                    //                    sendToHandlerMethodReturnValueHandler.setBeanFactory(this.beanFactory);
+                    handler.getCustomReturnValueHandlers().add(sendToHandler);
 
-                    return queueMessageHandler;
+                    return handler;
                 }
             };
             factory.setSendToMessagingTemplate(template);
@@ -120,7 +140,8 @@ public class DemoApplication {
 
     @Component
     @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-    public static class Pub implements ApplicationListener<ApplicationReadyEvent> {
+    public static class Pub
+            implements ApplicationListener<ApplicationReadyEvent> {
         private final AmazonSQSAsync sqs;
         private final Logger logger;
 
