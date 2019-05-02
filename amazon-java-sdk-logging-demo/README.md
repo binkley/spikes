@@ -16,8 +16,7 @@ for HTTP communications.
 ## Running the demonstration
 
 1. Ensure Docker is running locally.
-2. Use `docker-compose up` in the project root to start
-   [Localstack](https://github.com/localstack/localstack).
+2. Run `AWS_ACCESS_KEY_ID=foo AWS_SECRET_ACCESS_KEY=bar SERVICES=sqs docker-compose up`.
 3. Wait for Localstack to announce "Ready."
 
 ## Running from an IDE
