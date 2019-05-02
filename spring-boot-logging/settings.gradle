@@ -1,6 +1,7 @@
 pluginManagement {
-	repositories {
-		gradlePluginPortal()
-	}
+    repositories {
+        gradlePluginPortal()
+    }
 }
-rootProject.name = 'loggy'
+
+rootProject.name = 'spring-boot-logging'

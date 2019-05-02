@@ -1,11 +1,16 @@
 # Spring Boot logging
 
-Try out different JSON logging approaches.
+Various Spring Boot logging niceties
 
-## Logback Contrib
+## Run from command line
 
-Meh.  Declined to continue spiking.
+First, as a "local" program for developers:
 
-## Logstash
+1. Run `./gradlew build`.
+2. Run `java -jar build/libs/spring-boot-logging-0.0.1-SNAPSHOT.jar`.
 
-Nicer.  General approach usable for more than controller endpoints.
+Second, as a "production" project with JSON log ingestion (ie, ELK):
+
+1. Run `./gradlew build`.
+2. Run `java -Dspring.profiles.active=json -jar build/libs/spring-boot-logging-0.0.1-SNAPSHOT.jar`.
+3. For easier reading, pipe the previous step through `| jq -C . | less`.
