@@ -1,15 +1,20 @@
 package com.example.demo;
 
+import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
+import com.amazonaws.Request;
+import com.amazonaws.Response;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.SystemPropertiesCredentialsProvider;
+import com.amazonaws.http.AmazonHttpClient;
 import com.amazonaws.services.sqs.AmazonSQSAsync;
+import com.amazonaws.services.sqs.AmazonSQSAsyncClient;
 import com.amazonaws.services.sqs.model.PurgeQueueRequest;
-import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import io.smartup.localstack.EnableLocalStack;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.InjectionPoint;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,10 +28,12 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
+import org.springframework.core.style.ToStringCreator;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.CountDownLatch;
 
+import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
@@ -37,6 +44,8 @@ import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.beans.factory.config.ConfigurableBeanFactory.SCOPE_PROTOTYPE;
 import static org.springframework.util.ReflectionUtils.findField;
 import static org.springframework.util.ReflectionUtils.getField;
+import static org.springframework.util.ReflectionUtils.makeAccessible;
+import static org.springframework.util.ReflectionUtils.setField;
 
 @EnableLocalStack
 @SpringBootApplication
@@ -49,22 +58,43 @@ public class DemoApplication {
         System.setProperty("aws.accessKeyId", "foo");
         System.setProperty("aws.secretKey", "bar");
 
-        try (final var context = SpringApplication
-                .run(DemoApplication.class, args)) {
+        try (final var context = SpringApplication.run(
+                DemoApplication.class, args)) {
+            context.getBean(Pub.class).run();
             latch.await();
         }
     }
 
+    @SuppressWarnings("unchecked")
+    private static <T> T noisySpy(final T realInstance,
+            final boolean noisy) {
+        var mockSettings = withSettings()
+                .spiedInstance(realInstance)
+                .defaultAnswer(CALLS_REAL_METHODS);
+        if (noisy) mockSettings = mockSettings.verboseLogging();
+
+        return (T) mock(realInstance.getClass(), mockSettings);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> T spyOn(final Object target,
+            final String fieldName, final boolean noisy) {
+        final var field = findField(target.getClass(), fieldName);
+        if (null == field) throw new IllegalStateException(
+                format("No field '%s' found in %s or any superclass",
+                        fieldName, target.getClass()));
+        makeAccessible(field);
+
+        final T fieldValue = (T) getField(field, target);
+        final T spy = noisySpy(fieldValue, noisy);
+
+        setField(field, target, spy);
+
+        return spy;
+    }
+
     @Configuration
     public static class DemoConfiguration {
-        @SuppressWarnings("unchecked")
-        private static <T> T fieldOf(
-                final Object target, final String fieldName) {
-            final var field = findField(target.getClass(), fieldName);
-            field.setAccessible(true);
-            return (T) getField(field, target);
-        }
-
         @Bean
         public AWSCredentialsProvider awsCredentialsProvider() {
             return new SystemPropertiesCredentialsProvider();
@@ -73,39 +103,15 @@ public class DemoApplication {
         @Bean
         public SimpleMessageListenerContainerFactory messageListenerContainerFactory(
                 final AmazonSQSAsync sqs,
-                final Logger logger) {
+                final LoggingForAmazonHttpClient answer) {
+            final AmazonSQSAsyncClient realSQS = spyOn(sqs, "realSQS", false);
+            final AmazonHttpClient client = spyOn(realSQS, "client", false);
+
+            doAnswer(answer)
+                    .when(client).execute(any(), any(), any(), any());
+
             final var factory = new SimpleMessageListenerContainerFactory();
-            final var spy = mock(sqs.getClass(), withSettings()
-                    //                    .verboseLogging()
-                    .spiedInstance(sqs)
-                    .defaultAnswer(CALLS_REAL_METHODS));
-            factory.setAmazonSqs(spy);
-
-            doAnswer(invocation -> {
-                try {
-                    final var result = invocation.callRealMethod();
-                    logger.info("!!! AWS SEND worked: {}", result);
-                    return result;
-                } catch (final AmazonServiceException e) {
-                    logger.error("!!! AWS SEND failed: {}",
-                            e.toString(), e);
-                    throw e;
-                }
-            }).when(spy).sendMessage(any());
-
-            doAnswer(invocation -> {
-                try {
-                    final var result = invocation.callRealMethod();
-                    logger.info("!!! AWS RECEIVE worked: {}", result);
-                    return result;
-                } catch (final AmazonServiceException e) {
-                    logger.error("!!! AWS RECEIVE failed: {}",
-                            e.toString(), e);
-                    throw e;
-                }
-            }).when(spy)
-                    .receiveMessage(Mockito.<ReceiveMessageRequest>any());
-
+            factory.setAmazonSqs(sqs);
             return factory;
         }
     }
@@ -122,7 +128,7 @@ public class DemoApplication {
 
     @Component
     @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-    public static class Pub
+    public static class Setup
             implements ApplicationListener<ApplicationReadyEvent> {
         private final AmazonSQSAsync sqs;
         private final Logger logger;
@@ -130,13 +136,24 @@ public class DemoApplication {
         @Override
         public void onApplicationEvent(final ApplicationReadyEvent event) {
             final var queue = sqs.createQueue(queueName);
-            logger.info("Purging queue");
+            logger.debug("Purging queue");
             sqs.purgeQueue(new PurgeQueueRequest(queue.getQueueUrl()));
             logger.info("Queue purged");
+        }
+    }
 
+    @Component
+    @RequiredArgsConstructor(onConstructor = @__(@Autowired))
+    public static class Pub
+            implements Runnable {
+        private final AmazonSQSAsync sqs;
+        private final Logger logger;
+
+        @Override
+        public void run() {
             final var foo = new Foo();
             foo.number = 3;
-            logger.info("Sending a Foo! {}", foo);
+            logger.debug("Sending a Foo! {}", foo);
             new QueueMessagingTemplate(sqs).convertAndSend(queueName, foo);
             logger.info("Sent a Foo! {}", foo);
         }
@@ -157,5 +174,40 @@ public class DemoApplication {
     @Data
     public static class Foo {
         public int number;
+    }
+
+    @Component
+    @RequiredArgsConstructor(onConstructor = @__(@Autowired))
+    public static class LoggingForAmazonHttpClient
+            implements Answer<Response<?>> {
+        private final Logger logger;
+
+        @Override
+        public Response<?> answer(final InvocationOnMock invocation)
+                throws Throwable {
+            final Request<?> request = invocation.getArgument(0);
+            try {
+                final var response
+                        = (Response<?>) invocation.callRealMethod();
+                logger.debug("AWS HTTP: {}: {}",
+                        request, response.getAwsResponse());
+                return response;
+            } catch (final AmazonServiceException e) {
+                final var eToString = new ToStringCreator(e)
+                        .append("errorCode", e.getErrorCode())
+                        .append("errorMessage", e.getErrorMessage())
+                        .append("errorType", e.getErrorType())
+                        .append("statusCode", e.getStatusCode())
+                        .append("serviceName", e.getServiceName())
+                        .toString();
+                logger.error("AWS HTTP service failed: {}: {}",
+                        request, eToString, e);
+                throw e;
+            } catch (final AmazonClientException e) {
+                logger.error("AWS HTTP client failed: {}: {}",
+                        request, e.toString(), e);
+                throw e;
+            }
+        }
     }
 }
