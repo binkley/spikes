@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration debug="${logging.debug:-false}" scan="false">
+    <include
+            resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+    <springProfile name="!json">
+        <include
+                resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+    </springProfile>
+
+    <springProfile name="json">
+        <springProperty name="spring.application.name"
+                        source="spring.application.name"/>
+        <springProperty name="environment" source="environment"/>
+
+        <appender name="JSON" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder
+                    class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+                <providers>
+                    <timestamp>
+                        <timeZone>UTC</timeZone>
+                    </timestamp>
+                    <version/>
+                    <pattern>
+                        <pattern>
+                            {
+                            "service": "${spring.application.name:-}",
+                            "message": "#tryJson{%message}",
+                            "environment": "${environment:-}"
+                            }
+                        </pattern>
+                    </pattern>
+                    <loggerName/>
+                    <threadName/>
+                    <logLevel/>
+                    <logLevelValue/>
+                    <tags/>
+                    <mdc/>
+                    <stackTrace/>
+                </providers>
+            </encoder>
+        </appender>
+
+        <root level="INFO">
+            <appender-ref ref="JSON"/>
+        </root>
+    </springProfile>
+</configuration>
