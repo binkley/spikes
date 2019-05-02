@@ -14,8 +14,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse.BodyHandlers;
 
-import static org.springframework.core.NestedExceptionUtils.getMostSpecificCause;
-
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @SpringBootApplication
 public class LoggyApplication
@@ -69,9 +67,7 @@ public class LoggyApplication
 
             sadPath.get();
         } catch (final FeignException badFeign) {
-            logger.error("Feign is angry: {}",
-                    getMostSpecificCause(badFeign).toString(),
-                    badFeign);
+            // Already logged by logbook-feign logger
         }
 
         logger.info("BUT IT'S ALRIGHT, IT'S OK, I'M GONNA RUN THAT WAY");
