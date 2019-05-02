@@ -1,122 +1,111 @@
 package com.example.demo;
 
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.SystemPropertiesCredentialsProvider;
 import com.amazonaws.services.sqs.AmazonSQSAsync;
 import com.amazonaws.services.sqs.model.PurgeQueueRequest;
+import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import io.smartup.localstack.EnableLocalStack;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.InjectionPoint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.cloud.aws.messaging.config.QueueMessageHandlerFactory;
 import org.springframework.cloud.aws.messaging.config.SimpleMessageListenerContainerFactory;
 import org.springframework.cloud.aws.messaging.core.QueueMessagingTemplate;
-import org.springframework.cloud.aws.messaging.listener.QueueMessageHandler;
-import org.springframework.cloud.aws.messaging.listener.SendToHandlerMethodReturnValueHandler;
 import org.springframework.cloud.aws.messaging.listener.annotation.SqsListener;
 import org.springframework.context.ApplicationListener;
-import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
-import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.stereotype.Component;
 
-import static java.util.Collections.singletonList;
+import java.util.concurrent.CountDownLatch;
+
 import static java.util.Objects.requireNonNull;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.withSettings;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.beans.factory.config.ConfigurableBeanFactory.SCOPE_PROTOTYPE;
-import static org.springframework.util.CollectionUtils.isEmpty;
+import static org.springframework.util.ReflectionUtils.findField;
+import static org.springframework.util.ReflectionUtils.getField;
 
 @EnableLocalStack
 @SpringBootApplication
 public class DemoApplication {
     private static final String queueName = "foos";
+    private static final CountDownLatch latch = new CountDownLatch(1);
 
-    public static void main(final String... args) {
+    public static void main(final String... args)
+            throws InterruptedException {
         System.setProperty("aws.accessKeyId", "foo");
         System.setProperty("aws.secretKey", "bar");
 
-        SpringApplication.run(DemoApplication.class, args);
+        try (final var context = SpringApplication
+                .run(DemoApplication.class, args)) {
+            latch.await();
+        }
     }
 
     @Configuration
     public static class DemoConfiguration {
+        @SuppressWarnings("unchecked")
+        private static <T> T fieldOf(
+                final Object target, final String fieldName) {
+            final var field = findField(target.getClass(), fieldName);
+            field.setAccessible(true);
+            return (T) getField(field, target);
+        }
+
         @Bean
         public AWSCredentialsProvider awsCredentialsProvider() {
             return new SystemPropertiesCredentialsProvider();
         }
 
         @Bean
-        public SimpleMessageListenerContainerFactory xxx(
-                final AmazonSQSAsync sqs) {
+        public SimpleMessageListenerContainerFactory messageListenerContainerFactory(
+                final AmazonSQSAsync sqs,
+                final Logger logger) {
             final var factory = new SimpleMessageListenerContainerFactory();
             final var spy = mock(sqs.getClass(), withSettings()
-                    .verboseLogging()
+                    //                    .verboseLogging()
                     .spiedInstance(sqs)
                     .defaultAnswer(CALLS_REAL_METHODS));
             factory.setAmazonSqs(spy);
 
-            return factory;
-        }
-
-        @Bean
-        public QueueMessageHandlerFactory yyy(final AmazonSQSAsync sqs,
-                final DemoChannelInterceptor interceptor) {
-            final var template = new DemoQueueMessagingTemplate(sqs,
-                    interceptor);
-
-            final var factory = new QueueMessageHandlerFactory() {
-                private MappingJackson2MessageConverter getDefaultMappingJackson2MessageConverter() {
-                    final var converter
-                            = new MappingJackson2MessageConverter();
-                    converter.setSerializedPayloadClass(String.class);
-                    converter.setStrictContentTypeMatch(true);
-                    return converter;
+            doAnswer(invocation -> {
+                try {
+                    final var result = invocation.callRealMethod();
+                    logger.info("!!! AWS SEND worked: {}", result);
+                    return result;
+                } catch (final AmazonServiceException e) {
+                    logger.error("!!! AWS SEND failed: {}",
+                            e.toString(), e);
+                    throw e;
                 }
+            }).when(spy).sendMessage(any());
 
-                @Override
-                public QueueMessageHandler createQueueMessageHandler() {
-                    final var handler = new DemoQueueMessageHandler(isEmpty(
-                            getMessageConverters())
-                            ? singletonList(
-                            getDefaultMappingJackson2MessageConverter())
-                            : getMessageConverters());
-
-                    //                    if (!CollectionUtils.isEmpty(this
-                    //                    .argumentResolvers)) {
-                    //                        queueMessageHandler
-                    //                        .getCustomArgumentResolvers()
-                    //                                .addAll(this
-                    //                                .argumentResolvers);
-                    //                    }
-                    //                    if (!CollectionUtils.isEmpty(this
-                    //                    .returnValueHandlers)) {
-                    //                        queueMessageHandler
-                    //                        .getCustomReturnValueHandlers()
-                    //                                .addAll(this
-                    //                                .returnValueHandlers);
-                    //                    }
-
-                    final var sendToHandler
-                            = new SendToHandlerMethodReturnValueHandler(
-                            template);
-
-                    //                    sendToHandlerMethodReturnValueHandler.setBeanFactory(this.beanFactory);
-                    handler.getCustomReturnValueHandlers().add(sendToHandler);
-
-                    return handler;
+            doAnswer(invocation -> {
+                try {
+                    final var result = invocation.callRealMethod();
+                    logger.info("!!! AWS RECEIVE worked: {}", result);
+                    return result;
+                } catch (final AmazonServiceException e) {
+                    logger.error("!!! AWS RECEIVE failed: {}",
+                            e.toString(), e);
+                    throw e;
                 }
-            };
-            factory.setSendToMessagingTemplate(template);
+            }).when(spy)
+                    .receiveMessage(Mockito.<ReceiveMessageRequest>any());
+
             return factory;
         }
     }
@@ -157,12 +146,11 @@ public class DemoApplication {
     @RequiredArgsConstructor(onConstructor = @__(@Autowired))
     public static class Sub {
         private final Logger logger;
-        private final ConfigurableApplicationContext context;
 
         @SqsListener(queueName)
         public void receive(final Foo foo) {
             logger.info("Got a Foo! {}", foo);
-            context.close();
+            latch.countDown();
         }
     }
 

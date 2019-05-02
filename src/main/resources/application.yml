@@ -11,9 +11,9 @@ cloud:
 
 logging:
   level:
-    com.amazonaws:
-      request: DEBUG
+    com.amazonaws.request: DEBUG
     com.example.demo: INFO
+    org.springframework.cloud.aws: DEBUG
     root: WARN
 
 localstack:
