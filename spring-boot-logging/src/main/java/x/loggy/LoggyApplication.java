@@ -14,12 +14,15 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse.BodyHandlers;
 
+import static org.springframework.core.NestedExceptionUtils.getMostSpecificCause;
+
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @SpringBootApplication
 public class LoggyApplication
         implements CommandLineRunner {
     private final SampleHttpBin happyPath;
     private final NowheresVille sadPath;
+    private final NotAThing notFound;
     private final Logger logger;
 
     public static void main(final String... args) {
@@ -61,13 +64,22 @@ public class LoggyApplication
         logger.error("And I fail: {}", e.getMessage(), e);
 
         // Feign
-        try {
-            final var happyFeign = happyPath.get();
-            logger.info("He said, {}", happyFeign);
+        final var happyFeign = happyPath.get();
+        logger.info("He said, {}", happyFeign);
 
+        try {
             sadPath.get();
-        } catch (final FeignException badFeign) {
+        } catch (final FeignException ignored) {
             // Already logged by logbook-feign logger
+        }
+
+        try {
+            notFound.get();
+        } catch (final FeignException notFound) {
+            logger.error("Feign angry: {}: {}",
+                    getMostSpecificCause(notFound).toString(),
+                    notFound.contentUTF8(),
+                    notFound);
         }
 
         logger.info("BUT IT'S ALRIGHT, IT'S OK, I'M GONNA RUN THAT WAY");
