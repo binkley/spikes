@@ -9,17 +9,17 @@ cloud:
       access-key: foo
       secret-key: bar
 
+localstack:
+  enabled: true
+  sqs:
+    enabled: true
+
 logging:
   level:
     com.amazonaws.request: WARN
     com.example.demo: INFO
     org.springframework.cloud.aws: WARN
     root: WARN
-
-localstack:
-  enabled: true
-  sqs:
-    enabled: true
 
 spring:
   main:
