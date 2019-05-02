@@ -1,4 +1,4 @@
-# Amazon Java SDK logging demo
+# Amazon Java SDK logging demonstration
 
 A demonstration of enabling user-controlled logging with Amazon Java SDK.  The
 demonstration focuses on SQS, but the technique is generally useful with:
