@@ -19,6 +19,7 @@ Second, as a "production" project with JSON log ingestion (ie, ELK):
 
 General:
 
+* Debug logging as it initializes with `-Dlogging.debug=true`
 * Early control of logging during program initialization
 * UTC timestamps
 * Sleuth tracing
