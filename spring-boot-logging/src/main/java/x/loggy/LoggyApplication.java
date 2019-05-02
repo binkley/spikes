@@ -2,32 +2,19 @@ package x.loggy;
 
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.InjectionPoint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.openfeign.EnableFeignClients;
-import org.springframework.cloud.openfeign.FeignLoggerFactory;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Scope;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse.BodyHandlers;
-import java.time.Instant;
 
-import static java.util.Objects.requireNonNull;
-import static org.slf4j.LoggerFactory.getLogger;
-import static org.springframework.beans.factory.config.ConfigurableBeanFactory.SCOPE_PROTOTYPE;
+import static org.springframework.core.NestedExceptionUtils.getMostSpecificCause;
 
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @SpringBootApplication
@@ -82,49 +69,11 @@ public class LoggyApplication
 
             sadPath.get();
         } catch (final FeignException badFeign) {
-            logger.error("Feign is angry: {}", badFeign.toString(), badFeign);
+            logger.error("Feign is angry: {}",
+                    getMostSpecificCause(badFeign).toString(),
+                    badFeign);
         }
 
         logger.info("BUT IT'S ALRIGHT, IT'S OK, I'M GONNA RUN THAT WAY");
-    }
-
-    @RestController
-    @RequestMapping
-    @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-    public static class LoggyController {
-        private final Logger logger;
-
-        @GetMapping
-        public LoggyResponse get() {
-            logger.info("INTER THE WEBS");
-            return new LoggyResponse("HI, MOM!", 22, Instant.now());
-        }
-
-        @Value
-        static class LoggyResponse {
-            String foo;
-            int barNone;
-            Instant when;
-        }
-    }
-
-    @Configuration
-    public static class LoggingConfiguration {
-        @Bean
-        @Scope(SCOPE_PROTOTYPE)
-        public Logger logger(final InjectionPoint at) {
-            return getLogger(requireNonNull(at.getMethodParameter())
-                    .getContainingClass());
-        }
-    }
-
-    @Configuration
-    @EnableFeignClients
-    public static class FeignConfiguration {
-        @Bean
-        public FeignLoggerFactory replaceFeignLoggerWithLogbook(
-                final LogbookFeignLogger logger) {
-            return type -> logger;
-        }
     }
 }
