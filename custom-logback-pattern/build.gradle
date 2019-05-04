@@ -1,0 +1,29 @@
+plugins {
+    id "java"
+}
+
+group = "x"
+version = "0.0.1-SNAPSHOT"
+
+sourceCompatibility = 11
+targetCompatibility = 11
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile "ch.qos.logback:logback-classic:1.2.3"
+}
+
+jar {
+    manifest {
+        attributes "Main-Class": "x.loggy.LoggyApplication"
+    }
+
+    from {
+        configurations.compile.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+}
