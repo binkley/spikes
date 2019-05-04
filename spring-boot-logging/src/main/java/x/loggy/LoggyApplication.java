@@ -26,12 +26,6 @@ public class LoggyApplication
     private final Logger logger;
 
     public static void main(final String... args) {
-        // Copy env to sysprops so it appears as a Spring prop to Logback
-        // MDC is unreliable when using thread pools, by sysprops work
-        final var environment = System.getenv()
-                .getOrDefault("ENVIRONMENT", "local");
-        System.setProperty("environment", environment);
-
         // FYI -- using the try-block shuts down the program after
         // the command-line runner finishes: Faster feedback cycle
         try (final var ignored = SpringApplication

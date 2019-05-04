@@ -4,8 +4,10 @@
             resource="org/springframework/boot/logging/logback/defaults.xml"/>
 
     <springProperty name="spring.application.name"
-                    source="spring.application.name"/>
-    <springProperty name="environment" source="environment"/>
+                    source="spring.application.name"
+                    defaultValue="misconfigured"/>
+    <springProperty name="environment" source="environment"
+                    defaultValue="local"/>
 
     <springProfile name="!json">
         <include
@@ -28,9 +30,9 @@
                     <pattern>
                         <pattern>
                             {
-                            "service": "${spring.application.name:-}",
+                            "service": "${spring.application.name}",
                             "message": "#tryJson{%message}",
-                            "environment": "${environment:-}"
+                            "environment": "${environment}"
                             }
                         </pattern>
                     </pattern>
