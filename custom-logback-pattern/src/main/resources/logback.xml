@@ -18,7 +18,7 @@
 
         <encoder>
             <!-- @formatter:off -->
-            <pattern>! %date{"yyyy-MM-dd'T'HH:mm:ss.SSSX",UTC} %severity%n</pattern>
+            <pattern>! %date{"yyyy-MM-dd'T'HH:mm:ss.SSSX",UTC} %severity %m%n</pattern>
             <!-- @formatter:on -->
         </encoder>
     </appender>
