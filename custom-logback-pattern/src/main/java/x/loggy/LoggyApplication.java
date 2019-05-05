@@ -4,7 +4,8 @@ import org.slf4j.LoggerFactory;
 
 public class LoggyApplication {
     public static void main(final String... args) {
-        LoggerFactory.getLogger(LoggyApplication.class)
-                .info("Hi, mom!");
+        final var logger = LoggerFactory.getLogger(LoggyApplication.class);
+        logger.info("Hi, mom!");
+        logger.debug("Should not appear");
     }
 }
