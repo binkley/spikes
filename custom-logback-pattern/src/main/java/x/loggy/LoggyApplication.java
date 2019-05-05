@@ -13,7 +13,7 @@ public class LoggyApplication {
         logger.error("I cannot do that, Dave");
         logger.warn("Nanites nearby");
         logger.info("Happy, snappy");
-        logger.debug("Should not appear");
+        logger.debug("Should appear as regular logging, not as severity");
 
         logger.error(URGENT, "Bachman overdrive");
         logger.error(HIGH, "Turner overturned");

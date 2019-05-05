@@ -7,6 +7,7 @@ import org.slf4j.Marker;
 import static ch.qos.logback.classic.Level.ERROR;
 import static ch.qos.logback.classic.Level.INFO;
 import static ch.qos.logback.classic.Level.WARN;
+import static java.lang.String.format;
 import static org.slf4j.MarkerFactory.getMarker;
 
 public class SeverityConverter
@@ -31,8 +32,12 @@ public class SeverityConverter
         if (ERROR.equals(level)) return HighSeverity;
         if (WARN.equals(level)) return MediumSeverity;
         if (INFO.equals(level)) return LowSeverity;
-        else throw new IllegalStateException(
-                "Logback appender missing a level filter: unexpected "
-                        + "log level: " + level);
+        else throw new Bug(format(
+                "logback.xml appender for STDOUT missing a threshold filter"
+                        + " which ignores DEBUG or lower loggings: unexpected"
+                        + " log level for logging event: '%s'; pass in the "
+                        + "'logging.debug=true' system property to see this"
+                        + " complaint (Logback swallows this exception"
+                        + " otherwise, and ignores the logging)", event));
     }
 }
