@@ -26,7 +26,6 @@ dependencies {
 
     compileOnly "org.projectlombok:lombok"
 
-    implementation "org.springframework.boot:spring-boot-starter-web"
     implementation "org.springframework.boot:spring-boot-starter-data-jdbc"
 
     runtime "org.postgresql:postgresql"
