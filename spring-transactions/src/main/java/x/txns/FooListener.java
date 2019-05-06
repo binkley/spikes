@@ -16,7 +16,7 @@ public class FooListener {
     @Async
     @TransactionalEventListener
     public void handleFoo(final FooEvent event) {
-        logger.info("POST-COMMIT: {}",
+        logger.info("RECEIVED POST-COMMIT: {}",
                 foos.findById(event.getId()).orElseThrow());
     }
 }

@@ -25,7 +25,8 @@ public class WhenReady
 
         foos.readAll()
                 .map(FooEvent::new)
-                .forEach(publisher::publishEvent);
+                .peek(publisher::publishEvent)
+                .forEach(event -> logger.info("PUBLISHED: {}", event));
 
         logger.info("END OF PUBLISHING");
     }

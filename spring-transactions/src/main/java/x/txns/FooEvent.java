@@ -8,13 +8,13 @@ import org.springframework.context.ApplicationEvent;
 @EqualsAndHashCode(callSuper = true)
 @Getter
 @ToString(callSuper = true)
-public class FooEvent
+class FooEvent
         extends ApplicationEvent {
-    public FooEvent(final Foo foo) {
+    FooEvent(final Foo foo) {
         super(foo);
     }
 
-    public Long getId() {
+    Long getId() {
         return ((Foo) getSource()).getId();
     }
 }
