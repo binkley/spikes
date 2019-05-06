@@ -11,10 +11,14 @@ version = "0.0.1-SNAPSHOT"
 sourceCompatibility = 11
 targetCompatibility = 11
 
+ext["junit-jupiter.version"] = "5.4.2"
+
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
     }
+
+    all*.exclude module: 'junit'
 }
 
 repositories {
@@ -29,6 +33,11 @@ dependencies {
     implementation "org.springframework.boot:spring-boot-starter-web"
 
     testImplementation "org.springframework.boot:spring-boot-starter-test"
+    testImplementation "org.junit.jupiter:junit-jupiter"
+}
+
+test {
+    useJUnitPlatform()
 }
 
 bootRun {
