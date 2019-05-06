@@ -8,6 +8,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 @Component
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -28,5 +29,10 @@ public class WhenReady
                 .forEach(publisher::publishEvent);
 
         logger.info("END OF PUBLISHING");
+    }
+
+    @TransactionalEventListener
+    public void handleFoo(final FooEvent event) {
+        logger.info("POST-COMMIT: {}", foos.findById(event.getId()));
     }
 }
