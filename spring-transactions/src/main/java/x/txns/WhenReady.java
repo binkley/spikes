@@ -23,7 +23,10 @@ public class WhenReady
         final var saved = foos.save(new Foo(null, "BAR", 3));
         logger.info("SAVED: {}", saved);
 
-        foos.findAll().forEach(it ->
-                publisher.publishEvent(new FooEvent(it)));
+        foos.readAll()
+                .map(FooEvent::new)
+                .forEach(publisher::publishEvent);
+
+        logger.info("END OF PUBLISHING");
     }
 }
