@@ -1,0 +1,5 @@
+CREATE TABLE FOO
+(
+    key   VARCHAR NOT NULL PRIMARY KEY,
+    value BIGINT  NOT NULL
+);

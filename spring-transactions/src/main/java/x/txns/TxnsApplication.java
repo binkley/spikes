@@ -7,10 +7,13 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import static java.lang.System.out;
+
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @SpringBootApplication
 public class TxnsApplication
         implements CommandLineRunner {
+    private final FooRepository foos;
     private final Logger logger;
 
     public static void main(final String... args) {
@@ -23,6 +26,7 @@ public class TxnsApplication
 
     @Override
     public void run(final String... args) {
+        foos.findAll().forEach(out::println);
         logger.info("BUT IT'S ALRIGHT, IT'S OK, I'M GONNA RUN THAT WAY");
     }
 }

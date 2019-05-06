@@ -1,6 +1,7 @@
 plugins {
     id "org.springframework.boot" version "2.1.4.RELEASE"
     id "java"
+    id "org.flywaydb.flyway" version "5.2.4"
 }
 
 apply plugin: "io.spring.dependency-management"
@@ -12,6 +13,7 @@ sourceCompatibility = 11
 targetCompatibility = 11
 
 ext {
+    flywayVersion = "5.2.4"
     postgresVersion = "11.2.0"
 }
 
@@ -48,6 +50,12 @@ dependencyManagement {
     imports {
         mavenBom "io.zonky.test.postgres:embedded-postgres-binaries-bom:${postgresVersion}"
     }
+}
+
+flyway {
+    url = 'jdbc:postgresql:postgres'
+    user = 'postgres'
+    schemas = ['public']
 }
 
 test {
