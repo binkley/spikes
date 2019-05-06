@@ -1,7 +1,6 @@
 plugins {
     id "org.springframework.boot" version "2.1.4.RELEASE"
     id "java"
-    id "org.flywaydb.flyway" version "5.2.4"
 }
 
 apply plugin: "io.spring.dependency-management"
@@ -11,11 +10,6 @@ version = "0.0.1-SNAPSHOT"
 
 sourceCompatibility = 11
 targetCompatibility = 11
-
-ext {
-    flywayVersion = "5.2.4"
-    postgresVersion = "11.2.0"
-}
 
 configurations {
     compileOnly {
@@ -35,27 +29,8 @@ dependencies {
     implementation "org.springframework.boot:spring-boot-starter-web"
     implementation "org.springframework.boot:spring-boot-starter-data-jdbc"
 
-    testImplementation "org.springframework.boot:spring-boot-starter-test"
-    testImplementation "org.junit.jupiter:junit-jupiter"
-    testImplementation "org.mockito:mockito-core"
-    testImplementation "org.mockito:mockito-junit-jupiter"
-    testImplementation "org.assertj:assertj-core"
-    testImplementation "io.zonky.test:embedded-database-spring-test:1.4.1"
-
     runtime "org.postgresql:postgresql"
     runtime "org.flywaydb:flyway-core"
-}
-
-dependencyManagement {
-    imports {
-        mavenBom "io.zonky.test.postgres:embedded-postgres-binaries-bom:${postgresVersion}"
-    }
-}
-
-flyway {
-    url = 'jdbc:postgresql:postgres'
-    user = 'postgres'
-    schemas = ['public']
 }
 
 test {
