@@ -10,6 +10,7 @@ import org.springframework.data.relational.core.mapping.Table;
 @Table("FOO")
 public class Foo {
     @Id
+    public Long id;
     public String key;
     public int value;
 }
