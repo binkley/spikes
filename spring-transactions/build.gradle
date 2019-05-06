@@ -11,6 +11,10 @@ version = "0.0.1-SNAPSHOT"
 sourceCompatibility = 11
 targetCompatibility = 11
 
+ext {
+    postgresVersion = "11.2.0"
+}
+
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
@@ -27,13 +31,27 @@ dependencies {
     compileOnly "org.projectlombok:lombok"
 
     implementation "org.springframework.boot:spring-boot-starter-web"
+    implementation "org.springframework.boot:spring-boot-starter-data-jdbc"
 
     testImplementation "org.springframework.boot:spring-boot-starter-test"
+    testImplementation "org.junit.jupiter:junit-jupiter"
+    testImplementation "org.mockito:mockito-core"
+    testImplementation "org.mockito:mockito-junit-jupiter"
+    testImplementation "org.assertj:assertj-core"
+    testImplementation "io.zonky.test:embedded-database-spring-test:1.4.1"
+
+    runtime "org.postgresql:postgresql"
+    runtime "org.flywaydb:flyway-core"
 }
 
 dependencyManagement {
     imports {
+        mavenBom "io.zonky.test.postgres:embedded-postgres-binaries-bom:${postgresVersion}"
     }
+}
+
+test {
+    useJUnitPlatform()
 }
 
 bootRun {
