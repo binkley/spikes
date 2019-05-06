@@ -7,7 +7,6 @@ spring:
   application:
     name: txns
   datasource:
-    platform: postgresql
     url: 'jdbc:postgresql:postgres?user=postgres'
   main:
     banner-mode: 'OFF'
