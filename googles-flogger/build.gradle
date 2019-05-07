@@ -1,11 +1,14 @@
 plugins {
     id "java"
+    id "application"
     // TODO: How is this *not* built into Gradle?!  Maven ...
     id "com.github.johnrengelman.shadow" version "5.0.0"
 }
 
 group = "x"
 version = "0.0.1-SNAPSHOT"
+
+mainClassName = "x.floggy.FloggyApplication"
 
 sourceCompatibility = 11
 targetCompatibility = 11
@@ -22,16 +25,4 @@ dependencies {
     implementation "com.google.flogger:flogger:${floggerVersion}"
 
     runtimeOnly "com.google.flogger:flogger-system-backend:${floggerVersion}"
-}
-
-jar {
-    manifest {
-        attributes "Main-Class": "x.floggy.FloggyApplication"
-    }
-
-    from {
-        configurations.compile.collect {
-            it.isDirectory() ? it : zipTree(it)
-        }
-    }
 }
