@@ -1,5 +1,7 @@
 plugins {
     id "java"
+    // TODO: How is this *not* built into Gradle?!  Maven ...
+    id "com.github.johnrengelman.shadow" version "5.0.0"
 }
 
 group = "x"
@@ -19,7 +21,7 @@ repositories {
 dependencies {
     implementation "com.google.flogger:flogger:${floggerVersion}"
 
-    runtimeOnly "com.google.flogger-system-backend:flogger:${floggerVersion}"
+    runtimeOnly "com.google.flogger:flogger-system-backend:${floggerVersion}"
 }
 
 jar {
