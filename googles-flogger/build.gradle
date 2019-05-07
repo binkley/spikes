@@ -8,12 +8,18 @@ version = "0.0.1-SNAPSHOT"
 sourceCompatibility = 11
 targetCompatibility = 11
 
+ext {
+    floggerVersion = "0.4"
+}
+
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    compile "ch.qos.logback:logback-classic:1.2.3"
+    implementation "com.google.flogger:flogger:${floggerVersion}"
+
+    runtimeOnly "com.google.flogger-system-backend:flogger:${floggerVersion}"
 }
 
 jar {
