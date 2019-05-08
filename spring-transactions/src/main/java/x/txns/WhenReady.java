@@ -20,7 +20,7 @@ public class WhenReady
     @Override
     @Transactional
     public void onApplicationEvent(final ApplicationReadyEvent ignored) {
-        final var saved = foos.save(new Foo(null, "BAR", 3));
+        final var saved = foos.save(new FooRecord(null, "BAR", 3));
         logger.info("SAVED: {}", saved);
 
         foos.readAll()

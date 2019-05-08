@@ -10,11 +10,11 @@ import org.springframework.context.ApplicationEvent;
 @ToString(callSuper = true)
 class FooEvent
         extends ApplicationEvent {
-    FooEvent(final Foo foo) {
+    FooEvent(final FooRecord foo) {
         super(foo);
     }
 
     Long getId() {
-        return ((Foo) getSource()).getId();
+        return ((FooRecord) getSource()).getId();
     }
 }

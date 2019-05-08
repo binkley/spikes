@@ -6,7 +6,7 @@ import org.springframework.data.repository.CrudRepository;
 import java.util.stream.Stream;
 
 public interface FooRepository
-        extends CrudRepository<Foo, Long> {
+        extends CrudRepository<FooRecord, Long> {
     @Query("SELECT * FROM FOO")
-    Stream<Foo> readAll();
+    Stream<FooRecord> readAll();
 }

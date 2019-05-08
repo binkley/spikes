@@ -8,7 +8,7 @@ import org.springframework.data.relational.core.mapping.Table;
 @AllArgsConstructor
 @Data
 @Table("FOO")
-public class Foo {
+public class FooRecord {
     @Id
     public Long id;
     public String key;
