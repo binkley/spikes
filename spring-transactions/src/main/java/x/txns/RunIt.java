@@ -18,7 +18,7 @@ import static org.springframework.core.NestedExceptionUtils.getMostSpecificCause
 public class RunIt
         implements ApplicationListener<ApplicationReadyEvent> {
     private final FooRepository foos;
-    private final ANestedTransaction nested;
+    private final FailedNestedTransaction nested;
     private final ApplicationEventPublisher publisher;
     private final Logger logger;
 
@@ -30,9 +30,9 @@ public class RunIt
         logger.info("SAVED: {}", saved);
 
         try {
-            nested.undoWrongSave(saved);
+            nested.failedSave(saved);
         } catch (final DbActionExecutionException e) {
-            logger.warn("FAILING NESTED TRANSACTION: {}",
+            logger.warn("FAILED NESTED TRANSACTION: {}",
                     getMostSpecificCause(e).getMessage());
         }
 

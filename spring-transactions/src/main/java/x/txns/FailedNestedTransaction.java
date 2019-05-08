@@ -10,13 +10,14 @@ import static org.springframework.transaction.annotation.Propagation.NESTED;
 
 @Component
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class ANestedTransaction {
+public class FailedNestedTransaction {
     private final FooRepository foos;
     private final Logger logger;
 
     @Transactional(propagation = NESTED)
-    public void undoWrongSave(final FooRecord saved) {
+    public void failedSave(final FooRecord saved) {
         saved.id = null;
+        logger.info("FAILING NESTED TRANSACTION: {}", saved);
         foos.save(saved); // No duplicates
     }
 }
