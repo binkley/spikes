@@ -2,6 +2,7 @@ package x.txns;
 
 import io.zonky.test.db.AutoConfigureEmbeddedDatabase;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.jdbc.DataJdbcTest;
@@ -27,12 +28,15 @@ class DatabaseTest {
 
     @Test
     void shouldContinueAfterSavepointFails() {
+        final var foo = ArgumentCaptor.forClass(FooRecord.class);
+        verify(logger).info(
+                startsWith("FAILING NESTED TRANSACTION"), foo.capture());
         verify(logger).warn(
                 startsWith("FAILED NESTED TRANSACTION"), anyString());
 
-        assertThat(foos.count())
+        assertThat(foos.findByKey(foo.getValue().getKey()))
                 .withFailMessage("Missing foo")
-                .isEqualTo(1);
+                .isNotEmpty();
     }
 
     @TestConfiguration
