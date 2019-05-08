@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class WhenReady
+public class RunIt
         implements ApplicationListener<ApplicationReadyEvent> {
     private final FooRepository foos;
     private final ANestedTransaction nested;
