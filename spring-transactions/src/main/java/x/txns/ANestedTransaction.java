@@ -11,11 +11,12 @@ import static org.springframework.transaction.annotation.Propagation.NESTED;
 @Component
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class ANestedTransaction {
+    private final FooRepository foos;
     private final Logger logger;
 
     @Transactional(propagation = NESTED)
-    public void undoWrongSave() {
-        logger.warn("FAILING NESTED TRANSACTION");
-        throw new NullPointerException("NOT REALLY NULL");
+    public void undoWrongSave(final FooRecord saved) {
+        saved.id = null;
+        foos.save(saved); // No duplicates
     }
 }

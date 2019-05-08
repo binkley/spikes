@@ -6,8 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationListener;
+import org.springframework.data.relational.core.conversion.DbActionExecutionException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import static java.util.UUID.randomUUID;
+import static org.springframework.core.NestedExceptionUtils.getMostSpecificCause;
 
 @Component
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -21,12 +25,18 @@ public class RunIt
     @Override
     @Transactional
     public void onApplicationEvent(final ApplicationReadyEvent ready) {
-        final var saved = foos.save(new FooRecord(null, "BAR", 3));
+        final var saved = foos.save(new FooRecord(
+                null, randomUUID().toString(), 3));
         logger.info("SAVED: {}", saved);
 
         try {
-            nested.undoWrongSave();
-        } catch (final NullPointerException ignored) {}
+            nested.undoWrongSave(saved);
+        } catch (final DbActionExecutionException e) {
+            logger.warn("FAILING NESTED TRANSACTION: {}",
+                    getMostSpecificCause(e).getMessage());
+        }
+
+        logger.warn("BRAVELY CONTINUED ON");
 
         foos.readAll()
                 .map(FooEvent::new)

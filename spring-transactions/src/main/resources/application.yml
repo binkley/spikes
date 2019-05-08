@@ -1,5 +1,7 @@
 logging:
   level:
+    org.springframework.jdbc.datasource:
+      DataSourceTransactionManager: TRACE
     sql: TRACE
     x.txns: INFO
     root: WARN
