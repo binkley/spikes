@@ -1,5 +1,6 @@
 logging:
   level:
+    sql: TRACE
     x.txns: INFO
     root: WARN
 

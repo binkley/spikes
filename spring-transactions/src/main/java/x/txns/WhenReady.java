@@ -14,14 +14,19 @@ import org.springframework.transaction.annotation.Transactional;
 public class WhenReady
         implements ApplicationListener<ApplicationReadyEvent> {
     private final FooRepository foos;
+    private final ANestedTransaction nested;
     private final ApplicationEventPublisher publisher;
     private final Logger logger;
 
     @Override
     @Transactional
-    public void onApplicationEvent(final ApplicationReadyEvent ignored) {
+    public void onApplicationEvent(final ApplicationReadyEvent ready) {
         final var saved = foos.save(new FooRecord(null, "BAR", 3));
         logger.info("SAVED: {}", saved);
+
+        try {
+            nested.undoWrongSave();
+        } catch (final NullPointerException ignored) {}
 
         foos.readAll()
                 .map(FooEvent::new)
