@@ -36,6 +36,7 @@ dependencies {
     implementation "org.springframework.cloud:spring-cloud-starter-openfeign"
     implementation "org.springframework.cloud:spring-cloud-starter-aws-messaging"
     implementation "io.smartup.localstack:localstack-spring-boot-starter:1.1.1"
+    implementation "org.mockito:mockito-core"
     implementation "org.zalando:logbook-spring-boot-starter"
 
     testImplementation "org.springframework.boot:spring-boot-starter-test"
