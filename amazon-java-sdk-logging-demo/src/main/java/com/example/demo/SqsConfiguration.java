@@ -2,7 +2,7 @@ package com.example.demo;
 
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.auth.AnonymousAWSCredentials;
 import com.amazonaws.http.AmazonHttpClient;
 import com.amazonaws.services.sqs.AmazonSQSAsync;
 import com.amazonaws.services.sqs.AmazonSQSAsyncClient;
@@ -21,7 +21,7 @@ public class SqsConfiguration {
     @Primary
     public AWSCredentialsProvider localStackAwsCredentials() {
         return new AWSStaticCredentialsProvider(
-                new BasicAWSCredentials("foo", "bar"));
+                new AnonymousAWSCredentials());
     }
 
     @Bean
