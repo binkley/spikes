@@ -1,20 +1,8 @@
-cloud:
-  aws:
-    region:
-      static: 'us-east-1'
-    stack:
-      auto: false
-
 feign:
   client:
     config:
       default:
         logger-level: 'FULL'
-
-localstack:
-  enabled: true
-  sqs:
-    enabled: true
 
 logbook:
   format:
