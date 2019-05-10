@@ -11,18 +11,24 @@ version = "0.0.1-SNAPSHOT"
 sourceCompatibility = 11
 targetCompatibility = 11
 
+ext {
+    set("springCloudVersion", "Greenwich.SR1")
+}
+
+ext["assertj.version"] = "3.12.2"
+ext["junit-jupiter.version"] = "5.4.2"
+ext["mockito.version"] = "2.27.0"
+
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
     }
+
+    all*.exclude module: 'junit'
 }
 
 repositories {
     mavenCentral()
-}
-
-ext {
-    set("springCloudVersion", "Greenwich.SR1")
 }
 
 dependencies {
@@ -36,7 +42,15 @@ dependencies {
     implementation "org.springframework.cloud:spring-cloud-starter-openfeign"
     implementation "org.zalando:logbook-spring-boot-starter"
 
+    testAnnotationProcessor "org.projectlombok:lombok"
+
+    testCompileOnly "org.projectlombok:lombok"
+
     testImplementation "org.springframework.boot:spring-boot-starter-test"
+    testImplementation "org.junit.jupiter:junit-jupiter"
+    testImplementation "org.mockito:mockito-core"
+    testImplementation "org.mockito:mockito-junit-jupiter"
+    testImplementation "org.assertj:assertj-core"
 
     runtimeOnly "net.logstash.logback:logstash-logback-encoder:5.3"
 }
