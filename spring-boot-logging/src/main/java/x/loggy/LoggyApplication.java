@@ -4,22 +4,24 @@ import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 
+import java.io.IOError;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 
 import static org.springframework.core.NestedExceptionUtils.getMostSpecificCause;
 
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @SpringBootApplication
-public class LoggyApplication
-        implements CommandLineRunner {
+public class LoggyApplication {
     private final SampleHttpBin happyPath;
     private final NowheresVille sadPath;
     private final NotAThing notFound;
@@ -33,9 +35,8 @@ public class LoggyApplication
         }
     }
 
-    @Override
-    public void run(final String... args)
-            throws IOException, InterruptedException {
+    @EventListener
+    public void ready(final ApplicationReadyEvent event) {
         logger.info("I am in COMMAND");
         logger.debug("And this is json: {\"a\":3}"); // Logged as string
         logger.debug("{\"a\":3}"); // Logged as embedded JSON, not string
@@ -48,7 +49,7 @@ public class LoggyApplication
         final var client = HttpClient.newBuilder()
                 .build();
 
-        final var response = client.send(request, BodyHandlers.ofString());
+        final HttpResponse<String> response = sendOrDie(request, client);
 
         logger.debug("(Really got {} after sending {})", response, request);
         logger.info("{}", response.body());
@@ -77,5 +78,21 @@ public class LoggyApplication
         }
 
         logger.info("BUT IT'S ALRIGHT, IT'S OK, I'M GONNA RUN THAT WAY");
+    }
+
+    private HttpResponse<String> sendOrDie(final HttpRequest request,
+            final HttpClient client) {
+        try {
+            return client.send(request, BodyHandlers.ofString());
+        } catch (final IOException e) {
+            logger.error("SERVER NOT READY? {}",
+                    getMostSpecificCause(e).toString(), e);
+            throw new IOError(e);
+        } catch (final InterruptedException e) {
+            logger.error("INTERRUPTED? {}",
+                    getMostSpecificCause(e).toString(), e);
+            Thread.currentThread().interrupt();
+            return null;
+        }
     }
 }
