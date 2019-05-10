@@ -45,6 +45,10 @@ public class LoggyApplication {
         final var request = HttpRequest.newBuilder()
                 .GET()
                 .uri(URI.create("http://localhost:8080"))
+                .headers(
+                        "X-B3-TraceId", "abcdef0987654321",
+                        "X-B3-SpanId", "abcdef0987654321",
+                        "X-B3-ParentSpanId", "abcdef0987654321")
                 .build();
         final var client = HttpClient.newBuilder()
                 .build();
