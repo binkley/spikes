@@ -8,6 +8,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.style.ToStringCreator;
 
 import java.io.IOError;
 import java.io.IOException;
@@ -39,7 +40,10 @@ public class LoggyApplication {
     @EventListener
     public void ready(final ApplicationReadyEvent event) {
         logger.warn("SIMPLE LOGGING");
-        logger.info("I am in COMMAND");
+        logger.info("I am ready: {}", new ToStringCreator(event)
+                .append("args", event.getArgs())
+                .append("source", event.getSource())
+                .append("timestamp", event.getTimestamp()));
         logger.debug("And this is json: {\"a\":3}"); // Logged as string
         logger.debug("{\"a\":3}"); // Logged as embedded JSON, not string
 
