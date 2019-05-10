@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import java.net.URI;
 
 @FeignClient(name = "happy-path", url = "https://httpbin.org/get")
-public interface SampleHttpBin {
+public interface SampleHttpBinRemote {
     @GetMapping(produces = "application/json")
     Response get();
 

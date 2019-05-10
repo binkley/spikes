@@ -22,9 +22,10 @@ import static org.springframework.core.NestedExceptionUtils.getMostSpecificCause
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @SpringBootApplication
 public class LoggyApplication {
-    private final SampleHttpBin happyPath;
-    private final NowheresVille sadPath;
-    private final NotAThing notFound;
+    private final LoggyRemote loggy;
+    private final SampleHttpBinRemote happyPath;
+    private final NowheresVilleRemote sadPath;
+    private final NotAThingRemote notFound;
     private final Logger logger;
 
     public static void main(final String... args) {
@@ -37,10 +38,12 @@ public class LoggyApplication {
 
     @EventListener
     public void ready(final ApplicationReadyEvent event) {
+        logger.warn("SIMPLE LOGGING");
         logger.info("I am in COMMAND");
         logger.debug("And this is json: {\"a\":3}"); // Logged as string
         logger.debug("{\"a\":3}"); // Logged as embedded JSON, not string
 
+        logger.warn("CALL OURSELVES");
         // Talk to ourselves
         final var request = HttpRequest.newBuilder()
                 .GET()
@@ -58,11 +61,20 @@ public class LoggyApplication {
         logger.debug("(Really got {} after sending {})", response, request);
         logger.info("{}", response.body());
 
+        logger.warn("EXCEPTIONS");
+
         // Show stack trace logging
         final var e = new NullPointerException("OH MY, A NULL POINTER!");
         logger.error("And I fail: {}", e.getMessage(), e);
 
         // Feign
+        logger.warn("FEIGN");
+
+        logger.warn("CALL OURSELVES WITH FEIGN");
+
+        final var loggyResponse = loggy.get();
+        logger.info("We said, {}", loggyResponse);
+
         final var happyFeign = happyPath.get();
         logger.info("He said, {}", happyFeign);
 
@@ -81,7 +93,7 @@ public class LoggyApplication {
                     notFound);
         }
 
-        logger.info("BUT IT'S ALRIGHT, IT'S OK, I'M GONNA RUN THAT WAY");
+        logger.warn("BUT IT'S ALRIGHT, IT'S OK, I'M GONNA RUN THAT WAY");
     }
 
     private HttpResponse<String> sendOrDie(final HttpRequest request,
