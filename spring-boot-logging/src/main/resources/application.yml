@@ -8,6 +8,14 @@ logbook:
   format:
     style: 'http'
 
+logging:
+  level:
+    org.zalando.logbook: TRACE
+    x.loggy: DEBUG
+    root: WARN
+  pattern:
+    dateformat: "yyyy-MM-dd'T'HH:mm:ss.SSSX,UTC"
+
 management:
   endpoints:
     web:
@@ -34,11 +42,6 @@ spring:
 logbook:
   format:
     style: 'json'
-
-logging:
-  level:
-    x.loggy: DEBUG
-    root: INFO
 
 spring:
   output:

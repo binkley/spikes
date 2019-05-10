@@ -1,10 +1,7 @@
+# Just enough to suppress initial Spring Boot messages
 logging:
   level:
-    org.zalando.logbook: TRACE
-    x.loggy: INFO
     root: WARN
-  pattern:
-    dateformat: "yyyy-MM-dd'T'HH:mm:ss.SSSX,UTC"
 
 spring:
   application:
