@@ -27,8 +27,8 @@ import static org.springframework.core.NestedExceptionUtils.getMostSpecificCause
 public class LoggyReadyListener {
     private final LoggyRemote loggy;
     private final SampleHttpBinRemote happyPath;
-    private final NowheresVilleRemote sadPath;
-    private final NotAThingRemote notFound;
+    private final UnknownHostRemote unknownHost;
+    private final NotFoundRemote notFound;
     private final Logger logger;
 
     @EventListener
@@ -77,7 +77,7 @@ public class LoggyReadyListener {
         logger.info("He said, {}", happyFeign);
 
         try {
-            sadPath.get();
+            unknownHost.get();
         } catch (final FeignException ignored) {
             // Already logged by logbook-feign logger
         }
