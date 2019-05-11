@@ -21,7 +21,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @SpringBootTest(properties = {
         "loggy.enabled=false"
 }, webEnvironment = DEFINED_PORT)
-class LoggyApplicationLiveTest {
+class TraceLiveTest {
     private final Clock clock;
     private final LoggyRemote loggy;
     private final NotFoundRemote notFound;
