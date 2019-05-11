@@ -4,7 +4,6 @@ import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -19,7 +18,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 
-import static java.lang.String.format;
 import static org.springframework.core.NestedExceptionUtils.getMostSpecificCause;
 
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -30,9 +28,6 @@ public class LoggyApplication {
     private final NowheresVilleRemote sadPath;
     private final NotAThingRemote notFound;
     private final Logger logger;
-
-    @Value("${server.port}")
-    private int port;
 
     public static void main(final String... args) {
         // FYI -- using the try-block shuts down the program after
@@ -56,7 +51,7 @@ public class LoggyApplication {
         // Talk to ourselves
         final var request = HttpRequest.newBuilder()
                 .GET()
-                .uri(URI.create(format("http://localhost:%d", port)))
+                .uri(URI.create("http://localhost:8080"))
                 .headers(
                         "X-B3-TraceId", "abcdef0987654321",
                         "X-B3-SpanId", "abcdef0987654321",
