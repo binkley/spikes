@@ -10,6 +10,7 @@ logbook:
 
 logging:
   level:
+    com.netflix.config.sources.URLConfigurationSource: ERROR
     org.zalando.logbook: TRACE
     x.loggy: DEBUG
     root: WARN
