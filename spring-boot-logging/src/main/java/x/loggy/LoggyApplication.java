@@ -14,7 +14,7 @@ public class LoggyApplication {
         final var context = SpringApplication.run(
                 LoggyApplication.class, args);
         final var loggy = context.getBean(LoggyProperties.class);
-        if (!loggy.isRunOnce()) {
+        if (loggy.isRunOnce()) {
             context.close();
         }
     }

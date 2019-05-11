@@ -23,9 +23,9 @@ public class TraceResponseFilter
 
     public TraceResponseFilter(final Tracing tracing, final Tracer tracer,
             final Logger logger) {
-        extractor = tracing.propagation().extractor(
-                HttpServletRequest::getHeader);
-        injector = tracing.propagation().injector(
+        final var propagation = tracing.propagation();
+        extractor = propagation.extractor(HttpServletRequest::getHeader);
+        injector = propagation.injector(
                 HttpServletResponse::setHeader);
         this.tracer = tracer;
         this.logger = logger;
@@ -35,20 +35,20 @@ public class TraceResponseFilter
     public void doFilterInternal(final HttpServletRequest request,
             final HttpServletResponse response, final FilterChain chain)
             throws IOException, ServletException {
-        // First, so Spring Cloud bits can setup Sleuth
-        chain.doFilter(request, response);
+        final var currentContext = currentContext();
+        injector.inject(currentContext, response);
 
-        injector.inject(currentContext(), response);
+        chain.doFilter(request, response);
     }
 
     private TraceContext currentContext() {
         var currentSpan = tracer.currentSpan();
-        if (null != currentSpan) {
+        if (null == currentSpan) {
+            currentSpan = tracer.newTrace();
+            logger.trace("No current tracing span; created: {}", currentSpan);
+        } else {
             logger.trace("Current tracing span: {}", currentSpan);
-            return currentSpan.context();
         }
-        currentSpan = tracer.newTrace();
-        logger.trace("No current span; created: {}", currentSpan);
         return currentSpan.context();
     }
 }

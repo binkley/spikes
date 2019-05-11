@@ -47,9 +47,11 @@ public class TraceRequestInterceptor
         injector.inject(compoundContext, template);
     }
 
-    private static TraceContext compoundContext(
+    private TraceContext compoundContext(
             final TraceContext currentContext,
             final TraceContextOrSamplingFlags extraction) {
+        logger.trace("Current context: {}", currentContext);
+        logger.trace("Extracted context: {}", extraction);
         return TraceContext.newBuilder()
                 .debug(currentContext.debug())
                 .parentId(currentContext.parentId())
@@ -61,12 +63,12 @@ public class TraceRequestInterceptor
 
     private TraceContext currentContext() {
         var currentSpan = tracer.currentSpan();
-        if (null != currentSpan) {
+        if (null == currentSpan) {
+            currentSpan = tracer.newTrace();
+            logger.trace("No current tracing span; created: {}", currentSpan);
+        } else {
             logger.trace("Current tracing span: {}", currentSpan);
-            return currentSpan.context();
         }
-        currentSpan = tracer.newTrace();
-        logger.trace("No current span; created: {}", currentSpan);
         return currentSpan.context();
     }
 
