@@ -5,7 +5,6 @@ import brave.Tracing;
 import brave.propagation.TraceContext;
 import brave.propagation.TraceContext.Extractor;
 import brave.propagation.TraceContext.Injector;
-import brave.propagation.TraceContextOrSamplingFlags;
 import org.slf4j.Logger;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -39,23 +38,7 @@ public class TraceResponseFilter
         // First, so Spring Cloud bits can setup Sleuth
         chain.doFilter(request, response);
 
-        final var compoundContext = compoundContext(
-                currentContext(),
-                extractor.extract(request));
-
-        injector.inject(compoundContext, response);
-    }
-
-    private static TraceContext compoundContext(
-            final TraceContext currentContext,
-            final TraceContextOrSamplingFlags extraction) {
-        return TraceContext.newBuilder()
-                .debug(currentContext.debug())
-                .parentId(currentContext.parentId())
-                .sampled(currentContext.sampled())
-                .spanId(currentContext.spanId())
-                .traceId(workingTraceId(extraction, currentContext))
-                .build();
+        injector.inject(currentContext(), response);
     }
 
     private TraceContext currentContext() {
@@ -67,14 +50,5 @@ public class TraceResponseFilter
         currentSpan = tracer.newTrace();
         logger.trace("No current span; created: {}", currentSpan);
         return currentSpan.context();
-    }
-
-    private static long workingTraceId(
-            final TraceContextOrSamplingFlags extraction,
-            final TraceContext currentContext) {
-        final TraceContext requestContext = extraction.context();
-        return null == requestContext
-                ? currentContext.traceId()
-                : requestContext.traceId();
     }
 }
