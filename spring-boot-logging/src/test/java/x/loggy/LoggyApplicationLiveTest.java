@@ -2,6 +2,7 @@ package x.loggy;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -25,6 +26,10 @@ class LoggyApplicationLiveTest {
 
     @Test
     void shouldSendTracingThroughFeign() {
+        MDC.put("X-B3-TraceId", "abcdef0987654321");
+        MDC.put("X-B3-SpanId", "abcdef0987654321");
+        MDC.put("X-B3-ParentSpanId", "abcdef0987654321");
+
         final var response = loggy.get();
 
         assertThat(response).isEqualTo(
