@@ -60,6 +60,27 @@ class TraceLiveTest {
     }
 
     @Test
+    void shouldTraceIfClientOmits()
+            throws IOException, InterruptedException {
+        final var request = HttpRequest.newBuilder()
+                .GET()
+                .uri(URI.create("http://localhost:8080/direct"))
+                .build();
+        final var client = HttpClient.newBuilder()
+                .build();
+
+        final var response = client.send(request, BodyHandlers.ofString());
+
+        final var extractor = tracing.propagation()
+                .extractor((HttpHeaders h, String key) ->
+                        h.firstValue(key).orElse(null));
+        final var extraction = extractor.extract(response.headers());
+
+        assertThat(extraction.context().traceIdString())
+                .isNotNull();
+    }
+
+    @Test
     void shouldSendTracingThroughFeignDirect() {
         MDC.put("X-B3-TraceId", "abcdef0987654321");
         MDC.put("X-B3-SpanId", "abcdef0987654321");
