@@ -44,7 +44,7 @@ public class LoggyReadyListener {
         // Talk to ourselves
         final var request = HttpRequest.newBuilder()
                 .GET()
-                .uri(URI.create("http://localhost:8080"))
+                .uri(URI.create("http://localhost:8080/direct"))
                 .headers(
                         "X-B3-TraceId", "abcdef0987654321",
                         "X-B3-SpanId", "abcdef0987654321",

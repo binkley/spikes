@@ -17,7 +17,7 @@ public class LoggyController {
     private final Clock clock;
     private final Logger logger;
 
-    @GetMapping
+    @GetMapping("direct")
     public LoggyResponse get() {
         logger.info("INTER THE WEBS");
         return new LoggyResponse("HI, MOM!", 22, Instant.now(clock));
