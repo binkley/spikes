@@ -74,7 +74,7 @@ public class LoggyDemo {
 
         logger.warn("CALL OURSELVES WITH FEIGN THROUGH FEIGN");
 
-        final var indirect = loggy.getFeignish();
+        final var indirect = loggy.getIndirect();
         logger.info("We said, {}", indirect);
 
         final var loggyResponse = loggy.getDirect();

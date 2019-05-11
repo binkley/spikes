@@ -27,12 +27,24 @@ class TraceLiveTest {
     private final NotFoundRemote notFound;
 
     @Test
-    void shouldSendTracingThroughFeign() {
+    void shouldSendTracingThroughFeignDirect() {
         MDC.put("X-B3-TraceId", "abcdef0987654321");
         MDC.put("X-B3-SpanId", "abcdef0987654321");
         MDC.put("X-B3-ParentSpanId", "abcdef0987654321");
 
         final var response = loggy.getDirect();
+
+        assertThat(response).isEqualTo(
+                new LoggyResponse("HI, MOM!", 22, Instant.now(clock)));
+    }
+
+    @Test
+    void shouldSendTracingThroughFeignIndirect() {
+        MDC.put("X-B3-TraceId", "abcdef0987654321");
+        MDC.put("X-B3-SpanId", "abcdef0987654321");
+        MDC.put("X-B3-ParentSpanId", "abcdef0987654321");
+
+        final var response = loggy.getIndirect();
 
         assertThat(response).isEqualTo(
                 new LoggyResponse("HI, MOM!", 22, Instant.now(clock)));

@@ -8,6 +8,6 @@ public interface LoggyRemote {
     @GetMapping(path = "direct", produces = "application/json")
     LoggyResponse getDirect();
 
-    @GetMapping(path = "feignish", produces = "application/json")
-    LoggyResponse getFeignish();
+    @GetMapping(path = "indirect", produces = "application/json")
+    LoggyResponse getIndirect();
 }

@@ -24,8 +24,8 @@ public class LoggyController {
         return new LoggyResponse("HI, MOM!", 22, Instant.now(clock));
     }
 
-    @GetMapping("feignish")
-    public LoggyResponse getFeignish() {
+    @GetMapping("indirect")
+    public LoggyResponse getIndirect() {
         logger.info("INTER THE FEIGNEY WEBS");
         return loggy.getDirect();
     }
