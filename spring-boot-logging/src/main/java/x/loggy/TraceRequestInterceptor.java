@@ -8,6 +8,7 @@ import brave.propagation.TraceContext.Injector;
 import brave.propagation.TraceContextOrSamplingFlags;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
+import org.slf4j.Logger;
 import org.slf4j.MDC;
 import org.slf4j.spi.MDCAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,15 +22,17 @@ public class TraceRequestInterceptor
     private final Tracer tracer;
     private final Extractor<MDCAdapter> extractor;
     private final Injector<RequestTemplate> injector;
+    private final Logger logger;
 
     @Autowired
     public TraceRequestInterceptor(final Tracing tracing,
-            final Tracer tracer) {
+            final Tracer tracer, final Logger logger) {
         extractor = tracing.propagation().extractor(
                 (mdc, key) -> MDC.get(key));
         injector = tracing.propagation().injector(
                 RequestTemplate::header);
         this.tracer = tracer;
+        this.logger = logger;
     }
 
     @Override
@@ -38,7 +41,7 @@ public class TraceRequestInterceptor
         template.header("User-Agent", getClass().getName());
 
         final var compoundContext = compoundContext(
-                currentContext(tracer),
+                currentContext(),
                 extractor.extract(getMDCAdapter()));
 
         injector.inject(compoundContext, template);
@@ -56,11 +59,15 @@ public class TraceRequestInterceptor
                 .build();
     }
 
-    private static TraceContext currentContext(final Tracer tracer) {
-        final var currentSpan = tracer.currentSpan();
-        return null == currentSpan
-                ? tracer.newTrace().context()
-                : currentSpan.context();
+    private TraceContext currentContext() {
+        var currentSpan = tracer.currentSpan();
+        if (null != currentSpan) {
+            logger.trace("Current tracing span: {}", currentSpan);
+            return currentSpan.context();
+        }
+        currentSpan = tracer.newTrace();
+        logger.trace("No current span; created: {}", currentSpan);
+        return currentSpan.context();
     }
 
     private static long workingTraceId(
