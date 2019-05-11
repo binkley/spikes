@@ -11,8 +11,11 @@ public class LoggyApplication {
     public static void main(final String... args) {
         // FYI -- using the try-block shuts down the program after
         // the command-line runner finishes: Faster feedback cycle
-        try (final var ignored = SpringApplication
-                .run(LoggyApplication.class, args)) {
+        final var context = SpringApplication.run(
+                LoggyApplication.class, args);
+        final var loggy = context.getBean(LoggyProperties.class);
+        if (!loggy.isRunOnce()) {
+            context.close();
         }
     }
 }

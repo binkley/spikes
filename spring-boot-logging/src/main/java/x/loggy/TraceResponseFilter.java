@@ -39,17 +39,8 @@ public class TraceResponseFilter
         // First, so Spring Cloud bits can setup Sleuth
         chain.doFilter(request, response);
 
-        final var currentSpan = tracer.currentSpan();
-        if (null == currentSpan) {
-            logger.trace("No current tracing span");
-            chain.doFilter(request, response);
-            return;
-        } else {
-            logger.trace("Current tracing span: {}", currentSpan);
-        }
-
         final var compoundContext = compoundContext(
-                currentSpan.context(),
+                currentContext(),
                 extractor.extract(request));
 
         injector.inject(compoundContext, response);
@@ -65,6 +56,17 @@ public class TraceResponseFilter
                 .spanId(currentContext.spanId())
                 .traceId(workingTraceId(extraction, currentContext))
                 .build();
+    }
+
+    private TraceContext currentContext() {
+        var currentSpan = tracer.currentSpan();
+        if (null != currentSpan) {
+            logger.trace("Current tracing span: {}", currentSpan);
+            return currentSpan.context();
+        }
+        currentSpan = tracer.newTrace();
+        logger.trace("No current span; created: {}", currentSpan);
+        return currentSpan.context();
     }
 
     private static long workingTraceId(

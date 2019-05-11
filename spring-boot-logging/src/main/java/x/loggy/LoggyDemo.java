@@ -21,7 +21,7 @@ import java.net.http.HttpResponse.BodyHandlers;
 import static org.springframework.core.NestedExceptionUtils.getMostSpecificCause;
 
 @Component
-@ConditionalOnProperty(prefix = "loggy", name = "enabled")
+@ConditionalOnProperty(prefix = "loggy", name = "enable-demo")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class LoggyDemo {
     private final LoggyRemote loggy;

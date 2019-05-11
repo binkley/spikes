@@ -6,5 +6,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties("loggy")
 @Data
 public class LoggyProperties {
-    private boolean enabled;
+    private boolean enableDemo;
+    private boolean runOnce;
 }

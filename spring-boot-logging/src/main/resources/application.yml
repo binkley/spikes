@@ -18,7 +18,8 @@ logging:
     dateformat: "yyyy-MM-dd'T'HH:mm:ss.SSSX,UTC"
 
 loggy:
-  enabled: true
+  enable-demo: true
+  run-once: true
 
 management:
   endpoints:
