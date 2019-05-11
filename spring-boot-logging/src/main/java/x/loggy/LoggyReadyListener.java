@@ -26,7 +26,6 @@ import static org.springframework.core.NestedExceptionUtils.getMostSpecificCause
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class LoggyReadyListener {
     private final LoggyRemote loggy;
-    private final SampleHttpBinRemote happyPath;
     private final UnknownHostRemote unknownHost;
     private final NotFoundRemote notFound;
     private final Logger logger;
@@ -72,9 +71,6 @@ public class LoggyReadyListener {
 
         final var loggyResponse = loggy.get();
         logger.info("We said, {}", loggyResponse);
-
-        final var happyFeign = happyPath.get();
-        logger.info("He said, {}", happyFeign);
 
         try {
             unknownHost.get();
