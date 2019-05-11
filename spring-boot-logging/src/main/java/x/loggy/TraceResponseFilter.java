@@ -36,6 +36,9 @@ public class TraceResponseFilter
     public void doFilterInternal(final HttpServletRequest request,
             final HttpServletResponse response, final FilterChain chain)
             throws IOException, ServletException {
+        // First, so Spring Cloud bits can setup Sleuth
+        chain.doFilter(request, response);
+
         final var currentSpan = tracer.currentSpan();
         if (null == currentSpan) {
             logger.trace("No current tracing span");
@@ -48,8 +51,6 @@ public class TraceResponseFilter
         final var compoundContext = compoundContext(
                 currentSpan.context(),
                 extractor.extract(request));
-
-        chain.doFilter(request, response);
 
         injector.inject(compoundContext, response);
     }
