@@ -16,7 +16,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.DEFINED_PORT;
 
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-@SpringBootTest(webEnvironment = DEFINED_PORT)
+@SpringBootTest(properties = {
+        "loggy.enabled=false"
+}, webEnvironment = DEFINED_PORT)
 class LoggyApplicationLiveTest {
     private final Clock clock;
     private final LoggyRemote loggy;

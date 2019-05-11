@@ -4,6 +4,7 @@ import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.style.ToStringCreator;
@@ -20,6 +21,8 @@ import java.net.http.HttpResponse.BodyHandlers;
 import static org.springframework.core.NestedExceptionUtils.getMostSpecificCause;
 
 @Component
+@ConditionalOnProperty(
+        prefix = "loggy", name = "enabled", matchIfMissing = true)
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class LoggyReadyListener {
     private final LoggyRemote loggy;
