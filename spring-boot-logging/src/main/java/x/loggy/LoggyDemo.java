@@ -24,7 +24,7 @@ import static org.springframework.core.NestedExceptionUtils.getMostSpecificCause
 @ConditionalOnProperty(
         prefix = "loggy", name = "enabled", matchIfMissing = true)
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class LoggyReadyListener {
+public class LoggyDemo {
     private final LoggyRemote loggy;
     private final UnknownHostRemote unknownHost;
     private final NotFoundRemote notFound;
@@ -67,9 +67,17 @@ public class LoggyReadyListener {
         // Feign
         logger.warn("FEIGN");
 
-        logger.warn("CALL OURSELVES WITH FEIGN");
+        logger.warn("CALL OURSELVES WITH FEIGN DIRECT");
 
-        final var loggyResponse = loggy.get();
+        final var direct = loggy.getDirect();
+        logger.info("We said, {}", direct);
+
+        logger.warn("CALL OURSELVES WITH FEIGN THROUGH FEIGN");
+
+        final var indirect = loggy.getFeignish();
+        logger.info("We said, {}", indirect);
+
+        final var loggyResponse = loggy.getDirect();
         logger.info("We said, {}", loggyResponse);
 
         try {

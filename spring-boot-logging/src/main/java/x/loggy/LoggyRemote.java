@@ -6,5 +6,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 @FeignClient(name = "loggy", url = "http://localhost:8080")
 public interface LoggyRemote {
     @GetMapping(path = "direct", produces = "application/json")
-    LoggyResponse get();
+    LoggyResponse getDirect();
+
+    @GetMapping(path = "feignish", produces = "application/json")
+    LoggyResponse getFeignish();
 }

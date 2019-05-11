@@ -15,11 +15,18 @@ import java.time.Instant;
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class LoggyController {
     private final Clock clock;
+    private final LoggyRemote loggy;
     private final Logger logger;
 
     @GetMapping("direct")
-    public LoggyResponse get() {
-        logger.info("INTER THE WEBS");
+    public LoggyResponse getDirect() {
+        logger.info("INTER THE DIRECT WEBS");
         return new LoggyResponse("HI, MOM!", 22, Instant.now(clock));
+    }
+
+    @GetMapping("feignish")
+    public LoggyResponse getFeignish() {
+        logger.info("INTER THE FEIGNEY WEBS");
+        return loggy.getDirect();
     }
 }

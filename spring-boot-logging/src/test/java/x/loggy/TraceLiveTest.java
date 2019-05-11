@@ -32,7 +32,7 @@ class TraceLiveTest {
         MDC.put("X-B3-SpanId", "abcdef0987654321");
         MDC.put("X-B3-ParentSpanId", "abcdef0987654321");
 
-        final var response = loggy.get();
+        final var response = loggy.getDirect();
 
         assertThat(response).isEqualTo(
                 new LoggyResponse("HI, MOM!", 22, Instant.now(clock)));
