@@ -42,9 +42,8 @@ public class LogbookTesting {
             return findTraceIdHeader(logMessage)
                     .map(Entry::getValue)
                     .map(values -> {
-                        assertThat(values)
-                                .withFailMessage(
-                                        "Malformed X-B3-TraceId header")
+                        assertThat(values).withFailMessage(
+                                "Malformed X-B3-TraceId header")
                                 .hasSize(1);
                         return values.get(0);
                     })
