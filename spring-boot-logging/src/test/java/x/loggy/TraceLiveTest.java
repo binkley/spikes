@@ -42,7 +42,7 @@ class TraceLiveTest {
     private final Clock clock;
     private final Tracing tracing;
 
-    private final LogbookTesting logbookTesting;
+    private final TracingTesting tracingTesting;
 
     @MockBean(name = "logger")
     private Logger logger;
@@ -87,7 +87,7 @@ class TraceLiveTest {
         assertThat(extraction.context().traceIdString())
                 .isEqualTo(traceId);
 
-        logbookTesting.assertExchange(traceId, true);
+        tracingTesting.assertExchange(traceId, true);
     }
 
     @Test
@@ -111,7 +111,7 @@ class TraceLiveTest {
                 .withFailMessage("Missing X-B3-TraceId header")
                 .isNotNull();
 
-        logbookTesting.assertExchange(null, true);
+        tracingTesting.assertExchange(null, true);
     }
 
     @Test
@@ -125,7 +125,7 @@ class TraceLiveTest {
         assertThat(response).isEqualTo(
                 new LoggyResponse("HI, MOM!", 22, Instant.now(clock)));
 
-        logbookTesting.assertExchange(traceId, false);
+        tracingTesting.assertExchange(traceId, false);
     }
 
     @Test
@@ -135,7 +135,7 @@ class TraceLiveTest {
         assertThat(response).isEqualTo(
                 new LoggyResponse("HI, MOM!", 22, Instant.now(clock)));
 
-        logbookTesting.assertExchange(traceId, false);
+        tracingTesting.assertExchange(traceId, false);
     }
 
     @Test
@@ -149,7 +149,7 @@ class TraceLiveTest {
         assertThat(response).isEqualTo(
                 new LoggyResponse("HI, MOM!", 22, Instant.now(clock)));
 
-        logbookTesting.assertExchange(traceId, false);
+        tracingTesting.assertExchange(traceId, false);
     }
 
     @Test
@@ -159,7 +159,7 @@ class TraceLiveTest {
         assertThat(response).isEqualTo(
                 new LoggyResponse("HI, MOM!", 22, Instant.now(clock)));
 
-        logbookTesting.assertExchange(traceId, false);
+        tracingTesting.assertExchange(traceId, false);
     }
 
     @Test
@@ -171,7 +171,7 @@ class TraceLiveTest {
         assertThatThrownBy(notFound::get)
                 .hasFieldOrPropertyWithValue("status", 404);
 
-        logbookTesting.assertExchange(traceId, false);
+        tracingTesting.assertExchange(traceId, false);
     }
 
     @Test
@@ -179,7 +179,7 @@ class TraceLiveTest {
         assertThatThrownBy(notFound::get)
                 .hasFieldOrPropertyWithValue("status", 404);
 
-        logbookTesting.assertExchange(traceId, false);
+        tracingTesting.assertExchange(traceId, false);
     }
 
     @TestConfiguration
