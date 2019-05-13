@@ -22,8 +22,7 @@ public class TraceResponseFilter
     public TraceResponseFilter(final Tracing tracing, final Tracer tracer,
             final Logger logger) {
         final var propagation = tracing.propagation();
-        injector = propagation.injector(
-                HttpServletResponse::setHeader);
+        injector = propagation.injector(HttpServletResponse::setHeader);
         this.tracer = tracer;
         this.logger = logger;
     }
@@ -32,8 +31,7 @@ public class TraceResponseFilter
     public void doFilterInternal(final HttpServletRequest request,
             final HttpServletResponse response, final FilterChain chain)
             throws IOException, ServletException {
-        final var currentContext = currentContext();
-        injector.inject(currentContext, response);
+        injector.inject(currentContext(), response);
 
         chain.doFilter(request, response);
     }

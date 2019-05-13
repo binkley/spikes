@@ -66,21 +66,17 @@ public class TracingTesting {
 
             if (startsRemote) {
                 final var firstTrace = httpTraceOf(allLogMessages.get(0));
-                assertOrigin(firstTrace);
                 if (maybeTraceHeader(firstTrace).isPresent()) {
                     fail("Unexpected X-B3-TraceId header");
                 }
 
-                final var secondTrace = httpTraceOf(allLogMessages.get(1));
-                assertOrigin(secondTrace);
-                expectedTraceId = traceIdOf(secondTrace);
+                expectedTraceId = traceIdOf(httpTraceOf(
+                        allLogMessages.get(1)));
                 logMessages = allLogMessages.subList(
                         2, allLogMessages.size());
             } else {
-                final var firstTrace = httpTraceOf(allLogMessages.get(0));
-                assertOrigin(firstTrace);
-
-                expectedTraceId = traceIdOf(firstTrace);
+                expectedTraceId = traceIdOf(httpTraceOf(
+                        allLogMessages.get(0)));
                 logMessages = allLogMessages.subList(
                         1, allLogMessages.size());
             }
@@ -88,10 +84,28 @@ public class TracingTesting {
 
         private HttpTrace httpTraceOf(final String logMessage) {
             try {
-                return objectMapper.readValue(logMessage, HttpTrace.class);
+                final var trace = objectMapper.readValue(
+                        logMessage, HttpTrace.class);
+                assertOrigin(trace);
+                return trace;
             } catch (final IOException e) {
                 throw new IOError(e);
             }
+        }
+
+        private Optional<Entry<String, List<String>>> maybeTraceHeader(
+                final HttpTrace trace) {
+            return trace.getHeaders().entrySet().stream()
+                    .filter(e -> e.getKey().equalsIgnoreCase("x-b3-traceid"))
+                    .findFirst();
+        }
+
+        private String traceIdOf(final HttpTrace trace) {
+            return maybeTraceHeader(trace)
+                    .map(Entry::getValue)
+                    .map(this::firstOf)
+                    .orElseThrow(() -> new AssertionError(
+                            "Missing X-B3-TraceId header"));
         }
 
         private void assertOrigin(final HttpTrace trace) {
@@ -111,21 +125,6 @@ public class TracingTesting {
             remoteOrLocal.set(!remote);
         }
 
-        private Optional<Entry<String, List<String>>> maybeTraceHeader(
-                final HttpTrace trace) {
-            return trace.getHeaders().entrySet().stream()
-                    .filter(e -> e.getKey().equalsIgnoreCase("x-b3-traceid"))
-                    .findFirst();
-        }
-
-        private String traceIdOf(final HttpTrace trace) {
-            return maybeTraceHeader(trace)
-                    .map(Entry::getValue)
-                    .map(this::firstOf)
-                    .orElseThrow(() -> new AssertionError(
-                            "Missing X-B3-TraceId header"));
-        }
-
         private String firstOf(final List<String> values) {
             assertThat(values)
                     .withFailMessage("Malformed X-B3-TraceId header")
@@ -134,11 +133,7 @@ public class TracingTesting {
         }
 
         private void assertExchange() {
-            for (final var logMessage : logMessages) {
-                final var trace = httpTraceOf(logMessage);
-                assertOrigin(trace);
-                assertTraceId(trace);
-            }
+            logMessages.forEach(it -> assertTraceId(httpTraceOf(it)));
         }
 
         private void assertTraceId(final HttpTrace trace) {
