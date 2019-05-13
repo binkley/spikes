@@ -40,7 +40,7 @@ public class LoggyDemo {
         logger.debug("{\"a\":3}"); // Logged as embedded JSON, not string
 
         logger.warn("CALL OURSELVES");
-        // Talk to ourselves
+
         final var request = HttpRequest.newBuilder()
                 .GET()
                 .uri(URI.create("http://localhost:8080/direct"))
@@ -54,8 +54,8 @@ public class LoggyDemo {
 
         final HttpResponse<String> response = sendOrDie(request, client);
 
-        logger.debug("(Really got {} after sending {})", response, request);
         logger.info("{}", response.body());
+        logger.debug("(Really got {} after sending {})", response, request);
 
         logger.warn("EXCEPTIONS");
 
@@ -69,15 +69,15 @@ public class LoggyDemo {
         logger.warn("CALL OURSELVES WITH FEIGN DIRECT");
 
         final var direct = loggy.getDirect();
-        logger.info("We said, {}", direct);
+        logger.info("{}", direct);
 
         logger.warn("CALL OURSELVES WITH FEIGN THROUGH FEIGN");
 
         final var indirect = loggy.getIndirect();
-        logger.info("We said, {}", indirect);
+        logger.info("{}", indirect);
 
         final var loggyResponse = loggy.getDirect();
-        logger.info("We said, {}", loggyResponse);
+        logger.info("{}", loggyResponse);
 
         try {
             notFound.get();
