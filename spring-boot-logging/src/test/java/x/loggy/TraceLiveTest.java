@@ -64,7 +64,7 @@ class TraceLiveTest {
     }
 
     @Test
-    void shouldTraceIfClientProvides()
+    void shouldTraceDirectlyIfClientProvides()
             throws IOException, InterruptedException {
         final var request = HttpRequest.newBuilder()
                 .GET()
@@ -91,11 +91,62 @@ class TraceLiveTest {
     }
 
     @Test
-    void shouldTraceIfClientOmits()
+    void shouldTraceDirectlyIfClientOmits()
             throws IOException, InterruptedException {
         final var request = HttpRequest.newBuilder()
                 .GET()
                 .uri(URI.create("http://localhost:8080/direct"))
+                .build();
+        final var client = HttpClient.newBuilder()
+                .build();
+
+        final var response = client.send(request, BodyHandlers.ofString());
+
+        final var extractor = tracing.propagation()
+                .extractor((HttpHeaders h, String key) ->
+                        h.firstValue(key).orElse(null));
+        final var extraction = extractor.extract(response.headers());
+
+        assertThat(extraction.context().traceIdString())
+                .withFailMessage("Missing X-B3-TraceId header")
+                .isNotNull();
+
+        tracingTesting.assertExchange(null, true);
+    }
+
+    @Test
+    void shouldTraceIndirectlyIfClientProvides()
+            throws IOException, InterruptedException {
+        final var request = HttpRequest.newBuilder()
+                .GET()
+                .uri(URI.create("http://localhost:8080/indirect"))
+                .headers(
+                        "X-B3-TraceId", traceId,
+                        "X-B3-SpanId", traceId,
+                        "X-B3-ParentSpanId", traceId)
+                .build();
+        final var client = HttpClient.newBuilder()
+                .build();
+
+        final var response = client.send(request, BodyHandlers.ofString());
+
+        final var extractor = tracing.propagation()
+                .extractor((HttpHeaders h, String key) ->
+                        h.firstValue(key).orElse(null));
+        final var extraction = extractor.extract(response.headers());
+
+        assertThat(extraction.context().traceIdString())
+                .isEqualTo(traceId);
+
+        tracingTesting.assertExchange(traceId, true);
+    }
+
+    @Test
+    void shouldTraceIndirectlyIfClientOmits()
+            throws IOException, InterruptedException {
+        final var request = HttpRequest.newBuilder()
+                .GET()
+                .uri(URI.create("http://localhost:8080/indirect"))
                 .build();
         final var client = HttpClient.newBuilder()
                 .build();
