@@ -32,6 +32,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @ActiveProfiles("json")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @SpringBootTest(properties = {
+        "logging.level.x.loggy=WARN",
         "loggy.enable-demo=false"
 }, webEnvironment = DEFINED_PORT)
 class TraceLiveTest {
