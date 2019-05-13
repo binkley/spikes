@@ -25,6 +25,9 @@ General:
 * UTC timestamps
 * Controller and Feign logging with Logbook
 * Sleuth tracing through controllers and Feign, including responses
+* Problem RFC responses and logging
+  - Constraint violations respond with 422 status (no examples)
+  - Feign exceptions respond with 502 status (one example)
 
 Local development:
 
