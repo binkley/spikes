@@ -33,7 +33,7 @@ import static lombok.AccessLevel.PROTECTED;
 import static org.apache.http.HttpVersion.HTTP_1_1;
 
 @RequiredArgsConstructor(access = PROTECTED)
-public class LogbookFeignLogger
+public abstract class LogbookFeignLogger
         extends feign.Logger {
     private static final ThreadLocal<HttpContext> threadLocal
             = new ThreadLocal<>();

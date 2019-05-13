@@ -2,7 +2,6 @@ package x.loggy;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import org.mockito.ArgumentCaptor;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +10,6 @@ import org.springframework.stereotype.Component;
 import java.io.IOError;
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -29,17 +27,10 @@ public class AssertionsForTracingLogs {
 
     void assertExchange(
             final String existingTraceId, final boolean startsRemote) {
-        if (null == existingTraceId)
-            new AssertionSetup(startsRemote).assertExchange();
-        else
-            new AssertionSetup(existingTraceId, startsRemote)
-                    .assertExchange();
-    }
-
-    @Value
-    private static final class HttpTrace {
-        String origin;
-        Map<String, List<String>> headers;
+        final var setup = null == existingTraceId
+                ? new AssertionSetup(startsRemote)
+                : new AssertionSetup(existingTraceId, startsRemote);
+        setup.assertExchange();
     }
 
     private final class AssertionSetup {
@@ -64,13 +55,13 @@ public class AssertionsForTracingLogs {
             remoteOrLocal = new AtomicBoolean(startsRemote);
 
             final var allLogMessages = allLogMessages();
-            final int at = beginAssertingTraceIdAt(
+            final int beginAssertingTraceIdAt = beginAssertingTraceIdAt(
                     startsRemote, allLogMessages);
 
             expectedTraceId = traceIdOf(httpTraceOf(
-                    allLogMessages.get(at)));
+                    allLogMessages.get(beginAssertingTraceIdAt)));
             logMessages = allLogMessages.subList(
-                    at + 1, allLogMessages.size());
+                    beginAssertingTraceIdAt + 1, allLogMessages.size());
         }
 
         private int beginAssertingTraceIdAt(final boolean startsRemote,
