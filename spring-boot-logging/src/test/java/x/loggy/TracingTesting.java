@@ -55,7 +55,7 @@ public class TracingTesting {
 
         private List<String> allLogMessages() {
             final var captured = ArgumentCaptor.forClass(String.class);
-            verify(httpLogger, atLeast(2)).trace(captured.capture());
+            verify(httpLogger, atLeast(1)).trace(captured.capture());
             return captured.getAllValues();
         }
 

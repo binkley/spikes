@@ -39,6 +39,7 @@ class TraceLiveTest {
 
     private final LoggyRemote loggy;
     private final NotFoundRemote notFound;
+    private final UnknownHostRemote unknownHost;
     private final Clock clock;
     private final Tracing tracing;
 
@@ -231,6 +232,26 @@ class TraceLiveTest {
     void shouldHandleNotFoundIfClientOmits() {
         assertThatThrownBy(notFound::get)
                 .hasFieldOrPropertyWithValue("status", 404);
+
+        tracingTesting.assertExchange(null, false);
+    }
+
+    @Test
+    void shouldHandleUnknownHostIfClientProvides() {
+        MDC.put("X-B3-TraceId", traceId);
+        MDC.put("X-B3-SpanId", traceId);
+        MDC.put("X-B3-ParentSpanId", traceId);
+
+        assertThatThrownBy(unknownHost::get)
+                .hasFieldOrPropertyWithValue("status", 0);
+
+        tracingTesting.assertExchange(traceId, false);
+    }
+
+    @Test
+    void shouldHandleUnknownHostIfClientOmits() {
+        assertThatThrownBy(unknownHost::get)
+                .hasFieldOrPropertyWithValue("status", 0);
 
         tracingTesting.assertExchange(null, false);
     }
