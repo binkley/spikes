@@ -109,9 +109,7 @@ public class AssertionsForTracingLogs {
             final var traceId = traceIdOf(trace);
 
             assertThat(traceId).withFailMessage(
-                    "Wrong X-B3-TraceId header;"
-                            + "%nExpected: <%s> but was:<%s>",
-                    expectedTraceId, traceId)
+                    "Wrong X-B3-TraceId header")
                     .isEqualTo(expectedTraceId);
         }
 
@@ -139,13 +137,11 @@ public class AssertionsForTracingLogs {
 
             if (remote)
                 assertThat(trace.getOrigin())
-                        .withFailMessage("Wrong origin;"
-                                + "%nExpected: <remote> but was:<local>")
+                        .withFailMessage("Wrong origin")
                         .isEqualTo("remote");
             else
                 assertThat(trace.getOrigin())
-                        .withFailMessage("Wrong origin;"
-                                + "%nExpected: <local> but was:<remote>")
+                        .withFailMessage("Wrong origin")
                         .isEqualTo("local");
 
             remoteOrLocal.set(!remote);
