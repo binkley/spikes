@@ -28,11 +28,11 @@ public class TracingTesting {
     private final ObjectMapper objectMapper;
 
     void assertExchange(
-            final String firstTraceId, final boolean startsRemote) {
-        if (null == firstTraceId)
+            final String knownTraceId, final boolean startsRemote) {
+        if (null == knownTraceId)
             new AssertionSetup(startsRemote).assertExchange();
         else
-            new AssertionSetup(firstTraceId, startsRemote).assertExchange();
+            new AssertionSetup(knownTraceId, startsRemote).assertExchange();
     }
 
     @Value
@@ -47,9 +47,9 @@ public class TracingTesting {
         private final List<String> logMessages;
 
         private AssertionSetup(
-                final String firstTraceId, final boolean startsRemote) {
+                final String knownTraceId, final boolean startsRemote) {
             remoteOrLocal = new AtomicBoolean(startsRemote);
-            expectedTraceId = firstTraceId;
+            expectedTraceId = knownTraceId;
             logMessages = allLogMessages();
         }
 
@@ -64,14 +64,26 @@ public class TracingTesting {
 
             final var allLogMessages = allLogMessages();
 
-            final var firstTrace = httpTraceOf(allLogMessages.get(0));
-            if (maybeTraceHeader(firstTrace).isPresent()) {
-                fail("Unexpected X-B3-TraceId header");
-            }
+            if (startsRemote) {
+                final var firstTrace = httpTraceOf(allLogMessages.get(0));
+                assertOrigin(firstTrace);
+                if (maybeTraceHeader(firstTrace).isPresent()) {
+                    fail("Unexpected X-B3-TraceId header");
+                }
 
-            final var secondTrace = httpTraceOf(allLogMessages.get(1));
-            expectedTraceId = traceIdOf(secondTrace);
-            logMessages = allLogMessages.subList(2, allLogMessages.size());
+                final var secondTrace = httpTraceOf(allLogMessages.get(1));
+                assertOrigin(secondTrace);
+                expectedTraceId = traceIdOf(secondTrace);
+                logMessages = allLogMessages.subList(
+                        2, allLogMessages.size());
+            } else {
+                final var firstTrace = httpTraceOf(allLogMessages.get(0));
+                assertOrigin(firstTrace);
+
+                expectedTraceId = traceIdOf(firstTrace);
+                logMessages = allLogMessages.subList(
+                        1, allLogMessages.size());
+            }
         }
 
         private HttpTrace httpTraceOf(final String logMessage) {
@@ -80,6 +92,23 @@ public class TracingTesting {
             } catch (final IOException e) {
                 throw new IOError(e);
             }
+        }
+
+        private void assertOrigin(final HttpTrace trace) {
+            final var remote = remoteOrLocal.get();
+
+            if (remote)
+                assertThat(trace.getOrigin())
+                        .withFailMessage("Wrong origin;"
+                                + "%nExpected: <remote> but was:<local>")
+                        .isEqualTo("remote");
+            else
+                assertThat(trace.getOrigin())
+                        .withFailMessage("Wrong origin;"
+                                + "%nExpected: <local> but was:<remote>")
+                        .isEqualTo("local");
+
+            remoteOrLocal.set(!remote);
         }
 
         private Optional<Entry<String, List<String>>> maybeTraceHeader(
@@ -110,23 +139,6 @@ public class TracingTesting {
                 assertOrigin(trace);
                 assertTraceId(trace);
             }
-        }
-
-        private void assertOrigin(final HttpTrace trace) {
-            final var remote = remoteOrLocal.get();
-
-            if (remote)
-                assertThat(trace.getOrigin())
-                        .withFailMessage("Wrong origin;"
-                                + "%nExpected: <remote> but was:<local>")
-                        .isEqualTo("remote");
-            else
-                assertThat(trace.getOrigin())
-                        .withFailMessage("Wrong origin;"
-                                + "%nExpected: <local> but was:<remote>")
-                        .isEqualTo("local");
-
-            remoteOrLocal.set(!remote);
         }
 
         private void assertTraceId(final HttpTrace trace) {

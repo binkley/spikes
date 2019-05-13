@@ -51,6 +51,8 @@ class TraceLiveTest {
 
     @BeforeEach
     void setUp() {
+        MDC.clear();
+
         lenient().when(logger.isTraceEnabled()).thenReturn(true);
         lenient().when(logger.isDebugEnabled()).thenReturn(true);
         lenient().when(logger.isInfoEnabled()).thenReturn(true);
@@ -166,7 +168,7 @@ class TraceLiveTest {
     }
 
     @Test
-    void shouldSendTracingThroughFeignDirectIfClientProvides() {
+    void shouldTraceThroughFeignDirectIfClientProvides() {
         MDC.put("X-B3-TraceId", traceId);
         MDC.put("X-B3-SpanId", traceId);
         MDC.put("X-B3-ParentSpanId", traceId);
@@ -180,17 +182,17 @@ class TraceLiveTest {
     }
 
     @Test
-    void shouldSendTracingThroughFeignDirectIfClientOmits() {
+    void shouldTraceThroughFeignDirectIfClientOmits() {
         final var response = loggy.getDirect();
 
         assertThat(response).isEqualTo(
                 new LoggyResponse("HI, MOM!", 22, Instant.now(clock)));
 
-        tracingTesting.assertExchange(traceId, false);
+        tracingTesting.assertExchange(null, false);
     }
 
     @Test
-    void shouldSendTracingThroughFeignIndirectIfClientProvides() {
+    void shouldTraceThroughFeignIndirectIfClientProvides() {
         MDC.put("X-B3-TraceId", traceId);
         MDC.put("X-B3-SpanId", traceId);
         MDC.put("X-B3-ParentSpanId", traceId);
@@ -204,13 +206,13 @@ class TraceLiveTest {
     }
 
     @Test
-    void shouldSendTracingThroughFeignIndirectIfClientOmits() {
+    void shouldTraceThroughFeignIndirectIfClientOmits() {
         final var response = loggy.getIndirect();
 
         assertThat(response).isEqualTo(
                 new LoggyResponse("HI, MOM!", 22, Instant.now(clock)));
 
-        tracingTesting.assertExchange(traceId, false);
+        tracingTesting.assertExchange(null, false);
     }
 
     @Test
@@ -230,7 +232,7 @@ class TraceLiveTest {
         assertThatThrownBy(notFound::get)
                 .hasFieldOrPropertyWithValue("status", 404);
 
-        tracingTesting.assertExchange(traceId, false);
+        tracingTesting.assertExchange(null, false);
     }
 
     @TestConfiguration
