@@ -35,7 +35,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
         "loggy.enable-demo=false"
 }, webEnvironment = DEFINED_PORT)
 class TraceLiveTest {
-    private static final String traceId = "abcdef0987654321";
+    private static final String existingTraceId = "abcdef0987654321";
 
     private final LoggyRemote loggy;
     private final NotFoundRemote notFound;
@@ -67,15 +67,15 @@ class TraceLiveTest {
     }
 
     @Test
-    void shouldTraceDirectlyIfClientProvides()
+    void givenExistingTrace_shouldTraceThoughWebDirectly()
             throws IOException, InterruptedException {
         final var request = HttpRequest.newBuilder()
                 .GET()
                 .uri(URI.create("http://localhost:8080/direct"))
                 .headers(
-                        "X-B3-TraceId", traceId,
-                        "X-B3-SpanId", traceId,
-                        "X-B3-ParentSpanId", traceId)
+                        "X-B3-TraceId", existingTraceId,
+                        "X-B3-SpanId", existingTraceId,
+                        "X-B3-ParentSpanId", existingTraceId)
                 .build();
         final var client = HttpClient.newBuilder()
                 .build();
@@ -88,13 +88,13 @@ class TraceLiveTest {
         final var extraction = extractor.extract(response.headers());
 
         assertThat(extraction.context().traceIdString())
-                .isEqualTo(traceId);
+                .isEqualTo(existingTraceId);
 
-        traceTesting.assertExchange(traceId, true);
+        traceTesting.assertExchange(existingTraceId, true);
     }
 
     @Test
-    void shouldTraceDirectlyIfClientOmits()
+    void givenNoExistingTrace_shouldTraceThoughWebDirectly()
             throws IOException, InterruptedException {
         final var request = HttpRequest.newBuilder()
                 .GET()
@@ -118,15 +118,15 @@ class TraceLiveTest {
     }
 
     @Test
-    void shouldTraceIndirectlyIfClientProvides()
+    void givenExistingTrace_shouldTraceThoughWebIndirectly()
             throws IOException, InterruptedException {
         final var request = HttpRequest.newBuilder()
                 .GET()
                 .uri(URI.create("http://localhost:8080/indirect"))
                 .headers(
-                        "X-B3-TraceId", traceId,
-                        "X-B3-SpanId", traceId,
-                        "X-B3-ParentSpanId", traceId)
+                        "X-B3-TraceId", existingTraceId,
+                        "X-B3-SpanId", existingTraceId,
+                        "X-B3-ParentSpanId", existingTraceId)
                 .build();
         final var client = HttpClient.newBuilder()
                 .build();
@@ -139,13 +139,13 @@ class TraceLiveTest {
         final var extraction = extractor.extract(response.headers());
 
         assertThat(extraction.context().traceIdString())
-                .isEqualTo(traceId);
+                .isEqualTo(existingTraceId);
 
-        traceTesting.assertExchange(traceId, true);
+        traceTesting.assertExchange(existingTraceId, true);
     }
 
     @Test
-    void shouldTraceIndirectlyIfClientOmits()
+    void givenNoExistingTrace_shouldTraceThoughWebIndirectly()
             throws IOException, InterruptedException {
         final var request = HttpRequest.newBuilder()
                 .GET()
@@ -169,21 +169,25 @@ class TraceLiveTest {
     }
 
     @Test
-    void shouldTraceThroughFeignDirectIfClientProvides() {
-        MDC.put("X-B3-TraceId", traceId);
-        MDC.put("X-B3-SpanId", traceId);
-        MDC.put("X-B3-ParentSpanId", traceId);
+    void givenExistingTrace_shouldTraceThroughFeignDirectly() {
+        callWithTracePresent();
 
         final var response = loggy.getDirect();
 
         assertThat(response).isEqualTo(
                 new LoggyResponse("HI, MOM!", 22, Instant.now(clock)));
 
-        traceTesting.assertExchange(traceId, false);
+        traceTesting.assertExchange(existingTraceId, false);
+    }
+
+    private static void callWithTracePresent() {
+        MDC.put("X-B3-TraceId", existingTraceId);
+        MDC.put("X-B3-SpanId", existingTraceId);
+        MDC.put("X-B3-ParentSpanId", existingTraceId);
     }
 
     @Test
-    void shouldTraceThroughFeignDirectIfClientOmits() {
+    void givenNoExistingTrace_shouldTraceThroughFeignDirectly() {
         final var response = loggy.getDirect();
 
         assertThat(response).isEqualTo(
@@ -193,21 +197,19 @@ class TraceLiveTest {
     }
 
     @Test
-    void shouldTraceThroughFeignIndirectIfClientProvides() {
-        MDC.put("X-B3-TraceId", traceId);
-        MDC.put("X-B3-SpanId", traceId);
-        MDC.put("X-B3-ParentSpanId", traceId);
+    void givenExistingTrace_shouldTraceThroughFeignIndirectly() {
+        callWithTracePresent();
 
         final var response = loggy.getIndirect();
 
         assertThat(response).isEqualTo(
                 new LoggyResponse("HI, MOM!", 22, Instant.now(clock)));
 
-        traceTesting.assertExchange(traceId, false);
+        traceTesting.assertExchange(existingTraceId, false);
     }
 
     @Test
-    void shouldTraceThroughFeignIndirectIfClientOmits() {
+    void givenNoExistingTrace_shouldTraceThroughFeignIndirectly() {
         final var response = loggy.getIndirect();
 
         assertThat(response).isEqualTo(
@@ -217,19 +219,17 @@ class TraceLiveTest {
     }
 
     @Test
-    void shouldHandleNotFoundIfClientProvides() {
-        MDC.put("X-B3-TraceId", traceId);
-        MDC.put("X-B3-SpanId", traceId);
-        MDC.put("X-B3-ParentSpanId", traceId);
+    void givenExistingTrace_shouldHandleNotFound() {
+        callWithTracePresent();
 
         assertThatThrownBy(notFound::get)
                 .hasFieldOrPropertyWithValue("status", 404);
 
-        traceTesting.assertExchange(traceId, false);
+        traceTesting.assertExchange(existingTraceId, false);
     }
 
     @Test
-    void shouldHandleNotFoundIfClientOmits() {
+    void givenNoExistingTrace_shouldHandleNotFound() {
         assertThatThrownBy(notFound::get)
                 .hasFieldOrPropertyWithValue("status", 404);
 
@@ -237,19 +237,17 @@ class TraceLiveTest {
     }
 
     @Test
-    void shouldHandleUnknownHostIfClientProvides() {
-        MDC.put("X-B3-TraceId", traceId);
-        MDC.put("X-B3-SpanId", traceId);
-        MDC.put("X-B3-ParentSpanId", traceId);
+    void givenExistingTrace_shouldHandleUnknownHost() {
+        callWithTracePresent();
 
         assertThatThrownBy(unknownHost::get)
                 .hasFieldOrPropertyWithValue("status", 0);
 
-        traceTesting.assertExchange(traceId, false);
+        traceTesting.assertExchange(existingTraceId, false);
     }
 
     @Test
-    void shouldHandleUnknownHostIfClientOmits() {
+    void givenNoExistingTrace_shouldHandleUnknownHost() {
         assertThatThrownBy(unknownHost::get)
                 .hasFieldOrPropertyWithValue("status", 0);
 

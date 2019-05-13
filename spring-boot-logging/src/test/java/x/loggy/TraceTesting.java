@@ -28,11 +28,12 @@ public class TraceTesting {
     private final ObjectMapper objectMapper;
 
     void assertExchange(
-            final String knownTraceId, final boolean startsRemote) {
-        if (null == knownTraceId)
+            final String existingTraceId, final boolean startsRemote) {
+        if (null == existingTraceId)
             new AssertionSetup(startsRemote).assertExchange();
         else
-            new AssertionSetup(knownTraceId, startsRemote).assertExchange();
+            new AssertionSetup(existingTraceId, startsRemote)
+                    .assertExchange();
     }
 
     @Value
@@ -47,9 +48,9 @@ public class TraceTesting {
         private final List<String> logMessages;
 
         private AssertionSetup(
-                final String knownTraceId, final boolean startsRemote) {
+                final String existingTraceId, final boolean startsRemote) {
             remoteOrLocal = new AtomicBoolean(startsRemote);
-            expectedTraceId = knownTraceId;
+            expectedTraceId = existingTraceId;
             logMessages = allLogMessages();
         }
 
