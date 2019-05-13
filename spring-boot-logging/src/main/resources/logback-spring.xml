@@ -42,7 +42,14 @@
                     <logLevelValue/>
                     <tags/>
                     <mdc/>
-                    <stackTrace/>
+                    <stackHash/>
+                    <stackTrace>
+                        <throwableConverter
+                                class="net.logstash.logback.stacktrace.ShortenedThrowableConverter">
+                            <maxDepthPerThrowable>3</maxDepthPerThrowable>
+                            <rootCauseFirst>true</rootCauseFirst>
+                        </throwableConverter>
+                    </stackTrace>
                 </providers>
             </encoder>
         </appender>
