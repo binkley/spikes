@@ -16,6 +16,7 @@ import java.time.Instant;
 public class LoggyController {
     private final Clock clock;
     private final LoggyRemote loggy;
+    private final NotFoundRemote notFound;
     private final Logger logger;
 
     @GetMapping("direct")
@@ -28,5 +29,11 @@ public class LoggyController {
     public LoggyResponse getIndirect() {
         logger.info("INTER THE FEIGNEY WEBS");
         return loggy.getDirect();
+    }
+
+    @GetMapping("not-found")
+    public String getNotFound() {
+        logger.info("INTER THE NOT-FOUND WEBS");
+        return notFound.get();
     }
 }

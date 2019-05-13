@@ -97,6 +97,23 @@ public class LoggyDemo {
             // Already logged by logbook-feign logger
         }
 
+        logger.warn("THIS AND THAT");
+
+        final var otherRequest = HttpRequest.newBuilder()
+                .GET()
+                .uri(URI.create("http://localhost:8080/not-found"))
+                .expectContinue(true)
+                .headers(
+                        "X-B3-TraceId", "abcdef0987654321",
+                        "X-B3-SpanId", "abcdef0987654321",
+                        "X-B3-ParentSpanId", "abcdef0987654321")
+                .build();
+        final var otherClient = HttpClient.newBuilder()
+                .build();
+
+        final HttpResponse<String> otherResponse = sendOrDie(otherRequest,
+                otherClient);
+
         logger.warn("BUT IT'S ALRIGHT, IT'S OK, I'M GONNA RUN THAT WAY");
     }
 
