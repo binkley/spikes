@@ -43,7 +43,7 @@ class TraceLiveTest {
     private final Clock clock;
     private final Tracing tracing;
 
-    private final TraceTesting traceTesting;
+    private final AssertionsForTracingLogs tracingLogs;
 
     @MockBean(name = "logger")
     private Logger logger;
@@ -90,7 +90,7 @@ class TraceLiveTest {
         assertThat(extraction.context().traceIdString())
                 .isEqualTo(existingTraceId);
 
-        traceTesting.assertExchange(existingTraceId, true);
+        tracingLogs.assertExchange(existingTraceId, true);
     }
 
     @Test
@@ -114,7 +114,7 @@ class TraceLiveTest {
                 .withFailMessage("Missing X-B3-TraceId header")
                 .isNotNull();
 
-        traceTesting.assertExchange(null, true);
+        tracingLogs.assertExchange(null, true);
     }
 
     @Test
@@ -141,7 +141,7 @@ class TraceLiveTest {
         assertThat(extraction.context().traceIdString())
                 .isEqualTo(existingTraceId);
 
-        traceTesting.assertExchange(existingTraceId, true);
+        tracingLogs.assertExchange(existingTraceId, true);
     }
 
     @Test
@@ -165,7 +165,7 @@ class TraceLiveTest {
                 .withFailMessage("Missing X-B3-TraceId header")
                 .isNotNull();
 
-        traceTesting.assertExchange(null, true);
+        tracingLogs.assertExchange(null, true);
     }
 
     @Test
@@ -177,7 +177,7 @@ class TraceLiveTest {
         assertThat(response).isEqualTo(
                 new LoggyResponse("HI, MOM!", 22, Instant.now(clock)));
 
-        traceTesting.assertExchange(existingTraceId, false);
+        tracingLogs.assertExchange(existingTraceId, false);
     }
 
     private static void callWithTracePresent() {
@@ -193,7 +193,7 @@ class TraceLiveTest {
         assertThat(response).isEqualTo(
                 new LoggyResponse("HI, MOM!", 22, Instant.now(clock)));
 
-        traceTesting.assertExchange(null, false);
+        tracingLogs.assertExchange(null, false);
     }
 
     @Test
@@ -205,7 +205,7 @@ class TraceLiveTest {
         assertThat(response).isEqualTo(
                 new LoggyResponse("HI, MOM!", 22, Instant.now(clock)));
 
-        traceTesting.assertExchange(existingTraceId, false);
+        tracingLogs.assertExchange(existingTraceId, false);
     }
 
     @Test
@@ -215,7 +215,7 @@ class TraceLiveTest {
         assertThat(response).isEqualTo(
                 new LoggyResponse("HI, MOM!", 22, Instant.now(clock)));
 
-        traceTesting.assertExchange(null, false);
+        tracingLogs.assertExchange(null, false);
     }
 
     @Test
@@ -225,7 +225,7 @@ class TraceLiveTest {
         assertThatThrownBy(notFound::get)
                 .hasFieldOrPropertyWithValue("status", 404);
 
-        traceTesting.assertExchange(existingTraceId, false);
+        tracingLogs.assertExchange(existingTraceId, false);
     }
 
     @Test
@@ -233,7 +233,7 @@ class TraceLiveTest {
         assertThatThrownBy(notFound::get)
                 .hasFieldOrPropertyWithValue("status", 404);
 
-        traceTesting.assertExchange(null, false);
+        tracingLogs.assertExchange(null, false);
     }
 
     @Test
@@ -243,7 +243,7 @@ class TraceLiveTest {
         assertThatThrownBy(unknownHost::get)
                 .hasFieldOrPropertyWithValue("status", 0);
 
-        traceTesting.assertExchange(existingTraceId, false);
+        tracingLogs.assertExchange(existingTraceId, false);
     }
 
     @Test
@@ -251,7 +251,7 @@ class TraceLiveTest {
         assertThatThrownBy(unknownHost::get)
                 .hasFieldOrPropertyWithValue("status", 0);
 
-        traceTesting.assertExchange(null, false);
+        tracingLogs.assertExchange(null, false);
     }
 
     @TestConfiguration

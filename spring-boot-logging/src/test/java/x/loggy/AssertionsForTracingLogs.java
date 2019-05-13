@@ -23,7 +23,7 @@ import static org.mockito.Mockito.verify;
 
 @Component
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class TraceTesting {
+public class AssertionsForTracingLogs {
     private final Logger httpLogger;
     private final ObjectMapper objectMapper;
 
