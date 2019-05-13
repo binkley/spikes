@@ -15,7 +15,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -44,13 +43,13 @@ public class TracingTesting {
 
     private final class AssertionSetup {
         private final AtomicBoolean remoteOrLocal;
-        private final String traceId;
+        private final String expectedTraceId;
         private final List<String> logMessages;
 
         private AssertionSetup(
                 final String firstTraceId, final boolean startsRemote) {
             remoteOrLocal = new AtomicBoolean(startsRemote);
-            traceId = firstTraceId;
+            expectedTraceId = firstTraceId;
             logMessages = allLogMessages();
         }
 
@@ -71,7 +70,7 @@ public class TracingTesting {
             }
 
             final var secondTrace = httpTraceOf(allLogMessages.get(1));
-            traceId = traceIdOf(secondTrace);
+            expectedTraceId = traceIdOf(secondTrace);
             logMessages = allLogMessages.subList(2, allLogMessages.size());
         }
 
@@ -93,33 +92,51 @@ public class TracingTesting {
         private String traceIdOf(final HttpTrace trace) {
             return maybeTraceHeader(trace)
                     .map(Entry::getValue)
-                    .map(values -> {
-                        assertThat(values).withFailMessage(
-                                "Malformed X-B3-TraceId header")
-                                .hasSize(1);
-                        return values.get(0);
-                    })
-                    .orElseThrow((Supplier<AssertionError>) () -> fail(
+                    .map(this::firstOf)
+                    .orElseThrow(() -> new AssertionError(
                             "Missing X-B3-TraceId header"));
+        }
+
+        private String firstOf(final List<String> values) {
+            assertThat(values)
+                    .withFailMessage("Malformed X-B3-TraceId header")
+                    .hasSize(1);
+            return values.get(0);
         }
 
         private void assertExchange() {
             for (final var logMessage : logMessages) {
                 final var trace = httpTraceOf(logMessage);
-                final var traceId = traceIdOf(trace);
-
-                assertThat(traceId)
-                        .withFailMessage("Wrong X-B3-TraceId header")
-                        .isEqualTo(this.traceId);
-
-                final var remote = remoteOrLocal.get();
-                if (remote) {
-                    assertThat(trace.getOrigin()).isEqualTo("remote");
-                } else {
-                    assertThat(trace.getOrigin()).isEqualTo("local");
-                }
-                remoteOrLocal.set(!remote);
+                assertOrigin(trace);
+                assertTraceId(trace);
             }
+        }
+
+        private void assertOrigin(final HttpTrace trace) {
+            final var remote = remoteOrLocal.get();
+
+            if (remote)
+                assertThat(trace.getOrigin())
+                        .withFailMessage("Wrong origin;"
+                                + "%nExpected: <remote> but was:<local>")
+                        .isEqualTo("remote");
+            else
+                assertThat(trace.getOrigin())
+                        .withFailMessage("Wrong origin;"
+                                + "%nExpected: <local> but was:<remote>")
+                        .isEqualTo("local");
+
+            remoteOrLocal.set(!remote);
+        }
+
+        private void assertTraceId(final HttpTrace trace) {
+            final var traceId = traceIdOf(trace);
+
+            assertThat(traceId).withFailMessage(
+                    "Wrong X-B3-TraceId header;"
+                            + "%nExpected: <%s> but was:<%s>",
+                    expectedTraceId, traceId)
+                    .isEqualTo(expectedTraceId);
         }
     }
 }
