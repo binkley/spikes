@@ -41,10 +41,13 @@ spring:
     time-zone: 'UTC'
   main:
     banner-mode: 'OFF'
+  mvc:
+    throw-exception-if-no-handler-found: true
   output:
     ansi:
       enabled: 'ALWAYS'
-
+  resources:
+    add-mappings: false  # NB -- not usable with Swagger
 ---
 
 logbook:
