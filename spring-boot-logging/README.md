@@ -9,7 +9,7 @@ First, as a "local" program for developers:
 1. Run `./gradlew build`.
 2. Run `java -jar build/libs/spring-boot-logging-0.0.1-SNAPSHOT.jar`.
 
-Second, as a "production" project with JSON log ingestion (ie, ELK):
+Second, as a "production" project with structured logging (JSON; eg, for ELK):
 
 1. Run `./gradlew build`.
 2. Run `java -Dspring.profiles.active=json -jar build/libs/spring-boot-logging-0.0.1-SNAPSHOT.jar`.
@@ -35,3 +35,9 @@ Production use:
 * JSON logging suitable for Logstash
 * Embedded JSON payloads (not quoted-string JSON)
 * Custom JSON properties (ie, "environment")
+
+## Key files
+
+* [`TraceLiveTest`](src/test/java/x/loggy/TraceLiveTest.java)
+* [`TraceRequestInterceptor`](src/main/java/x/loggy/TraceRequestInterceptor.java)
+* [`TraceResponseFilter`](src/main/java/x/loggy/TraceResponseFilter.java)
