@@ -41,90 +41,10 @@ public class LogbookFeignLogger
     protected final Logbook logbook;
     protected final Logger logger;
 
-    @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
-    private static void copyHeadersTo(
-            final Map<String, Collection<String>> headers,
-            final HttpMessage message) {
-        // If "values" is null, consider that a pathological case
-        headers.forEach((header, values) ->
-                values.forEach(value ->
-                        message.addHeader(header, value)));
-    }
-
-    private static void copyBodyTo(final byte[] bodyData,
-            final HttpEntityEnclosingRequest logbookRequest) {
-        logbookRequest.setEntity(new ByteArrayEntity(
-                null == bodyData ? new byte[0] : bodyData));
-    }
-
-    private static void copyBodyTo(final byte[] bodyData,
-            final HttpResponse logbookResponse) {
-        logbookResponse.setEntity(new ByteArrayEntity(bodyData));
-    }
-
-    private static byte[] bodyData(final Request request) {
-        final var requestBody = request.requestBody();
-        return null == requestBody
-                ? new byte[0] : requestBody.asBytes();
-    }
-
-    private static byte[] bodyData(final Response response)
-            throws IOException {
-        final var status = response.status();
-        if (response.body() != null
-                && !(status == 204 || status == 205)) {
-            return toByteArray(response.body().asInputStream());
-        } else {
-            return new byte[0];
-        }
-    }
-
-    private static HttpEntityEnclosingRequest logbookRequestFor(
-            final Request feignRequest) {
-        final var logbookRequest
-                = new BasicHttpEntityEnclosingRequest(
-                feignRequest.httpMethod().name(),
-                feignRequest.url(),
-                HTTP_1_1);
-
-        copyHeadersTo(feignRequest.headers(), logbookRequest);
-        copyBodyTo(bodyData(feignRequest), logbookRequest);
-
-        return logbookRequest;
-    }
-
-    private static HttpResponse logbookResponseFor(
-            final Response feignResponse,
-            final byte[] bodyData) {
-        final var logbookResponse = new BasicHttpResponse(HTTP_1_1,
-                feignResponse.status(), feignResponse.reason());
-
-        copyHeadersTo(feignResponse.headers(), logbookResponse);
-        copyBodyTo(bodyData, logbookResponse);
-
-        return logbookResponse;
-    }
-
     @Override
     protected void log(final String configKey,
             final String format, final Object... args) {
         // Do nothing -- Feign logger is unfortunate
-    }
-
-    @Override
-    protected void logRetry(final String configKey,
-            final Level logLevel) {
-        logger.warn("Retrying {}", configKey);
-    }
-
-    @Override
-    protected IOException logIOException(final String configKey,
-            final Level logLevel, final IOException ioe,
-            final long elapsedTime) {
-        threadLocal.remove();
-        logger.error("Failed {} after {} ms: {}", configKey,
-                elapsedTime, ioe.toString(), ioe);
-        return ioe;
     }
 
     @Override
@@ -144,6 +64,48 @@ public class LogbookFeignLogger
         }
     }
 
+    private static HttpEntityEnclosingRequest logbookRequestFor(
+            final Request feignRequest) {
+        final var logbookRequest
+                = new BasicHttpEntityEnclosingRequest(
+                feignRequest.httpMethod().name(),
+                feignRequest.url(),
+                HTTP_1_1);
+
+        copyHeadersTo(feignRequest.headers(), logbookRequest);
+        copyBodyTo(bodyData(feignRequest), logbookRequest);
+
+        return logbookRequest;
+    }
+
+    @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
+    private static void copyHeadersTo(
+            final Map<String, Collection<String>> headers,
+            final HttpMessage message) {
+        // If "values" is null, consider that a pathological case
+        headers.forEach((header, values) ->
+                values.forEach(value ->
+                        message.addHeader(header, value)));
+    }
+
+    private static void copyBodyTo(final byte[] bodyData,
+            final HttpEntityEnclosingRequest logbookRequest) {
+        logbookRequest.setEntity(new ByteArrayEntity(
+                null == bodyData ? new byte[0] : bodyData));
+    }
+
+    private static byte[] bodyData(final Request request) {
+        final var requestBody = request.requestBody();
+        return null == requestBody
+                ? new byte[0] : requestBody.asBytes();
+    }
+
+    @Override
+    protected void logRetry(final String configKey,
+            final Level logLevel) {
+        logger.warn("Retrying {}", configKey);
+    }
+
     @Override
     protected Response logAndRebufferResponse(final String configKey,
             final Level logLevel,
@@ -159,6 +121,44 @@ public class LogbookFeignLogger
         threadLocal.remove();
 
         return feignResponse.toBuilder().body(bodyData).build();
+    }
+
+    private static byte[] bodyData(final Response response)
+            throws IOException {
+        final var status = response.status();
+        if (response.body() != null
+                && !(status == 204 || status == 205)) {
+            return toByteArray(response.body().asInputStream());
+        } else {
+            return new byte[0];
+        }
+    }
+
+    private static HttpResponse logbookResponseFor(
+            final Response feignResponse,
+            final byte[] bodyData) {
+        final var logbookResponse = new BasicHttpResponse(HTTP_1_1,
+                feignResponse.status(), feignResponse.reason());
+
+        copyHeadersTo(feignResponse.headers(), logbookResponse);
+        copyBodyTo(bodyData, logbookResponse);
+
+        return logbookResponse;
+    }
+
+    private static void copyBodyTo(final byte[] bodyData,
+            final HttpResponse logbookResponse) {
+        logbookResponse.setEntity(new ByteArrayEntity(bodyData));
+    }
+
+    @Override
+    protected IOException logIOException(final String configKey,
+            final Level logLevel, final IOException ioe,
+            final long elapsedTime) {
+        threadLocal.remove();
+        logger.error("Failed {} after {} ms: {}", configKey,
+                elapsedTime, ioe.toString(), ioe);
+        return ioe;
     }
 
     @Component
@@ -209,7 +209,7 @@ public class LogbookFeignLogger
                 logger.warn(objectMapper.writeValueAsString(
                         new Retrying(configKey)));
             } catch (final JsonProcessingException e) {
-                throw new Error("BUG: Jackson missing or misconfigured");
+                throw new Error("BUG: Jackson missing or misconfigured", e);
             }
         }
 
@@ -224,7 +224,7 @@ public class LogbookFeignLogger
                                 ioe.toString())),
                         ioe);
             } catch (final JsonProcessingException e) {
-                throw new Error("BUG: Jackson missing or misconfigured");
+                throw new Error("BUG: Jackson missing or misconfigured", e);
             }
             return ioe;
         }
