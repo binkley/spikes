@@ -43,6 +43,10 @@ dependencies {
     implementation "org.springframework.cloud:spring-cloud-starter-sleuth"
     implementation "org.springframework.cloud:spring-cloud-starter-openfeign"
     implementation "org.zalando:logbook-spring-boot-starter"
+    // TODO: Hrm ... too many dependencies for problems
+    implementation "org.springframework.boot:spring-boot-starter-security"
+    implementation "org.springframework.boot:spring-boot-starter-validation"
+    implementation "org.zalando:problem-spring-web:0.23.0"
 
     testAnnotationProcessor "org.projectlombok:lombok"
 
