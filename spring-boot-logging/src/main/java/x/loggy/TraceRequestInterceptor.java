@@ -2,6 +2,7 @@ package x.loggy;
 
 import brave.Tracer;
 import brave.Tracing;
+import brave.propagation.TraceContext;
 import brave.propagation.TraceContext.Extractor;
 import brave.propagation.TraceContext.Injector;
 import feign.RequestInterceptor;
@@ -40,8 +41,14 @@ public class TraceRequestInterceptor
         // for us, which is what happens with HTTP controllers, but with
         // Feign we need to check the MDC ourselves
         final var extraction = extractor.extract(getMDCAdapter());
-        final var currentContext = EMPTY == extraction ?
-                currentContext(tracer, logger) : extraction.context();
+        final TraceContext currentContext;
+        if (EMPTY == extraction) {
+            logger.trace("No trace extraction from MDC");
+            currentContext = currentContext(tracer, logger);
+        } else {
+            logger.trace("Using trace extraction from MDC: {}", extraction);
+            currentContext = extraction.context();
+        }
 
         injector.inject(currentContext, template);
     }
