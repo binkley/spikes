@@ -64,23 +64,39 @@ public class TraceTesting {
             remoteOrLocal = new AtomicBoolean(startsRemote);
 
             final var allLogMessages = allLogMessages();
+            final int at = beginAssertingTraceIdAt(
+                    startsRemote, allLogMessages);
 
-            if (startsRemote) {
-                final var firstTrace = httpTraceOf(allLogMessages.get(0));
-                if (maybeTraceHeader(firstTrace).isPresent()) {
-                    fail("Unexpected X-B3-TraceId header");
-                }
+            expectedTraceId = traceIdOf(httpTraceOf(
+                    allLogMessages.get(at)));
+            logMessages = allLogMessages.subList(
+                    at + 1, allLogMessages.size());
+        }
 
-                expectedTraceId = traceIdOf(httpTraceOf(
-                        allLogMessages.get(1)));
-                logMessages = allLogMessages.subList(
-                        2, allLogMessages.size());
-            } else {
-                expectedTraceId = traceIdOf(httpTraceOf(
-                        allLogMessages.get(0)));
-                logMessages = allLogMessages.subList(
-                        1, allLogMessages.size());
-            }
+        private int beginAssertingTraceIdAt(final boolean startsRemote,
+                final List<String> allLogMessages) {
+            if (!startsRemote)
+                return 0;
+
+            final var firstTrace = httpTraceOf(allLogMessages.get(0));
+            if (maybeTraceHeader(firstTrace).isPresent())
+                fail("Unexpected X-B3-TraceId header");
+
+            return 1;
+        }
+
+        private void assertExchange() {
+            logMessages.forEach(it -> assertTraceId(httpTraceOf(it)));
+        }
+
+        private void assertTraceId(final HttpTrace trace) {
+            final var traceId = traceIdOf(trace);
+
+            assertThat(traceId).withFailMessage(
+                    "Wrong X-B3-TraceId header;"
+                            + "%nExpected: <%s> but was:<%s>",
+                    expectedTraceId, traceId)
+                    .isEqualTo(expectedTraceId);
         }
 
         private HttpTrace httpTraceOf(final String logMessage) {
@@ -92,13 +108,6 @@ public class TraceTesting {
             } catch (final IOException e) {
                 throw new IOError(e);
             }
-        }
-
-        private Optional<Entry<String, List<String>>> maybeTraceHeader(
-                final HttpTrace trace) {
-            return trace.getHeaders().entrySet().stream()
-                    .filter(e -> e.getKey().equalsIgnoreCase("x-b3-traceid"))
-                    .findFirst();
         }
 
         private String traceIdOf(final HttpTrace trace) {
@@ -126,25 +135,18 @@ public class TraceTesting {
             remoteOrLocal.set(!remote);
         }
 
+        private Optional<Entry<String, List<String>>> maybeTraceHeader(
+                final HttpTrace trace) {
+            return trace.getHeaders().entrySet().stream()
+                    .filter(e -> e.getKey().equalsIgnoreCase("x-b3-traceid"))
+                    .findFirst();
+        }
+
         private String firstOf(final List<String> values) {
             assertThat(values)
                     .withFailMessage("Malformed X-B3-TraceId header")
                     .hasSize(1);
             return values.get(0);
-        }
-
-        private void assertExchange() {
-            logMessages.forEach(it -> assertTraceId(httpTraceOf(it)));
-        }
-
-        private void assertTraceId(final HttpTrace trace) {
-            final var traceId = traceIdOf(trace);
-
-            assertThat(traceId).withFailMessage(
-                    "Wrong X-B3-TraceId header;"
-                            + "%nExpected: <%s> but was:<%s>",
-                    expectedTraceId, traceId)
-                    .isEqualTo(expectedTraceId);
         }
     }
 }
