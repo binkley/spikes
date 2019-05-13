@@ -25,7 +25,32 @@ public class AssertionsForTracingLogs {
     private final Logger httpLogger;
     private final ObjectMapper objectMapper;
 
-    void assertExchange(
+    /**
+     * Asserts that: <ol>
+     * <li>Calls between local/remote exchange back and forth, with the first
+     * expecting <var>startsRemote</var>.  Web clients should start
+     * <em>remote</em> ({@code true}); Feign clients should start
+     * <em>local</em> ({@code false}).</li>
+     * <li>All calls, including the first, use an <var>existingTraceId</var>
+     * for the {@code X-B3-TraceId} header, if provided.  This simulates a
+     * client passing in an existing {@code X-B3-TraceId} header.</li>
+     * <li>All calls after the first and beginning with the second use the
+     * same generated trace ID for the {@code X-B3-TraceId} header, if no
+     * <var>existingTraceId</var> is provided.  This simulates a client
+     * omitting the {@code X-B3-TraceId} header, the first call originating in
+     * the service.  The first call should have no {@code X-B3-TraceId}
+     * header.</li>
+     * <li>No call has multiple values for the {@code X-B3-TraceId}
+     * header, and the header is <em>required</em> when a call should have a
+     * trace ID.</li>
+     * </ol>
+     * <p>
+     * Assumes that Logback logging is in JSON format so that it may be
+     * asserted against without recourse to string parsing and regular
+     * expressions.  In this project, use {@code @ActiveProfiles("json")} on
+     * the test class.
+     */
+    public void assertExchange(
             final String existingTraceId, final boolean startsRemote) {
         final var setup = null == existingTraceId
                 ? new AssertionSetup(startsRemote)
