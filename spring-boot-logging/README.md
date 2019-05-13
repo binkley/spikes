@@ -43,4 +43,6 @@ Production use:
 * [`TraceLiveTest`](src/test/java/x/loggy/TraceLiveTest.java)
 * [`TraceRequestInterceptor`](src/main/java/x/loggy/TraceRequestInterceptor.java)
 * [`TraceResponseFilter`](src/main/java/x/loggy/TraceResponseFilter.java)
+* [`application.yml`](src/main/resources/application.yml)
+* [`bootstrap.yml`](src/main/resources/bootstrap.yml)
 * [`logback-spring.xml`](src/main/resources/logback-spring.xml)
