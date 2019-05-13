@@ -25,8 +25,8 @@ import static org.springframework.core.NestedExceptionUtils.getMostSpecificCause
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class LoggyDemo {
     private final LoggyRemote loggy;
-    private final UnknownHostRemote unknownHost;
     private final NotFoundRemote notFound;
+    private final UnknownHostRemote unknownHost;
     private final Logger logger;
 
     @EventListener
@@ -80,18 +80,18 @@ public class LoggyDemo {
         logger.info("We said, {}", loggyResponse);
 
         try {
-            unknownHost.get();
-        } catch (final FeignException ignored) {
-            // Already logged by logbook-feign logger
-        }
-
-        try {
             notFound.get();
         } catch (final FeignException notFound) {
             logger.error("Feign angry: {}: {}",
                     getMostSpecificCause(notFound).toString(),
                     notFound.contentUTF8(),
                     notFound);
+        }
+
+        try {
+            unknownHost.get();
+        } catch (final FeignException ignored) {
+            // Already logged by logbook-feign logger
         }
 
         logger.warn("BUT IT'S ALRIGHT, IT'S OK, I'M GONNA RUN THAT WAY");
