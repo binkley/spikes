@@ -17,6 +17,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
+import java.nio.charset.CoderMalfunctionError;
 
 import static org.springframework.core.NestedExceptionUtils.getMostSpecificCause;
 
@@ -61,7 +62,8 @@ public class LoggyDemo {
         logger.warn("EXCEPTIONS");
 
         // Show stack trace logging
-        final var e = new NullPointerException("OH MY, A NULL POINTER!");
+        final var e = new CoderMalfunctionError(
+                new NullPointerException("OH MY, A NULL POINTER!"));
         logger.error("And I fail: {}", e.getMessage(), e);
 
         // Feign
