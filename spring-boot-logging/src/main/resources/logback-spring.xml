@@ -5,7 +5,7 @@
 
     <springProperty name="spring.application.name"
                     source="spring.application.name"
-                    defaultValue="misconfigured"/>
+                    defaultValue="MISCONFIGURED_BOOTSTRAP_YML"/>
     <springProperty name="environment" source="environment"
                     defaultValue="local"/>
 
