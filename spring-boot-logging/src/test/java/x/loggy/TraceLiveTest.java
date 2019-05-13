@@ -73,6 +73,7 @@ class TraceLiveTest {
         final var request = HttpRequest.newBuilder()
                 .GET()
                 .uri(URI.create("http://localhost:8080/direct"))
+                .expectContinue(true)
                 .headers(
                         "X-B3-TraceId", existingTraceId,
                         "X-B3-SpanId", existingTraceId,

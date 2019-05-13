@@ -44,6 +44,7 @@ public class LoggyDemo {
         final var request = HttpRequest.newBuilder()
                 .GET()
                 .uri(URI.create("http://localhost:8080/direct"))
+                .expectContinue(true)
                 .headers(
                         "X-B3-TraceId", "abcdef0987654321",
                         "X-B3-SpanId", "abcdef0987654321",
