@@ -80,7 +80,7 @@ public class TraceTesting {
 
             final var firstTrace = httpTraceOf(allLogMessages.get(0));
             if (maybeTraceHeader(firstTrace).isPresent())
-                fail("Unexpected X-B3-TraceId header");
+                fail("Unexpected X-B3-TraceId header in first log message");
 
             return 1;
         }
