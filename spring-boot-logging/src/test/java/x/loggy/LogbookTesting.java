@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,19 +28,70 @@ public class LogbookTesting {
     private final Logger httpLogger;
     private final ObjectMapper objectMapper;
 
-    void assertThatAllContainsTraceIdInLogging(final String traceId) {
-        final var traces = ArgumentCaptor.forClass(String.class);
-        verify(httpLogger, atLeast(1)).trace(traces.capture());
-
-        final var allTraces = traces.getAllValues();
-
-        allTraces.forEach(it ->
-                assertThat(findTraceId(it)).isEqualTo(traceId));
+    void assertExchange(
+            final String firstTraceId, final boolean startsRemote) {
+        if (null == firstTraceId)
+            new AssertionSetup(startsRemote).assertExchange();
+        else
+            new AssertionSetup(firstTraceId, startsRemote).assertExchange();
     }
 
-    private String findTraceId(final String logMessage) {
-        try {
-            return findTraceIdHeader(logMessage)
+    @Value
+    private static final class HttpTrace {
+        String origin;
+        Map<String, List<String>> headers;
+    }
+
+    private final class AssertionSetup {
+        private final AtomicBoolean remoteOrLocal;
+        private final String traceId;
+        private final List<String> logMessages;
+
+        private AssertionSetup(
+                final String firstTraceId, final boolean startsRemote) {
+            remoteOrLocal = new AtomicBoolean(startsRemote);
+            traceId = firstTraceId;
+            logMessages = allLogMessages();
+        }
+
+        private List<String> allLogMessages() {
+            final var captured = ArgumentCaptor.forClass(String.class);
+            verify(httpLogger, atLeast(2)).trace(captured.capture());
+            return captured.getAllValues();
+        }
+
+        private AssertionSetup(final boolean startsRemote) {
+            remoteOrLocal = new AtomicBoolean(startsRemote);
+
+            final var allLogMessages = allLogMessages();
+
+            final var firstTrace = httpTraceOf(allLogMessages.get(0));
+            if (maybeTraceHeader(firstTrace).isPresent()) {
+                fail("Unexpected X-B3-TraceId header");
+            }
+
+            final var secondTrace = httpTraceOf(allLogMessages.get(1));
+            traceId = traceIdOf(secondTrace);
+            logMessages = allLogMessages.subList(2, allLogMessages.size());
+        }
+
+        private HttpTrace httpTraceOf(final String logMessage) {
+            try {
+                return objectMapper.readValue(logMessage, HttpTrace.class);
+            } catch (final IOException e) {
+                throw new IOError(e);
+            }
+        }
+
+        private Optional<Entry<String, List<String>>> maybeTraceHeader(
+                final HttpTrace trace) {
+            return trace.getHeaders().entrySet().stream()
+                    .filter(e -> e.getKey().equalsIgnoreCase("x-b3-traceid"))
+                    .findFirst();
+        }
+
+        private String traceIdOf(final HttpTrace trace) {
+            return maybeTraceHeader(trace)
                     .map(Entry::getValue)
                     .map(values -> {
                         assertThat(values).withFailMessage(
@@ -48,51 +100,26 @@ public class LogbookTesting {
                         return values.get(0);
                     })
                     .orElseThrow((Supplier<AssertionError>) () -> fail(
-                            "No X-B3-TraceId header"));
-        } catch (final IOException e) {
-            throw new IOError(e);
+                            "Missing X-B3-TraceId header"));
         }
-    }
 
-    private Optional<Entry<String, List<String>>> findTraceIdHeader(
-            final String logMessage)
-            throws IOException {
-        return objectMapper.readValue(logMessage, HttpTrace.class)
-                .getHeaders().entrySet().stream()
-                .filter(e -> e.getKey().equalsIgnoreCase("x-b3-traceid"))
-                .findFirst();
-    }
+        private void assertExchange() {
+            for (final var logMessage : logMessages) {
+                final var trace = httpTraceOf(logMessage);
+                final var traceId = traceIdOf(trace);
 
-    void assertThatSubsequentContainsTraceIdInLogging() {
-        final var traces = ArgumentCaptor.forClass(String.class);
-        verify(httpLogger, atLeast(1)).trace(traces.capture());
+                assertThat(traceId)
+                        .withFailMessage("Wrong X-B3-TraceId header")
+                        .isEqualTo(this.traceId);
 
-        final var allTraces = traces.getAllValues();
-
-        assertThat(allTraces)
-                .withFailMessage("No request/response pair")
-                .hasSizeGreaterThanOrEqualTo(2);
-
-        assertThatNoTraceId(allTraces.get(0));
-
-        final var generated = findTraceId(allTraces.get(1));
-
-        allTraces.subList(2, allTraces.size()).forEach(it ->
-                assertThat(findTraceId(it)).isEqualTo(generated));
-    }
-
-    private void assertThatNoTraceId(final String logMessage) {
-        try {
-            findTraceIdHeader(logMessage).ifPresent(it ->
-                    fail("Unexpected X-B3-TraceId header"));
-        } catch (final IOException e) {
-            throw new IOError(e);
+                final var remote = remoteOrLocal.get();
+                if (remote) {
+                    assertThat(trace.getOrigin()).isEqualTo("remote");
+                } else {
+                    assertThat(trace.getOrigin()).isEqualTo("local");
+                }
+                remoteOrLocal.set(!remote);
+            }
         }
-    }
-
-    @Value
-    private static final class HttpTrace {
-        String origin;
-        Map<String, List<String>> headers;
     }
 }
