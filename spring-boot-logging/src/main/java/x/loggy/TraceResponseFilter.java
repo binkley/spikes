@@ -2,7 +2,6 @@ package x.loggy;
 
 import brave.Tracer;
 import brave.Tracing;
-import brave.propagation.TraceContext;
 import brave.propagation.TraceContext.Injector;
 import org.slf4j.Logger;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -14,7 +13,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public class TraceResponseFilter
-        extends OncePerRequestFilter {
+        extends OncePerRequestFilter
+        implements TraceMixin {
     private final Tracer tracer;
     private final Injector<HttpServletResponse> injector;
     private final Logger logger;
@@ -31,19 +31,8 @@ public class TraceResponseFilter
     public void doFilterInternal(final HttpServletRequest request,
             final HttpServletResponse response, final FilterChain chain)
             throws IOException, ServletException {
-        injector.inject(currentContext(), response);
+        injector.inject(currentContext(tracer, logger), response);
 
         chain.doFilter(request, response);
-    }
-
-    private TraceContext currentContext() {
-        var currentSpan = tracer.currentSpan();
-        if (null == currentSpan) {
-            currentSpan = tracer.newTrace();
-            logger.trace("No current tracing span; created: {}", currentSpan);
-        } else {
-            logger.trace("Current tracing span: {}", currentSpan);
-        }
-        return currentSpan.context();
     }
 }
