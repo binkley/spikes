@@ -34,9 +34,6 @@ public class TraceRequestInterceptor
 
     @Override
     public void apply(final RequestTemplate template) {
-        // TODO: Is there a way to get at the Feign "Class#method" string?
-        template.header("User-Agent", getClass().getName());
-
         // With better library support, `currentContext()` should do this
         // for us, which is what happens with HTTP controllers, but with
         // Feign we need to check the MDC ourselves
