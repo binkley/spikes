@@ -32,6 +32,7 @@ class TraceRequestInterceptorTest {
 
     @Test
     void shouldReuseContext() {
+        final var traceId = "deadbeef";
         final var tracing = Tracing.newBuilder().build();
         final var tracer = spy(tracing.tracer());
         final var currentSpan = mock(Span.class);
@@ -42,7 +43,7 @@ class TraceRequestInterceptorTest {
                 .when(currentSpan).context();
         // And so the problems with mocks: A little too much knowledge about
         // the innards of the mocked class
-        doReturn("deadbeef")
+        doReturn(traceId)
                 .when(currentContext).traceIdString();
         final var interceptor = new TraceRequestInterceptor(
                 tracing, tracer, logger);
@@ -51,7 +52,7 @@ class TraceRequestInterceptorTest {
         interceptor.apply(template);
 
         verify(tracer, never()).newTrace();
-        verify(template).header("X-B3-TraceId", "deadbeef");
+        verify(template).header("X-B3-TraceId", traceId);
     }
 
     @Test
