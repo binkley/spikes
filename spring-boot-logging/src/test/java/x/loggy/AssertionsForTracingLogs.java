@@ -2,22 +2,19 @@ package x.loggy;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.mockito.ArgumentCaptor;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.IOError;
-import java.io.IOException;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
-import static org.mockito.Mockito.atLeast;
-import static org.mockito.Mockito.verify;
+import static x.loggy.HttpTrace.httpTracesOf;
 
 @Component
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -61,75 +58,19 @@ public class AssertionsForTracingLogs {
     private final class AssertionSetup {
         private final AtomicBoolean remoteOrLocal;
         private final String expectedTraceId;
-        private final List<String> logMessages;
+        private final List<HttpTrace> traces;
 
         private AssertionSetup(
                 final String existingTraceId, final boolean startsRemote) {
             remoteOrLocal = new AtomicBoolean(startsRemote);
             expectedTraceId = existingTraceId;
-            logMessages = allLogMessages();
+            traces = httpTraces();
         }
 
-        private List<String> allLogMessages() {
-            final var captured = ArgumentCaptor.forClass(String.class);
-            verify(httpLogger, atLeast(1)).trace(captured.capture());
-            return captured.getAllValues();
-        }
-
-        private AssertionSetup(final boolean startsRemote) {
-            remoteOrLocal = new AtomicBoolean(startsRemote);
-
-            final var allLogMessages = allLogMessages();
-            final int beginAssertingTraceIdAt = beginAssertingTraceIdAt(
-                    startsRemote, allLogMessages);
-
-            expectedTraceId = traceIdOf(httpTraceOf(
-                    allLogMessages.get(beginAssertingTraceIdAt)));
-            logMessages = allLogMessages.subList(
-                    beginAssertingTraceIdAt + 1, allLogMessages.size());
-        }
-
-        private int beginAssertingTraceIdAt(final boolean startsRemote,
-                final List<String> allLogMessages) {
-            if (!startsRemote)
-                return 0;
-
-            final var firstTrace = httpTraceOf(allLogMessages.get(0));
-            if (maybeTraceHeader(firstTrace).isPresent())
-                fail("Unexpected X-B3-TraceId header in first log message");
-
-            return 1;
-        }
-
-        private void assertExchange() {
-            logMessages.forEach(it -> assertTraceId(httpTraceOf(it)));
-        }
-
-        private void assertTraceId(final HttpTrace trace) {
-            final var traceId = traceIdOf(trace);
-
-            assertThat(traceId).withFailMessage(
-                    "Wrong X-B3-TraceId header")
-                    .isEqualTo(expectedTraceId);
-        }
-
-        private HttpTrace httpTraceOf(final String logMessage) {
-            try {
-                final var trace = objectMapper.readValue(
-                        logMessage, HttpTrace.class);
-                assertOrigin(trace);
-                return trace;
-            } catch (final IOException e) {
-                throw new IOError(e);
-            }
-        }
-
-        private String traceIdOf(final HttpTrace trace) {
-            return maybeTraceHeader(trace)
-                    .map(Entry::getValue)
-                    .map(this::firstOf)
-                    .orElseThrow(() -> new AssertionError(
-                            "Missing X-B3-TraceId header"));
+        private List<HttpTrace> httpTraces() {
+            return httpTracesOf(httpLogger, objectMapper)
+                    .peek(this::assertOrigin)
+                    .collect(toUnmodifiableList());
         }
 
         private void assertOrigin(final HttpTrace trace) {
@@ -147,6 +88,38 @@ public class AssertionsForTracingLogs {
             remoteOrLocal.set(!remote);
         }
 
+        private AssertionSetup(final boolean startsRemote) {
+            remoteOrLocal = new AtomicBoolean(startsRemote);
+
+            final List<HttpTrace> traces = httpTraces();
+            final int beginAssertingTraceIdAt = beginAssertingTraceIdAt(
+                    startsRemote, traces);
+
+            expectedTraceId = traceIdOf(traces.get(beginAssertingTraceIdAt));
+            this.traces = traces.subList(
+                    beginAssertingTraceIdAt + 1, traces.size());
+        }
+
+        private int beginAssertingTraceIdAt(final boolean startsRemote,
+                final List<HttpTrace> traces) {
+            if (!startsRemote)
+                return 0;
+
+            final var firstTrace = traces.get(0);
+            if (maybeTraceHeader(firstTrace).isPresent())
+                fail("Unexpected X-B3-TraceId header in first log message");
+
+            return 1;
+        }
+
+        private String traceIdOf(final HttpTrace trace) {
+            return maybeTraceHeader(trace)
+                    .map(Entry::getValue)
+                    .map(this::firstOf)
+                    .orElseThrow(() -> new AssertionError(
+                            "Missing X-B3-TraceId header"));
+        }
+
         private Optional<Entry<String, List<String>>> maybeTraceHeader(
                 final HttpTrace trace) {
             return trace.getHeaders().entrySet().stream()
@@ -159,6 +132,18 @@ public class AssertionsForTracingLogs {
                     .withFailMessage("Malformed X-B3-TraceId header")
                     .hasSize(1);
             return values.get(0);
+        }
+
+        private void assertExchange() {
+            traces.forEach(this::assertTraceId);
+        }
+
+        private void assertTraceId(final HttpTrace trace) {
+            final var traceId = traceIdOf(trace);
+
+            assertThat(traceId).withFailMessage(
+                    "Wrong X-B3-TraceId header")
+                    .isEqualTo(expectedTraceId);
         }
     }
 }
