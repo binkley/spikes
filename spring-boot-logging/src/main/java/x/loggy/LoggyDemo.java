@@ -95,6 +95,10 @@ public class LoggyDemo {
         final var direct = loggy.getDirect();
         logger.info("{}", direct);
 
+        logger.warn("AND NOW FOR SOMETHING COMPLETELY POSTISH");
+
+        loggy.post(new LoggyRequest(2));
+
         logger.warn("CALL OURSELVES WITH FEIGN THROUGH FEIGN");
 
         final var indirect = loggy.getIndirect();
@@ -118,6 +122,13 @@ public class LoggyDemo {
             // Already logged by logbook-feign logger
         }
 
+        try {
+            loggy.post(new LoggyRequest(-1));
+        } catch (final FeignException violation) {
+            logger.error("Feign displeased: {}: {}",
+                    getMostSpecificCause(violation).toString(), violation);
+        }
+
         logger.warn("THIS AND THAT");
 
         final var otherRequest = HttpRequest.newBuilder()
@@ -132,8 +143,7 @@ public class LoggyDemo {
         final var otherClient = HttpClient.newBuilder()
                 .build();
 
-        final HttpResponse<String> otherResponse = sendOrDie(otherRequest,
-                otherClient);
+        sendOrDie(otherRequest, otherClient);
 
         logger.warn("BUT IT'S ALRIGHT, IT'S OK, I'M GONNA RUN THAT WAY");
     }
