@@ -3,13 +3,18 @@ package x.loggy;
 import brave.Span;
 import brave.Tracing;
 import brave.propagation.TraceContext;
-import feign.RequestTemplate;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
+import org.springframework.mock.web.MockFilterChain;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+
+import javax.servlet.ServletException;
+import java.io.IOException;
 
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -21,12 +26,13 @@ import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 @RequiredArgsConstructor
-class TraceRequestInterceptorTest {
+class TraceResponseFilterTest {
     @Mock
     private final Logger logger;
 
     @Test
-    void shouldReuseContext() {
+    void shouldReuseContext()
+            throws ServletException, IOException {
         final var traceId = "deadbeef";
         final var tracing = Tracing.newBuilder().build();
         final var tracer = spy(tracing.tracer());
@@ -43,28 +49,31 @@ class TraceRequestInterceptorTest {
         doReturn(traceId)
                 .when(currentContext).spanIdString();
 
-        final var interceptor = new TraceRequestInterceptor(
-                tracing, tracer, logger);
-        final var template = spy(new RequestTemplate());
+        final var filter = new TraceResponseFilter(tracing, tracer, logger);
+        final var request = new MockHttpServletRequest();
+        final var response = spy(new MockHttpServletResponse());
+        final var chain = new MockFilterChain();
 
-        interceptor.apply(template);
+        filter.doFilter(request, response, chain);
 
         verify(tracer, never()).newTrace();
-        verify(template).header("X-B3-TraceId", traceId);
+        verify(response).setHeader("X-B3-TraceId", traceId);
     }
 
     @Test
-    void shouldCreateContext() {
+    void shouldCreateContext()
+            throws ServletException, IOException {
         final var tracing = Tracing.newBuilder().build();
         final var tracer = spy(tracing.tracer());
 
-        final var interceptor = new TraceRequestInterceptor(
-                tracing, tracer, logger);
-        final var template = spy(new RequestTemplate());
+        final var filter = new TraceResponseFilter(tracing, tracer, logger);
+        final var request = new MockHttpServletRequest();
+        final var response = spy(new MockHttpServletResponse());
+        final var chain = new MockFilterChain();
 
-        interceptor.apply(template);
+        filter.doFilter(request, response, chain);
 
         verify(tracer).newTrace();
-        verify(template).header(eq("X-B3-TraceId"), anyString());
+        verify(response).setHeader(eq("X-B3-TraceId"), anyString());
     }
 }
