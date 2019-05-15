@@ -46,13 +46,15 @@ public class AssertionsForTracingLogs {
      * asserted against without recourse to string parsing and regular
      * expressions.  In this project, use {@code @ActiveProfiles("json")} on
      * the test class.
+     *
+     * @return the HTTP traces, for additional assertions
      */
-    public void assertExchange(
+    public List<HttpTrace> assertExchange(
             final String existingTraceId, final boolean startsRemote) {
         final var setup = null == existingTraceId
                 ? new AssertionSetup(startsRemote)
                 : new AssertionSetup(existingTraceId, startsRemote);
-        setup.assertExchange();
+        return setup.assertExchange();
     }
 
     private final class AssertionSetup {
@@ -134,8 +136,9 @@ public class AssertionsForTracingLogs {
             return values.get(0);
         }
 
-        private void assertExchange() {
+        private List<HttpTrace> assertExchange() {
             traces.forEach(this::assertTraceId);
+            return traces;
         }
 
         private void assertTraceId(final HttpTrace trace) {

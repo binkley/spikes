@@ -101,10 +101,8 @@ public abstract class LogbookFeignLogger
     }
 
     @Override
-    protected void logRetry(final String configKey,
-            final Level logLevel) {
-        logger.warn("Retrying {}", configKey);
-    }
+    protected abstract void logRetry(
+            final String configKey, final Level logLevel);
 
     @Override
     protected Response logAndRebufferResponse(final String configKey,
@@ -156,8 +154,6 @@ public abstract class LogbookFeignLogger
             final Level logLevel, final IOException ioe,
             final long elapsedTime) {
         threadLocal.remove();
-        logger.error("Failed {} after {} ms: {}", configKey,
-                elapsedTime, ioe.toString(), ioe);
         return ioe;
     }
 
@@ -181,10 +177,10 @@ public abstract class LogbookFeignLogger
         protected IOException logIOException(final String configKey,
                 final Level logLevel, final IOException ioe,
                 final long elapsedTime) {
-            threadLocal.remove();
             logger.error("Failed {} after {} ms: {}", configKey,
                     elapsedTime, ioe.toString(), ioe);
-            return ioe;
+            return super.logIOException(
+                    configKey, logLevel, ioe, elapsedTime);
         }
     }
 
@@ -217,7 +213,6 @@ public abstract class LogbookFeignLogger
         protected IOException logIOException(final String configKey,
                 final Level logLevel, final IOException ioe,
                 final long elapsedTime) {
-            threadLocal.remove();
             try {
                 logger.error(objectMapper.writeValueAsString(
                         new IoException(configKey, elapsedTime,
@@ -226,7 +221,8 @@ public abstract class LogbookFeignLogger
             } catch (final JsonProcessingException e) {
                 throw new Error("BUG: Jackson missing or misconfigured", e);
             }
-            return ioe;
+            return super.logIOException(
+                    configKey, logLevel, ioe, elapsedTime);
         }
 
         @Value
