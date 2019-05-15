@@ -1,5 +1,7 @@
 package x.loggy;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -15,6 +17,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
+import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.charset.CoderMalfunctionError;
@@ -28,10 +31,12 @@ public class LoggyDemo {
     private final LoggyRemote loggy;
     private final NotFoundRemote notFound;
     private final UnknownHostRemote unknownHost;
+    private final ObjectMapper objectMapper;
     private final Logger logger;
 
     @EventListener
-    public void ready(final ApplicationReadyEvent event) {
+    public void ready(final ApplicationReadyEvent event)
+            throws JsonProcessingException {
         logger.warn("SIMPLE LOGGING");
         logger.info("I am ready: {}", new ToStringCreator(event)
                 .append("args", event.getArgs())
@@ -58,6 +63,22 @@ public class LoggyDemo {
 
         logger.info("{}", response.body());
         logger.debug("(Really got {} after sending {})", response, request);
+
+        final var postRequest = HttpRequest.newBuilder()
+                .POST(BodyPublishers.ofString(objectMapper.writeValueAsString(
+                        new LoggyRequest(2))))
+                .uri(URI.create("http://localhost:8080/postish"))
+                .header("Content-Type", "application/json")
+                .build();
+        sendOrDie(postRequest, client);
+
+        final var badRequest = HttpRequest.newBuilder()
+                .POST(BodyPublishers.ofString(objectMapper.writeValueAsString(
+                        new LoggyRequest(-1))))
+                .uri(URI.create("http://localhost:8080/postish"))
+                .header("Content-Type", "application/json")
+                .build();
+        sendOrDie(badRequest, client);
 
         logger.warn("EXCEPTIONS");
 
