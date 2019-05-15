@@ -10,6 +10,8 @@ import org.zalando.problem.StatusType;
 import org.zalando.problem.spring.web.advice.ProblemHandling;
 import org.zalando.problem.spring.web.advice.security.SecurityAdviceTrait;
 
+import static java.lang.String.format;
+import static org.springframework.core.NestedExceptionUtils.getMostSpecificCause;
 import static org.zalando.problem.Status.BAD_GATEWAY;
 import static org.zalando.problem.Status.UNPROCESSABLE_ENTITY;
 
@@ -24,6 +26,10 @@ public class ExceptionHandling
     @ExceptionHandler(FeignException.class)
     public ResponseEntity<Problem> handleFeign(
             final FeignException e, final NativeWebRequest request) {
-        return create(BAD_GATEWAY, e, request);
+        final var problem = Problem.builder()
+                .withDetail(format("%s: %s", e, getMostSpecificCause(e)))
+                .withStatus(BAD_GATEWAY)
+                .build();
+        return create(problem, request);
     }
 }
