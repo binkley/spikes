@@ -209,7 +209,7 @@ public abstract class LogbookFeignLogger
                 logger.warn(objectMapper.writeValueAsString(
                         new Retrying(configKey)));
             } catch (final JsonProcessingException e) {
-                throw new Error("BUG: Jackson missing or misconfigured", e);
+                throw new Bug("Jackson missing or misconfigured", e);
             }
         }
 
@@ -223,7 +223,7 @@ public abstract class LogbookFeignLogger
                                 ioe.toString())),
                         ioe);
             } catch (final JsonProcessingException e) {
-                throw new Error("BUG: Jackson missing or misconfigured", e);
+                throw new Bug("Jackson missing or misconfigured", e);
             }
             return super.logIOException(
                     configKey, logLevel, ioe, elapsedTime);
