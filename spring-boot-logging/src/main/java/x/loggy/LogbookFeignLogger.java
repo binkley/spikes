@@ -29,6 +29,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import static feign.Util.toByteArray;
+import static java.lang.String.format;
 import static lombok.AccessLevel.PROTECTED;
 import static org.apache.http.HttpVersion.HTTP_1_1;
 
@@ -40,12 +41,11 @@ public abstract class LogbookFeignLogger
 
     protected final Logbook logbook;
     protected final Logger logger;
+    protected final LoggyProperties loggy;
 
     @Override
-    protected void log(final String configKey,
-            final String format, final Object... args) {
-        // Do nothing -- Feign logger is unfortunate
-    }
+    protected abstract void log(final String configKey,
+            final String format, final Object... args);
 
     @Override
     protected void logRequest(final String configKey,
@@ -154,8 +154,10 @@ public abstract class LogbookFeignLogger
      * there is no response
      */
     @Override
-    protected IOException logIOException(final String configKey,
-            final Level logLevel, final IOException ioe,
+    protected IOException logIOException(
+            final String configKey,
+            final Level logLevel,
+            final IOException ioe,
             final long elapsedTime) {
         threadLocal.remove();
         return ioe;
@@ -166,20 +168,33 @@ public abstract class LogbookFeignLogger
     public static class ConsoleLogbookFeignLogger
             extends LogbookFeignLogger {
         @Autowired
-        public ConsoleLogbookFeignLogger(final Logbook logbook,
-                final Logger logger) {
-            super(logbook, logger);
+        public ConsoleLogbookFeignLogger(
+                final Logbook logbook,
+                final Logger logger,
+                final LoggyProperties loggy) {
+            super(logbook, logger, loggy);
         }
 
         @Override
-        protected void logRetry(final String configKey,
-                final Level logLevel) {
-            logger.warn("Retrying {}", configKey);
+        protected void log(final String configKey, final String format,
+                final Object... args) {
+            logger.trace("Logging {}: {}", configKey, format(format, args));
         }
 
         @Override
-        protected IOException logIOException(final String configKey,
-                final Level logLevel, final IOException ioe,
+        protected void logRetry(
+                final String configKey, final Level logLevel) {
+            if (loggy.isLogFeignRetries())
+                logger.warn("Retrying {}", configKey);
+            else
+                logger.trace("Retrying {}", configKey);
+        }
+
+        @Override
+        protected IOException logIOException(
+                final String configKey,
+                final Level logLevel,
+                final IOException ioe,
                 final long elapsedTime) {
             logger.error("Failed {} after {} ms: {}", configKey,
                     elapsedTime, ioe.toString(), ioe);
@@ -197,25 +212,43 @@ public abstract class LogbookFeignLogger
         @Autowired
         public JsonLogbookFeignLogger(final Logbook logbook,
                 final Logger logger,
-                final ObjectMapper objectMapper) {
-            super(logbook, logger);
+                final ObjectMapper objectMapper,
+                final LoggyProperties loggy) {
+            super(logbook, logger, loggy);
             this.objectMapper = objectMapper;
         }
 
         @Override
-        protected void logRetry(final String configKey,
-                final Level logLevel) {
+        protected void log(final String configKey, final String format,
+                final Object... args) {
             try {
-                logger.warn(objectMapper.writeValueAsString(
-                        new Retrying(configKey)));
+                logger.trace(objectMapper.writeValueAsString(
+                        new Log(configKey, format(format, args))));
             } catch (final JsonProcessingException e) {
                 throw new Bug("Jackson missing or misconfigured", e);
             }
         }
 
         @Override
-        protected IOException logIOException(final String configKey,
-                final Level logLevel, final IOException ioe,
+        protected void logRetry(
+                final String configKey, final Level logLevel) {
+            try {
+                if (loggy.isLogFeignRetries())
+                    logger.warn(objectMapper.writeValueAsString(
+                            new Retrying(configKey)));
+                else
+                    logger.trace(objectMapper.writeValueAsString(
+                            new Retrying(configKey)));
+            } catch (final JsonProcessingException e) {
+                throw new Bug("Jackson missing or misconfigured", e);
+            }
+        }
+
+        @Override
+        protected IOException logIOException(
+                final String configKey,
+                final Level logLevel,
+                final IOException ioe,
                 final long elapsedTime) {
             try {
                 logger.error(objectMapper.writeValueAsString(
@@ -230,13 +263,20 @@ public abstract class LogbookFeignLogger
         }
 
         @Value
-        private static final class Retrying {
+        private static class Log {
+            String message = "log";
+            String configKey;
+            String log;
+        }
+
+        @Value
+        private static class Retrying {
             String message = "retrying";
             String configKey;
         }
 
         @Value
-        private static final class IoException {
+        private static class IoException {
             String message = "ioException";
             String configKey;
             long elapsedTime;

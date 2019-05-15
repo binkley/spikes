@@ -7,5 +7,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @Data
 public class LoggyProperties {
     private boolean enableDemo;
+    private boolean logFeignRetries;
     private boolean runOnce;
 }

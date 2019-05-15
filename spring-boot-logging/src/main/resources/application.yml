@@ -19,6 +19,7 @@ logging:
 
 loggy:
   enable-demo: true
+  log-feign-retries: false
   run-once: true
 
 management:
