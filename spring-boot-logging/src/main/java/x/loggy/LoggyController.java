@@ -23,6 +23,7 @@ public class LoggyController {
     private final Clock clock;
     private final LoggyRemote loggy;
     private final NotFoundRemote notFound;
+    private final UnknownHostRemote unknownHost;
     private final Logger logger;
 
     @GetMapping("direct")
@@ -47,5 +48,11 @@ public class LoggyController {
     public String getNotFound() {
         logger.info("INTER THE NOT-FOUND WEBS");
         return notFound.get();
+    }
+
+    @GetMapping("unknown-host")
+    public String getUnknownHost() {
+        logger.info("INTER THE UNKNOWN_HOST WEBS");
+        return unknownHost.get();
     }
 }

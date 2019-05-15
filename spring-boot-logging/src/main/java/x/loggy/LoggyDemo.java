@@ -72,6 +72,8 @@ public class LoggyDemo {
                 .build();
         sendOrDie(postRequest, client);
 
+        logger.warn("CONSTRAINT VIOLATION WITH WEB");
+
         final var badRequest = HttpRequest.newBuilder()
                 .POST(BodyPublishers.ofString(objectMapper.writeValueAsString(
                         new LoggyRequest(-1))))
@@ -87,13 +89,11 @@ public class LoggyDemo {
                 new NullPointerException("OH MY, A NULL POINTER!"));
         logger.error("And I fail: {}", e.getMessage(), e);
 
-        // Feign
         logger.warn("FEIGN");
 
         logger.warn("CALL OURSELVES WITH FEIGN DIRECT");
 
-        final var direct = loggy.getDirect();
-        logger.info("{}", direct);
+        logger.info("{}", loggy.getDirect());
 
         logger.warn("AND NOW FOR SOMETHING COMPLETELY POSTISH");
 
@@ -101,11 +101,7 @@ public class LoggyDemo {
 
         logger.warn("CALL OURSELVES WITH FEIGN THROUGH FEIGN");
 
-        final var indirect = loggy.getIndirect();
-        logger.info("{}", indirect);
-
-        final var loggyResponse = loggy.getDirect();
-        logger.info("{}", loggyResponse);
+        logger.info("{}", loggy.getIndirect());
 
         try {
             notFound.get();
@@ -122,6 +118,8 @@ public class LoggyDemo {
             // Already logged by logbook-feign logger
         }
 
+        logger.warn("CONSTRAINT VIOLATION WITH FEIGN");
+
         try {
             loggy.post(new LoggyRequest(-1));
         } catch (final FeignException violation) {
@@ -129,9 +127,11 @@ public class LoggyDemo {
                     getMostSpecificCause(violation).toString(), violation);
         }
 
-        logger.warn("THIS AND THAT");
+        logger.warn("WEB + FEIGN");
 
-        final var otherRequest = HttpRequest.newBuilder()
+        logger.warn("NOT FOUND WITH FEIGN THROUGH WEB");
+
+        final var notFoundRequest = HttpRequest.newBuilder()
                 .GET()
                 .uri(URI.create("http://localhost:8080/not-found"))
                 .expectContinue(true)
@@ -140,10 +140,22 @@ public class LoggyDemo {
                         "X-B3-SpanId", "abcdef0987654321",
                         "X-B3-ParentSpanId", "abcdef0987654321")
                 .build();
-        final var otherClient = HttpClient.newBuilder()
+
+        sendOrDie(notFoundRequest, client);
+
+        logger.warn("UNKNOWN HOST WITH FEIGN THROUGH WEB");
+
+        final var unknownHostClient = HttpRequest.newBuilder()
+                .GET()
+                .uri(URI.create("http://localhost:8080/unknown-host"))
+                .expectContinue(true)
+                .headers(
+                        "X-B3-TraceId", "abcdef0987654321",
+                        "X-B3-SpanId", "abcdef0987654321",
+                        "X-B3-ParentSpanId", "abcdef0987654321")
                 .build();
 
-        sendOrDie(otherRequest, otherClient);
+        sendOrDie(unknownHostClient, client);
 
         logger.warn("BUT IT'S ALRIGHT, IT'S OK, I'M GONNA RUN THAT WAY");
     }
