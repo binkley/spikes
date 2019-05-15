@@ -2,11 +2,11 @@ feign:
   client:
     config:
       default:
-        logger-level: 'FULL'
+        logger-level: "FULL"
 
 logbook:
   format:
-    style: 'http'
+    style: "http"
 
 logging:
   level:
@@ -25,7 +25,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: '*'
+        include: "*"
   endpoint:
     health:
       show-details: always
@@ -37,25 +37,25 @@ spring:
   jackson:
     # TODO: Millis showing up anyways
     date-format: "yyyy-MM-dd'T'HH:mm:ssX"
-    property-naming-strategy: 'KEBAB_CASE'
-    time-zone: 'UTC'
+    property-naming-strategy: "KEBAB_CASE"
+    time-zone: "UTC"
   main:
-    banner-mode: 'OFF'
+    banner-mode: "OFF"
   mvc:
     throw-exception-if-no-handler-found: true
   output:
     ansi:
-      enabled: 'ALWAYS'
+      enabled: "ALWAYS"
   resources:
     add-mappings: false  # NB -- not usable with Swagger
 ---
 
 logbook:
   format:
-    style: 'json'
+    style: "json"
 
 spring:
   output:
     ansi:
-      enabled: 'NEVER'
+      enabled: "NEVER"
   profiles: json
