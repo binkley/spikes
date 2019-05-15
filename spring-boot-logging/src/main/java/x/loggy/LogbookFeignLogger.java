@@ -149,6 +149,10 @@ public abstract class LogbookFeignLogger
         logbookResponse.setEntity(new ByteArrayEntity(bodyData));
     }
 
+    /**
+     * @todo Move to Logbook 2.x, which *will* log the request, even when
+     * there is no response
+     */
     @Override
     protected IOException logIOException(final String configKey,
             final Level logLevel, final IOException ioe,
