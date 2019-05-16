@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.nio.charset.CoderMalfunctionError;
 import java.time.Clock;
 import java.time.Instant;
 
@@ -42,6 +43,12 @@ public class LoggyController {
     @ResponseStatus(ACCEPTED)
     public void post(@RequestBody final @Valid LoggyRequest request) {
         logger.info("POSTED {}", request);
+    }
+
+    @GetMapping("npe")
+    public LoggyResponse getNpe() {
+        logger.info("INTER THE SAD WEBS");
+        throw new CoderMalfunctionError(new NullPointerException("SAD, SAD"));
     }
 
     @GetMapping("not-found")

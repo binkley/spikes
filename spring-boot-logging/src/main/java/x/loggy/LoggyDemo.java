@@ -47,6 +47,8 @@ public class LoggyDemo {
 
         logger.warn("CALL OURSELVES");
 
+        logger.warn("GET WITH WEB");
+
         final var request = HttpRequest.newBuilder()
                 .GET()
                 .uri(URI.create("http://localhost:8080/direct"))
@@ -63,6 +65,8 @@ public class LoggyDemo {
 
         logger.info("{}", response.body());
         logger.debug("(Really got {} after sending {})", response, request);
+
+        logger.warn("POST WITH WEB");
 
         final var postRequest = HttpRequest.newBuilder()
                 .POST(BodyPublishers.ofString(objectMapper.writeValueAsString(
@@ -81,6 +85,14 @@ public class LoggyDemo {
                 .header("Content-Type", "application/json")
                 .build();
         sendOrDie(badRequest, client);
+
+        logger.warn("NPE WITH WEB");
+
+        final var npeRequest = HttpRequest.newBuilder()
+                .GET()
+                .uri(URI.create("http://localhost:8080/npe"))
+                .build();
+        sendOrDie(npeRequest, client);
 
         logger.warn("EXCEPTIONS");
 

@@ -14,4 +14,7 @@ public interface LoggyRemote {
 
     @PostMapping(path = "postish")
     void post(final LoggyRequest request);
+
+    @GetMapping(path = "npe")
+    LoggyResponse getNpe();
 }
