@@ -221,9 +221,13 @@ public abstract class LogbookFeignLogger
         @Override
         protected void log(final String configKey, final String format,
                 final Object... args) {
+            withJackson(() -> logger.trace(objectMapper.writeValueAsString(
+                    new Log(configKey, format(format, args)))));
+        }
+
+        private static void withJackson(final JacksonCall call) {
             try {
-                logger.trace(objectMapper.writeValueAsString(
-                        new Log(configKey, format(format, args))));
+                call.call();
             } catch (final JsonProcessingException e) {
                 throw new Bug("Jackson missing or misconfigured", e);
             }
@@ -232,16 +236,14 @@ public abstract class LogbookFeignLogger
         @Override
         protected void logRetry(
                 final String configKey, final Level logLevel) {
-            try {
+            withJackson(() -> {
                 if (loggy.isLogFeignRetries())
                     logger.warn(objectMapper.writeValueAsString(
                             new Retrying(configKey)));
                 else
                     logger.trace(objectMapper.writeValueAsString(
                             new Retrying(configKey)));
-            } catch (final JsonProcessingException e) {
-                throw new Bug("Jackson missing or misconfigured", e);
-            }
+            });
         }
 
         @Override
@@ -250,16 +252,19 @@ public abstract class LogbookFeignLogger
                 final Level logLevel,
                 final IOException ioe,
                 final long elapsedTime) {
-            try {
-                logger.error(objectMapper.writeValueAsString(
-                        new IoException(configKey, elapsedTime,
-                                ioe.toString())),
-                        ioe);
-            } catch (final JsonProcessingException e) {
-                throw new Bug("Jackson missing or misconfigured", e);
-            }
+            withJackson(() -> logger.error(objectMapper.writeValueAsString(
+                    new IoException(configKey, elapsedTime,
+                            ioe.toString())),
+                    ioe));
+
             return super.logIOException(
                     configKey, logLevel, ioe, elapsedTime);
+        }
+
+        @FunctionalInterface
+        private interface JacksonCall {
+            void call()
+                    throws JsonProcessingException;
         }
 
         @Value
