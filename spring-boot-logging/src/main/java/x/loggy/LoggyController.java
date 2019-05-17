@@ -25,6 +25,7 @@ public class LoggyController {
     private final LoggyRemote loggy;
     private final NotFoundRemote notFound;
     private final UnknownHostRemote unknownHost;
+    private final ConflictRemote conflict;
     private final Logger logger;
 
     @GetMapping("direct")
@@ -49,6 +50,12 @@ public class LoggyController {
     public LoggyResponse getNpe() {
         logger.info("INTER THE SAD WEBS");
         throw new CoderMalfunctionError(new NullPointerException("SAD, SAD"));
+    }
+
+    @PostMapping("conflict")
+    public void conflict() {
+        logger.info("INTER THE CONFLICTED WEBS");
+        conflict.postConflict();
     }
 
     @GetMapping("not-found")

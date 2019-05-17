@@ -17,4 +17,7 @@ public interface LoggyRemote {
 
     @GetMapping(path = "npe")
     LoggyResponse getNpe();
+
+    @PostMapping(path = "conflict")
+    void postConflict();
 }

@@ -22,6 +22,7 @@ import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.charset.CoderMalfunctionError;
 
+import static java.net.http.HttpRequest.BodyPublishers.noBody;
 import static org.springframework.core.NestedExceptionUtils.getMostSpecificCause;
 
 @Component
@@ -130,6 +131,14 @@ public class LoggyDemo {
             // Already logged by logbook-feign logger
         }
 
+        logger.warn("CONFLICT WITH FEIGN");
+
+        try {
+            loggy.postConflict();
+        } catch (final FeignException ignored) {
+            // Already logged by logbook-feign logger
+        }
+
         logger.warn("CONSTRAINT VIOLATION WITH FEIGN");
 
         try {
@@ -157,7 +166,7 @@ public class LoggyDemo {
 
         logger.warn("UNKNOWN HOST WITH FEIGN THROUGH WEB");
 
-        final var unknownHostClient = HttpRequest.newBuilder()
+        final var unknownHostRequest = HttpRequest.newBuilder()
                 .GET()
                 .uri(URI.create("http://localhost:8080/unknown-host"))
                 .expectContinue(true)
@@ -167,7 +176,20 @@ public class LoggyDemo {
                         "X-B3-ParentSpanId", "abcdef0987654321")
                 .build();
 
-        sendOrDie(unknownHostClient, client);
+        sendOrDie(unknownHostRequest, client);
+
+        logger.warn("CONFLICT WITH FEIGN THROUGH WEB");
+
+        final var conflictRequest = HttpRequest.newBuilder()
+                .POST(noBody())
+                .uri(URI.create("http://localhost:8080/conflict"))
+                .headers(
+                        "X-B3-TraceId", "abcdef0987654321",
+                        "X-B3-SpanId", "abcdef0987654321",
+                        "X-B3-ParentSpanId", "abcdef0987654321")
+                .build();
+
+        sendOrDie(conflictRequest, client);
 
         logger.warn("BUT IT'S ALRIGHT, IT'S OK, I'M GONNA RUN THAT WAY");
     }

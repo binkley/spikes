@@ -59,8 +59,11 @@ public class ExceptionHandling
                     requestURL,
                     throwable.getMessage());
         } else if (status.is5xxServerError()) {
-            logger.error("{}: {}",
-                    status.getReasonPhrase(), requestURL, throwable);
+            logger.error("{}: {}: {}",
+                    status.getReasonPhrase(),
+                    requestURL,
+                    throwable.getMessage(),
+                    throwable);
         }
     }
 }
