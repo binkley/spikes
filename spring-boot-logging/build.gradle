@@ -18,7 +18,7 @@ ext {
 
 ext["assertj.version"] = "3.12.2"
 ext["junit-jupiter.version"] = "5.4.2"
-ext["mockito.version"] = "2.27.0"
+ext["mockito.version"] = "2.27.2"
 
 configurations {
     compileOnly {
