@@ -27,7 +27,7 @@ class TraceRequestInterceptorTest {
 
     @Test
     void shouldReuseContext() {
-        final var traceId = "deadbeef";
+        final var traceId = "abcdef0987654321";
         final var tracing = Tracing.newBuilder().build();
         final var tracer = spy(tracing.tracer());
         final var currentSpan = mock(Span.class);

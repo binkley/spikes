@@ -184,9 +184,9 @@ public class LoggyDemo {
                 .POST(noBody())
                 .uri(URI.create("http://localhost:8080/conflict"))
                 .headers(
-                        "X-B3-TraceId", "abcdef0987654321",
-                        "X-B3-SpanId", "abcdef0987654321",
-                        "X-B3-ParentSpanId", "abcdef0987654321")
+                        "X-B3-TraceId", "Cbcdef0987654321",
+                        "X-B3-SpanId", "Cbcdef0987654321",
+                        "X-B3-ParentSpanId", "Cbcdef0987654321")
                 .build();
 
         sendOrDie(conflictRequest, client);

@@ -36,8 +36,14 @@ public class ExceptionHandling
     @ExceptionHandler(FeignException.class)
     public ResponseEntity<Problem> handleFeign(
             final FeignException e, final NativeWebRequest request) {
+        final var remoteUrl = LogbookFeignLogger.remoteUrl.get();
+        LogbookFeignLogger.remoteUrl.remove();
+
         final var problem = Problem.builder()
-                .withDetail(format("%s: %s", e, getMostSpecificCause(e)))
+                .withDetail(format("%s: %s: %s",
+                        remoteUrl,
+                        e,
+                        getMostSpecificCause(e)))
                 .withStatus(BAD_GATEWAY)
                 .build();
         return create(problem, request);
