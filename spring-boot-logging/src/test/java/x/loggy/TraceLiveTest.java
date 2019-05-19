@@ -37,13 +37,13 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 }, webEnvironment = DEFINED_PORT)
 class TraceLiveTest {
     private static final String existingTraceId = "abcdef0987654321";
+    private static final HttpClient client = HttpClient.newBuilder().build();
 
     private final LoggyRemote loggy;
     private final NotFoundRemote notFound;
     private final UnknownHostRemote unknownHost;
     private final Clock clock;
     private final Tracing tracing;
-
     private final AssertionsForTracingLogs tracingLogs;
 
     @MockBean(name = "logger")
@@ -70,16 +70,9 @@ class TraceLiveTest {
     @Test
     void givenExistingTrace_shouldTraceThoughWebDirectly()
             throws IOException, InterruptedException {
-        final var request = HttpRequest.newBuilder()
+        final var request = withTracing(HttpRequest.newBuilder()
                 .GET()
-                .uri(URI.create("http://localhost:8080/direct"))
-                .expectContinue(true)
-                .headers(
-                        "X-B3-TraceId", existingTraceId,
-                        "X-B3-SpanId", existingTraceId,
-                        "X-B3-ParentSpanId", existingTraceId)
-                .build();
-        final var client = HttpClient.newBuilder()
+                .uri(URI.create("http://localhost:8080/direct")))
                 .build();
 
         final var response = client.send(request, BodyHandlers.ofString());
@@ -95,14 +88,20 @@ class TraceLiveTest {
         tracingLogs.assertExchange(existingTraceId, true);
     }
 
+    private static HttpRequest.Builder withTracing(
+            final HttpRequest.Builder requestBuilder) {
+        return requestBuilder.headers(
+                "X-B3-TraceId", existingTraceId,
+                "X-B3-SpanId", existingTraceId,
+                "X-B3-ParentSpanId", existingTraceId);
+    }
+
     @Test
     void givenNoExistingTrace_shouldTraceThoughWebDirectly()
             throws IOException, InterruptedException {
         final var request = HttpRequest.newBuilder()
                 .GET()
                 .uri(URI.create("http://localhost:8080/direct"))
-                .build();
-        final var client = HttpClient.newBuilder()
                 .build();
 
         final var response = client.send(request, BodyHandlers.ofString());
@@ -122,15 +121,9 @@ class TraceLiveTest {
     @Test
     void givenExistingTrace_shouldTraceThoughWebIndirectly()
             throws IOException, InterruptedException {
-        final var request = HttpRequest.newBuilder()
+        final var request = withTracing(HttpRequest.newBuilder()
                 .GET()
-                .uri(URI.create("http://localhost:8080/indirect"))
-                .headers(
-                        "X-B3-TraceId", existingTraceId,
-                        "X-B3-SpanId", existingTraceId,
-                        "X-B3-ParentSpanId", existingTraceId)
-                .build();
-        final var client = HttpClient.newBuilder()
+                .uri(URI.create("http://localhost:8080/indirect")))
                 .build();
 
         final var response = client.send(request, BodyHandlers.ofString());
@@ -152,8 +145,6 @@ class TraceLiveTest {
         final var request = HttpRequest.newBuilder()
                 .GET()
                 .uri(URI.create("http://localhost:8080/indirect"))
-                .build();
-        final var client = HttpClient.newBuilder()
                 .build();
 
         final var response = client.send(request, BodyHandlers.ofString());
