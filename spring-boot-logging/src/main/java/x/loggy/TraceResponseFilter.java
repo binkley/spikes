@@ -2,6 +2,7 @@ package x.loggy;
 
 import brave.Tracer;
 import brave.Tracing;
+import brave.propagation.TraceContext;
 import brave.propagation.TraceContext.Injector;
 import org.slf4j.Logger;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -31,8 +32,29 @@ public class TraceResponseFilter
     public void doFilterInternal(final HttpServletRequest request,
             final HttpServletResponse response, final FilterChain chain)
             throws IOException, ServletException {
-        injector.inject(currentContext(tracer, logger), response);
+        final var currentContext = currentContext(tracer, logger);
+
+        warnIfRequestTracingInvalid(request, currentContext);
+
+        injector.inject(currentContext, response);
 
         chain.doFilter(request, response);
+    }
+
+    private void warnIfRequestTracingInvalid(
+            final HttpServletRequest request,
+            final TraceContext currentContext) {
+        final var requestTraceId = request.getHeader("X-B3-TraceId");
+        final var traceId = currentContext.traceIdString();
+
+        if (null != requestTraceId
+                && !requestTraceId.equalsIgnoreCase(traceId)) {
+            logger.warn(
+                    "Invalid X-B3-TraceId: {}: must be a 16-digit hexadecimal"
+                            + " string, and X-B3-SpanId and X-B3-ParentSpanId"
+                            + " are required; ignoring and generating a new"
+                            + " trace ID: {}",
+                    requestTraceId, traceId);
+        }
     }
 }

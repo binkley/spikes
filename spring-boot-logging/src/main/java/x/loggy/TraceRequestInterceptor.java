@@ -26,8 +26,9 @@ public class TraceRequestInterceptor
     @Autowired
     public TraceRequestInterceptor(final Tracing tracing,
             final Tracer tracer, final Logger logger) {
-        extractor = tracing.propagation().extractor(MDCAdapter::get);
-        injector = tracing.propagation().injector(RequestTemplate::header);
+        final var propagation = tracing.propagation();
+        extractor = propagation.extractor(MDCAdapter::get);
+        injector = propagation.injector(RequestTemplate::header);
         this.tracer = tracer;
         this.logger = logger;
     }

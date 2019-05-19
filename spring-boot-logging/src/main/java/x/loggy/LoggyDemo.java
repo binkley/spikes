@@ -50,6 +50,20 @@ public class LoggyDemo {
 
         logger.warn("GET WITH WEB");
 
+        final var client = HttpClient.newBuilder().build();
+
+        final var invalidTracingRequest = HttpRequest.newBuilder()
+                .GET()
+                .uri(URI.create("http://localhost:8080/direct"))
+                .expectContinue(true)
+                .headers(
+                        "X-B3-TraceId", "not-a-trace-id",
+                        "X-B3-SpanId", "not-a-trace-id",
+                        "X-B3-ParentSpanId", "not-a-trace-id")
+                .build();
+
+        sendOrDie(invalidTracingRequest, client);
+
         final var request = HttpRequest.newBuilder()
                 .GET()
                 .uri(URI.create("http://localhost:8080/direct"))
@@ -58,8 +72,6 @@ public class LoggyDemo {
                         "X-B3-TraceId", "abcdef0987654321",
                         "X-B3-SpanId", "abcdef0987654321",
                         "X-B3-ParentSpanId", "abcdef0987654321")
-                .build();
-        final var client = HttpClient.newBuilder()
                 .build();
 
         final HttpResponse<String> response = sendOrDie(request, client);

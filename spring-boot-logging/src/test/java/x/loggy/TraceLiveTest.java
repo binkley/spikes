@@ -23,10 +23,14 @@ import java.net.http.HttpResponse.BodyHandlers;
 import java.time.Clock;
 import java.time.Instant;
 
+import static java.net.http.HttpResponse.BodyHandlers.discarding;
 import static java.time.ZoneOffset.UTC;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.verify;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.DEFINED_PORT;
 
 @ActiveProfiles("json")
@@ -65,6 +69,23 @@ class TraceLiveTest {
         lenient().when(httpLogger.isInfoEnabled()).thenReturn(true);
         lenient().when(httpLogger.isWarnEnabled()).thenReturn(true);
         lenient().when(httpLogger.isErrorEnabled()).thenReturn(true);
+    }
+
+    @Test
+    void givenExistingInvalidTrace_shouldWarn()
+            throws IOException, InterruptedException {
+        final var invalidTraceId = "not-a-trace-id";
+        final var request = HttpRequest.newBuilder()
+                .GET()
+                .uri(URI.create("http://localhost:8080/direct"))
+                .headers("X-B3-TraceId", invalidTraceId,
+                        "X-B3-SpanId", invalidTraceId,
+                        "X-B3-ParentSpanId", invalidTraceId)
+                .build();
+
+        client.send(request, discarding());
+
+        verify(logger).warn(anyString(), eq(invalidTraceId), anyString());
     }
 
     @Test
