@@ -39,13 +39,15 @@ public class ExceptionHandling
         final var remoteUrl = LogbookFeignLogger.remoteUrl.get();
         LogbookFeignLogger.remoteUrl.remove();
 
+        final var rootException = getMostSpecificCause(e);
+        final var message = e.equals(rootException)
+                ? e.toString()
+                : e + ": " + rootException;
         final var problem = Problem.builder()
-                .withDetail(format("%s: %s: %s",
-                        remoteUrl,
-                        e,
-                        getMostSpecificCause(e)))
+                .withDetail(format("%s: %s", remoteUrl, message))
                 .withStatus(BAD_GATEWAY)
                 .build();
+
         return create(problem, request);
     }
 
