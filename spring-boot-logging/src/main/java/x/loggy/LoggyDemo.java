@@ -52,6 +52,8 @@ public class LoggyDemo {
 
         final var client = HttpClient.newBuilder().build();
 
+        logger.warn("INVALID INBOUND TRACE ID");
+
         final var invalidTracingRequest = HttpRequest.newBuilder()
                 .GET()
                 .uri(URI.create("http://localhost:8080/direct"))
@@ -63,6 +65,8 @@ public class LoggyDemo {
                 .build();
 
         sendOrDie(invalidTracingRequest, client);
+
+        logger.warn("GET WITH WEB");
 
         final var request = HttpRequest.newBuilder()
                 .GET()
