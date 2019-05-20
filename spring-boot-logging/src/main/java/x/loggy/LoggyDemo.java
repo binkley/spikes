@@ -11,6 +11,7 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.style.ToStringCreator;
 import org.springframework.stereotype.Component;
+import x.loggy.LoggyRequest.Rolly;
 
 import java.io.IOError;
 import java.io.IOException;
@@ -22,6 +23,7 @@ import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.charset.CoderMalfunctionError;
 import java.time.LocalDate;
+import java.util.List;
 
 import static java.net.http.HttpRequest.BodyPublishers.noBody;
 import static org.springframework.core.NestedExceptionUtils.getMostSpecificCause;
@@ -86,10 +88,8 @@ public class LoggyDemo {
 
         final var postRequest = HttpRequest.newBuilder()
                 .POST(BodyPublishers.ofString(objectMapper.writeValueAsString(
-                        LoggyRequest.builder()
-                                .blinkenLights(2)
-                                .when(LocalDate.of(9876, 5, 4))
-                                .build())))
+                        new LoggyRequest(2, List.of(
+                                new Rolly(LocalDate.of(9876, 5, 4)))))))
                 .uri(URI.create("http://localhost:8080/postish"))
                 .header("Content-Type", "application/json")
                 .build();
@@ -99,10 +99,8 @@ public class LoggyDemo {
 
         final var poorRequest = HttpRequest.newBuilder()
                 .POST(BodyPublishers.ofString(objectMapper.writeValueAsString(
-                        LoggyRequest.builder()
-                                .blinkenLights(-1)
-                                .when(LocalDate.of(9876, 5, 4))
-                                .build())))
+                        new LoggyRequest(-1, List.of(
+                                new Rolly(LocalDate.of(9876, 5, 4)))))))
                 .uri(URI.create("http://localhost:8080/postish"))
                 .header("Content-Type", "application/json")
                 .build();
@@ -141,10 +139,8 @@ public class LoggyDemo {
 
         logger.warn("AND NOW FOR SOMETHING COMPLETELY POSTISH");
 
-        loggy.post(LoggyRequest.builder()
-                .blinkenLights(2)
-                .when(LocalDate.of(9876, 5, 4))
-                .build());
+        loggy.post(new LoggyRequest(2, List.of(
+                new Rolly(LocalDate.of(9876, 5, 4)))));
 
         logger.warn("CALL OURSELVES WITH FEIGN THROUGH FEIGN");
 
@@ -176,10 +172,8 @@ public class LoggyDemo {
         logger.warn("CONSTRAINT VIOLATION WITH FEIGN");
 
         try {
-            loggy.post(LoggyRequest.builder()
-                    .blinkenLights(-1)
-                    .when(LocalDate.of(9876, 5, 4))
-                    .build());
+            loggy.post(new LoggyRequest(-1, List.of(
+                    new Rolly(LocalDate.of(9876, 5, 4)))));
         } catch (final FeignException violation) {
             logger.error("Feign displeased: {}: {}",
                     getMostSpecificCause(violation).toString(), violation);

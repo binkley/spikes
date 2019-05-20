@@ -2,7 +2,6 @@ package x.loggy;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.slf4j.Logger;
@@ -12,10 +11,12 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.web.servlet.MockMvc;
+import x.loggy.LoggyRequest.Rolly;
 
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.List;
 
 import static java.time.ZoneOffset.UTC;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
@@ -48,10 +49,8 @@ class LoggyControllerTest {
         mvc.perform(post("/postish")
                 .contentType(APPLICATION_JSON_UTF8)
                 .content(objectMapper.writeValueAsString(
-                        LoggyRequest.builder()
-                                .blinkenLights(2)
-                                .when(LocalDate.of(9876, 5, 4))
-                                .build())))
+                        new LoggyRequest(2, List.of(
+                                new Rolly(LocalDate.of(9876, 5, 4)))))))
                 .andExpect(status().isAccepted());
     }
 
@@ -61,22 +60,25 @@ class LoggyControllerTest {
         mvc.perform(post("/postish")
                 .contentType(APPLICATION_JSON_UTF8)
                 .content(objectMapper.writeValueAsString(
-                        LoggyRequest.builder()
-                                .blinkenLights(2)
-                                .when(null)
-                                .build())))
+                        new LoggyRequest(2, List.of(
+                                new Rolly(null))))))
                 .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.violations[0].field")
+                        .value("rollies[0].when"))
                 .andExpect(jsonPath("$.stack-trace").doesNotExist());
     }
 
-    @Disabled("TODO: 422 and no stack trace")
     @Test
     void shouldRejectInvalidDate()
             throws Exception {
         mvc.perform(post("/postish")
                 .contentType(APPLICATION_JSON_UTF8)
-                .content("{\"blinken-lights\":2,\"when\":\"not-a-date\"}"))
+                .content(
+                        "{\"blinken-lights\":2,"
+                                + "\"rollies\":[{\"when\":\"not-a-date\"}]}"))
                 .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.violations[0].field")
+                        .value("rollies[0].when"))
                 .andExpect(jsonPath("$.stack-trace").doesNotExist());
     }
 
