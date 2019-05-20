@@ -2,7 +2,9 @@ package x.loggy;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -16,12 +18,15 @@ import java.time.Instant;
 import java.time.LocalDate;
 
 import static java.time.ZoneOffset.UTC;
+import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @WebMvcTest(LoggyController.class)
+@TestInstance(PER_CLASS)
 class LoggyControllerTest {
     private final MockMvc mvc;
     private final ObjectMapper objectMapper;
@@ -48,6 +53,31 @@ class LoggyControllerTest {
                                 .when(LocalDate.of(9876, 5, 4))
                                 .build())))
                 .andExpect(status().isAccepted());
+    }
+
+    @Test
+    void shouldRejectMissingDate()
+            throws Exception {
+        mvc.perform(post("/postish")
+                .contentType(APPLICATION_JSON_UTF8)
+                .content(objectMapper.writeValueAsString(
+                        LoggyRequest.builder()
+                                .blinkenLights(2)
+                                .when(null)
+                                .build())))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.stack-trace").doesNotExist());
+    }
+
+    @Disabled("TODO: 422 and no stack trace")
+    @Test
+    void shouldRejectInvalidDate()
+            throws Exception {
+        mvc.perform(post("/postish")
+                .contentType(APPLICATION_JSON_UTF8)
+                .content("{\"blinken-lights\":2,\"when\":\"not-a-date\"}"))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.stack-trace").doesNotExist());
     }
 
     @TestConfiguration

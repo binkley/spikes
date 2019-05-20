@@ -97,12 +97,22 @@ public class LoggyDemo {
 
         logger.warn("CONSTRAINT VIOLATION WITH WEB");
 
-        final var badRequest = HttpRequest.newBuilder()
+        final var poorRequest = HttpRequest.newBuilder()
                 .POST(BodyPublishers.ofString(objectMapper.writeValueAsString(
                         LoggyRequest.builder()
                                 .blinkenLights(-1)
                                 .when(LocalDate.of(9876, 5, 4))
                                 .build())))
+                .uri(URI.create("http://localhost:8080/postish"))
+                .header("Content-Type", "application/json")
+                .build();
+        sendOrDie(poorRequest, client);
+
+        logger.warn("MISMATCHED INPUT WITH WEB");
+
+        final var badRequest = HttpRequest.newBuilder()
+                .POST(BodyPublishers.ofString(
+                        "{\"blinken-lights\":2,\"when\":\"not-a-date\"}"))
                 .uri(URI.create("http://localhost:8080/postish"))
                 .header("Content-Type", "application/json")
                 .build();
