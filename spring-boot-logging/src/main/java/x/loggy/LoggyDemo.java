@@ -21,6 +21,7 @@ import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.charset.CoderMalfunctionError;
+import java.time.LocalDate;
 
 import static java.net.http.HttpRequest.BodyPublishers.noBody;
 import static org.springframework.core.NestedExceptionUtils.getMostSpecificCause;
@@ -85,7 +86,10 @@ public class LoggyDemo {
 
         final var postRequest = HttpRequest.newBuilder()
                 .POST(BodyPublishers.ofString(objectMapper.writeValueAsString(
-                        new LoggyRequest(2))))
+                        LoggyRequest.builder()
+                                .blinkenLights(2)
+                                .when(LocalDate.of(9876, 5, 4))
+                                .build())))
                 .uri(URI.create("http://localhost:8080/postish"))
                 .header("Content-Type", "application/json")
                 .build();
@@ -95,7 +99,10 @@ public class LoggyDemo {
 
         final var badRequest = HttpRequest.newBuilder()
                 .POST(BodyPublishers.ofString(objectMapper.writeValueAsString(
-                        new LoggyRequest(-1))))
+                        LoggyRequest.builder()
+                                .blinkenLights(-1)
+                                .when(LocalDate.of(9876, 5, 4))
+                                .build())))
                 .uri(URI.create("http://localhost:8080/postish"))
                 .header("Content-Type", "application/json")
                 .build();
@@ -124,7 +131,10 @@ public class LoggyDemo {
 
         logger.warn("AND NOW FOR SOMETHING COMPLETELY POSTISH");
 
-        loggy.post(new LoggyRequest(2));
+        loggy.post(LoggyRequest.builder()
+                .blinkenLights(2)
+                .when(LocalDate.of(9876, 5, 4))
+                .build());
 
         logger.warn("CALL OURSELVES WITH FEIGN THROUGH FEIGN");
 
@@ -156,7 +166,10 @@ public class LoggyDemo {
         logger.warn("CONSTRAINT VIOLATION WITH FEIGN");
 
         try {
-            loggy.post(new LoggyRequest(-1));
+            loggy.post(LoggyRequest.builder()
+                    .blinkenLights(-1)
+                    .when(LocalDate.of(9876, 5, 4))
+                    .build());
         } catch (final FeignException violation) {
             logger.error("Feign displeased: {}: {}",
                     getMostSpecificCause(violation).toString(), violation);
