@@ -79,13 +79,14 @@ class TraceLiveTest {
                 .GET()
                 .uri(URI.create("http://localhost:8080/direct"))
                 .headers("X-B3-TraceId", invalidTraceId,
-                        "X-B3-SpanId", invalidTraceId,
-                        "X-B3-ParentSpanId", invalidTraceId)
+                        "X-B3-SpanId", invalidTraceId)
                 .build();
 
         client.send(request, discarding());
 
-        verify(logger).warn(anyString(), eq(invalidTraceId), anyString());
+        verify(logger).warn(anyString(),
+                eq(invalidTraceId), eq(invalidTraceId),
+                anyString(), anyString());
     }
 
     @Test
@@ -113,8 +114,7 @@ class TraceLiveTest {
             final HttpRequest.Builder requestBuilder) {
         return requestBuilder.headers(
                 "X-B3-TraceId", existingTraceId,
-                "X-B3-SpanId", existingTraceId,
-                "X-B3-ParentSpanId", existingTraceId);
+                "X-B3-SpanId", existingTraceId);
     }
 
     @Test
@@ -184,7 +184,7 @@ class TraceLiveTest {
 
     @Test
     void givenExistingTrace_shouldTraceThroughFeignDirectly() {
-        callWithTracePresent();
+        callWithExistingTrace();
 
         final var response = loggy.getDirect();
 
@@ -194,10 +194,9 @@ class TraceLiveTest {
         tracingLogs.assertExchange(existingTraceId, false);
     }
 
-    private static void callWithTracePresent() {
+    private static void callWithExistingTrace() {
         MDC.put("X-B3-TraceId", existingTraceId);
         MDC.put("X-B3-SpanId", existingTraceId);
-        MDC.put("X-B3-ParentSpanId", existingTraceId);
     }
 
     @Test
@@ -212,7 +211,7 @@ class TraceLiveTest {
 
     @Test
     void givenExistingTrace_shouldTraceThroughFeignIndirectly() {
-        callWithTracePresent();
+        callWithExistingTrace();
 
         final var response = loggy.getIndirect();
 
@@ -234,7 +233,7 @@ class TraceLiveTest {
 
     @Test
     void givenExistingTrace_shouldHandleNotFound() {
-        callWithTracePresent();
+        callWithExistingTrace();
 
         assertThatThrownBy(notFound::get)
                 .hasFieldOrPropertyWithValue("status", 404);
@@ -252,7 +251,7 @@ class TraceLiveTest {
 
     @Test
     void givenExistingTrace_shouldHandleUnknownHost() {
-        callWithTracePresent();
+        callWithExistingTrace();
 
         assertThatThrownBy(unknownHost::get)
                 .hasFieldOrPropertyWithValue("status", 0);

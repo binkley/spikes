@@ -34,27 +34,31 @@ public class TraceResponseFilter
             throws IOException, ServletException {
         final var currentContext = currentContext(tracer, logger);
 
-        warnIfRequestTracingInvalid(request, currentContext);
+        warnIfRequestTraceHeadersInvalid(request, currentContext);
 
         injector.inject(currentContext, response);
 
         chain.doFilter(request, response);
     }
 
-    private void warnIfRequestTracingInvalid(
+    private void warnIfRequestTraceHeadersInvalid(
             final HttpServletRequest request,
             final TraceContext currentContext) {
         final var requestTraceId = request.getHeader("X-B3-TraceId");
         final var traceId = currentContext.traceIdString();
+        final var requestSpanId = request.getHeader("X-B3-SpanId");
+        final var spanId = currentContext.spanIdString();
 
-        if (null != requestTraceId
-                && !requestTraceId.equalsIgnoreCase(traceId)) {
+        // Strictly, some shorter strings are accepted, and zero-padded;
+        // however enforcing the strict rules is unwieldy, and the simple
+        // rule below is easy to understand and follow.
+        if ((null != requestTraceId && !requestTraceId.equals(traceId))
+                || (null != requestSpanId && !requestSpanId.equals(spanId)))
             logger.warn(
-                    "Invalid X-B3-TraceId: {}: must be a 16-digit hexadecimal"
-                            + " string, and X-B3-SpanId and X-B3-ParentSpanId"
-                            + " are required; ignoring and generating a new"
-                            + " trace ID: {}",
-                    requestTraceId, traceId);
-        }
+                    "Invalid X-B3-TraceId or X-B3-SpanId: {}/{}: both must be"
+                            + " 16-digit hexadecimal strings, all lower-case,"
+                            + " and are required; ignoring and generating"
+                            + " new trace/span IDs: {}/{}",
+                    requestTraceId, requestSpanId, traceId, spanId);
     }
 }

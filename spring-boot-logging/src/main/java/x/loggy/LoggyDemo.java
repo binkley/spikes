@@ -60,8 +60,7 @@ public class LoggyDemo {
                 .expectContinue(true)
                 .headers(
                         "X-B3-TraceId", "not-a-trace-id",
-                        "X-B3-SpanId", "not-a-trace-id",
-                        "X-B3-ParentSpanId", "not-a-trace-id")
+                        "X-B3-SpanId", "not-a-trace-id")
                 .build();
 
         sendOrDie(invalidTracingRequest, client);
@@ -74,8 +73,7 @@ public class LoggyDemo {
                 .expectContinue(true)
                 .headers(
                         "X-B3-TraceId", "abcdef0987654321",
-                        "X-B3-SpanId", "abcdef0987654321",
-                        "X-B3-ParentSpanId", "abcdef0987654321")
+                        "X-B3-SpanId", "abcdef0987654321")
                 .build();
 
         final HttpResponse<String> response = sendOrDie(request, client);
@@ -174,8 +172,7 @@ public class LoggyDemo {
                 .expectContinue(true)
                 .headers(
                         "X-B3-TraceId", "abcdef0987654321",
-                        "X-B3-SpanId", "abcdef0987654321",
-                        "X-B3-ParentSpanId", "abcdef0987654321")
+                        "X-B3-SpanId", "abcdef0987654321")
                 .build();
 
         sendOrDie(notFoundRequest, client);
@@ -187,9 +184,8 @@ public class LoggyDemo {
                 .uri(URI.create("http://localhost:8080/unknown-host"))
                 .expectContinue(true)
                 .headers(
-                        "X-B3-TraceId", "abcdef0987654321",
-                        "X-B3-SpanId", "abcdef0987654321",
-                        "X-B3-ParentSpanId", "abcdef0987654321")
+                        "X-B3-TraceId", "bbcdef0987654321",
+                        "X-B3-SpanId", "bbcdef0987654321")
                 .build();
 
         sendOrDie(unknownHostRequest, client);
@@ -200,9 +196,8 @@ public class LoggyDemo {
                 .POST(noBody())
                 .uri(URI.create("http://localhost:8080/conflict"))
                 .headers(
-                        "X-B3-TraceId", "Cbcdef0987654321",
-                        "X-B3-SpanId", "Cbcdef0987654321",
-                        "X-B3-ParentSpanId", "Cbcdef0987654321")
+                        "X-B3-TraceId", "cbcdef0987654321",
+                        "X-B3-SpanId", "cbcdef0987654321")
                 .build();
 
         sendOrDie(conflictRequest, client);
