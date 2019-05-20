@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.zalando.problem.ProblemModule;
 import org.zalando.problem.validation.ConstraintViolationProblemModule;
 
-import static org.springframework.boot.autoconfigure.web.ErrorProperties.IncludeStacktrace.ALWAYS;
+import static x.loggy.ExceptionHandling.includeStackTrace;
 
 @Configuration
 @EnableAutoConfiguration(exclude = ErrorMvcAutoConfiguration.class)
@@ -17,10 +17,6 @@ public class ProblemConfiguration {
     public ProblemModule problemModule(final ServerProperties server) {
         return new ProblemModule()
                 .withStackTraces(includeStackTrace(server));
-    }
-
-    private static boolean includeStackTrace(final ServerProperties server) {
-        return ALWAYS == server.getError().getIncludeStacktrace();
     }
 
     @Bean

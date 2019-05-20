@@ -41,7 +41,7 @@ public class ExceptionHandling
         return includeStackTrace(server);
     }
 
-    private static boolean includeStackTrace(final ServerProperties server) {
+    static boolean includeStackTrace(final ServerProperties server) {
         return ALWAYS == server.getError().getIncludeStacktrace();
     }
 
