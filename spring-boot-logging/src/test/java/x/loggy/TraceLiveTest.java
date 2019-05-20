@@ -21,9 +21,11 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpHeaders;
 import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.time.Clock;
 import java.time.Instant;
 
+import static java.net.http.HttpRequest.BodyPublishers.noBody;
 import static java.net.http.HttpResponse.BodyHandlers.discarding;
 import static java.time.ZoneOffset.UTC;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -122,8 +124,19 @@ class TraceLiveTest {
 
     private String sendAndExtractTraceId(final HttpRequest request)
             throws IOException, InterruptedException {
-        return httpExtractor.extract(client
-                .send(request, discarding()).headers())
+        final var response = sendAndDiscardBody(request);
+
+        return extractTraceId(response);
+    }
+
+    private static HttpResponse<Void> sendAndDiscardBody(
+            final HttpRequest request)
+            throws IOException, InterruptedException {
+        return client.send(request, discarding());
+    }
+
+    private String extractTraceId(final HttpResponse<Void> response) {
+        return httpExtractor.extract(response.headers())
                 .context()
                 .traceIdString();
     }
@@ -179,6 +192,23 @@ class TraceLiveTest {
                 .isNotNull();
 
         tracingLogs.assertExchange(null, true);
+    }
+
+    @Test
+    void givenExistingTrace_shouldTraceThroughWebConflictedly()
+            throws IOException, InterruptedException {
+        final var request = requestWithTracing(existingTraceId)
+                .POST(noBody())
+                .uri(URI.create("http://localhost:8080/conflict"))
+                .build();
+
+        final var response = sendAndDiscardBody(request);
+        final var traceId = extractTraceId(response);
+
+        assertThat(response.statusCode()).isEqualTo(502);
+        assertThat(traceId).isEqualTo(existingTraceId);
+
+        tracingLogs.assertExchange(existingTraceId, true);
     }
 
     @Test
