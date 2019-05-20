@@ -1,6 +1,7 @@
 package x.loggy;
 
 import brave.Tracing;
+import brave.propagation.TraceContext.Extractor;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,12 +15,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.test.context.ActiveProfiles;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpHeaders;
 import java.net.http.HttpRequest;
-import java.net.http.HttpResponse.BodyHandlers;
 import java.time.Clock;
 import java.time.Instant;
 
@@ -54,6 +55,15 @@ class TraceLiveTest {
     private Logger logger;
     @MockBean(name = "httpLogger")
     private Logger httpLogger;
+
+    private Extractor<HttpHeaders> httpExtractor;
+
+    @PostConstruct
+    private void init() {
+        httpExtractor = tracing.propagation()
+                .extractor((HttpHeaders h, String key) ->
+                        h.firstValue(key).orElse(null));
+    }
 
     @BeforeEach
     void setUp() {
@@ -103,17 +113,19 @@ class TraceLiveTest {
                 .uri(URI.create("http://localhost:8080/direct"))
                 .build();
 
-        final var response = client.send(request, BodyHandlers.ofString());
+        final var traceId = sendAndExtractTraceId(request);
 
-        final var extractor = tracing.propagation()
-                .extractor((HttpHeaders h, String key) ->
-                        h.firstValue(key).orElse(null));
-        final var extraction = extractor.extract(response.headers());
-
-        assertThat(extraction.context().traceIdString())
-                .isEqualTo(existingTraceId);
+        assertThat(traceId).isEqualTo(existingTraceId);
 
         tracingLogs.assertExchange(existingTraceId, true);
+    }
+
+    private String sendAndExtractTraceId(final HttpRequest request)
+            throws IOException, InterruptedException {
+        return httpExtractor.extract(client
+                .send(request, discarding()).headers())
+                .context()
+                .traceIdString();
     }
 
     @Test
@@ -124,14 +136,9 @@ class TraceLiveTest {
                 .uri(URI.create("http://localhost:8080/direct"))
                 .build();
 
-        final var response = client.send(request, BodyHandlers.ofString());
+        final var traceId = sendAndExtractTraceId(request);
 
-        final var extractor = tracing.propagation()
-                .extractor((HttpHeaders h, String key) ->
-                        h.firstValue(key).orElse(null));
-        final var extraction = extractor.extract(response.headers());
-
-        assertThat(extraction.context().traceIdString())
+        assertThat(traceId)
                 .withFailMessage("Missing X-B3-TraceId header")
                 .isNotNull();
 
@@ -150,15 +157,9 @@ class TraceLiveTest {
                 .uri(URI.create("http://localhost:8080/indirect"))
                 .build();
 
-        final var response = client.send(request, BodyHandlers.ofString());
+        final var traceId = sendAndExtractTraceId(request);
 
-        final var extractor = tracing.propagation()
-                .extractor((HttpHeaders h, String key) ->
-                        h.firstValue(key).orElse(null));
-        final var extraction = extractor.extract(response.headers());
-
-        assertThat(extraction.context().traceIdString())
-                .isEqualTo(existingTraceId);
+        assertThat(traceId).isEqualTo(existingTraceId);
 
         tracingLogs.assertExchange(existingTraceId, true);
     }
@@ -171,14 +172,9 @@ class TraceLiveTest {
                 .uri(URI.create("http://localhost:8080/indirect"))
                 .build();
 
-        final var response = client.send(request, BodyHandlers.ofString());
+        final var traceId = sendAndExtractTraceId(request);
 
-        final var extractor = tracing.propagation()
-                .extractor((HttpHeaders h, String key) ->
-                        h.firstValue(key).orElse(null));
-        final var extraction = extractor.extract(response.headers());
-
-        assertThat(extraction.context().traceIdString())
+        assertThat(traceId)
                 .withFailMessage("Missing X-B3-TraceId header")
                 .isNotNull();
 
