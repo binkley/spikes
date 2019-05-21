@@ -66,6 +66,7 @@ public class ExceptionHandling
                     "JSON parsing failure without any JSON", e);
 
         final var jsonPath = new StringBuilder();
+        // TODO: Assumes top element is a JSON object; what about arrays?
         jsonPath.append(pit.next().getFieldName());
 
         while (pit.hasNext()) {
