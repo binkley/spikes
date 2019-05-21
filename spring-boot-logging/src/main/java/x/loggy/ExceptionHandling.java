@@ -52,13 +52,8 @@ public class ExceptionHandling
     public ResponseEntity<Problem> handleMismatchedInputException(
             final MismatchedInputException e,
             final NativeWebRequest request) {
-        final var realRequest = request.getNativeRequest(
-                HttpServletRequest.class);
-        // TODO: "Object name" not available, but also unused
-        final String objectName = realRequest.getRequestURI();
-
         return newConstraintViolationProblem(e, singleton(createViolation(
-                new FieldError(objectName, jsonFieldPath(e),
+                new FieldError("n/a", jsonFieldPath(e),
                         e.getTargetType().getName() + ": "
                                 + getMostSpecificCause(e).getMessage()))),
                 request);
