@@ -36,8 +36,6 @@ import static org.apache.http.HttpVersion.HTTP_1_1;
 @RequiredArgsConstructor(access = PROTECTED)
 public abstract class LogbookFeignLogger
         extends feign.Logger {
-    public static final ThreadLocal<String> remoteUrl = new ThreadLocal<>();
-
     private static final ThreadLocal<HttpContext> threadLocal
             = new ThreadLocal<>();
 
@@ -68,12 +66,10 @@ public abstract class LogbookFeignLogger
 
     private static HttpEntityEnclosingRequest logbookRequestFor(
             final Request feignRequest) {
-        final var url = feignRequest.url();
-        remoteUrl.set(url);
         final var logbookRequest
                 = new BasicHttpEntityEnclosingRequest(
                 feignRequest.httpMethod().name(),
-                url,
+                feignRequest.url(),
                 HTTP_1_1);
 
         copyHeadersTo(feignRequest.headers(), logbookRequest);
@@ -139,11 +135,8 @@ public abstract class LogbookFeignLogger
     private static HttpResponse logbookResponseFor(
             final Response feignResponse,
             final byte[] bodyData) {
-        final var status = feignResponse.status();
-        if (status >= 100 && status < 400) remoteUrl.remove();
-
         final var logbookResponse = new BasicHttpResponse(HTTP_1_1,
-                status, feignResponse.reason());
+                feignResponse.status(), feignResponse.reason());
 
         copyHeadersTo(feignResponse.headers(), logbookResponse);
         copyBodyTo(bodyData, logbookResponse);

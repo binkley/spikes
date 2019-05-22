@@ -21,7 +21,6 @@ import org.zalando.problem.spring.web.advice.ProblemHandling;
 
 import javax.servlet.http.HttpServletRequest;
 
-import static java.lang.String.format;
 import static java.util.Collections.singleton;
 import static org.springframework.boot.autoconfigure.web.ErrorProperties.IncludeStacktrace.ALWAYS;
 import static org.springframework.core.NestedExceptionUtils.getMostSpecificCause;
@@ -60,25 +59,23 @@ public class ExceptionHandling
     }
 
     private static String jsonFieldPath(final MismatchedInputException e) {
-        final var pit = e.getPath().iterator();
-        if (!pit.hasNext())
-            throw new IllegalStateException(
-                    "JSON parsing failure without any JSON", e);
+        final var parts = e.getPath();
+        if (parts.isEmpty())
+            throw new Bug("JSON parsing failed without any JSON", e);
 
-        final var jsonPath = new StringBuilder();
-        // TODO: Assumes top element is a JSON object; what about arrays?
-        jsonPath.append(pit.next().getFieldName());
-
-        while (pit.hasNext()) {
-            final var part = pit.next();
+        final var buffer = new StringBuilder();
+        for (final var part : parts) {
             final var fieldName = part.getFieldName();
             if (null == fieldName)
-                jsonPath.append("[").append(part.getIndex()).append("]");
+                buffer.append('[').append(part.getIndex()).append(']');
             else
-                jsonPath.append(".").append(fieldName);
+                buffer.append('.').append(fieldName);
         }
 
-        return jsonPath.toString();
+        if ('.' == buffer.charAt(0))
+            buffer.deleteCharAt(0);
+
+        return buffer.toString();
     }
 
     @Override
@@ -122,18 +119,29 @@ public class ExceptionHandling
     @ExceptionHandler(FeignException.class)
     public ResponseEntity<Problem> handleFeignException(
             final FeignException e, final NativeWebRequest request) {
-        final var remoteUrl = LogbookFeignLogger.remoteUrl.get();
-        LogbookFeignLogger.remoteUrl.remove();
-
         final var rootException = getMostSpecificCause(e);
         final var message = e.equals(rootException)
                 ? e.toString()
                 : e + ": " + rootException;
         final var problem = Problem.builder()
-                .withDetail(format("%s: %s", remoteUrl, message))
-                .withStatus(BAD_GATEWAY)
-                .build();
+                .withDetail(message)
+                .withStatus(BAD_GATEWAY);
 
-        return create(problem, request);
+        final var requestDetails = requestDetails(e);
+        if (null != requestDetails) problem
+                .with("feign-http-method", requestDetails.getMethod().name())
+                .with("feign-url", requestDetails.getUrl());
+
+        return create(problem.build(), request);
+    }
+
+    private static FeignErrorDetails requestDetails(final FeignException e) {
+        for (Throwable x = e; null != x; x = x.getCause()) {
+            for (final Throwable suppressed : x.getSuppressed()) {
+                if (suppressed instanceof FeignErrorDetails)
+                    return (FeignErrorDetails) suppressed;
+            }
+        }
+        return null;
     }
 }
