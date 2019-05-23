@@ -8,8 +8,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import x.xmlish.Xmlish.Inner;
 
 import java.time.Instant;
+
+import static java.time.temporal.ChronoUnit.SECONDS;
 
 @RestController
 @RequestMapping
@@ -19,7 +22,16 @@ public class XmlishController {
 
     @GetMapping
     public Xmlish get() {
-        return new Xmlish("HI, MOM!", 22, Instant.now());
+        return Xmlish.builder()
+                .foo("HI, MOM!")
+                .barNone(22)
+                .when(Instant.now())
+                .inner(Inner.builder()
+                        .qux("BYE, DAD!")
+                        .quux(77)
+                        .ever(Instant.now().minus(1_000_000L, SECONDS))
+                        .build())
+                .build();
     }
 
     @PostMapping

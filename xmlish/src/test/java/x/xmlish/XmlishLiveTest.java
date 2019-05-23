@@ -7,6 +7,7 @@ import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
+import x.xmlish.Xmlish.Inner;
 
 import java.io.IOException;
 import java.net.URI;
@@ -19,6 +20,7 @@ import java.time.Instant;
 import static java.lang.String.format;
 import static java.net.http.HttpResponse.BodyHandlers.discarding;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
@@ -45,6 +47,8 @@ class XmlishLiveTest {
         final var response = client.send(
                 request, BodyHandlers.ofString(UTF_8));
 
+        assertThat(response.statusCode()).isEqualTo(200);
+
         System.out.println("response = " + response.body());
     }
 
@@ -53,7 +57,17 @@ class XmlishLiveTest {
             throws IOException, InterruptedException {
         final var request = HttpRequest.newBuilder()
                 .POST(BodyPublishers.ofString(xmlMapper.writeValueAsString(
-                        new Xmlish("HI, MOM!", 22, Instant.now()))))
+                        Xmlish.builder()
+                                .foo("HI, MOM!")
+                                .barNone(22)
+                                .when(Instant.now())
+                                .inner(Inner.builder()
+                                        .qux("BYE, DAD!")
+                                        .quux(77)
+                                        .ever(Instant.now().minus(
+                                                1_000_000L, SECONDS))
+                                        .build())
+                                .build())))
                 .uri(URI.create(format("http://localhost:%d", port)))
                 .header("Content-Type", "application/xml")
                 .build();
