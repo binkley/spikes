@@ -6,10 +6,11 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 
-import static java.lang.ClassLoader.getSystemClassLoader;
+import static java.lang.Thread.currentThread;
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import static java.util.Collections.reverse;
+import static org.springframework.core.annotation.AnnotationUtils.findAnnotation;
 
 @Documented
 @Retention(RUNTIME)
@@ -47,8 +48,13 @@ public @interface AlertMessage {
         private static String findAlertMessage(
                 final StackTraceElement frame) {
             try {
-                final var methods = getSystemClassLoader()
-                        .loadClass(frame.getClassName())
+                final var className = frame.getClassName();
+                if (!className.startsWith("x.loggy."))
+                    return null;
+
+                final var methods = currentThread()
+                        .getContextClassLoader()
+                        .loadClass(className)
                         .getDeclaredMethods();
 
                 for (final var method : methods) {
@@ -68,11 +74,17 @@ public @interface AlertMessage {
                 final Method method) {
             if (!methodName.equalsIgnoreCase(method.getName()))
                 return null;
-            final var alertMessage = method.getAnnotation(AlertMessage.class);
-            if (null != alertMessage)
-                return alertMessage.value();
 
-            return null;
+            return findAlertMessage(method);
+        }
+
+        private static String findAlertMessage(final Method method) {
+            final var alertMessage = findAnnotation(
+                    method, AlertMessage.class);
+            if (null == alertMessage)
+                return null;
+
+            return alertMessage.value();
         }
     }
 }

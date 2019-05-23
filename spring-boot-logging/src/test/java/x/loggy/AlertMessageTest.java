@@ -9,6 +9,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static x.loggy.AlertMessage.MessageFinder.findAlertMessage;
 
 class AlertMessageTest {
+    private final TestyMethods testyMethods = new TestyMethods();
+
     @Test
     void shouldFindNoMessage() {
         assertThat(findAlertMessage(new TestyException())).isNull();
@@ -22,7 +24,7 @@ class AlertMessageTest {
 
     @Test
     void shouldFindTopLevelMessage() {
-        assertThatThrownBy(TestyMethods::foo)
+        assertThatThrownBy(testyMethods::foo)
                 .isInstanceOf(TestyException.class)
                 .extracting(MessageFinder::findAlertMessage)
                 .isEqualTo("FOO");
@@ -30,14 +32,27 @@ class AlertMessageTest {
 
     @Test
     void shouldFindNestedMessage() {
-        assertThatThrownBy(TestyMethods::bar)
+        assertThatThrownBy(testyMethods::bar)
                 .isInstanceOf(TestyException.class)
                 .extracting(MessageFinder::findAlertMessage)
                 .isEqualTo("QUX");
     }
 
-    @UtilityClass
-    static class TestyMethods {
+    @Test
+    void shouldFindInterfaceMessage() {
+        assertThatThrownBy(testyMethods::baz)
+                .isInstanceOf(TestyException.class)
+                .extracting(MessageFinder::findAlertMessage)
+                .isEqualTo("BAZ");
+    }
+
+    interface Bazable {
+        @AlertMessage("BAZ")
+        void baz();
+    }
+
+    static class TestyMethods
+            implements Bazable {
         @AlertMessage("FOO")
         void foo() {
             throw new TestyException();
@@ -50,6 +65,10 @@ class AlertMessageTest {
             } catch (final TestyException e) {
                 throw new TestyException(e);
             }
+        }
+
+        public void baz() {
+            throw new TestyException();
         }
 
         @UtilityClass
