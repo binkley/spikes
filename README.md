@@ -6,3 +6,4 @@
 * [Spring Boot Etag support](spring-boot-etag-support/)
 * [Spring Boot logging](spring-boot-logging/)
 * [Spring transactions](spring-transactions/)
+* [Spring XML support](xmlish/)

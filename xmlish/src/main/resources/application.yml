@@ -1,0 +1,13 @@
+logging:
+  level:
+    x.xmlish: DEBUG
+    root: WARN
+  pattern:
+    dateformat: "yyyy-MM-dd'T'HH:mm:ss.SSSX,UTC"
+
+spring:
+  main:
+    banner-mode: 'OFF'
+  output:
+    ansi:
+      enabled: 'ALWAYS'
