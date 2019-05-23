@@ -62,7 +62,8 @@ public @interface AlertMessage {
 
                 return null;
             } catch (final ClassNotFoundException e) {
-                throw new Bug("Cannot load frame: " + frame, e);
+                // Ignore unloadable frames, eg, JUnit, Gradle, etc
+                return null;
             }
         }
 
