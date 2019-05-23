@@ -28,9 +28,6 @@ dependencies {
     implementation "org.projectlombok:lombok"
     implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-xml"
 
-    // TODO: Is this still needed:
-    implementation "javax.xml.bind:jaxb-api"
-
     testAnnotationProcessor "org.projectlombok:lombok"
 
     testImplementation "org.springframework.boot:spring-boot-starter-test"
