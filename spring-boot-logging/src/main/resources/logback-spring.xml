@@ -40,8 +40,8 @@
                     <threadName/>
                     <logLevel/>
                     <logLevelValue/>
-                    <tags/>
                     <mdc/>
+                    <tags/>
                     <stackHash/>
                     <stackTrace>
                         <throwableConverter

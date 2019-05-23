@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 @FeignClient(name = "conflict",
         url = "http://localhost:8080/feign/conflict")
 public interface ConflictRemote {
+    @AlertMessage("CONFLICTED")
     @PostMapping
     void postConflict();
 }

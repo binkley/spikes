@@ -27,6 +27,7 @@ import static org.springframework.core.NestedExceptionUtils.getMostSpecificCause
 import static org.zalando.problem.Status.BAD_GATEWAY;
 import static org.zalando.problem.Status.BAD_REQUEST;
 import static org.zalando.problem.Status.UNPROCESSABLE_ENTITY;
+import static x.loggy.AlertMessage.MessageFinder.findAlertMessage;
 
 @ControllerAdvice
 @Import(ProblemConfiguration.class)
@@ -93,6 +94,10 @@ public class ExceptionHandling
             final Problem problem,
             final NativeWebRequest request,
             final HttpStatus status) {
+        final var alertMessage = findAlertMessage(throwable);
+        if (null != alertMessage)
+            logger.error("ALERT: {}", alertMessage);
+
         final var realRequest = request
                 .getNativeRequest(HttpServletRequest.class);
         final var requestURL = realRequest.getRequestURL();
@@ -132,7 +137,7 @@ public class ExceptionHandling
                 .with("feign-http-method", requestDetails.getMethod().name())
                 .with("feign-url", requestDetails.getUrl());
 
-        return create(problem.build(), request);
+        return create(e, problem.build(), request);
     }
 
     private static FeignErrorDetails requestDetails(final FeignException e) {
