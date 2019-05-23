@@ -1,12 +1,14 @@
 package x.xmlish;
 
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.core.io.ResourceLoader;
 import x.xmlish.Xmlish.Inner;
 
 import java.io.IOException;
@@ -29,9 +31,11 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @TestInstance(PER_CLASS)
 class XmlishLiveTest {
+    private static final ResourceLoader resourceLoader
+            = new DefaultResourceLoader();
     private static final HttpClient client = HttpClient.newBuilder().build();
 
-    private final XmlMapper xmlMapper;
+    private final ObjectMapper objectMapper;
 
     @LocalServerPort
     private int port;
@@ -49,14 +53,14 @@ class XmlishLiveTest {
 
         assertThat(response.statusCode()).isEqualTo(200);
 
-        System.out.println("response = " + response.body());
+        System.out.println(response.body());
     }
 
     @Test
     void shouldPost()
             throws IOException, InterruptedException {
         final var request = HttpRequest.newBuilder()
-                .POST(BodyPublishers.ofString(xmlMapper.writeValueAsString(
+                .POST(BodyPublishers.ofString(objectMapper.writeValueAsString(
                         Xmlish.builder()
                                 .foo("HI, MOM!")
                                 .barNone(22)
@@ -75,5 +79,16 @@ class XmlishLiveTest {
         final var response = client.send(request, discarding());
 
         assertThat(response.statusCode()).isEqualTo(200);
+    }
+
+    @Test
+    void shouldParseComplexExample()
+            throws IOException {
+        final var read = objectMapper.readValue(resourceLoader
+                        .getResource("xml/complex-example.xml")
+                        .getInputStream(),
+                ComplexExample.class);
+
+        System.out.println(read);
     }
 }
