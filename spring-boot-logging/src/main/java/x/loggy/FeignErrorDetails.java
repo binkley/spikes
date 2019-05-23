@@ -12,4 +12,5 @@ public class FeignErrorDetails
         extends RuntimeException {
     HttpMethod method;
     String url;
+    String alertMessage;
 }

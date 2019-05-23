@@ -18,6 +18,7 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.zalando.problem.Problem;
 import org.zalando.problem.StatusType;
 import org.zalando.problem.spring.web.advice.ProblemHandling;
+import x.loggy.AlertMessage.MessageFinder;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -27,7 +28,6 @@ import static org.springframework.core.NestedExceptionUtils.getMostSpecificCause
 import static org.zalando.problem.Status.BAD_GATEWAY;
 import static org.zalando.problem.Status.BAD_REQUEST;
 import static org.zalando.problem.Status.UNPROCESSABLE_ENTITY;
-import static x.loggy.AlertMessage.MessageFinder.findAlertMessage;
 
 @ControllerAdvice
 @Import(ProblemConfiguration.class)
@@ -100,6 +100,8 @@ public class ExceptionHandling
 
         final var realRequest = request
                 .getNativeRequest(HttpServletRequest.class);
+        if (null == realRequest)
+            throw new Bug("No HTTP request");
         final var requestURL = realRequest.getRequestURL();
 
         if (status.is4xxClientError()) {
@@ -114,6 +116,29 @@ public class ExceptionHandling
                     throwable.getMessage(),
                     throwable);
         }
+    }
+
+    private static String findAlertMessage(
+            @NonNull final Throwable throwable) {
+        // TODO: Determine if request details needed; simplify if not
+        final var alertMessage = MessageFinder.findAlertMessage(throwable);
+        if (null != alertMessage)
+            return alertMessage;
+        final var requestDetails = findRequestDetails(throwable);
+        if (null != requestDetails)
+            return requestDetails.getAlertMessage();
+        return null;
+    }
+
+    private static FeignErrorDetails findRequestDetails(
+            final Throwable throwable) {
+        for (Throwable x = throwable; null != x; x = x.getCause()) {
+            for (final Throwable suppressed : x.getSuppressed()) {
+                if (suppressed instanceof FeignErrorDetails)
+                    return (FeignErrorDetails) suppressed;
+            }
+        }
+        return null;
     }
 
     @Override
@@ -132,21 +157,11 @@ public class ExceptionHandling
                 .withDetail(message)
                 .withStatus(BAD_GATEWAY);
 
-        final var requestDetails = requestDetails(e);
+        final var requestDetails = findRequestDetails(e);
         if (null != requestDetails) problem
                 .with("feign-http-method", requestDetails.getMethod().name())
                 .with("feign-url", requestDetails.getUrl());
 
         return create(e, problem.build(), request);
-    }
-
-    private static FeignErrorDetails requestDetails(final FeignException e) {
-        for (Throwable x = e; null != x; x = x.getCause()) {
-            for (final Throwable suppressed : x.getSuppressed()) {
-                if (suppressed instanceof FeignErrorDetails)
-                    return (FeignErrorDetails) suppressed;
-            }
-        }
-        return null;
     }
 }

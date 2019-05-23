@@ -48,13 +48,9 @@ public @interface AlertMessage {
         private static String findAlertMessage(
                 final StackTraceElement frame) {
             try {
-                final var className = frame.getClassName();
-                if (!className.startsWith("x.loggy."))
-                    return null;
-
                 final var methods = currentThread()
                         .getContextClassLoader()
-                        .loadClass(className)
+                        .loadClass(frame.getClassName())
                         .getDeclaredMethods();
 
                 for (final var method : methods) {

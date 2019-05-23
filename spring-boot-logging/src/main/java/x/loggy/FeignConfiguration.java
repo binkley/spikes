@@ -6,6 +6,8 @@ import org.springframework.cloud.openfeign.FeignLoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import static x.loggy.AlertMessage.MessageFinder.findAlertMessage;
+
 @Configuration
 @EnableFeignClients
 public class FeignConfiguration {
@@ -23,7 +25,8 @@ public class FeignConfiguration {
             if (null != exception)
                 exception.addSuppressed(new FeignErrorDetails(
                         response.request().httpMethod(),
-                        response.request().url()));
+                        response.request().url(),
+                        findAlertMessage(exception)));
             return exception;
         };
     }
