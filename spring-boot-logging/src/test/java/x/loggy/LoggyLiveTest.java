@@ -2,6 +2,7 @@ package x.loggy;
 
 import brave.Tracing;
 import brave.propagation.TraceContext.Extractor;
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,6 +15,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.test.context.ActiveProfiles;
+import x.loggy.AlertMessage.MessageFinder;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
@@ -42,13 +44,14 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
         "logging.level.x.loggy=WARN",
         "loggy.enable-demo=false"
 }, webEnvironment = DEFINED_PORT)
-class TraceLiveTest {
+class LoggyLiveTest {
     private static final String existingTraceId = "abcdef0987654321";
     private static final HttpClient client = HttpClient.newBuilder().build();
 
     private final LoggyRemote loggy;
     private final NotFoundRemote notFound;
     private final UnknownHostRemote unknownHost;
+    private final ConflictRemote conflict;
     private final Clock clock;
     private final Tracing tracing;
     private final AssertionsForTracingLogs tracingLogs;
@@ -294,6 +297,44 @@ class TraceLiveTest {
                 .hasFieldOrPropertyWithValue("status", 0);
 
         tracingLogs.assertExchange(null, false);
+    }
+
+    @Test
+    void shouldAlertThroughWebDirectly()
+            throws IOException, InterruptedException {
+        final var request = HttpRequest.newBuilder()
+                .GET()
+                .uri(URI.create("http://localhost:8080/npe"))
+                .build();
+
+        final var response = sendAndDiscardBody(request);
+
+        assertThat(response.statusCode()).isEqualTo(500);
+
+        verify(logger).error(anyString(), eq("NULLITY"));
+    }
+
+    @Test
+    void shouldAlertThroughFeignIndirectly()
+            throws IOException, InterruptedException {
+        final var request = HttpRequest.newBuilder()
+                .POST(noBody())
+                .uri(URI.create("http://localhost:8080/conflict"))
+                .build();
+
+        final var response = sendAndDiscardBody(request);
+
+        assertThat(response.statusCode()).isEqualTo(502);
+
+        verify(logger).error(anyString(), eq("CONFLICTED"));
+    }
+
+    @Test
+    void givenAlertDirectly() {
+        assertThatThrownBy(conflict::postConflict)
+                .isInstanceOf(FeignException.class)
+                .extracting(MessageFinder::findAlertMessage)
+                .isEqualTo("CONFLICTED");
     }
 
     @TestConfiguration
