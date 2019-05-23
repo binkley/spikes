@@ -14,7 +14,7 @@ targetCompatibility = 11
 ext["junit-jupiter.version"] = "5.4.2"
 
 configurations {
-    all*.exclude module: 'junit'
+    all*.exclude module: "junit"
 }
 
 repositories {
@@ -26,6 +26,10 @@ dependencies {
 
     implementation "org.springframework.boot:spring-boot-starter-web"
     implementation "org.projectlombok:lombok"
+    implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-xml"
+
+    // TODO: Is this still needed:
+    implementation "javax.xml.bind:jaxb-api"
 
     testAnnotationProcessor "org.projectlombok:lombok"
 
