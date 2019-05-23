@@ -8,11 +8,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Instant;
 
+import static org.springframework.http.MediaType.APPLICATION_XML_VALUE;
+
 @RestController
 @RequestMapping
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class XmlishController {
-    @GetMapping
+    @GetMapping(produces = APPLICATION_XML_VALUE)
     public XmlishResponse get() {
         return new XmlishResponse("HI, MOM!", 22, Instant.now());
     }
