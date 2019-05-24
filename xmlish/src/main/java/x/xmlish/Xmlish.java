@@ -1,11 +1,13 @@
 package x.xmlish;
 
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import lombok.Builder;
 import lombok.Value;
 
 import java.time.Instant;
 
 @Builder
+@JacksonXmlRootElement(localName = "xmlish")
 @Value
 class Xmlish {
     String foo;
