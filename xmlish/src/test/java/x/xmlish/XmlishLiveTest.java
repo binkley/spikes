@@ -20,6 +20,7 @@ import java.net.http.HttpResponse.BodyHandlers;
 import java.time.Instant;
 
 import static java.lang.String.format;
+import static java.lang.System.out;
 import static java.net.http.HttpResponse.BodyHandlers.discarding;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.time.temporal.ChronoUnit.SECONDS;
@@ -53,7 +54,7 @@ class XmlishLiveTest {
 
         assertThat(response.statusCode()).isEqualTo(200);
 
-        System.out.println(response.body());
+        out.println(response.body());
     }
 
     @Test
@@ -84,11 +85,13 @@ class XmlishLiveTest {
     @Test
     void shouldParseComplexExample()
             throws IOException {
-        final var read = objectMapper.readValue(resourceLoader
+        final var complexExample = objectMapper.readValue(resourceLoader
                         .getResource("xml/complex-example.xml")
                         .getInputStream(),
                 ComplexExample.class);
 
-        System.out.println(read);
+        out.println(complexExample);
+        complexExample.getBody().getBookreview().getTable().getTr()
+                .forEach(out::println);
     }
 }
