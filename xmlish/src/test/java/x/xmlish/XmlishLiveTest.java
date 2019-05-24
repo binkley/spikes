@@ -9,6 +9,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.Validator;
 import x.xmlish.Xmlish.Inner;
 
 import java.io.IOException;
@@ -37,6 +39,7 @@ class XmlishLiveTest {
     private static final HttpClient client = HttpClient.newBuilder().build();
 
     private final ObjectMapper objectMapper;
+    private final Validator validator;
 
     @LocalServerPort
     private int port;
@@ -83,15 +86,32 @@ class XmlishLiveTest {
     }
 
     @Test
-    void shouldParseComplexExample()
+    void shouldParseGoodComplexExample()
             throws IOException {
         final var complexExample = objectMapper.readValue(resourceLoader
-                        .getResource("xml/complex-example.xml")
+                        .getResource("xml/good-complex-example.xml")
                         .getInputStream(),
                 ComplexExample.class);
 
         out.println(complexExample);
         complexExample.getBody().getBookreview().getTable().getTr()
                 .forEach(out::println);
+    }
+
+    @Test
+    void shouldComplainAboutBadComplexExample()
+            throws IOException {
+        final var complexExample = objectMapper.readValue(resourceLoader
+                        .getResource("xml/bad-complex-example.xml")
+                        .getInputStream(),
+                ComplexExample.class);
+
+        final var errors = new BeanPropertyBindingResult(
+                complexExample, "xml/bad-complex-example.xml");
+        validator.validate(complexExample, errors);
+
+        assertThat(errors.hasErrors())
+                .withFailMessage("Failed to find validation errors")
+                .isTrue();
     }
 }
