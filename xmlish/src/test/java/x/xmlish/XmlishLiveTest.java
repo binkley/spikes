@@ -15,7 +15,6 @@ import org.springframework.validation.Validator;
 import x.xmlish.Xmlish.Inner;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -47,11 +46,11 @@ class XmlishLiveTest {
     @LocalServerPort
     private int port;
 
-    private static InputStream loadXml(final String name)
+    private static String readXml(final String name)
             throws IOException {
-        return resourceLoader
+        return copyToString(resourceLoader
                 .getResource("xml/" + name + ".xml")
-                .getInputStream();
+                .getInputStream(), UTF_8);
     }
 
     @Test
@@ -102,8 +101,7 @@ class XmlishLiveTest {
 
         final var request = HttpRequest.newBuilder()
                 .POST(BodyPublishers.ofString(
-                        copyToString(loadXml(
-                                "good-complex-example"), UTF_8)))
+                        readXml("good-complex-example")))
                 .uri(URI.create(format("http://localhost:%d/complex", port)))
                 .header("Content-Type", "application/xml")
                 .build();
@@ -117,7 +115,7 @@ class XmlishLiveTest {
     void shouldParseGoodComplexExample()
             throws IOException {
         final var complexExample = objectMapper.readValue(
-                loadXml("good-complex-example"),
+                readXml("good-complex-example"),
                 ComplexExample.class);
 
         out.println(complexExample);
@@ -129,7 +127,7 @@ class XmlishLiveTest {
     void shouldComplainAboutBadComplexExample()
             throws IOException {
         final var complexExample = objectMapper.readValue(
-                loadXml("bad-complex-example"),
+                readXml("bad-complex-example"),
                 ComplexExample.class);
 
         final var errors = new BeanPropertyBindingResult(
