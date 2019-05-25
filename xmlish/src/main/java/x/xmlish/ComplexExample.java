@@ -1,6 +1,5 @@
 package x.xmlish;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import lombok.Value;
 
@@ -36,14 +35,14 @@ public class ComplexExample {
 
             @Value
             public static class Table {
-                @NotEmpty
                 List<@Valid Tr> tr;
 
-                @JsonIgnoreProperties(ignoreUnknown = true)
                 @Value
                 public static class Tr {
                     @JacksonXmlProperty(isAttribute = true)
                     String align;
+                    @NotEmpty
+                    List<@NotNull Object> td;
                 }
             }
         }

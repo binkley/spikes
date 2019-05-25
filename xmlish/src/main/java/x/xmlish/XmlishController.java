@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import x.xmlish.Xmlish.Inner;
 
+import javax.validation.Valid;
 import java.time.Instant;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
@@ -36,6 +37,12 @@ public class XmlishController {
 
     @PostMapping
     public void post(@RequestBody final Xmlish request) {
+        logger.warn("GOT {}", request);
+    }
+
+    @PostMapping("complex")
+    public void postComplex(
+            @RequestBody @Valid final ComplexExample request) {
         logger.warn("GOT {}", request);
     }
 }

@@ -2,6 +2,7 @@ package x.xmlish;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.validation.Validator;
 import x.xmlish.Xmlish.Inner;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -29,6 +31,7 @@ import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static org.springframework.util.StreamUtils.copyToString;
 
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @SpringBootTest(webEnvironment = RANDOM_PORT)
@@ -43,6 +46,13 @@ class XmlishLiveTest {
 
     @LocalServerPort
     private int port;
+
+    private static InputStream loadXml(final String name)
+            throws IOException {
+        return resourceLoader
+                .getResource("xml/" + name + ".xml")
+                .getInputStream();
+    }
 
     @Test
     void shouldGet()
@@ -85,12 +95,29 @@ class XmlishLiveTest {
         assertThat(response.statusCode()).isEqualTo(200);
     }
 
+    @Disabled("TODO: Does not parse here, but parses elsewhere")
+    @Test
+    void shouldPostGoodComplex()
+            throws IOException, InterruptedException {
+
+        final var request = HttpRequest.newBuilder()
+                .POST(BodyPublishers.ofString(
+                        copyToString(loadXml(
+                                "good-complex-example"), UTF_8)))
+                .uri(URI.create(format("http://localhost:%d/complex", port)))
+                .header("Content-Type", "application/xml")
+                .build();
+
+        final var response = client.send(request, discarding());
+
+        assertThat(response.statusCode()).isEqualTo(200);
+    }
+
     @Test
     void shouldParseGoodComplexExample()
             throws IOException {
-        final var complexExample = objectMapper.readValue(resourceLoader
-                        .getResource("xml/good-complex-example.xml")
-                        .getInputStream(),
+        final var complexExample = objectMapper.readValue(
+                loadXml("good-complex-example"),
                 ComplexExample.class);
 
         out.println(complexExample);
@@ -101,9 +128,8 @@ class XmlishLiveTest {
     @Test
     void shouldComplainAboutBadComplexExample()
             throws IOException {
-        final var complexExample = objectMapper.readValue(resourceLoader
-                        .getResource("xml/bad-complex-example.xml")
-                        .getInputStream(),
+        final var complexExample = objectMapper.readValue(
+                loadXml("bad-complex-example"),
                 ComplexExample.class);
 
         final var errors = new BeanPropertyBindingResult(
