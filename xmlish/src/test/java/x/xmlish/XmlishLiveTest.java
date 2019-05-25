@@ -8,11 +8,8 @@ import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.core.io.DefaultResourceLoader;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Validator;
-import x.xmlish.Xmlish.Inner;
 
 import java.io.IOException;
 import java.net.URI;
@@ -20,24 +17,20 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse.BodyHandlers;
-import java.time.Instant;
 
 import static java.lang.String.format;
 import static java.lang.System.out;
 import static java.net.http.HttpResponse.BodyHandlers.discarding;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-import static org.springframework.util.StreamUtils.copyToString;
+import static x.xmlish.ReadXml.readXml;
 
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @TestInstance(PER_CLASS)
 class XmlishLiveTest {
-    private static final ResourceLoader resourceLoader
-            = new DefaultResourceLoader();
     private static final HttpClient client = HttpClient.newBuilder().build();
 
     private final ObjectMapper objectMapper;
@@ -45,13 +38,6 @@ class XmlishLiveTest {
 
     @LocalServerPort
     private int port;
-
-    private static String readXml(final String name)
-            throws IOException {
-        return copyToString(resourceLoader
-                .getResource("xml/" + name + ".xml")
-                .getInputStream(), UTF_8);
-    }
 
     @Test
     void shouldGet()
@@ -73,18 +59,7 @@ class XmlishLiveTest {
     void shouldPost()
             throws IOException, InterruptedException {
         final var request = HttpRequest.newBuilder()
-                .POST(BodyPublishers.ofString(objectMapper.writeValueAsString(
-                        Xmlish.builder()
-                                .foo("HI, MOM!")
-                                .barNone(22)
-                                .when(Instant.now())
-                                .inner(Inner.builder()
-                                        .qux("BYE, DAD!")
-                                        .quux(77)
-                                        .ever(Instant.now().minus(
-                                                1_000_000L, SECONDS))
-                                        .build())
-                                .build())))
+                .POST(BodyPublishers.ofString(readXml("good-xmlish")))
                 .uri(URI.create(format("http://localhost:%d", port)))
                 .header("Content-Type", "application/xml")
                 .build();
@@ -98,10 +73,9 @@ class XmlishLiveTest {
     @Test
     void shouldPostGoodComplex()
             throws IOException, InterruptedException {
-
         final var request = HttpRequest.newBuilder()
-                .POST(BodyPublishers.ofString(
-                        readXml("good-complex-example")))
+                .POST(BodyPublishers.ofString(readXml(
+                        "good-complex-example")))
                 .uri(URI.create(format("http://localhost:%d/complex", port)))
                 .header("Content-Type", "application/xml")
                 .build();
@@ -114,28 +88,30 @@ class XmlishLiveTest {
     @Test
     void shouldParseGoodComplexExample()
             throws IOException {
+        final var name = "good-complex-example";
         final var complexExample = objectMapper.readValue(
-                readXml("good-complex-example"),
+                readXml(name),
                 ComplexExample.class);
 
-        out.println(complexExample);
-        complexExample.getBody().getBookreview().getTable().getTr()
-                .forEach(out::println);
+        final var errors = new BeanPropertyBindingResult(
+                complexExample, name);
+        validator.validate(complexExample, errors);
+
+        assertThat(errors.getAllErrors()).isEmpty();
     }
 
     @Test
     void shouldComplainAboutBadComplexExample()
             throws IOException {
+        final var name = "bad-complex-example";
         final var complexExample = objectMapper.readValue(
-                readXml("bad-complex-example"),
+                readXml(name),
                 ComplexExample.class);
 
         final var errors = new BeanPropertyBindingResult(
-                complexExample, "xml/bad-complex-example.xml");
+                complexExample, name);
         validator.validate(complexExample, errors);
 
-        assertThat(errors.hasErrors())
-                .withFailMessage("Failed to find validation errors")
-                .isTrue();
+        assertThat(errors.getAllErrors()).hasSize(1);
     }
 }

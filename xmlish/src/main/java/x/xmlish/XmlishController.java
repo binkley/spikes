@@ -1,5 +1,6 @@
 package x.xmlish;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,31 +9,23 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import x.xmlish.Xmlish.Inner;
 
 import javax.validation.Valid;
-import java.time.Instant;
+import java.io.IOException;
 
-import static java.time.temporal.ChronoUnit.SECONDS;
+import static x.xmlish.ReadXml.readXml;
 
 @RestController
 @RequestMapping
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class XmlishController {
     private final Logger logger;
+    private final ObjectMapper objectMapper;
 
     @GetMapping
-    public Xmlish get() {
-        return Xmlish.builder()
-                .foo("HI, MOM!")
-                .barNone(22)
-                .when(Instant.now())
-                .inner(Inner.builder()
-                        .qux("BYE, DAD!")
-                        .quux(77)
-                        .ever(Instant.now().minus(1_000_000L, SECONDS))
-                        .build())
-                .build();
+    public Xmlish get()
+            throws IOException {
+        return objectMapper.readValue(readXml("good-xmlish"), Xmlish.class);
     }
 
     @PostMapping
