@@ -4,15 +4,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.io.IOException;
 
+import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY;
 import static x.xmlish.ReadXml.readXml;
 
 @RestController
@@ -37,5 +41,10 @@ public class XmlishController {
     public void postComplex(
             @RequestBody @Valid final ComplexExample request) {
         logger.warn("GOT {}", request);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(UNPROCESSABLE_ENTITY)
+    void handleValidationFailure() {
     }
 }

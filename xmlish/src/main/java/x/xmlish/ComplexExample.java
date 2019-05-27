@@ -4,7 +4,6 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import lombok.Value;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
@@ -41,8 +40,19 @@ public class ComplexExample {
                 public static class Tr {
                     @JacksonXmlProperty(isAttribute = true)
                     String align;
-                    @NotEmpty
-                    List<@NotNull Object> td;
+                    List<@NotNull String> td;
+
+                    //                    @JsonCreator
+                    //                    public Tr(final Map<String, Object> whatTheHey) {
+                    //                        System.out.println("Tr.Tr = " + whatTheHey.getClass()
+                    //                                + ": " + whatTheHey);
+                    //                        this.align = (String) whatTheHey.get("align");
+                    //                        System.out.println(
+                    //                                "whatTheHey = " + whatTheHey.get("td")
+                    //                                        .getClass()
+                    //                                        + ": " + whatTheHey.get("td"));
+                    //                        this.td = new ArrayList<>();
+                    //                    }
                 }
             }
         }

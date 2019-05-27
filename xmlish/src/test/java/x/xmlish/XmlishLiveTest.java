@@ -86,6 +86,21 @@ class XmlishLiveTest {
     }
 
     @Test
+    void shouldPostBadComplex()
+            throws IOException, InterruptedException {
+        final var request = HttpRequest.newBuilder()
+                .POST(BodyPublishers.ofString(readXml(
+                        "bad-complex-example")))
+                .uri(URI.create(format("http://localhost:%d/complex", port)))
+                .header("Content-Type", "application/xml")
+                .build();
+
+        final var response = client.send(request, discarding());
+
+        assertThat(response.statusCode()).isEqualTo(422);
+    }
+
+    @Test
     void shouldParseGoodComplexExample()
             throws IOException {
         final var name = "good-complex-example";
@@ -98,6 +113,12 @@ class XmlishLiveTest {
         validator.validate(complexExample, errors);
 
         assertThat(errors.getAllErrors()).isEmpty();
+        assertThat(complexExample
+                .getBody()
+                .getBookreview()
+                .getTable()
+                .getTr().get(0)
+                .getTd()).hasSize(4);
     }
 
     @Test
