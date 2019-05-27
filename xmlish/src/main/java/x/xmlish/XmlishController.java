@@ -34,13 +34,13 @@ public class XmlishController {
 
     @PostMapping
     public void post(@RequestBody final Xmlish request) {
-        logger.warn("GOT {}", request);
+        logger.info("GOT {}", request);
     }
 
     @PostMapping("complex")
     public void postComplex(
             @RequestBody @Valid final ComplexExample request) {
-        logger.warn("GOT {}", request);
+        logger.info("GOT {}", request);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

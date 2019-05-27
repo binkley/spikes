@@ -10,6 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Validator;
+import x.xmlish.ComplexExample.Body.BookReview.Table.Tr.Td;
 
 import java.io.IOException;
 import java.net.URI;
@@ -113,12 +114,15 @@ class XmlishLiveTest {
         validator.validate(complexExample, errors);
 
         assertThat(errors.getAllErrors()).isEmpty();
+
         assertThat(complexExample
                 .getBody()
                 .getBookreview()
                 .getTable()
-                .getTr().get(0)
-                .getTd()).hasSize(4);
+                .getTr().stream()
+                .flatMap(tr -> tr.getTd().stream())
+                .map(Td::getText))
+                .containsExactly("Author", "Price", "Pages", "Date");
     }
 
     @Test

@@ -1,6 +1,8 @@
 package x.xmlish;
 
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlText;
+import lombok.Data;
 import lombok.Value;
 
 import javax.validation.Valid;
@@ -40,19 +42,13 @@ public class ComplexExample {
                 public static class Tr {
                     @JacksonXmlProperty(isAttribute = true)
                     String align;
-                    List<@NotNull String> td;
+                    List<@Valid Td> td;
 
-                    //                    @JsonCreator
-                    //                    public Tr(final Map<String, Object> whatTheHey) {
-                    //                        System.out.println("Tr.Tr = " + whatTheHey.getClass()
-                    //                                + ": " + whatTheHey);
-                    //                        this.align = (String) whatTheHey.get("align");
-                    //                        System.out.println(
-                    //                                "whatTheHey = " + whatTheHey.get("td")
-                    //                                        .getClass()
-                    //                                        + ": " + whatTheHey.get("td"));
-                    //                        this.td = new ArrayList<>();
-                    //                    }
+                    @Data // !@Value -- no @JacksonXmlText on ctor param
+                    public static class Td {
+                        @JacksonXmlText
+                        private String text;
+                    }
                 }
             }
         }

@@ -11,7 +11,7 @@ import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS
 @Configuration
 public class XmlConfiguration {
     @Bean
-    public ObjectMapper objectMapper() {
+    public ObjectMapper xmlObjectMapper() {
         final var xmlModule = new JacksonXmlModule();
         xmlModule.setDefaultUseWrapper(false);
 
