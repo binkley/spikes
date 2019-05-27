@@ -1,8 +1,8 @@
 package x.xmlish;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlText;
-import lombok.Data;
 import lombok.Value;
 
 import javax.validation.Valid;
@@ -44,10 +44,15 @@ public class ComplexExample {
                     String align;
                     List<@Valid Td> td;
 
-                    @Data // !@Value -- no @JacksonXmlText on ctor param
+                    @Value
                     public static class Td {
+                        String text;
+
                         @JacksonXmlText
-                        private String text;
+                        @JsonCreator
+                        public static Td valueOf(final String text) {
+                            return new Td(text);
+                        }
                     }
                 }
             }
