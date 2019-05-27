@@ -2,7 +2,6 @@ package x.xmlish;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +10,7 @@ import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Validator;
 import x.xmlish.ComplexExample.Body.BookReview.Table.Tr.Td;
+import x.xmlish.SimpleExample.Bar;
 
 import java.io.IOException;
 import java.net.URI;
@@ -70,7 +70,6 @@ class XmlishLiveTest {
         assertThat(response.statusCode()).isEqualTo(200);
     }
 
-    @Disabled("TODO: Does not parse here, but parses elsewhere")
     @Test
     void shouldPostGoodComplex()
             throws IOException, InterruptedException {
@@ -99,6 +98,21 @@ class XmlishLiveTest {
         final var response = client.send(request, discarding());
 
         assertThat(response.statusCode()).isEqualTo(422);
+    }
+
+    @Test
+    void shouldPostGoodSimple()
+            throws IOException, InterruptedException {
+        final var request = HttpRequest.newBuilder()
+                .POST(BodyPublishers.ofString(readXml(
+                        "good-simple-example")))
+                .uri(URI.create(format("http://localhost:%d/simple", port)))
+                .header("Content-Type", "application/xml")
+                .build();
+
+        final var response = client.send(request, discarding());
+
+        assertThat(response.statusCode()).isEqualTo(200);
     }
 
     @Test
@@ -138,5 +152,25 @@ class XmlishLiveTest {
         validator.validate(complexExample, errors);
 
         assertThat(errors.getAllErrors()).hasSize(1);
+    }
+
+    @Test
+    void shouldParseGoodSimpleExample()
+            throws IOException {
+        final var name = "good-simple-example";
+        final var simpleExample = objectMapper.readValue(
+                readXml(name),
+                SimpleExample.class);
+
+        final var errors = new BeanPropertyBindingResult(
+                simpleExample, name);
+        validator.validate(simpleExample, errors);
+
+        assertThat(errors.getAllErrors()).isEmpty();
+
+        assertThat(simpleExample
+                .getBar().stream()
+                .map(Bar::getText))
+                .containsExactly("Author", "Price");
     }
 }
