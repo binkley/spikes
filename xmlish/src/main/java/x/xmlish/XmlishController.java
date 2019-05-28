@@ -43,12 +43,6 @@ public class XmlishController {
         logger.info("GOT {}", request);
     }
 
-    @PostMapping("simple")
-    public void postSimple(
-            @RequestBody @Valid final SimpleExample request) {
-        logger.info("GOT {}", request);
-    }
-
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(UNPROCESSABLE_ENTITY)
     void handleValidationFailure() {
