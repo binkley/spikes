@@ -1,5 +1,7 @@
 package x.loggy;
 
+import feign.Retryer;
+import feign.Retryer.Default;
 import feign.codec.ErrorDecoder;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.cloud.openfeign.FeignLoggerFactory;
@@ -9,6 +11,11 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @EnableFeignClients
 public class FeignConfiguration {
+    @Bean
+    public Retryer defaultRetryer() {
+        return new Default();
+    }
+
     @Bean
     public FeignLoggerFactory replaceFeignLoggerWithLogbook(
             final LogbookFeignLogger logger) {
