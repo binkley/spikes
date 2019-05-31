@@ -144,12 +144,10 @@ public class ExceptionHandling
 
     private static FeignErrorDetails findRequestDetails(
             final Throwable throwable) {
-        for (Throwable x = throwable; null != x; x = x.getCause()) {
-            for (final Throwable suppressed : x.getSuppressed()) {
+        for (Throwable x = throwable; null != x; x = x.getCause())
+            for (final Throwable suppressed : x.getSuppressed())
                 if (suppressed instanceof FeignErrorDetails)
                     return (FeignErrorDetails) suppressed;
-            }
-        }
         return null;
     }
 }
