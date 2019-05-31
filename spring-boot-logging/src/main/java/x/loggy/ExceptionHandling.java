@@ -26,6 +26,7 @@ import static org.springframework.boot.autoconfigure.web.ErrorProperties.Include
 import static org.springframework.core.NestedExceptionUtils.getMostSpecificCause;
 import static org.zalando.problem.Status.BAD_GATEWAY;
 import static org.zalando.problem.Status.BAD_REQUEST;
+import static org.zalando.problem.Status.INTERNAL_SERVER_ERROR;
 import static org.zalando.problem.Status.UNPROCESSABLE_ENTITY;
 import static x.loggy.AlertMessage.MessageFinder.findAlertMessage;
 
@@ -130,14 +131,18 @@ public class ExceptionHandling
         final var message = e.equals(rootException)
                 ? e.toString()
                 : e + ": " + rootException;
+        final var status = 400 <= e.status() && e.status() < 500
+                ? INTERNAL_SERVER_ERROR
+                : BAD_GATEWAY;
         final var problem = Problem.builder()
                 .withDetail(message)
-                .withStatus(BAD_GATEWAY);
+                .withStatus(status);
 
         final var requestDetails = findRequestDetails(e);
         if (null != requestDetails) problem
                 .with("feign-http-method", requestDetails.getMethod().name())
                 .with("feign-url", requestDetails.getUrl());
+        problem.with("feign-status", e.status());
 
         return create(e, problem.build(), request);
     }
