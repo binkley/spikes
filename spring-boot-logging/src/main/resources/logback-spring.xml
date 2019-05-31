@@ -3,11 +3,16 @@
     <include
             resource="org/springframework/boot/logging/logback/defaults.xml"/>
 
-    <springProperty name="spring.application.name"
-                    source="spring.application.name"
-                    defaultValue="MISCONFIGURED_BOOTSTRAP_YML"/>
-    <springProperty name="environment" source="environment"
-                    defaultValue="local"/>
+    <springProperty
+            scope="context"
+            name="spring.application.name"
+            source="spring.application.name"
+            defaultValue="MISCONFIGURED_BOOTSTRAP_YML"/>
+    <springProperty
+            scope="context"
+            name="environment"
+            source="environment"
+            defaultValue="local"/>
 
     <springProfile name="!json">
         <include
