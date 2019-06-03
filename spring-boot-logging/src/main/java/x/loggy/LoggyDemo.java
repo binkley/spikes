@@ -219,6 +219,15 @@ public class LoggyDemo {
 
         sendOrDie(conflictRequest, client);
 
+        logger.warn("RETRY WITH FEIGN THROUGH WEB");
+
+        final var retryRequest = HttpRequest.newBuilder()
+                .GET()
+                .uri(URI.create("http://localhost:8080/retry"))
+                .build();
+
+        sendOrDie(retryRequest, client);
+
         logger.warn("BUT IT'S ALRIGHT, IT'S OK, I'M GONNA RUN THAT WAY");
     }
 

@@ -27,6 +27,7 @@ public class LoggyController {
     private final NotFoundRemote notFound;
     private final UnknownHostRemote unknownHost;
     private final ConflictRemote conflict;
+    private final RetryRemote retry;
     private final Logger logger;
 
     @GetMapping("direct")
@@ -58,6 +59,12 @@ public class LoggyController {
     public void conflict() {
         logger.info("INTER THE CONFLICTED WEBS");
         conflict.postConflict();
+    }
+
+    @GetMapping("retry")
+    public void retry() {
+        logger.info("INTER THE TRY, TRY AGAIN WEBS");
+        retry.getRetry();
     }
 
     @GetMapping("not-found")
