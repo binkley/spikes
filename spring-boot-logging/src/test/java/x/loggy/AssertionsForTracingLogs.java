@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -59,6 +60,8 @@ public class AssertionsForTracingLogs {
 
     private final class AssertionSetup {
         private final AtomicBoolean remoteOrLocal;
+        private final AtomicReference<HttpTrace> previous
+                = new AtomicReference<>(null);
         private final String expectedTraceId;
         private final List<HttpTrace> traces;
 
@@ -67,27 +70,6 @@ public class AssertionsForTracingLogs {
             remoteOrLocal = new AtomicBoolean(startsRemote);
             expectedTraceId = existingTraceId;
             traces = httpTraces();
-        }
-
-        private List<HttpTrace> httpTraces() {
-            return httpTracesOf(httpLogger, objectMapper)
-                    .peek(this::assertOrigin)
-                    .collect(toUnmodifiableList());
-        }
-
-        private void assertOrigin(final HttpTrace trace) {
-            final var remote = remoteOrLocal.get();
-
-            if (remote)
-                assertThat(trace.getOrigin())
-                        .withFailMessage("Wrong origin")
-                        .isEqualTo("remote");
-            else
-                assertThat(trace.getOrigin())
-                        .withFailMessage("Wrong origin")
-                        .isEqualTo("local");
-
-            remoteOrLocal.set(!remote);
         }
 
         private AssertionSetup(final boolean startsRemote) {
@@ -100,6 +82,31 @@ public class AssertionsForTracingLogs {
             expectedTraceId = traceIdOf(traces.get(beginAssertingTraceIdAt));
             this.traces = traces.subList(
                     beginAssertingTraceIdAt + 1, traces.size());
+        }
+
+        private List<HttpTrace> httpTraces() {
+            return httpTracesOf(httpLogger, objectMapper)
+                    .peek(this::assertOrigin)
+                    .collect(toUnmodifiableList());
+        }
+
+        private void assertOrigin(final HttpTrace trace) {
+            final var remote = remoteOrLocal.get();
+
+            if (trace.equals(previous.get()))
+                return; // Partial retry detection
+            previous.set(trace);
+
+            if (remote)
+                assertThat(trace.getOrigin())
+                        .withFailMessage("Wrong origin")
+                        .isEqualTo("remote");
+            else
+                assertThat(trace.getOrigin())
+                        .withFailMessage("Wrong origin")
+                        .isEqualTo("local");
+
+            remoteOrLocal.set(!remote);
         }
 
         private int beginAssertingTraceIdAt(final boolean startsRemote,

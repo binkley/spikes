@@ -26,6 +26,7 @@ import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.verify;
 
 @Data
+@EqualsAndHashCode(exclude = "correlation")
 @JsonTypeInfo(use = Id.NAME, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(RequestTrace.class),
