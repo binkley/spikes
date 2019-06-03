@@ -72,6 +72,22 @@ public class ExceptionHandling
         return null;
     }
 
+    private static String method(final NativeWebRequest original) {
+        final var request = original
+                .getNativeRequest(HttpServletRequest.class);
+        return null == request ? "NONE" : request.getMethod();
+    }
+
+    private static String url(final NativeWebRequest original) {
+        final var request = original
+                .getNativeRequest(HttpServletRequest.class);
+        if (null == request) return "NONE";
+        final var url = request.getRequestURL();
+        final var query = request.getQueryString();
+        if (null != query) url.append('?').append(query);
+        return url.toString();
+    }
+
     @Override
     public ResponseEntity<Problem> handleMessageNotReadableException(
             final HttpMessageNotReadableException exception,
@@ -107,7 +123,8 @@ public class ExceptionHandling
             final HttpStatus status) {
         final var alertMessage = findAlertMessage(throwable);
         if (null != alertMessage)
-            alerter.alert(alertMessage);
+            alerter.alert(alertMessage, status.value(), method(request),
+                    url(request));
 
         final var realRequest = request
                 .getNativeRequest(HttpServletRequest.class);
