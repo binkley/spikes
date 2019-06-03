@@ -333,9 +333,8 @@ class LoggyLiveTest {
 
         assertThat(response.statusCode()).isEqualTo(500);
 
-        verify(logger).error(anyString(), eq(HIGH), eq(500),
-                eq("GET"), eq("http://localhost:8080/npe"),
-                eq("NULLITY"));
+        verify(logger).error(anyString(), eq(HIGH), eq("NULLITY"),
+                eq("status=500;method=GET;url=http://localhost:8080/npe"));
     }
 
     @Test
@@ -350,9 +349,8 @@ class LoggyLiveTest {
 
         assertThat(response.statusCode()).isEqualTo(500);
 
-        verify(logger).error(anyString(), eq(MEDIUM), eq(500),
-                eq("POST"), eq("http://localhost:8080/conflict"),
-                eq("CONFLICTED"));
+        verify(logger).error(anyString(), eq(MEDIUM), eq("CONFLICTED"),
+                eq("status=500;method=POST;url=http://localhost:8080/conflict"));
     }
 
     @Test

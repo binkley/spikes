@@ -20,6 +20,8 @@ import org.zalando.problem.StatusType;
 import org.zalando.problem.spring.web.advice.ProblemHandling;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import static java.util.Collections.singleton;
 import static org.springframework.boot.autoconfigure.web.ErrorProperties.IncludeStacktrace.ALWAYS;
@@ -88,6 +90,15 @@ public class ExceptionHandling
         return url.toString();
     }
 
+    private static Map<String, Object> extra(final HttpStatus status,
+            final NativeWebRequest request) {
+        final var extra = new LinkedHashMap<String, Object>(3);
+        extra.put("status", status.value());
+        extra.put("method", method(request));
+        extra.put("url", url(request));
+        return extra;
+    }
+
     @Override
     public ResponseEntity<Problem> handleMessageNotReadableException(
             final HttpMessageNotReadableException exception,
@@ -123,8 +134,7 @@ public class ExceptionHandling
             final HttpStatus status) {
         final var alertMessage = findAlertMessage(throwable);
         if (null != alertMessage)
-            alerter.alert(alertMessage, status.value(), method(request),
-                    url(request));
+            alerter.alert(alertMessage, extra(status, request));
 
         final var realRequest = request
                 .getNativeRequest(HttpServletRequest.class);
