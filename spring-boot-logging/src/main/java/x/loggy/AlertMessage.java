@@ -19,7 +19,8 @@ public @interface AlertMessage {
     String message();
 
     class MessageFinder {
-        public static String findAlertMessage(final Throwable throwable) {
+        public static AlertMessage findAlertMessage(
+                final Throwable throwable) {
             final var throwables = new ArrayList<Throwable>();
             for (Throwable x = throwable; null != x; x = x.getCause())
                 throwables.add(x);
@@ -34,7 +35,7 @@ public @interface AlertMessage {
             return null;
         }
 
-        private static String findAlertMessage(
+        private static AlertMessage findAlertMessage(
                 final StackTraceElement[] stackTrace) {
             for (final var frame : stackTrace) {
                 final var message = findAlertMessage(frame);
@@ -45,7 +46,7 @@ public @interface AlertMessage {
             return null;
         }
 
-        private static String findAlertMessage(
+        private static AlertMessage findAlertMessage(
                 final StackTraceElement frame) {
             try {
                 final var methods = currentThread()
@@ -67,7 +68,7 @@ public @interface AlertMessage {
             }
         }
 
-        private static String findAlertMessage(final String methodName,
+        private static AlertMessage findAlertMessage(final String methodName,
                 final Method method) {
             if (!methodName.equalsIgnoreCase(method.getName()))
                 return null;
@@ -75,13 +76,8 @@ public @interface AlertMessage {
             return findAlertMessage(method);
         }
 
-        private static String findAlertMessage(final Method method) {
-            final var alertMessage = findAnnotation(
-                    method, AlertMessage.class);
-            if (null == alertMessage)
-                return null;
-
-            return alertMessage.message();
+        private static AlertMessage findAlertMessage(final Method method) {
+            return findAnnotation(method, AlertMessage.class);
         }
     }
 }

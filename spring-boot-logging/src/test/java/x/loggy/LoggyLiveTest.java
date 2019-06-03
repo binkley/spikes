@@ -15,7 +15,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.test.context.ActiveProfiles;
-import x.loggy.AlertMessage.MessageFinder;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
@@ -37,6 +36,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.DEFINED_PORT;
+import static x.loggy.AlertMessage.MessageFinder.findAlertMessage;
 
 @ActiveProfiles("json")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -62,6 +62,35 @@ class LoggyLiveTest {
     private Logger httpLogger;
 
     private Extractor<HttpHeaders> httpExtractor;
+
+    private static HttpRequest.Builder requestWithTracing(
+            final String traceId) {
+        return HttpRequest.newBuilder().headers(
+                "X-B3-TraceId", traceId,
+                "X-B3-SpanId", traceId);
+    }
+
+    private static HttpResponse<Void> sendAndDiscardBody(
+            final HttpRequest request)
+            throws IOException, InterruptedException {
+        return client.send(request, discarding());
+    }
+
+    private static HttpRequest.Builder requestWithoutTracing() {
+        return HttpRequest.newBuilder();
+    }
+
+    private static void callWithExistingTrace() {
+        MDC.put("X-B3-TraceId", existingTraceId);
+        MDC.put("X-B3-SpanId", existingTraceId);
+    }
+
+    private static void assertThatAlertMessage(final Throwable t,
+            final String message) {
+        final var alertMessage = findAlertMessage(t);
+        assertThat(alertMessage).isNotNull();
+        assertThat(alertMessage.message()).isEqualTo(message);
+    }
 
     @PostConstruct
     private void init() {
@@ -103,13 +132,6 @@ class LoggyLiveTest {
                 anyString(), anyString());
     }
 
-    private static HttpRequest.Builder requestWithTracing(
-            final String traceId) {
-        return HttpRequest.newBuilder().headers(
-                "X-B3-TraceId", traceId,
-                "X-B3-SpanId", traceId);
-    }
-
     @Test
     void givenExistingTrace_shouldTraceThoughWebDirectly()
             throws IOException, InterruptedException {
@@ -130,12 +152,6 @@ class LoggyLiveTest {
         final var response = sendAndDiscardBody(request);
 
         return extractTraceId(response);
-    }
-
-    private static HttpResponse<Void> sendAndDiscardBody(
-            final HttpRequest request)
-            throws IOException, InterruptedException {
-        return client.send(request, discarding());
     }
 
     private String extractTraceId(final HttpResponse<Void> response) {
@@ -159,10 +175,6 @@ class LoggyLiveTest {
                 .isNotNull();
 
         tracingLogs.assertExchange(null, true);
-    }
-
-    private static HttpRequest.Builder requestWithoutTracing() {
-        return HttpRequest.newBuilder();
     }
 
     @Test
@@ -208,7 +220,7 @@ class LoggyLiveTest {
         final var response = sendAndDiscardBody(request);
         final var traceId = extractTraceId(response);
 
-        assertThat(response.statusCode()).isEqualTo(502);
+        assertThat(response.statusCode()).isEqualTo(500);
         assertThat(traceId).isEqualTo(existingTraceId);
 
         tracingLogs.assertExchange(existingTraceId, true);
@@ -224,11 +236,6 @@ class LoggyLiveTest {
                 new LoggyResponse("HI, MOM!", 22, Instant.now(clock)));
 
         tracingLogs.assertExchange(existingTraceId, false);
-    }
-
-    private static void callWithExistingTrace() {
-        MDC.put("X-B3-TraceId", existingTraceId);
-        MDC.put("X-B3-SpanId", existingTraceId);
     }
 
     @Test
@@ -324,7 +331,7 @@ class LoggyLiveTest {
 
         final var response = sendAndDiscardBody(request);
 
-        assertThat(response.statusCode()).isEqualTo(502);
+        assertThat(response.statusCode()).isEqualTo(500);
 
         verify(logger).error(anyString(), eq("CONFLICTED"));
     }
@@ -333,8 +340,7 @@ class LoggyLiveTest {
     void givenAlertDirectly() {
         assertThatThrownBy(conflict::postConflict)
                 .isInstanceOf(FeignException.class)
-                .extracting(MessageFinder::findAlertMessage)
-                .isEqualTo("CONFLICTED");
+                .satisfies(t -> assertThatAlertMessage(t, "CONFLICTED"));
     }
 
     @TestConfiguration

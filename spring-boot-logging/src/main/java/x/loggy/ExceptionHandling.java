@@ -38,6 +38,39 @@ public class ExceptionHandling
     private final ServerProperties server;
     private final Logger logger;
 
+    private static String jsonFieldPath(final MismatchedInputException e) {
+        final var parts = e.getPath();
+        if (parts.isEmpty())
+            throw new Bug("JSON parsing failed without any JSON", e);
+
+        final var buffer = new StringBuilder();
+        for (final var part : parts) {
+            final var fieldName = part.getFieldName();
+            if (null == fieldName)
+                buffer.append('[').append(part.getIndex()).append(']');
+            else
+                buffer.append('.').append(fieldName);
+        }
+
+        if ('.' == buffer.charAt(0))
+            buffer.deleteCharAt(0);
+
+        return buffer.toString();
+    }
+
+    static boolean includeStackTrace(final ServerProperties server) {
+        return ALWAYS == server.getError().getIncludeStacktrace();
+    }
+
+    private static FeignErrorDetails findRequestDetails(
+            final Throwable throwable) {
+        for (Throwable x = throwable; null != x; x = x.getCause())
+            for (final Throwable suppressed : x.getSuppressed())
+                if (suppressed instanceof FeignErrorDetails)
+                    return (FeignErrorDetails) suppressed;
+        return null;
+    }
+
     @Override
     public ResponseEntity<Problem> handleMessageNotReadableException(
             final HttpMessageNotReadableException exception,
@@ -60,33 +93,9 @@ public class ExceptionHandling
                 request);
     }
 
-    private static String jsonFieldPath(final MismatchedInputException e) {
-        final var parts = e.getPath();
-        if (parts.isEmpty())
-            throw new Bug("JSON parsing failed without any JSON", e);
-
-        final var buffer = new StringBuilder();
-        for (final var part : parts) {
-            final var fieldName = part.getFieldName();
-            if (null == fieldName)
-                buffer.append('[').append(part.getIndex()).append(']');
-            else
-                buffer.append('.').append(fieldName);
-        }
-
-        if ('.' == buffer.charAt(0))
-            buffer.deleteCharAt(0);
-
-        return buffer.toString();
-    }
-
     @Override
     public boolean isCausalChainsEnabled() {
         return includeStackTrace(server);
-    }
-
-    static boolean includeStackTrace(final ServerProperties server) {
-        return ALWAYS == server.getError().getIncludeStacktrace();
     }
 
     @Override
@@ -97,7 +106,7 @@ public class ExceptionHandling
             final HttpStatus status) {
         final var alertMessage = findAlertMessage(throwable);
         if (null != alertMessage)
-            logger.error("ALERT: {}", alertMessage);
+            logger.error("ALERT: {}", alertMessage.message());
 
         final var realRequest = request
                 .getNativeRequest(HttpServletRequest.class);
@@ -145,14 +154,5 @@ public class ExceptionHandling
         problem.with("feign-status", e.status());
 
         return create(e, problem.build(), request);
-    }
-
-    private static FeignErrorDetails findRequestDetails(
-            final Throwable throwable) {
-        for (Throwable x = throwable; null != x; x = x.getCause())
-            for (final Throwable suppressed : x.getSuppressed())
-                if (suppressed instanceof FeignErrorDetails)
-                    return (FeignErrorDetails) suppressed;
-        return null;
     }
 }
