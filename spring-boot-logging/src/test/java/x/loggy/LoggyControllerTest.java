@@ -35,6 +35,8 @@ class LoggyControllerTest {
     @MockBean
     private Logger logger;
     @MockBean
+    private Alerter alerter;
+    @MockBean
     private LoggyRemote loggy;
     @MockBean
     private NotFoundRemote notFound;

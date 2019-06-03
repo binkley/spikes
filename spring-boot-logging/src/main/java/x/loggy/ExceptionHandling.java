@@ -37,6 +37,7 @@ public class ExceptionHandling
         implements ProblemHandling {
     private final ServerProperties server;
     private final Logger logger;
+    private final Alerter alerter;
 
     private static String jsonFieldPath(final MismatchedInputException e) {
         final var parts = e.getPath();
@@ -106,8 +107,7 @@ public class ExceptionHandling
             final HttpStatus status) {
         final var alertMessage = findAlertMessage(throwable);
         if (null != alertMessage)
-            logger.error("ALERT {}: {}",
-                    alertMessage.severity(), alertMessage.message());
+            alerter.alert(alertMessage);
 
         final var realRequest = request
                 .getNativeRequest(HttpServletRequest.class);
