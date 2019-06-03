@@ -132,7 +132,7 @@ public class AssertionsForTracingLogs {
         private Optional<Entry<String, List<String>>> maybeTraceHeader(
                 final HttpTrace trace) {
             return trace.getHeaders().entrySet().stream()
-                    .filter(e -> e.getKey().equalsIgnoreCase("x-b3-traceid"))
+                    .filter(e -> e.getKey().equalsIgnoreCase("X-B3-TraceId"))
                     .findFirst();
         }
 

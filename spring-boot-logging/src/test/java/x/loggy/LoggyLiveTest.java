@@ -2,6 +2,7 @@ package x.loggy;
 
 import brave.Tracing;
 import brave.propagation.TraceContext.Extractor;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,10 +26,12 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Map;
 
 import static java.net.http.HttpRequest.BodyPublishers.noBody;
 import static java.net.http.HttpResponse.BodyHandlers.discarding;
 import static java.time.ZoneOffset.UTC;
+import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -39,6 +42,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 import static x.loggy.AlertAssertions.assertThatAlertMessage;
 import static x.loggy.AlertMessage.Severity.HIGH;
 import static x.loggy.AlertMessage.Severity.MEDIUM;
+import static x.loggy.HttpTrace.httpTracesOf;
 
 @ActiveProfiles("json")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -57,6 +61,7 @@ class LoggyLiveTest {
     private final Clock clock;
     private final Tracing tracing;
     private final AssertionsForTracingLogs tracingLogs;
+    private final ObjectMapper objectMapper;
 
     @MockBean(name = "logger")
     private Logger logger;
@@ -298,7 +303,22 @@ class LoggyLiveTest {
         assertThatThrownBy(unknownHost::get)
                 .hasFieldOrPropertyWithValue("status", 0);
 
-        tracingLogs.assertExchange(null, false);
+        final var traces = httpTracesOf(httpLogger, objectMapper)
+                .collect(toUnmodifiableList());
+
+        // Show retry in action; note each retry gets a fresh trace ID
+        // since none was provided externally
+        assertThat(traces)
+                .extracting(HttpTrace::getOrigin)
+                .containsExactly("local", "local");
+        assertThat(traces.stream()
+                .map(HttpTrace::getHeaders)
+                .flatMap(h -> h.entrySet().stream())
+                .filter(e -> e.getKey().equalsIgnoreCase("X-B3-TraceId"))
+                .map(Map.Entry::getValue)
+                .distinct()
+                .peek(traceId -> assertThat(traceId).isNotNull()))
+                .hasSize(2);
     }
 
     @Test
