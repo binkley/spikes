@@ -47,18 +47,18 @@ class AlertMessageTest {
     }
 
     interface Bazable {
-        @AlertMessage("BAZ")
+        @AlertMessage(message = "BAZ")
         void baz();
     }
 
     static class TestyMethods
             implements Bazable {
-        @AlertMessage("FOO")
+        @AlertMessage(message = "FOO")
         void foo() {
             throw new TestyException();
         }
 
-        @AlertMessage("BAR")
+        @AlertMessage(message = "BAR")
         void bar() {
             try {
                 NestedMethods.qux();
@@ -73,7 +73,7 @@ class AlertMessageTest {
 
         @UtilityClass
         static class NestedMethods {
-            @AlertMessage("QUX")
+            @AlertMessage(message = "QUX")
             void qux() {
                 throw new TestyException();
             }

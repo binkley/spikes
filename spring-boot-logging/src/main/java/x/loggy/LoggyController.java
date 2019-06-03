@@ -46,7 +46,7 @@ public class LoggyController {
         logger.info("POSTED {}", request);
     }
 
-    @AlertMessage("NULLITY")
+    @AlertMessage(message = "NULLITY")
     @GetMapping("npe")
     public LoggyResponse getNpe() {
         logger.info("INTER THE SAD WEBS");

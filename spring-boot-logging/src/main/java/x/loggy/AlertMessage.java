@@ -16,7 +16,7 @@ import static org.springframework.core.annotation.AnnotationUtils.findAnnotation
 @Retention(RUNTIME)
 @Target(METHOD)
 public @interface AlertMessage {
-    String value();
+    String message();
 
     class MessageFinder {
         public static String findAlertMessage(final Throwable throwable) {
@@ -81,7 +81,7 @@ public @interface AlertMessage {
             if (null == alertMessage)
                 return null;
 
-            return alertMessage.value();
+            return alertMessage.message();
         }
     }
 }
