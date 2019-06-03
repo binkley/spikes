@@ -5,17 +5,14 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static x.loggy.AlertAssertions.assertThatAlertMessage;
 import static x.loggy.AlertMessage.MessageFinder.findAlertMessage;
+import static x.loggy.AlertMessage.Severity.HIGH;
+import static x.loggy.AlertMessage.Severity.LOW;
+import static x.loggy.AlertMessage.Severity.MEDIUM;
 
 class AlertMessageTest {
     private final TestyMethods testyMethods = new TestyMethods();
-
-    private static void assertThatAlertMessage(final Throwable t,
-            final String message) {
-        final var alertMessage = findAlertMessage(t);
-        assertThat(alertMessage).isNotNull();
-        assertThat(alertMessage.message()).isEqualTo(message);
-    }
 
     @Test
     void shouldFindNoMessage() {
@@ -32,36 +29,36 @@ class AlertMessageTest {
     void shouldFindTopLevelMessage() {
         assertThatThrownBy(testyMethods::foo)
                 .isInstanceOf(TestyException.class)
-                .satisfies(t -> assertThatAlertMessage(t, "FOO"));
+                .satisfies(t -> assertThatAlertMessage(t, "FOO", HIGH));
     }
 
     @Test
     void shouldFindNestedMessage() {
         assertThatThrownBy(testyMethods::bar)
                 .isInstanceOf(TestyException.class)
-                .satisfies(t -> assertThatAlertMessage(t, "QUX"));
+                .satisfies(t -> assertThatAlertMessage(t, "QUX", MEDIUM));
     }
 
     @Test
     void shouldFindInterfaceMessage() {
         assertThatThrownBy(testyMethods::baz)
                 .isInstanceOf(TestyException.class)
-                .satisfies(t -> assertThatAlertMessage(t, "BAZ"));
+                .satisfies(t -> assertThatAlertMessage(t, "BAZ", LOW));
     }
 
     interface Bazable {
-        @AlertMessage(message = "BAZ")
+        @AlertMessage(message = "BAZ", severity = LOW)
         void baz();
     }
 
     static class TestyMethods
             implements Bazable {
-        @AlertMessage(message = "FOO")
+        @AlertMessage(message = "FOO", severity = HIGH)
         void foo() {
             throw new TestyException();
         }
 
-        @AlertMessage(message = "BAR")
+        @AlertMessage(message = "BAR", severity = LOW)
         void bar() {
             try {
                 NestedMethods.qux();
@@ -76,7 +73,7 @@ class AlertMessageTest {
 
         @UtilityClass
         static class NestedMethods {
-            @AlertMessage(message = "QUX")
+            @AlertMessage(message = "QUX", severity = MEDIUM)
             void qux() {
                 throw new TestyException();
             }

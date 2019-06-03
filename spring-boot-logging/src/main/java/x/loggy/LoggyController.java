@@ -16,6 +16,7 @@ import java.time.Clock;
 import java.time.Instant;
 
 import static org.springframework.http.HttpStatus.ACCEPTED;
+import static x.loggy.AlertMessage.Severity.HIGH;
 
 @RestController
 @RequestMapping
@@ -46,7 +47,7 @@ public class LoggyController {
         logger.info("POSTED {}", request);
     }
 
-    @AlertMessage(message = "NULLITY")
+    @AlertMessage(message = "NULLITY", severity = HIGH)
     @GetMapping("npe")
     public LoggyResponse getNpe() {
         logger.info("INTER THE SAD WEBS");

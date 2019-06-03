@@ -18,6 +18,12 @@ import static org.springframework.core.annotation.AnnotationUtils.findAnnotation
 public @interface AlertMessage {
     String message();
 
+    Severity severity();
+
+    enum Severity {
+        LOW, MEDIUM, HIGH
+    }
+
     class MessageFinder {
         public static AlertMessage findAlertMessage(
                 final Throwable throwable) {

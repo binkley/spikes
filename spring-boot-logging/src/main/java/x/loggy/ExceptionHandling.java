@@ -106,7 +106,8 @@ public class ExceptionHandling
             final HttpStatus status) {
         final var alertMessage = findAlertMessage(throwable);
         if (null != alertMessage)
-            logger.error("ALERT: {}", alertMessage.message());
+            logger.error("ALERT {}: {}",
+                    alertMessage.severity(), alertMessage.message());
 
         final var realRequest = request
                 .getNativeRequest(HttpServletRequest.class);

@@ -36,7 +36,9 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.DEFINED_PORT;
-import static x.loggy.AlertMessage.MessageFinder.findAlertMessage;
+import static x.loggy.AlertAssertions.assertThatAlertMessage;
+import static x.loggy.AlertMessage.Severity.HIGH;
+import static x.loggy.AlertMessage.Severity.MEDIUM;
 
 @ActiveProfiles("json")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -83,13 +85,6 @@ class LoggyLiveTest {
     private static void callWithExistingTrace() {
         MDC.put("X-B3-TraceId", existingTraceId);
         MDC.put("X-B3-SpanId", existingTraceId);
-    }
-
-    private static void assertThatAlertMessage(final Throwable t,
-            final String message) {
-        final var alertMessage = findAlertMessage(t);
-        assertThat(alertMessage).isNotNull();
-        assertThat(alertMessage.message()).isEqualTo(message);
     }
 
     @PostConstruct
@@ -318,7 +313,7 @@ class LoggyLiveTest {
 
         assertThat(response.statusCode()).isEqualTo(500);
 
-        verify(logger).error(anyString(), eq("NULLITY"));
+        verify(logger).error(anyString(), eq(HIGH), eq("NULLITY"));
     }
 
     @Test
@@ -333,14 +328,15 @@ class LoggyLiveTest {
 
         assertThat(response.statusCode()).isEqualTo(500);
 
-        verify(logger).error(anyString(), eq("CONFLICTED"));
+        verify(logger).error(anyString(), eq(MEDIUM), eq("CONFLICTED"));
     }
 
     @Test
     void givenAlertDirectly() {
         assertThatThrownBy(conflict::postConflict)
                 .isInstanceOf(FeignException.class)
-                .satisfies(t -> assertThatAlertMessage(t, "CONFLICTED"));
+                .satisfies(t -> assertThatAlertMessage(t,
+                        "CONFLICTED", MEDIUM));
     }
 
     @TestConfiguration
