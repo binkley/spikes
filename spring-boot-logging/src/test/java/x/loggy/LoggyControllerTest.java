@@ -44,6 +44,8 @@ class LoggyControllerTest {
     private UnknownHostRemote unknownHost;
     @MockBean
     private ConflictRemote conflict;
+    @MockBean
+    private RetryRemote retry;
 
     @Test
     void shouldAccept()

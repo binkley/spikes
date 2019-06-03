@@ -58,6 +58,7 @@ class LoggyLiveTest {
     private final NotFoundRemote notFound;
     private final UnknownHostRemote unknownHost;
     private final ConflictRemote conflict;
+    private final RetryRemote retry;
     private final Clock clock;
     private final Tracing tracing;
     private final AssertionsForTracingLogs tracingLogs;
@@ -289,6 +290,13 @@ class LoggyLiveTest {
     }
 
     @Test
+    void givenFlakyRemote_shouldRetry() {
+        retry.getRetry();
+
+        tracingLogs.assertExchange(null, false);
+    }
+
+    @Test
     void givenExistingTrace_shouldHandleUnknownHost() {
         callWithExistingTrace();
 
@@ -318,7 +326,7 @@ class LoggyLiveTest {
                 .map(Map.Entry::getValue)
                 .distinct()
                 .peek(traceId -> assertThat(traceId).isNotNull()))
-                .hasSize(2);
+                .hasSize(1);
     }
 
     @Test

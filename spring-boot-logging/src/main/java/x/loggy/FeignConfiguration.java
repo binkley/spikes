@@ -1,5 +1,6 @@
 package x.loggy;
 
+import feign.RetryableException;
 import feign.Retryer;
 import feign.Retryer.Default;
 import feign.codec.ErrorDecoder;
@@ -31,6 +32,10 @@ public class FeignConfiguration {
                 exception.addSuppressed(new FeignErrorDetails(
                         response.request().httpMethod(),
                         response.request().url()));
+            if (500 <= response.status() && response.status() < 600)
+                return new RetryableException(
+                        exception.getMessage(),
+                        response.request().httpMethod(), exception, null);
             return exception;
         };
     }

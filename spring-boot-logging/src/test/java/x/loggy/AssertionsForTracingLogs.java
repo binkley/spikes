@@ -138,7 +138,8 @@ public class AssertionsForTracingLogs {
 
         private String firstOf(final List<String> values) {
             assertThat(values)
-                    .withFailMessage("Malformed X-B3-TraceId header")
+                    .withFailMessage(
+                            "Malformed X-B3-TraceId header: " + values)
                     .hasSize(1);
             return values.get(0);
         }
