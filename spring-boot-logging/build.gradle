@@ -18,6 +18,7 @@ ext {
 
 ext["assertj.version"] = "3.12.2"
 ext["junit-jupiter.version"] = "5.4.2"
+ext["lombok.version"] = "1.18.8"
 ext["mockito.version"] = "2.27.2"
 
 configurations {
