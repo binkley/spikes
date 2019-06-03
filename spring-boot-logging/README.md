@@ -28,6 +28,7 @@ General:
 * Problem RFC responses and logging
   - Constraint violations respond with 422 status (no examples)
   - Feign exceptions respond with 502 status (one example)
+* Distinct logging from alerting
 
 Local development:
 
