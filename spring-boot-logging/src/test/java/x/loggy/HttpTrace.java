@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
@@ -55,6 +56,20 @@ public class HttpTrace {
             return objectMapper.readValue(logMessage, HttpTrace.class);
         } catch (final IOException e) {
             throw new IOError(e);
+        }
+    }
+
+    public boolean isProblem() {
+        return headers.containsValue(List.of("application/problem+json"));
+    }
+
+    public <T> T getBodyAs(
+            final Class<T> type, final ObjectMapper objectMapper) {
+        try {
+            return objectMapper.treeToValue(body, type);
+        } catch (final JsonProcessingException e) {
+            throw new Bug("Not a " + type.getName() + ": " + body + ": " + e,
+                    e);
         }
     }
 

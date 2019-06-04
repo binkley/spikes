@@ -16,6 +16,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.test.context.ActiveProfiles;
+import org.zalando.problem.Problem;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
@@ -39,6 +40,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.DEFINED_PORT;
+import static org.zalando.problem.Status.INTERNAL_SERVER_ERROR;
 import static x.loggy.AlertAssertions.assertThatAlertMessage;
 import static x.loggy.AlertMessage.Severity.HIGH;
 import static x.loggy.AlertMessage.Severity.MEDIUM;
@@ -70,28 +72,6 @@ class LoggyLiveTest {
     private Logger httpLogger;
 
     private Extractor<HttpHeaders> httpExtractor;
-
-    private static HttpRequest.Builder requestWithTracing(
-            final String traceId) {
-        return HttpRequest.newBuilder().headers(
-                "X-B3-TraceId", traceId,
-                "X-B3-SpanId", traceId);
-    }
-
-    private static HttpResponse<Void> sendAndDiscardBody(
-            final HttpRequest request)
-            throws IOException, InterruptedException {
-        return client.send(request, discarding());
-    }
-
-    private static HttpRequest.Builder requestWithoutTracing() {
-        return HttpRequest.newBuilder();
-    }
-
-    private static void callWithExistingTrace() {
-        MDC.put("X-B3-TraceId", existingTraceId);
-        MDC.put("X-B3-SpanId", existingTraceId);
-    }
 
     @PostConstruct
     private void init() {
@@ -133,6 +113,13 @@ class LoggyLiveTest {
                 anyString(), anyString());
     }
 
+    private static HttpRequest.Builder requestWithTracing(
+            final String traceId) {
+        return HttpRequest.newBuilder().headers(
+                "X-B3-TraceId", traceId,
+                "X-B3-SpanId", traceId);
+    }
+
     @Test
     void givenExistingTrace_shouldTraceThoughWebDirectly()
             throws IOException, InterruptedException {
@@ -153,6 +140,12 @@ class LoggyLiveTest {
         final var response = sendAndDiscardBody(request);
 
         return extractTraceId(response);
+    }
+
+    private static HttpResponse<Void> sendAndDiscardBody(
+            final HttpRequest request)
+            throws IOException, InterruptedException {
+        return client.send(request, discarding());
     }
 
     private String extractTraceId(final HttpResponse<Void> response) {
@@ -176,6 +169,10 @@ class LoggyLiveTest {
                 .isNotNull();
 
         tracingLogs.assertExchange(null, true);
+    }
+
+    private static HttpRequest.Builder requestWithoutTracing() {
+        return HttpRequest.newBuilder();
     }
 
     @Test
@@ -237,6 +234,11 @@ class LoggyLiveTest {
                 new LoggyResponse("HI, MOM!", 22, Instant.now(clock)));
 
         tracingLogs.assertExchange(existingTraceId, false);
+    }
+
+    private static void callWithExistingTrace() {
+        MDC.put("X-B3-TraceId", existingTraceId);
+        MDC.put("X-B3-SpanId", existingTraceId);
     }
 
     @Test
@@ -343,6 +345,12 @@ class LoggyLiveTest {
 
         verify(logger).error(anyString(), eq(HIGH), eq("NULLITY"),
                 eq("status=500;method=GET;url=http://localhost:8080/npe"));
+
+        assertThat(httpTracesOf(httpLogger, objectMapper)
+                .filter(HttpTrace::isProblem)
+                .map(trace -> trace.getBodyAs(Problem.class, objectMapper))
+                .map(Problem::getStatus))
+                .containsExactly(INTERNAL_SERVER_ERROR);
     }
 
     @Test
@@ -358,7 +366,8 @@ class LoggyLiveTest {
         assertThat(response.statusCode()).isEqualTo(500);
 
         verify(logger).error(anyString(), eq(MEDIUM), eq("CONFLICTED"),
-                eq("status=500;method=POST;url=http://localhost:8080/conflict"));
+                eq("status=500;method=POST;"
+                        + "url=http://localhost:8080/conflict"));
     }
 
     @Test
