@@ -41,64 +41,6 @@ public class ExceptionHandling
     private final Logger logger;
     private final Alerter alerter;
 
-    private static String jsonFieldPath(final MismatchedInputException e) {
-        final var parts = e.getPath();
-        if (parts.isEmpty())
-            throw new Bug("JSON parsing failed without any JSON", e);
-
-        final var buffer = new StringBuilder();
-        for (final var part : parts) {
-            final var fieldName = part.getFieldName();
-            if (null == fieldName)
-                buffer.append('[').append(part.getIndex()).append(']');
-            else
-                buffer.append('.').append(fieldName);
-        }
-
-        if ('.' == buffer.charAt(0))
-            buffer.deleteCharAt(0);
-
-        return buffer.toString();
-    }
-
-    static boolean includeStackTrace(final ServerProperties server) {
-        return ALWAYS == server.getError().getIncludeStacktrace();
-    }
-
-    private static FeignErrorDetails findRequestDetails(
-            final Throwable throwable) {
-        for (Throwable x = throwable; null != x; x = x.getCause())
-            for (final Throwable suppressed : x.getSuppressed())
-                if (suppressed instanceof FeignErrorDetails)
-                    return (FeignErrorDetails) suppressed;
-        return null;
-    }
-
-    private static String method(final NativeWebRequest original) {
-        final var request = original
-                .getNativeRequest(HttpServletRequest.class);
-        return null == request ? "NONE" : request.getMethod();
-    }
-
-    private static String url(final NativeWebRequest original) {
-        final var request = original
-                .getNativeRequest(HttpServletRequest.class);
-        if (null == request) return "NONE";
-        final var url = request.getRequestURL();
-        final var query = request.getQueryString();
-        if (null != query) url.append('?').append(query);
-        return url.toString();
-    }
-
-    private static Map<String, Object> extra(final HttpStatus status,
-            final NativeWebRequest request) {
-        final var extra = new LinkedHashMap<String, Object>(3);
-        extra.put("status", status.value());
-        extra.put("method", method(request));
-        extra.put("url", url(request));
-        return extra;
-    }
-
     @Override
     public ResponseEntity<Problem> handleMessageNotReadableException(
             final HttpMessageNotReadableException exception,
@@ -121,9 +63,33 @@ public class ExceptionHandling
                 request);
     }
 
+    private static String jsonFieldPath(final MismatchedInputException e) {
+        final var parts = e.getPath();
+        if (parts.isEmpty())
+            throw new Bug("JSON parsing failed without any JSON", e);
+
+        final var buffer = new StringBuilder();
+        for (final var part : parts) {
+            final var fieldName = part.getFieldName();
+            if (null == fieldName)
+                buffer.append('[').append(part.getIndex()).append(']');
+            else
+                buffer.append('.').append(fieldName);
+        }
+
+        if ('.' == buffer.charAt(0))
+            buffer.deleteCharAt(0);
+
+        return buffer.toString();
+    }
+
     @Override
     public boolean isCausalChainsEnabled() {
         return includeStackTrace(server);
+    }
+
+    static boolean includeStackTrace(final ServerProperties server) {
+        return ALWAYS == server.getError().getIncludeStacktrace();
     }
 
     @Override
@@ -156,6 +122,31 @@ public class ExceptionHandling
         }
     }
 
+    private static Map<String, Object> extra(final HttpStatus status,
+            final NativeWebRequest request) {
+        final var extra = new LinkedHashMap<String, Object>(3);
+        extra.put("status", status.value());
+        extra.put("method", method(request));
+        extra.put("url", url(request));
+        return extra;
+    }
+
+    private static String method(final NativeWebRequest original) {
+        final var request = original
+                .getNativeRequest(HttpServletRequest.class);
+        return null == request ? "NONE" : request.getMethod();
+    }
+
+    private static String url(final NativeWebRequest original) {
+        final var request = original
+                .getNativeRequest(HttpServletRequest.class);
+        if (null == request) return "NONE";
+        final var url = request.getRequestURL();
+        final var query = request.getQueryString();
+        if (null != query) url.append('?').append(query);
+        return url.toString();
+    }
+
     @Override
     public StatusType defaultConstraintViolationStatus() {
         return UNPROCESSABLE_ENTITY;
@@ -175,12 +166,21 @@ public class ExceptionHandling
                 .withDetail(message)
                 .withStatus(status);
 
-        final var requestDetails = findRequestDetails(e);
-        if (null != requestDetails) problem
-                .with("feign-http-method", requestDetails.getMethod().name())
-                .with("feign-url", requestDetails.getUrl());
         problem.with("feign-status", e.status());
+        final var details = findRequestDetails(e);
+        if (null != details) problem
+                .with("feign-method", details.getMethod().name())
+                .with("feign-url", details.getUrl());
 
         return create(e, problem.build(), request);
+    }
+
+    private static FeignErrorDetails findRequestDetails(
+            final Throwable throwable) {
+        for (Throwable x = throwable; null != x; x = x.getCause())
+            for (final Throwable suppressed : x.getSuppressed())
+                if (suppressed instanceof FeignErrorDetails)
+                    return (FeignErrorDetails) suppressed;
+        return null;
     }
 }
