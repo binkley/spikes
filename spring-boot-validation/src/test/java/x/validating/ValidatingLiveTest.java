@@ -68,9 +68,11 @@ class ValidatingLiveTest {
                 .header("Content-Type", "application/json")
                 .build();
 
-        final var response = client.send(request, discarding());
+        final var response = client.send(request, BodyHandlers.ofString());
 
         assertThat(response.statusCode()).isEqualTo(422);
+
+        System.out.println("response = " + response.body());
     }
 
     @Test
@@ -96,8 +98,10 @@ class ValidatingLiveTest {
                 .header("Content-Type", "application/json")
                 .build();
 
-        final var response = client.send(request, discarding());
+        final var response = client.send(request, BodyHandlers.ofString());
 
         assertThat(response.statusCode()).isEqualTo(422);
+
+        System.out.println("response = " + response.body());
     }
 }

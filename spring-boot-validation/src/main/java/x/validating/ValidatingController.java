@@ -8,19 +8,16 @@ import org.springframework.core.MethodParameter;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.Validator;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.io.IOException;
 
-import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY;
 import static x.validating.ReadJson.readJson;
 
 @RestController
@@ -57,10 +54,5 @@ public class ValidatingController {
                     errors);
         }
         logger.info("GOT {}", request);
-    }
-
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    @ResponseStatus(UNPROCESSABLE_ENTITY)
-    void handleValidationFailure() {
     }
 }

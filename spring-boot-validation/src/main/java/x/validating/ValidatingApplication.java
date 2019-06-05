@@ -1,12 +1,10 @@
 package x.validating;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration;
 
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
-@SpringBootApplication
+@SpringBootApplication(exclude = ErrorMvcAutoConfiguration.class)
 public class ValidatingApplication {
     public static void main(final String... args) {
         SpringApplication.run(ValidatingApplication.class, args);
