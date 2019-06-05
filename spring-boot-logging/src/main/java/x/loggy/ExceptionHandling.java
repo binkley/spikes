@@ -19,6 +19,7 @@ import org.zalando.problem.Problem;
 import org.zalando.problem.StatusType;
 import org.zalando.problem.spring.web.advice.ProblemHandling;
 
+import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletRequest;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -45,7 +46,7 @@ public class ExceptionHandling
     @Override
     public ResponseEntity<Problem> handleMessageNotReadableException(
             final HttpMessageNotReadableException exception,
-            final NativeWebRequest request) {
+            @Nonnull final NativeWebRequest request) {
         if (exception.getCause() instanceof MismatchedInputException)
             return handleMismatchedInputException(
                     (MismatchedInputException) exception.getCause(), request);
@@ -87,10 +88,6 @@ public class ExceptionHandling
     @Override
     public boolean isCausalChainsEnabled() {
         return includeStackTrace(server);
-    }
-
-    static boolean includeStackTrace(final ServerProperties server) {
-        return ALWAYS == server.getError().getIncludeStacktrace();
     }
 
     @Override
@@ -165,6 +162,10 @@ public class ExceptionHandling
         final var className = frame.getClassName();
         return className.startsWith("x.loggy.")
                 && !className.equals(LoggyErrorDecoder.class.getName());
+    }
+
+    static boolean includeStackTrace(final ServerProperties server) {
+        return ALWAYS == server.getError().getIncludeStacktrace();
     }
 
     @Override
