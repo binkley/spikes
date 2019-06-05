@@ -126,7 +126,7 @@ public class ExceptionHandling
             final NativeWebRequest request) {
         final var extra = new LinkedHashMap<String, Object>(5);
         final var rootCause = getMostSpecificCause(throwable);
-        extra.put("code-exception", rootCause);
+        extra.put("code-exception", rootCause.toString());
         extra.put("code-location", codeLocation(rootCause));
         extra.put("response-status", status.value());
         extra.put("request-method", method(request));
@@ -185,9 +185,10 @@ public class ExceptionHandling
                 : BAD_GATEWAY;
         final var problem = Problem.builder()
                 .withDetail(message)
-                .withStatus(status);
+                .withStatus(status)
+                .with("feign-status", e.status())
+                .with("code-location", codeLocation(e));
 
-        problem.with("feign-status", e.status());
         final var details = findRequestDetails(e);
         if (null != details) problem
                 .with("feign-method", details.getMethod().name())
