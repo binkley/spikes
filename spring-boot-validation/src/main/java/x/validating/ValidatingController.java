@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.validation.Valid;
 import java.io.IOException;
 
+import static org.springframework.util.ReflectionUtils.findMethod;
 import static x.validating.ReadJson.readJson;
 
 @RestController
@@ -41,18 +42,19 @@ public class ValidatingController {
     }
 
     @PutMapping
-    public void put(@RequestBody final String request,
+    public void put(
+            @RequestBody final String request,
             final BindingResult errors)
-            throws IOException, NoSuchMethodException,
-            MethodArgumentNotValidException {
+            throws IOException, MethodArgumentNotValidException {
         final var validish = objectMapper.readValue(request, Validish.class);
         validator.validate(validish, errors);
         if (errors.hasErrors()) {
             throw new MethodArgumentNotValidException(new MethodParameter(
-                    getClass().getMethod(
+                    findMethod(getClass(),
                             "put", String.class, BindingResult.class), 0),
                     errors);
         }
+
         logger.info("GOT {}", request);
     }
 }
