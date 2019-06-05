@@ -1,6 +1,6 @@
-# Spring Boot XML support
+# Spring Boot Validation
 
-Use XML REST payloads
+Study Spring Boot validation
 
 ## Run the from command line
 
