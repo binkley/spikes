@@ -100,7 +100,7 @@ public class ExceptionHandling
             final HttpStatus status) {
         final var alertMessage = findAlertMessage(throwable);
         if (null != alertMessage)
-            alerter.alert(alertMessage, extra(status, request));
+            alerter.alert(alertMessage, extra(throwable, status, request));
 
         final var realRequest = request
                 .getNativeRequest(HttpServletRequest.class);
@@ -122,13 +122,22 @@ public class ExceptionHandling
         }
     }
 
-    private static Map<String, Object> extra(final HttpStatus status,
+    private static Map<String, Object> extra(
+            final Throwable throwable,
+            final HttpStatus status,
             final NativeWebRequest request) {
-        final var extra = new LinkedHashMap<String, Object>(3);
-        extra.put("status", status.value());
-        extra.put("method", method(request));
-        extra.put("url", url(request));
+        final var extra = new LinkedHashMap<String, Object>(5);
+        final var rootCause = getMostSpecificCause(throwable);
+        extra.put("code-exception", rootCause);
+        extra.put("code-location", codeLocation(rootCause));
+        extra.put("response-status", status.value());
+        extra.put("request-method", method(request));
+        extra.put("request-url", url(request));
         return extra;
+    }
+
+    private static String codeLocation(final Throwable rootCause) {
+        return rootCause.getStackTrace()[0].toString();
     }
 
     private static String method(final NativeWebRequest original) {

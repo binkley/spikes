@@ -344,7 +344,12 @@ class LoggyLiveTest {
         assertThat(response.statusCode()).isEqualTo(500);
 
         verify(logger).error(anyString(), eq(HIGH), eq("NULLITY"),
-                eq("status=500;method=GET;url=http://localhost:8080/npe"));
+                eq("code-exception=java.lang.NullPointerException: SAD, SAD"
+                        + ";code-location=x.loggy.LoggyController.getNpe"
+                        + "(LoggyController.java:55)"
+                        + ";response-status=500"
+                        + ";request-method=GET"
+                        + ";request-url=http://localhost:8080/npe"));
 
         assertThat(httpTracesOf(httpLogger, objectMapper)
                 .filter(HttpTrace::isProblem)
@@ -366,8 +371,13 @@ class LoggyLiveTest {
         assertThat(response.statusCode()).isEqualTo(500);
 
         verify(logger).error(anyString(), eq(MEDIUM), eq("CONFLICTED"),
-                eq("status=500;method=POST;"
-                        + "url=http://localhost:8080/conflict"));
+                eq("code-exception=feign.FeignException: status 409 reading"
+                        + " ConflictRemote#postConflict()"
+                        + ";code-location=feign.FeignException.errorStatus"
+                        + "(FeignException.java:78)"
+                        + ";response-status=500"
+                        + ";request-method=POST"
+                        + ";request-url=http://localhost:8080/conflict"));
     }
 
     @Test
