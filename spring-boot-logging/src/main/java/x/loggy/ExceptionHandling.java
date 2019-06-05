@@ -100,11 +100,7 @@ public class ExceptionHandling
         if (null != alertMessage)
             alerter.alert(alertMessage, extra(throwable, status, request));
 
-        final var realRequest = request
-                .getNativeRequest(HttpServletRequest.class);
-        if (null == realRequest)
-            throw new Bug("No HTTP request");
-        final var requestURL = realRequest.getRequestURL();
+        final var requestURL = realRequest(request).getRequestURL();
 
         if (status.is4xxClientError()) {
             logger.warn("{}: {}: {}",
@@ -134,6 +130,16 @@ public class ExceptionHandling
         return extra;
     }
 
+    private static HttpServletRequest realRequest(
+            final NativeWebRequest request) {
+        final var realRequest = request
+                .getNativeRequest(HttpServletRequest.class);
+        if (null == realRequest)
+            throw new Bug(
+                    "Not an HTTP request: " + request.getNativeRequest());
+        return realRequest;
+    }
+
     private static String codeLocation(final Throwable rootCause) {
         return Stream.of(rootCause.getStackTrace())
                 .filter(ExceptionHandling::isApplicationCode)
@@ -143,15 +149,11 @@ public class ExceptionHandling
     }
 
     private static String method(final NativeWebRequest original) {
-        final var request = original
-                .getNativeRequest(HttpServletRequest.class);
-        return null == request ? "NONE" : request.getMethod();
+        return realRequest(original).getMethod();
     }
 
     private static String url(final NativeWebRequest original) {
-        final var request = original
-                .getNativeRequest(HttpServletRequest.class);
-        if (null == request) return "NONE";
+        final var request = realRequest(original);
         final var url = request.getRequestURL();
         final var query = request.getQueryString();
         if (null != query) url.append('?').append(query);
