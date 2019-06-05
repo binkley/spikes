@@ -76,9 +76,10 @@ class ValidatingLiveTest {
 
         assertThat(response.statusCode()).isEqualTo(422);
 
-        final var problem = objectMapper.readValue(
-                response.body(), Problem.class);
-        System.out.println("response = " + problem);
+        final var body = response.body();
+        System.out.println("body = " + body);
+        final var problem = objectMapper.readValue(body, Problem.class);
+        System.out.println("problem = " + problem);
     }
 
     @Test
@@ -108,8 +109,9 @@ class ValidatingLiveTest {
 
         assertThat(response.statusCode()).isEqualTo(422);
 
-        final var problem = objectMapper.readValue(
-                response.body(), Problem.class);
-        System.out.println("response = " + problem);
+        final var body = response.body();
+        System.out.println("body = " + body);
+        final var problem = objectMapper.readValue(body, Problem.class);
+        System.out.println("problem = " + problem);
     }
 }
