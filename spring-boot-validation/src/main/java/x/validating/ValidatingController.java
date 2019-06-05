@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
 import java.io.IOException;
 
 import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY;
@@ -33,7 +34,7 @@ public class ValidatingController {
     }
 
     @PostMapping
-    public void post(@RequestBody final Validish request) {
+    public void post(@RequestBody final @Valid Validish request) {
         logger.info("GOT {}", request);
     }
 

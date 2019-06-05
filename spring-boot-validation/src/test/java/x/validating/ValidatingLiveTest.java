@@ -46,7 +46,7 @@ class ValidatingLiveTest {
     }
 
     @Test
-    void shouldPost()
+    void shouldPostGood()
             throws IOException, InterruptedException {
         final var request = HttpRequest.newBuilder()
                 .POST(BodyPublishers.ofString(readJson("good-validish")))
@@ -57,5 +57,19 @@ class ValidatingLiveTest {
         final var response = client.send(request, discarding());
 
         assertThat(response.statusCode()).isEqualTo(200);
+    }
+
+    @Test
+    void shouldNotPostBad()
+            throws IOException, InterruptedException {
+        final var request = HttpRequest.newBuilder()
+                .POST(BodyPublishers.ofString(readJson("bad-validish")))
+                .uri(URI.create(format("http://localhost:%d", port)))
+                .header("Content-Type", "application/json")
+                .build();
+
+        final var response = client.send(request, discarding());
+
+        assertThat(response.statusCode()).isEqualTo(422);
     }
 }
