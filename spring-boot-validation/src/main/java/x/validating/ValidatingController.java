@@ -8,6 +8,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -35,6 +36,13 @@ public class ValidatingController {
 
     @PostMapping
     public void post(@RequestBody final @Valid Validish request) {
+        logger.info("GOT {}", request);
+    }
+
+    @PutMapping
+    public void put(@RequestBody final String request)
+            throws IOException {
+        final var validish = objectMapper.readValue(request, Validish.class);
         logger.info("GOT {}", request);
     }
 
