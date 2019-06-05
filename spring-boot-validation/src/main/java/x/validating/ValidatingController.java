@@ -37,24 +37,23 @@ public class ValidatingController {
     }
 
     @PostMapping
-    public void post(@RequestBody final @Valid Validish request) {
-        logger.info("GOT {}", request);
+    public Validish post(@RequestBody final @Valid Validish request) {
+        return request;
     }
 
     @PutMapping
-    public void put(
-            @RequestBody final String request,
+    public Validish put(@RequestBody final String request,
             final BindingResult errors)
-            throws IOException, MethodArgumentNotValidException {
+            throws Exception {
         final var validish = objectMapper.readValue(request, Validish.class);
         validator.validate(validish, errors);
         if (errors.hasErrors()) {
             throw new MethodArgumentNotValidException(new MethodParameter(
-                    findMethod(getClass(),
-                            "put", String.class, BindingResult.class), 0),
+                    findMethod(getClass(), "put",
+                            String.class, BindingResult.class), 0),
                     errors);
         }
 
-        logger.info("GOT {}", request);
+        return validish;
     }
 }

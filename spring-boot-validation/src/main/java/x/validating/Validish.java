@@ -4,17 +4,18 @@ import lombok.Value;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Value
 class Validish {
     String foo;
     int barNone;
     Instant when;
-    @NotNull
+    @NotEmpty
     @Valid
-    Inner inner;
+    List<Inner> inners = new ArrayList<>();
 
     @Value
     static class Inner {

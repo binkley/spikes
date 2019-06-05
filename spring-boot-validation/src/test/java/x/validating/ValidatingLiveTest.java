@@ -17,7 +17,6 @@ import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse.BodyHandlers;
 
 import static java.lang.String.format;
-import static java.net.http.HttpResponse.BodyHandlers.discarding;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
@@ -58,16 +57,20 @@ class ValidatingLiveTest {
                 .header("Content-Type", "application/json")
                 .build();
 
-        final var response = client.send(request, discarding());
-
+        final var response = client.send(request, BodyHandlers.ofString());
         assertThat(response.statusCode()).isEqualTo(200);
+
+        final var validish = objectMapper
+                .readValue(response.body(), Validish.class);
+        assertThat(validish.getInners().get(0).getQux()).isEqualTo("DUCK");
     }
 
     @Test
-    void shouldNotPostBad()
+    void shouldNotPostBadNoInners()
             throws IOException, InterruptedException {
         final var request = HttpRequest.newBuilder()
-                .POST(BodyPublishers.ofString(readJson("bad-validish")))
+                .POST(BodyPublishers.ofString(readJson(
+                        "bad-validish-no-inners")))
                 .uri(URI.create(format("http://localhost:%d", port)))
                 .header("Content-Type", "application/json")
                 .build();
@@ -80,7 +83,28 @@ class ValidatingLiveTest {
                 .readValue(response.body(), ConstraintViolationProblem.class);
         final var violations = problem.getViolations();
         assertThat(violations).hasSize(1);
-        assertThat(violations.get(0).getField()).isEqualTo("inner");
+        assertThat(violations.get(0).getField()).isEqualTo("inners");
+    }
+
+    @Test
+    void shouldNotPostBadNoQux()
+            throws IOException, InterruptedException {
+        final var request = HttpRequest.newBuilder()
+                .POST(BodyPublishers.ofString(readJson(
+                        "bad-validish-no-qux")))
+                .uri(URI.create(format("http://localhost:%d", port)))
+                .header("Content-Type", "application/json")
+                .build();
+
+        final var response = client.send(request, BodyHandlers.ofString());
+
+        assertThat(response.statusCode()).isEqualTo(422);
+
+        final var problem = objectMapper
+                .readValue(response.body(), ConstraintViolationProblem.class);
+        final var violations = problem.getViolations();
+        assertThat(violations).hasSize(1);
+        assertThat(violations.get(0).getField()).isEqualTo("inners[0].qux");
     }
 
     @Test
@@ -92,16 +116,20 @@ class ValidatingLiveTest {
                 .header("Content-Type", "application/json")
                 .build();
 
-        final var response = client.send(request, discarding());
-
+        final var response = client.send(request, BodyHandlers.ofString());
         assertThat(response.statusCode()).isEqualTo(200);
+
+        final var validish = objectMapper
+                .readValue(response.body(), Validish.class);
+        assertThat(validish.getInners().get(0).getQux()).isEqualTo("DUCK");
     }
 
     @Test
-    void shouldNotPutBad()
+    void shouldNotPutBadNoInners()
             throws IOException, InterruptedException {
         final var request = HttpRequest.newBuilder()
-                .PUT(BodyPublishers.ofString(readJson("bad-validish")))
+                .PUT(BodyPublishers.ofString(readJson(
+                        "bad-validish-no-inners")))
                 .uri(URI.create(format("http://localhost:%d", port)))
                 .header("Content-Type", "application/json")
                 .build();
@@ -114,6 +142,27 @@ class ValidatingLiveTest {
                 .readValue(response.body(), ConstraintViolationProblem.class);
         final var violations = problem.getViolations();
         assertThat(violations).hasSize(1);
-        assertThat(violations.get(0).getField()).isEqualTo("inner");
+        assertThat(violations.get(0).getField()).isEqualTo("inners");
+    }
+
+    @Test
+    void shouldNotPutBadNoQux()
+            throws IOException, InterruptedException {
+        final var request = HttpRequest.newBuilder()
+                .PUT(BodyPublishers.ofString(readJson(
+                        "bad-validish-no-qux")))
+                .uri(URI.create(format("http://localhost:%d", port)))
+                .header("Content-Type", "application/json")
+                .build();
+
+        final var response = client.send(request, BodyHandlers.ofString());
+
+        assertThat(response.statusCode()).isEqualTo(422);
+
+        final var problem = objectMapper
+                .readValue(response.body(), ConstraintViolationProblem.class);
+        final var violations = problem.getViolations();
+        assertThat(violations).hasSize(1);
+        assertThat(violations.get(0).getField()).isEqualTo("inners[0].qux");
     }
 }
