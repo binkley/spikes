@@ -86,4 +86,18 @@ class ValidatingLiveTest {
 
         assertThat(response.statusCode()).isEqualTo(200);
     }
+
+    @Test
+    void shouldNotPutBad()
+            throws IOException, InterruptedException {
+        final var request = HttpRequest.newBuilder()
+                .PUT(BodyPublishers.ofString(readJson("bad-validish")))
+                .uri(URI.create(format("http://localhost:%d", port)))
+                .header("Content-Type", "application/json")
+                .build();
+
+        final var response = client.send(request, discarding());
+
+        assertThat(response.statusCode()).isEqualTo(422);
+    }
 }

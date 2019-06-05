@@ -4,6 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.MethodParameter;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.Validator;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +29,7 @@ import static x.validating.ReadJson.readJson;
 public class ValidatingController {
     private final Logger logger;
     private final ObjectMapper objectMapper;
+    private final Validator validator;
 
     @GetMapping
     public Validish get()
@@ -40,9 +44,18 @@ public class ValidatingController {
     }
 
     @PutMapping
-    public void put(@RequestBody final String request)
-            throws IOException {
+    public void put(@RequestBody final String request,
+            final BindingResult errors)
+            throws IOException, NoSuchMethodException,
+            MethodArgumentNotValidException {
         final var validish = objectMapper.readValue(request, Validish.class);
+        validator.validate(validish, errors);
+        if (errors.hasErrors()) {
+            throw new MethodArgumentNotValidException(new MethodParameter(
+                    getClass().getMethod(
+                            "put", String.class, BindingResult.class), 0),
+                    errors);
+        }
         logger.info("GOT {}", request);
     }
 
