@@ -139,9 +139,7 @@ public class ExceptionHandling
 
     private static String codeLocation(final Throwable rootCause) {
         return Stream.of(rootCause.getStackTrace())
-                .filter(frame -> frame.getClassName().startsWith("x.loggy"))
-                .filter(frame -> !frame.getClassName()
-                        .equals(LoggyErrorDecoder.class.getName()))
+                .filter(ExceptionHandling::isApplicationCode)
                 .findFirst()
                 .map(Object::toString)
                 .orElse("NONE");
@@ -161,6 +159,12 @@ public class ExceptionHandling
         final var query = request.getQueryString();
         if (null != query) url.append('?').append(query);
         return url.toString();
+    }
+
+    private static boolean isApplicationCode(final StackTraceElement frame) {
+        final var className = frame.getClassName();
+        return className.startsWith("x.loggy.")
+                && !className.equals(LoggyErrorDecoder.class.getName());
     }
 
     @Override
