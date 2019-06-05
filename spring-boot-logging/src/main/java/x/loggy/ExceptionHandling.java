@@ -102,18 +102,22 @@ public class ExceptionHandling
 
         final var requestURL = realRequest(request).getRequestURL();
 
-        if (status.is4xxClientError()) {
+        if (status.is4xxClientError())
             logger.warn("{}: {}: {}",
                     status.getReasonPhrase(),
                     requestURL,
-                    throwable.getMessage());
-        } else if (status.is5xxServerError()) {
+                    throwable.toString());
+        else if (HttpStatus.BAD_GATEWAY.equals(status))
             logger.error("{}: {}: {}",
                     status.getReasonPhrase(),
                     requestURL,
-                    throwable.getMessage(),
+                    throwable.toString());
+        else if (status.is5xxServerError())
+            logger.error("{}: {}: {}",
+                    status.getReasonPhrase(),
+                    requestURL,
+                    throwable.toString(),
                     throwable);
-        }
     }
 
     private static Map<String, Object> extra(
@@ -125,8 +129,8 @@ public class ExceptionHandling
         extra.put("code-exception", rootCause.toString());
         extra.put("code-location", codeLocation(rootCause));
         extra.put("response-status", status.value());
-        extra.put("request-method", method(request));
-        extra.put("request-url", url(request));
+        extra.put("request-method", requestMethod(request));
+        extra.put("request-url", requestUrl(request));
         return extra;
     }
 
@@ -148,11 +152,11 @@ public class ExceptionHandling
                 .orElse("NONE");
     }
 
-    private static String method(final NativeWebRequest original) {
+    private static String requestMethod(final NativeWebRequest original) {
         return realRequest(original).getMethod();
     }
 
-    private static String url(final NativeWebRequest original) {
+    private static String requestUrl(final NativeWebRequest original) {
         final var request = realRequest(original);
         final var url = request.getRequestURL();
         final var query = request.getQueryString();
@@ -188,8 +192,8 @@ public class ExceptionHandling
         final var problem = Problem.builder()
                 .withDetail(message)
                 .withStatus(status)
-                .with("feign-status", e.status())
-                .with("code-location", codeLocation(e));
+                .with("code-location", codeLocation(e))
+                .with("feign-status", e.status());
 
         final var details = findRequestDetails(e);
         if (null != details) problem
