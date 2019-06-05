@@ -7,7 +7,7 @@ import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
-import org.zalando.problem.Problem;
+import org.zalando.problem.violations.ConstraintViolationProblem;
 
 import java.io.IOException;
 import java.net.URI;
@@ -76,10 +76,11 @@ class ValidatingLiveTest {
 
         assertThat(response.statusCode()).isEqualTo(422);
 
-        final var body = response.body();
-        System.out.println("body = " + body);
-        final var problem = objectMapper.readValue(body, Problem.class);
-        System.out.println("problem = " + problem);
+        final var problem = objectMapper
+                .readValue(response.body(), ConstraintViolationProblem.class);
+        final var violations = problem.getViolations();
+        assertThat(violations).hasSize(1);
+        assertThat(violations.get(0).getField()).isEqualTo("inner");
     }
 
     @Test
@@ -109,9 +110,10 @@ class ValidatingLiveTest {
 
         assertThat(response.statusCode()).isEqualTo(422);
 
-        final var body = response.body();
-        System.out.println("body = " + body);
-        final var problem = objectMapper.readValue(body, Problem.class);
-        System.out.println("problem = " + problem);
+        final var problem = objectMapper
+                .readValue(response.body(), ConstraintViolationProblem.class);
+        final var violations = problem.getViolations();
+        assertThat(violations).hasSize(1);
+        assertThat(violations.get(0).getField()).isEqualTo("inner");
     }
 }
