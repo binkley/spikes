@@ -22,6 +22,7 @@ import org.zalando.problem.spring.web.advice.ProblemHandling;
 import javax.servlet.http.HttpServletRequest;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import static java.util.Collections.singleton;
 import static org.springframework.boot.autoconfigure.web.ErrorProperties.IncludeStacktrace.ALWAYS;
@@ -137,7 +138,13 @@ public class ExceptionHandling
     }
 
     private static String codeLocation(final Throwable rootCause) {
-        return rootCause.getStackTrace()[0].toString();
+        return Stream.of(rootCause.getStackTrace())
+                .filter(frame -> frame.getClassName().startsWith("x.loggy"))
+                .filter(frame -> !frame.getClassName()
+                        .equals(LoggyErrorDecoder.class.getName()))
+                .findFirst()
+                .map(Object::toString)
+                .orElse("NONE");
     }
 
     private static String method(final NativeWebRequest original) {

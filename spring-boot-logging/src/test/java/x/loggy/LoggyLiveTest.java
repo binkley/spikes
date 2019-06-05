@@ -373,8 +373,8 @@ class LoggyLiveTest {
         verify(logger).error(anyString(), eq(MEDIUM), eq("CONFLICTED"),
                 eq("code-exception=feign.FeignException: status 409 reading"
                         + " ConflictRemote#postConflict()"
-                        + ";code-location=feign.FeignException.errorStatus"
-                        + "(FeignException.java:78)"
+                        + ";code-location=x.loggy.LoggyController.conflict"
+                        + "(LoggyController.java:61)"
                         + ";response-status=500"
                         + ";request-method=POST"
                         + ";request-url=http://localhost:8080/conflict"));

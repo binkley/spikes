@@ -1,6 +1,5 @@
 package x.loggy;
 
-import feign.RetryableException;
 import feign.Retryer;
 import feign.Retryer.Default;
 import feign.codec.ErrorDecoder;
@@ -25,18 +24,6 @@ public class FeignConfiguration {
 
     @Bean
     public ErrorDecoder errorDecoder() {
-        final var delegate = new ErrorDecoder.Default();
-        return (methodKey, response) -> {
-            final var exception = delegate.decode(methodKey, response);
-            if (null != exception)
-                exception.addSuppressed(new FeignErrorDetails(
-                        response.request().httpMethod(),
-                        response.request().url()));
-            if (500 <= response.status() && response.status() < 600)
-                return new RetryableException(
-                        exception.getMessage(),
-                        response.request().httpMethod(), exception, null);
-            return exception;
-        };
+        return new LoggyErrorDecoder();
     }
 }
