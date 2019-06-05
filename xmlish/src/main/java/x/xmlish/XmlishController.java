@@ -39,7 +39,7 @@ public class XmlishController {
 
     @PostMapping("complex")
     public void postComplex(
-            @RequestBody @Valid final ComplexExample request) {
+            @RequestBody final @Valid ComplexExample request) {
         logger.info("GOT {}", request);
     }
 
