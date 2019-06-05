@@ -1,11 +1,13 @@
 package x.validating;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.zalando.problem.Problem;
 
 import java.io.IOException;
 import java.net.URI;
@@ -27,6 +29,8 @@ import static x.validating.ReadJson.readJson;
 @TestInstance(PER_CLASS)
 class ValidatingLiveTest {
     private static final HttpClient client = HttpClient.newBuilder().build();
+
+    private final ObjectMapper objectMapper;
 
     @LocalServerPort
     private int port;
@@ -72,7 +76,9 @@ class ValidatingLiveTest {
 
         assertThat(response.statusCode()).isEqualTo(422);
 
-        System.out.println("response = " + response.body());
+        final var problem = objectMapper.readValue(
+                response.body(), Problem.class);
+        System.out.println("response = " + problem);
     }
 
     @Test
@@ -102,6 +108,8 @@ class ValidatingLiveTest {
 
         assertThat(response.statusCode()).isEqualTo(422);
 
-        System.out.println("response = " + response.body());
+        final var problem = objectMapper.readValue(
+                response.body(), Problem.class);
+        System.out.println("response = " + problem);
     }
 }
