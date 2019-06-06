@@ -40,7 +40,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.DEFINED_PORT;
-import static org.zalando.problem.Status.INTERNAL_SERVER_ERROR;
 import static x.loggy.AlertAssertions.assertThatAlertMessage;
 import static x.loggy.AlertMessage.Severity.HIGH;
 import static x.loggy.AlertMessage.Severity.MEDIUM;
@@ -353,9 +352,17 @@ class LoggyLiveTest {
 
         assertThat(httpTracesOf(httpLogger, objectMapper)
                 .filter(HttpTrace::isProblem)
-                .map(trace -> trace.getBodyAs(Problem.class, objectMapper))
-                .map(Problem::getStatus))
-                .containsExactly(INTERNAL_SERVER_ERROR);
+                .map(trace -> trace.getBodyAs(Problem.class, objectMapper)))
+                .allSatisfy(LoggyLiveTest::assertHasExtra);
+    }
+
+    private static void assertHasExtra(final Problem problem) {
+        assertThat(problem.getParameters()).containsKeys(
+                "code-exception",
+                "code-location",
+                "response-status",
+                "request-method",
+                "request-url");
     }
 
     @Test

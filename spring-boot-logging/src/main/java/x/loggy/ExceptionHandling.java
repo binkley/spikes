@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -17,10 +18,12 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.zalando.problem.Problem;
 import org.zalando.problem.StatusType;
+import org.zalando.problem.ThrowableProblem;
 import org.zalando.problem.spring.web.advice.ProblemHandling;
 
 import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletRequest;
+import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -90,58 +93,47 @@ public class ExceptionHandling
         return includeStackTrace(server);
     }
 
+    static boolean includeStackTrace(final ServerProperties server) {
+        return ALWAYS == server.getError().getIncludeStacktrace();
+    }
+
     @Override
-    public void log(
-            @NonNull final Throwable throwable,
-            final Problem problem,
-            final NativeWebRequest request,
-            final HttpStatus status) {
-        final var alertMessage = findAlertMessage(throwable);
-        if (null != alertMessage)
-            alerter.alert(alertMessage, extra(throwable, status, request));
+    public ResponseEntity<Problem> create(final Throwable throwable,
+            final NativeWebRequest request) {
+        final ThrowableProblem problem = toProblem(throwable, request,
+                toProblem(throwable).getStatus());
+        return create(throwable, problem, request);
+    }
 
-        final var requestURL = realRequest(request).getRequestURL();
+    private ThrowableProblem toProblem(final Throwable throwable,
+            final NativeWebRequest request, final StatusType status) {
+        return toProblem(throwable, request, status, Problem.DEFAULT_TYPE);
+    }
 
-        if (status.is4xxClientError())
-            logger.warn("{}: {}: {}",
-                    status.getReasonPhrase(),
-                    requestURL,
-                    throwable.toString());
-        else if (HttpStatus.BAD_GATEWAY.equals(status))
-            logger.error("{}: {}: {}",
-                    status.getReasonPhrase(),
-                    requestURL,
-                    throwable.toString());
-        else if (status.is5xxServerError())
-            logger.error("{}: {}: {}",
-                    status.getReasonPhrase(),
-                    requestURL,
-                    throwable.toString(),
-                    throwable);
+    private ThrowableProblem toProblem(final Throwable throwable,
+            final NativeWebRequest request, final StatusType status,
+            final URI type) {
+        final var problemBuilder = prepare(throwable, status, type);
+        extra(throwable, status.getStatusCode(), request)
+                .forEach(problemBuilder::with);
+        final ThrowableProblem problem = problemBuilder.build();
+        final StackTraceElement[] stackTrace = createStackTrace(throwable);
+        problem.setStackTrace(stackTrace);
+        return problem;
     }
 
     private static Map<String, Object> extra(
             final Throwable throwable,
-            final HttpStatus status,
+            final int httpStatus,
             final NativeWebRequest request) {
         final var extra = new LinkedHashMap<String, Object>(5);
         final var rootCause = getMostSpecificCause(throwable);
         extra.put("code-exception", rootCause.toString());
         extra.put("code-location", codeLocation(rootCause));
-        extra.put("response-status", status.value());
+        extra.put("response-status", httpStatus);
         extra.put("request-method", requestMethod(request));
         extra.put("request-url", requestUrl(request));
         return extra;
-    }
-
-    private static HttpServletRequest realRequest(
-            final NativeWebRequest request) {
-        final var realRequest = request
-                .getNativeRequest(HttpServletRequest.class);
-        if (null == realRequest)
-            throw new Bug(
-                    "Not an HTTP request: " + request.getNativeRequest());
-        return realRequest;
     }
 
     private static String codeLocation(final Throwable rootCause) {
@@ -170,8 +162,61 @@ public class ExceptionHandling
                 && !className.equals(LoggyErrorDecoder.class.getName());
     }
 
-    static boolean includeStackTrace(final ServerProperties server) {
-        return ALWAYS == server.getError().getIncludeStacktrace();
+    private static HttpServletRequest realRequest(
+            final NativeWebRequest request) {
+        final var realRequest = request
+                .getNativeRequest(HttpServletRequest.class);
+        if (null == realRequest)
+            throw new Bug(
+                    "Not an HTTP request: " + request.getNativeRequest());
+        return realRequest;
+    }
+
+    @Override
+    public ResponseEntity<Problem> create(final StatusType status,
+            final Throwable throwable, final NativeWebRequest request,
+            final HttpHeaders headers) {
+        return create(throwable, toProblem(throwable, request, status),
+                request, headers);
+    }
+
+    @Override
+    public ResponseEntity<Problem> create(final StatusType status,
+            final Throwable throwable, final NativeWebRequest request,
+            final HttpHeaders headers, final URI type) {
+        return create(throwable, toProblem(throwable, request, status, type),
+                request, headers);
+    }
+
+    @Override
+    public void log(
+            @NonNull final Throwable throwable,
+            final Problem problem,
+            final NativeWebRequest request,
+            final HttpStatus status) {
+        final var alertMessage = findAlertMessage(throwable);
+        if (null != alertMessage)
+            alerter.alert(alertMessage,
+                    extra(throwable, status.value(), request));
+
+        final var requestURL = realRequest(request).getRequestURL();
+
+        if (status.is4xxClientError())
+            logger.warn("{}: {}: {}",
+                    status.getReasonPhrase(),
+                    requestURL,
+                    throwable.toString());
+        else if (HttpStatus.BAD_GATEWAY.equals(status))
+            logger.error("{}: {}: {}",
+                    status.getReasonPhrase(),
+                    requestURL,
+                    throwable.toString());
+        else if (status.is5xxServerError())
+            logger.error("{}: {}: {}",
+                    status.getReasonPhrase(),
+                    requestURL,
+                    throwable.toString(),
+                    throwable);
     }
 
     @Override
