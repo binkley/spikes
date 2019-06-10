@@ -1,9 +1,13 @@
 import java.nio.file.Files
 import java.nio.file.Paths
 
-static void createSymbolicLink() {
-    def target = Paths.get(".git", "hooks", "pre-push")
-    def link = Paths.get("scripts", "local", "pre-push")
+gradle.afterProject { project ->
+    linkPrePush(project)
+}
+
+static void linkPrePush(project) {
+    def link = Paths.get("${project.rootDir}", "..", ".git", "hooks", "pre-push")
+    def target = Paths.get("${project.rootDir}", "scripts", "local", "pre-push")
     if (Files.exists(link)) Files.delete(link)
     Files.createSymbolicLink(link, target)
 }
