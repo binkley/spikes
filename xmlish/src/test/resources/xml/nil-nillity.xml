@@ -1,0 +1,16 @@
+<nillity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <outer>
+        <upper>
+            <foo xsi:nil="true"/>
+            <bar>1</bar>
+        </upper>
+        <inner>
+            <qux>QUX</qux>
+            <quux>2</quux>
+        </inner>
+        <inner>
+            <qux>BAR</qux>
+            <quux>3</quux>
+        </inner>
+    </outer>
+</nillity>

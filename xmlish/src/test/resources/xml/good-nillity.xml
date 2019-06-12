@@ -1,0 +1,16 @@
+<nillity>
+    <outer>
+        <upper>
+            <foo>HI, MOM!</foo>
+            <bar>1</bar>
+        </upper>
+        <inner>
+            <qux>QUX</qux>
+            <quux>2</quux>
+        </inner>
+        <inner>
+            <qux>BAR</qux>
+            <quux>3</quux>
+        </inner>
+    </outer>
+</nillity>

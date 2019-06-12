@@ -20,7 +20,6 @@ import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse.BodyHandlers;
 
 import static java.lang.String.format;
-import static java.lang.System.out;
 import static java.net.http.HttpResponse.BodyHandlers.discarding;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,8 +51,6 @@ class XmlishLiveTest {
                 request, BodyHandlers.ofString(UTF_8));
 
         assertThat(response.statusCode()).isEqualTo(200);
-
-        out.println(response.body());
     }
 
     @Test
@@ -138,5 +135,31 @@ class XmlishLiveTest {
         validator.validate(complexExample, errors);
 
         assertThat(errors.getAllErrors()).hasSize(1);
+    }
+
+    @Test
+    void shouldParseGoodNillity()
+            throws IOException {
+        final var name = "good-nillity";
+        final var nillity = objectMapper.readValue(
+                readXml(name),
+                Nillity.class);
+
+        assertThat(nillity.getOuter().getUpper().getFoo())
+                .isEqualTo("HI, MOM!");
+        assertThat(nillity.getOuter().getInner()).hasSize(2);
+    }
+
+    @Test
+    void shouldParseNilNillity()
+            throws IOException {
+        final var name = "nil-nillity";
+        final var nillity = objectMapper.readValue(
+                readXml(name),
+                Nillity.class);
+
+        assertThat(nillity.getOuter().getUpper().getFoo())
+                .isEmpty();
+        assertThat(nillity.getOuter().getInner()).hasSize(2);
     }
 }
