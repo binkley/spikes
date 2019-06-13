@@ -25,6 +25,7 @@ import java.nio.charset.CoderMalfunctionError;
 import java.time.LocalDate;
 import java.util.List;
 
+import static java.lang.String.format;
 import static java.net.http.HttpRequest.BodyPublishers.noBody;
 import static org.springframework.core.NestedExceptionUtils.getMostSpecificCause;
 
@@ -229,6 +230,17 @@ public class LoggyDemo {
         sendOrDie(retryRequest, client);
 
         logger.warn("BUT IT'S ALRIGHT, IT'S OK, I'M GONNA RUN THAT WAY");
+
+        sendOrDie(HttpRequest.newBuilder()
+                .POST(BodyPublishers
+                        .ofString("{\"configuredLevel\":\"OFF\"}"))
+                .uri(URI.create(format(
+                        "http://localhost:8080/actuator/loggers/%s",
+                        getClass().getName())))
+                .header("Content-Type", "application/json")
+                .build(), client);
+
+        logger.error("I AM INVISIBLE, NO REALLY");
     }
 
     private HttpResponse<String> sendOrDie(final HttpRequest request,
