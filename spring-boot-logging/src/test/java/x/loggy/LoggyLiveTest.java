@@ -7,6 +7,7 @@ import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,7 @@ import static java.time.ZoneOffset.UTC;
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
@@ -51,6 +53,7 @@ import static x.loggy.HttpTrace.httpTracesOf;
         "logging.level.x.loggy=WARN",
         "loggy.enable-demo=false"
 }, webEnvironment = DEFINED_PORT)
+@TestInstance(PER_CLASS)
 class LoggyLiveTest {
     private static final String existingTraceId = "abcdef0987654321";
     private static final HttpClient client = HttpClient.newBuilder().build();
