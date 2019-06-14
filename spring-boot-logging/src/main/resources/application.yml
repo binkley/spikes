@@ -5,6 +5,8 @@ feign:
         logger-level: "FULL"
 
 logbook:
+  exclude:
+    - "/ping"
   format:
     style: "http"
 

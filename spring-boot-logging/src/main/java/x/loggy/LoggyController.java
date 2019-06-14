@@ -78,4 +78,9 @@ public class LoggyController {
         logger.info("INTER THE UNKNOWN_HOST WEBS");
         return unknownHost.get();
     }
+
+    @GetMapping("ping")
+    public String ping() {
+        return "PONG";
+    }
 }

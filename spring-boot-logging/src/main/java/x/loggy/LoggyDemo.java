@@ -231,6 +231,13 @@ public class LoggyDemo {
 
         logger.warn("BUT IT'S ALRIGHT, IT'S OK, I'M GONNA RUN THAT WAY");
 
+        logger.warn("PONG BUT NOT REQUEST/RESSPONSE LOGGING");
+
+        sendOrDie(HttpRequest.newBuilder()
+                .GET()
+                .uri(URI.create("http://localhost:8080/ping"))
+                .build(), client);
+
         sendOrDie(HttpRequest.newBuilder()
                 .POST(BodyPublishers
                         .ofString("{\"configuredLevel\":\"OFF\"}"))
