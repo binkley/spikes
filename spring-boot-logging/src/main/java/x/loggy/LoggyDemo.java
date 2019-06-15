@@ -1,13 +1,16 @@
 package x.loggy;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.boot.logging.LogLevel;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.style.ToStringCreator;
 import org.springframework.stereotype.Component;
@@ -26,13 +29,20 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static java.lang.String.format;
+import static java.lang.Thread.currentThread;
+import static java.net.http.HttpClient.newHttpClient;
 import static java.net.http.HttpRequest.BodyPublishers.noBody;
+import static org.springframework.boot.logging.LogLevel.OFF;
+import static org.springframework.boot.logging.LogLevel.WARN;
 import static org.springframework.core.NestedExceptionUtils.getMostSpecificCause;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Component
 @ConditionalOnProperty(prefix = "loggy", name = "enable-demo")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class LoggyDemo {
+    private static final HttpClient client = newHttpClient();
+
     private final LoggyRemote loggy;
     private final NotFoundRemote notFound;
     private final UnknownHostRemote unknownHost;
@@ -54,8 +64,6 @@ public class LoggyDemo {
 
         logger.warn("GET WITH WEB");
 
-        final var client = HttpClient.newBuilder().build();
-
         logger.warn("INVALID INBOUND TRACE ID");
 
         final var invalidTracingRequest = HttpRequest.newBuilder()
@@ -67,7 +75,7 @@ public class LoggyDemo {
                         "X-B3-SpanId", "not-a-trace-id")
                 .build();
 
-        sendOrDie(invalidTracingRequest, client);
+        sendOrDie(invalidTracingRequest);
 
         logger.warn("GET WITH WEB");
 
@@ -80,7 +88,7 @@ public class LoggyDemo {
                         "X-B3-SpanId", "abcdef0987654321")
                 .build();
 
-        final HttpResponse<String> response = sendOrDie(request, client);
+        final HttpResponse<String> response = sendOrDie(request);
 
         logger.info("{}", response.body());
         logger.debug("(Really got {} after sending {})", response, request);
@@ -94,7 +102,7 @@ public class LoggyDemo {
                 .uri(URI.create("http://localhost:8080/postish"))
                 .header("Content-Type", "application/json")
                 .build();
-        sendOrDie(postRequest, client);
+        sendOrDie(postRequest);
 
         logger.warn("CONSTRAINT VIOLATION WITH WEB");
 
@@ -105,7 +113,7 @@ public class LoggyDemo {
                 .uri(URI.create("http://localhost:8080/postish"))
                 .header("Content-Type", "application/json")
                 .build();
-        sendOrDie(poorRequest, client);
+        sendOrDie(poorRequest);
 
         logger.warn("MISMATCHED INPUT WITH WEB");
 
@@ -115,7 +123,7 @@ public class LoggyDemo {
                 .uri(URI.create("http://localhost:8080/postish"))
                 .header("Content-Type", "application/json")
                 .build();
-        sendOrDie(badRequest, client);
+        sendOrDie(badRequest);
 
         logger.warn("NPE WITH WEB");
 
@@ -123,7 +131,7 @@ public class LoggyDemo {
                 .GET()
                 .uri(URI.create("http://localhost:8080/npe"))
                 .build();
-        sendOrDie(npeRequest, client);
+        sendOrDie(npeRequest);
 
         logger.warn("EXCEPTIONS");
 
@@ -193,7 +201,7 @@ public class LoggyDemo {
                         "X-B3-SpanId", "abcdef0987654321")
                 .build();
 
-        sendOrDie(notFoundRequest, client);
+        sendOrDie(notFoundRequest);
 
         logger.warn("UNKNOWN HOST WITH FEIGN THROUGH WEB");
 
@@ -206,7 +214,7 @@ public class LoggyDemo {
                         "X-B3-SpanId", "bbcdef0987654321")
                 .build();
 
-        sendOrDie(unknownHostRequest, client);
+        sendOrDie(unknownHostRequest);
 
         logger.warn("CONFLICT WITH FEIGN THROUGH WEB");
 
@@ -218,7 +226,7 @@ public class LoggyDemo {
                         "X-B3-SpanId", "cbcdef0987654321")
                 .build();
 
-        sendOrDie(conflictRequest, client);
+        sendOrDie(conflictRequest);
 
         logger.warn("RETRY WITH FEIGN THROUGH WEB");
 
@@ -227,7 +235,7 @@ public class LoggyDemo {
                 .uri(URI.create("http://localhost:8080/retry"))
                 .build();
 
-        sendOrDie(retryRequest, client);
+        sendOrDie(retryRequest);
 
         logger.warn("BUT IT'S ALRIGHT, IT'S OK, I'M GONNA RUN THAT WAY");
 
@@ -236,22 +244,32 @@ public class LoggyDemo {
         sendOrDie(HttpRequest.newBuilder()
                 .GET()
                 .uri(URI.create("http://localhost:8080/ping"))
-                .build(), client);
+                .build());
 
+        logger.warn("TURNING DOWN VOLUME ON LOGGER");
+
+        adjustLogging(OFF);
+
+        logger.error("I AM INVISIBLE, NO REALLY");
+
+        adjustLogging(WARN);
+
+        logger.warn("DONE!");
+    }
+
+    private void adjustLogging(final LogLevel level)
+            throws JsonProcessingException {
         sendOrDie(HttpRequest.newBuilder()
-                .POST(BodyPublishers
-                        .ofString("{\"configuredLevel\":\"OFF\"}"))
+                .POST(BodyPublishers.ofString(objectMapper
+                        .writeValueAsString(new AdjustLogging(level))))
                 .uri(URI.create(format(
                         "http://localhost:8080/actuator/loggers/%s",
                         getClass().getName())))
-                .header("Content-Type", "application/json")
-                .build(), client);
-
-        logger.error("I AM INVISIBLE, NO REALLY");
+                .header("Content-Type", APPLICATION_JSON_VALUE)
+                .build());
     }
 
-    private HttpResponse<String> sendOrDie(final HttpRequest request,
-            final HttpClient client) {
+    private HttpResponse<String> sendOrDie(final HttpRequest request) {
         try {
             return client.send(request, BodyHandlers.ofString());
         } catch (final IOException e) {
@@ -261,8 +279,14 @@ public class LoggyDemo {
         } catch (final InterruptedException e) {
             logger.error("INTERRUPTED? {}",
                     getMostSpecificCause(e).toString(), e);
-            Thread.currentThread().interrupt();
+            currentThread().interrupt();
             return null;
         }
+    }
+
+    @Value
+    private static class AdjustLogging {
+        @JsonProperty("configuredLevel") // Spring does not like kebab-case
+                LogLevel configuredLevel;
     }
 }

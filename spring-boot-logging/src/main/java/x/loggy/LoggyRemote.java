@@ -20,4 +20,7 @@ public interface LoggyRemote {
 
     @PostMapping(path = "conflict")
     void postConflict();
+
+    @GetMapping(path = "ping")
+    void getPing();
 }

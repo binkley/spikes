@@ -6,7 +6,8 @@ feign:
 
 logbook:
   exclude:
-    - "/ping"
+    - /actuator/**
+    - /ping
   format:
     style: "http"
 
