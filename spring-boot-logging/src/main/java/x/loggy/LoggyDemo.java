@@ -245,6 +245,7 @@ public class LoggyDemo {
                 .GET()
                 .uri(URI.create("http://localhost:8080/ping"))
                 .build());
+        loggy.getPing();
 
         logger.warn("TURNING DOWN VOLUME ON LOGGER");
 
