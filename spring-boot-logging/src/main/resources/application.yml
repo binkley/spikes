@@ -10,6 +10,9 @@ logbook:
     - /ping
   format:
     style: "http"
+  obfuscate:
+    headers:
+      - X-Secret-Value
 
 logging:
   level:

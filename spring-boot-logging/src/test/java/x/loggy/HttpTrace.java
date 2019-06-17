@@ -19,8 +19,11 @@ import x.loggy.HttpTrace.ResponseTrace;
 import java.io.IOError;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import static org.mockito.Mockito.atLeast;
@@ -40,6 +43,19 @@ public class HttpTrace {
     protected String protocol;
     protected Map<String, List<String>> headers;
     protected JsonNode body;
+
+    public static Stream<String> httpHeaderTracesOf(
+            final Logger httpLogger, final ObjectMapper objectMapper,
+            final String headerName) {
+        return httpTracesOf(httpLogger, objectMapper)
+                .map(HttpTrace::getHeaders)
+                .map(Map::entrySet)
+                .flatMap(Set::stream)
+                .filter(header -> header.getKey()
+                        .equalsIgnoreCase(headerName))
+                .map(Entry::getValue)
+                .flatMap(Collection::stream);
+    }
 
     public static Stream<HttpTrace> httpTracesOf(
             final Logger httpLogger, final ObjectMapper objectMapper) {

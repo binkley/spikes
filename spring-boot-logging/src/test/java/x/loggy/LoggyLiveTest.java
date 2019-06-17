@@ -46,6 +46,7 @@ import static org.springframework.http.HttpStatus.BAD_GATEWAY;
 import static x.loggy.AlertAssertions.assertThatAlertMessage;
 import static x.loggy.AlertMessage.Severity.HIGH;
 import static x.loggy.AlertMessage.Severity.MEDIUM;
+import static x.loggy.HttpTrace.httpHeaderTracesOf;
 import static x.loggy.HttpTrace.httpTracesOf;
 
 @ActiveProfiles("json")
@@ -418,6 +419,25 @@ class LoggyLiveTest {
                 .isInstanceOf(FeignException.class)
                 .satisfies(t -> assertThatAlertMessage(t,
                         "CONFLICTED", MEDIUM));
+    }
+
+    @Test
+    void shouldObfuscateSecrets()
+            throws IOException, InterruptedException {
+        final var secret = "BOB BOB BOB";
+        final var sensitive = HttpRequest.newBuilder()
+                .GET()
+                .uri(URI.create("http://localhost:8080/direct"))
+                .header("X-Secret-Value", secret)
+                .build();
+
+        sendAndDiscardBody(sensitive);
+
+        assertThat(httpHeaderTracesOf(httpLogger, objectMapper,
+                "X-Secret-Value")
+                .filter(value -> value.equals(secret))
+                .findFirst())
+                .isEmpty();
     }
 
     @TestConfiguration
