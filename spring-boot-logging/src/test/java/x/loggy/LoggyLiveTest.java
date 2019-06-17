@@ -42,6 +42,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.DEFINED_PORT;
+import static org.springframework.http.HttpStatus.BAD_GATEWAY;
 import static x.loggy.AlertAssertions.assertThatAlertMessage;
 import static x.loggy.AlertMessage.Severity.HIGH;
 import static x.loggy.AlertMessage.Severity.MEDIUM;
@@ -369,7 +370,7 @@ class LoggyLiveTest {
     }
 
     @Test
-    void shouldAlertThroughFeignIndirectly()
+    void shouldAlertThroughFeignIndirectlyOn5xx()
             throws IOException, InterruptedException {
         final var request = HttpRequest.newBuilder()
                 .POST(noBody())
@@ -388,6 +389,28 @@ class LoggyLiveTest {
                         + ";response-status=500"
                         + ";request-method=POST"
                         + ";request-url=http://localhost:8080/conflict"));
+    }
+
+    @Test
+    void shouldAlertThroughFeignIndirectlyOnException()
+            throws IOException, InterruptedException {
+        final var request = HttpRequest.newBuilder()
+                .GET()
+                .uri(URI.create("http://localhost:8080/unknown-host"))
+                .build();
+
+        final var response = sendAndDiscardBody(request);
+
+        assertThat(response.statusCode()).isEqualTo(BAD_GATEWAY.value());
+
+        verify(logger).error(anyString(), eq(HIGH), eq("UNKNOWABLE HOST"),
+                eq("code-exception=java.net.UnknownHostException: not"
+                        + ".really.a.place"
+                        + ";code-location=x.loggy.LoggyController"
+                        + ".getUnknownHost(LoggyController.java:79)"
+                        + ";response-status=502"
+                        + ";request-method=GET"
+                        + ";request-url=http://localhost:8080/unknown-host"));
     }
 
     @Test
