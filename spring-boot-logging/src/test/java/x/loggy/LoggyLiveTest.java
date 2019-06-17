@@ -329,8 +329,7 @@ class LoggyLiveTest {
                 .flatMap(h -> h.entrySet().stream())
                 .filter(e -> e.getKey().equalsIgnoreCase("X-B3-TraceId"))
                 .map(Map.Entry::getValue)
-                .distinct()
-                .peek(traceId -> assertThat(traceId).isNotNull()))
+                .distinct())
                 .hasSize(1);
     }
 
