@@ -8,6 +8,7 @@ import x.loggy.AlertMessage.Severity;
 
 import java.util.Map;
 
+import static java.lang.String.format;
 import static java.util.Collections.emptyMap;
 import static java.util.stream.Collectors.joining;
 import static x.loggy.AlertMessage.Severity.HIGH;
@@ -24,6 +25,17 @@ public class Alerter {
         alert(alertMessage.message(), alertMessage.severity(), extra);
     }
 
+    private void alert(final String message, final Severity severity,
+            final Map<String, Object> extra) {
+        final var append = extra.entrySet().stream()
+                .map(e -> format("%s=%s", e.getKey(), e.getValue()))
+                .collect(joining(";"));
+        if (append.isEmpty())
+            logger.error("ALERT {}: {}", severity, message);
+        else
+            logger.error("ALERT {}: {};{}", severity, message, append);
+    }
+
     public void alertLow(final String message) {
         alert(message, LOW, emptyMap());
     }
@@ -34,17 +46,5 @@ public class Alerter {
 
     public void alertHigh(final String message) {
         alert(message, HIGH, emptyMap());
-    }
-
-    private void alert(final String message, final Severity severity,
-            final Map<String, Object> extra) {
-        final var append = extra.entrySet().stream()
-                .map(e -> String.format("%s=%s", e.getKey(), e.getValue()))
-                .collect(joining(";"));
-        if (append.isEmpty())
-            logger.error("ALERT {}: {}", severity, message);
-        else
-            logger.error("ALERT {}: {};{}",
-                    severity, message, append);
     }
 }
