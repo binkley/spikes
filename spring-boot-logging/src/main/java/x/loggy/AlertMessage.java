@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import static java.lang.Thread.currentThread;
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
-import static java.util.Collections.reverse;
 import static org.springframework.core.annotation.AnnotationUtils.findAnnotation;
 
 @Documented
@@ -30,10 +29,12 @@ public @interface AlertMessage {
             final var throwables = new ArrayList<Throwable>();
             for (Throwable x = throwable; null != x; x = x.getCause())
                 throwables.add(x);
-            reverse(throwables); // Search bottom up
 
-            for (final var t : throwables) {
-                final var message = findAlertMessage(t.getStackTrace());
+            // Search bottom up
+            final var lit = throwables.listIterator(throwables.size());
+            while (lit.hasPrevious()) {
+                final var message = findAlertMessage(
+                        lit.previous().getStackTrace());
                 if (null != message)
                     return message;
             }
