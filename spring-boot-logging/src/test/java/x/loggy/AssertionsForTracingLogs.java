@@ -72,18 +72,6 @@ public class AssertionsForTracingLogs {
             traces = httpTraces();
         }
 
-        private AssertionSetup(final boolean startsRemote) {
-            remoteOrLocal = new AtomicBoolean(startsRemote);
-
-            final List<HttpTrace> traces = httpTraces();
-            final int beginAssertingTraceIdAt = beginAssertingTraceIdAt(
-                    startsRemote, traces);
-
-            expectedTraceId = traceIdOf(traces.get(beginAssertingTraceIdAt));
-            this.traces = traces.subList(
-                    beginAssertingTraceIdAt + 1, traces.size());
-        }
-
         private List<HttpTrace> httpTraces() {
             return httpTracesOf(httpLogger, objectMapper)
                     .peek(this::assertOrigin)
@@ -91,12 +79,11 @@ public class AssertionsForTracingLogs {
         }
 
         private void assertOrigin(final HttpTrace trace) {
-            final var remote = remoteOrLocal.get();
-
             if (trace.equals(previous.get()))
                 return; // Partial retry detection
             previous.set(trace);
 
+            final var remote = remoteOrLocal.get();
             if (remote)
                 assertThat(trace.getOrigin())
                         .withFailMessage("Wrong origin")
@@ -107,6 +94,18 @@ public class AssertionsForTracingLogs {
                         .isEqualTo("local");
 
             remoteOrLocal.set(!remote);
+        }
+
+        private AssertionSetup(final boolean startsRemote) {
+            remoteOrLocal = new AtomicBoolean(startsRemote);
+
+            final List<HttpTrace> traces = httpTraces();
+            final int beginAssertingTraceIdAt = beginAssertingTraceIdAt(
+                    startsRemote, traces);
+
+            expectedTraceId = traceIdOf(traces.get(beginAssertingTraceIdAt));
+            this.traces = traces.subList(
+                    beginAssertingTraceIdAt + 1, traces.size());
         }
 
         private int beginAssertingTraceIdAt(final boolean startsRemote,
