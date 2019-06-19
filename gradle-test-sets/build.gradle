@@ -1,15 +1,38 @@
 plugins {
-    id 'java-library'
+    id "java-library"
+    id "org.unbroken-dome.test-sets" version "2.1.1"
+}
+
+testSets {
+    integrationTest { extendsFrom unitTest }
+}
+
+configurations {
+    all*.exclude module: 'junit'
 }
 
 repositories {
-    jcenter()
+    mavenCentral()
 }
 
 dependencies {
-    api 'org.apache.commons:commons-math3:3.6.1'
+    annotationProcessor "org.projectlombok:lombok:1.18.8"
 
-    implementation 'com.google.guava:guava:27.0.1-jre'
+    compileOnly "org.projectlombok:lombok:1.18.8"
 
-    testImplementation 'junit:junit:4.12'
+    testAnnotationProcessor "org.projectlombok:lombok:1.18.8"
+
+    testCompileOnly "org.projectlombok:lombok:1.18.8"
+
+    testImplementation "org.junit.jupiter:junit-jupiter:5.4.2"
+    testImplementation "org.assertj:assertj-core:3.12.2"
+}
+
+wrapper {
+    distributionType = Wrapper.DistributionType.ALL
+    gradleVersion = "5.4.1"
+}
+
+tasks.withType(Test) {
+    useJUnitPlatform()
 }
