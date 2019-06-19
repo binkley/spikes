@@ -7,7 +7,7 @@ import static x.BeAssertive.assertLittle;
 class AIttyTest {
     @Test
     void shouldRhumba() {
-        final var lib = new Library();
+        final var lib = new AProdUnit();
 
         assertLittle(lib);
     }

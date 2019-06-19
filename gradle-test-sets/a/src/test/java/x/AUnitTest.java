@@ -6,12 +6,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class AUnitTest {
     @Test
-    void testSomeLibraryMethod() {
-        final Library lib = new Library();
-        final var depends = new DependOnMe("BOB");
+    void shouldDoIt() {
+        final AProdUnit lib = new AProdUnit();
+        final var name = "BOB";
 
-        assertThat(lib.someLibraryMethod(depends))
-                .withFailMessage("someLibraryMethod should return 'true'")
-                .isTrue();
+        final var depends = new DependOnMe(name);
+
+        assertThat(lib.doIt(depends)).contains(name);
     }
 }

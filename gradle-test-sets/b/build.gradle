@@ -6,9 +6,13 @@ testSets {
     integrationTest { extendsFrom unitTest }
 }
 
+configurations {
+    tests
+}
+
 dependencies {
     unitTest sourceSets.test.output
-    integrationTest configurations.unitTest
+    tests sourceSets.test.output
     integrationTest sourceSets.integrationTest.output
 }
 
