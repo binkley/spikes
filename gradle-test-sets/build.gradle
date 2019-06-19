@@ -32,10 +32,6 @@ subprojects {
     apply plugin: JavaPlugin
     apply plugin: "org.unbroken-dome.test-sets"
 
-    configurations {
-        all*.exclude module: 'junit'
-    }
-
     sourceCompatibility = 11
     targetCompatibility = 11
 

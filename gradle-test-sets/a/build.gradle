@@ -1,7 +1,11 @@
-testSets { integrationTest }
+testSets {
+    integrationTest { extendsFrom unitTest }
+}
 
 dependencies {
     implementation project(":b")
+
+    integrationTestImplementation project(":b").sourceSets.test.output
 }
 
 check {

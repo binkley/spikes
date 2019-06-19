@@ -1,4 +1,14 @@
-testSets { integrationTest }
+testSets {
+    unitTest {
+        classifier = "tests"
+        createArtifact = true
+    }
+    integrationTest { extendsFrom unitTest }
+}
+
+dependencies {
+    integrationTestImplementation sourceSets.test.output
+}
 
 check {
     dependsOn integrationTest
