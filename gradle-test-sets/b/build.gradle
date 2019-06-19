@@ -1,7 +1,5 @@
-testSets {
-    integrationTest { extendsFrom unitTest }
-}
+testSets { integrationTest }
 
-configurations {
-    all*.exclude module: 'junit'
+check {
+    dependsOn integrationTest
 }

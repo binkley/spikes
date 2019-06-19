@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class LibraryTest {
+class AUnitTest {
     @Test
     void testSomeLibraryMethod() {
         final Library lib = new Library();

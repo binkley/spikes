@@ -10,6 +10,11 @@ buildscript {
     }
 }
 
+plugins {
+    id "build-dashboard"
+    id "com.dorongold.task-tree" version "1.4"
+}
+
 apply plugin: BasePlugin
 
 allprojects {
@@ -26,6 +31,10 @@ allprojects {
 subprojects {
     apply plugin: JavaPlugin
     apply plugin: "org.unbroken-dome.test-sets"
+
+    configurations {
+        all*.exclude module: 'junit'
+    }
 
     sourceCompatibility = 11
     targetCompatibility = 11
@@ -46,6 +55,10 @@ subprojects {
     tasks.withType(Test) {
         useJUnitPlatform()
     }
+}
+
+check {
+    finalizedBy buildDashboard
 }
 
 wrapper {

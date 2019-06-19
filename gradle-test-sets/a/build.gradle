@@ -1,11 +1,9 @@
-testSets {
-    integrationTest { extendsFrom unitTest }
-}
-
-configurations {
-    all*.exclude module: 'junit'
-}
+testSets { integrationTest }
 
 dependencies {
     implementation project(":b")
+}
+
+check {
+    dependsOn integrationTest
 }
