@@ -8,3 +8,4 @@
 * [Spring Boot logging](spring-boot-logging/)
 * [Spring transactions](spring-transactions/)
 * [Spring XML support](xmlish/)
+* [Gradle test sets](gradle-test-sets)
