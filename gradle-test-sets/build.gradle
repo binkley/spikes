@@ -1,38 +1,54 @@
-plugins {
-    id "java-library"
-    id "org.unbroken-dome.test-sets" version "2.1.1"
+buildscript {
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+        jcenter()
+    }
+
+    dependencies {
+        classpath "org.unbroken-dome.gradle-plugins:gradle-testsets-plugin:2.1.1"
+    }
 }
 
-testSets {
-    integrationTest { extendsFrom unitTest }
+apply plugin: BasePlugin
+
+allprojects {
+    group = "x"
+    version = "0"
+
+
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
 }
 
-configurations {
-    all*.exclude module: 'junit'
-}
+subprojects {
+    apply plugin: JavaPlugin
+    apply plugin: "org.unbroken-dome.test-sets"
 
-repositories {
-    mavenCentral()
-}
+    sourceCompatibility = 11
+    targetCompatibility = 11
 
-dependencies {
-    annotationProcessor "org.projectlombok:lombok:1.18.8"
+    dependencies {
+        annotationProcessor "org.projectlombok:lombok:1.18.8"
 
-    compileOnly "org.projectlombok:lombok:1.18.8"
+        compileOnly "org.projectlombok:lombok:1.18.8"
 
-    testAnnotationProcessor "org.projectlombok:lombok:1.18.8"
+        testAnnotationProcessor "org.projectlombok:lombok:1.18.8"
 
-    testCompileOnly "org.projectlombok:lombok:1.18.8"
+        testCompileOnly "org.projectlombok:lombok:1.18.8"
 
-    testImplementation "org.junit.jupiter:junit-jupiter:5.4.2"
-    testImplementation "org.assertj:assertj-core:3.12.2"
+        testImplementation "org.junit.jupiter:junit-jupiter:5.4.2"
+        testImplementation "org.assertj:assertj-core:3.12.2"
+    }
+
+    tasks.withType(Test) {
+        useJUnitPlatform()
+    }
 }
 
 wrapper {
     distributionType = Wrapper.DistributionType.ALL
     gradleVersion = "5.4.1"
-}
-
-tasks.withType(Test) {
-    useJUnitPlatform()
 }

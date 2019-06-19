@@ -1,0 +1,7 @@
+testSets {
+    integrationTest { extendsFrom unitTest }
+}
+
+configurations {
+    all*.exclude module: 'junit'
+}
