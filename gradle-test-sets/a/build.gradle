@@ -5,3 +5,7 @@ testSets {
 configurations {
     all*.exclude module: 'junit'
 }
+
+dependencies {
+    implementation project(":b")
+}

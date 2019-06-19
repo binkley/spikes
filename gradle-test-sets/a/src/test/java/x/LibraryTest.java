@@ -7,9 +7,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 class LibraryTest {
     @Test
     void testSomeLibraryMethod() {
-        final Library classUnderTest = new Library();
+        final Library lib = new Library();
+        final var depends = new DependOnMe("BOB");
 
-        assertThat(classUnderTest.someLibraryMethod())
+        assertThat(lib.someLibraryMethod(depends))
                 .withFailMessage("someLibraryMethod should return 'true'")
                 .isTrue();
     }
