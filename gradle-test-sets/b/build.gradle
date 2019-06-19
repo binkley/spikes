@@ -7,7 +7,9 @@ testSets {
 }
 
 dependencies {
-    integrationTestImplementation sourceSets.test.output
+    unitTest sourceSets.test.output
+    integrationTest configurations.unitTest
+    integrationTest sourceSets.integrationTest.output
 }
 
 check {
