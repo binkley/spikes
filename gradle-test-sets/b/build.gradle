@@ -1,18 +1,10 @@
 testSets {
-    unitTest {
-        classifier = "tests"
-        createArtifact = true
-    }
     integrationTest { extendsFrom unitTest }
-}
-
-configurations {
-    tests
 }
 
 dependencies {
     unitTest sourceSets.test.output
-    tests sourceSets.test.output
+
     integrationTest sourceSets.integrationTest.output
 }
 

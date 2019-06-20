@@ -2,11 +2,13 @@ testSets {
     integrationTest { extendsFrom unitTest }
 }
 
+// https://softnoise.wordpress.com/2014/09/07/gradle-sub-project-test-dependencies-in-multi-project-builds/
 dependencies {
     implementation project(":b")
 
-    // https://softnoise.wordpress.com/2014/09/07/gradle-sub-project-test-dependencies-in-multi-project-builds/
-    integrationTestImplementation project(path: ":b", configuration: "tests")
+    testImplementation project(path: ":b", configuration: "unitTest")
+
+    integrationTestImplementation project(path: ":b", configuration: "integrationTest")
 }
 
 check {

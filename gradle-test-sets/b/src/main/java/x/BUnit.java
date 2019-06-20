@@ -3,7 +3,7 @@ package x;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class DependOnMe {
+public class BUnit {
     private final String name;
 
     String tell() {

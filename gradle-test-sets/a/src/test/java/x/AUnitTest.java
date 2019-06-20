@@ -7,10 +7,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 class AUnitTest {
     @Test
     void shouldDoIt() {
-        final AProdUnit lib = new AProdUnit();
+        final AUnit lib = new AUnit();
         final var name = "BOB";
 
-        final var depends = new DependOnMe(name);
+        final var depends = new BUnit(name);
 
         assertThat(lib.doIt(depends)).contains(name);
     }
