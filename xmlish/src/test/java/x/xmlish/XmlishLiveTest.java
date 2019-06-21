@@ -22,6 +22,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse.BodyHandlers;
+import java.util.ArrayList;
 
 import static java.lang.String.format;
 import static java.net.http.HttpResponse.BodyHandlers.discarding;
@@ -126,10 +127,32 @@ class XmlishLiveTest {
         final var nillity = (NillityJaxb) jaxb.unmarshal(
                 new StringReader(readXml(name)));
 
-        assertThat(nillity.getOuter()).hasSize(1);
-        final var outer = nillity.getOuter().get(0);
-        assertThat(outer.getUpper().getFoo()).isEmpty();
-        assertThat(outer.getInner()).hasSize(2);
+        final NillityJaxb expected = expectedNillityJaxb();
+
+        assertThat(nillity).isEqualTo(expected);
+    }
+
+    private static NillityJaxb expectedNillityJaxb() {
+        final var expected = new NillityJaxb();
+        final var outers = new ArrayList<OuterJaxb>();
+        expected.outer = outers;
+        final var outer = new OuterJaxb();
+        outers.add(outer);
+        final var upper = new OuterJaxb.Upper();
+        outer.upper = upper;
+        upper.foo = "";
+        upper.bar = 1;
+        final var inners = new ArrayList<OuterJaxb.Inner>();
+        outer.inner = inners;
+        final var innerA = new OuterJaxb.Inner();
+        inners.add(innerA);
+        innerA.foo = "QUX";
+        innerA.quux = 2;
+        final var innerB = new OuterJaxb.Inner();
+        inners.add(innerB);
+        innerB.foo = "BAR";
+        innerB.quux = 3;
+        return expected;
     }
 
     @Test
