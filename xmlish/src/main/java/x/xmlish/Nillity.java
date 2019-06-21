@@ -9,25 +9,4 @@ import java.util.List;
 @Value
 class Nillity {
     List<Outer> outer;
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    @Value
-    static class Outer {
-        Upper upper;
-        List<Inner> inner;
-
-        @JsonIgnoreProperties(ignoreUnknown = true)
-        @Value
-        static class Upper {
-            String foo;
-            Integer bar;
-        }
-
-        @JsonIgnoreProperties(ignoreUnknown = true)
-        @Value
-        static class Inner {
-            String foo;
-            Integer quux;
-        }
-    }
 }

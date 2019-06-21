@@ -93,4 +93,16 @@ class XmlishLiveTest {
         assertThat(outer.getUpper().getFoo()).isEmpty();
         assertThat(outer.getInner()).hasSize(2);
     }
+
+    @Test
+    void shouldParseOuterWithNillMember()
+            throws IOException {
+        final var name = "nil-outer";
+        final var outer = objectMapper.readValue(
+                readXml(name),
+                Outer.class);
+
+        assertThat(outer.getUpper().getFoo()).isEmpty();
+        assertThat(outer.getInner()).hasSize(2);
+    }
 }

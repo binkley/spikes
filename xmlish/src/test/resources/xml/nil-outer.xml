@@ -1,0 +1,14 @@
+<outer xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <upper>
+        <foo xsi:nil="true"/>
+        <bar>1</bar>
+    </upper>
+    <inner>
+        <foo>QUX</foo>
+        <quux>2</quux>
+    </inner>
+    <inner>
+        <foo>BAR</foo>
+        <quux>3</quux>
+    </inner>
+</outer>
