@@ -5,7 +5,7 @@ import lombok.Value;
 
 import java.util.List;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
+//@JsonIgnoreProperties(ignoreUnknown = true)
 @Value
 class Outer {
     Upper upper;

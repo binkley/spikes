@@ -1,6 +1,7 @@
 package x.xmlish;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.thoughtworks.xstream.XStream;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -9,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.validation.Validator;
+import x.xmlish.Outer.Inner;
+import x.xmlish.Outer.Upper;
 
 import java.io.IOException;
 import java.net.URI;
@@ -79,14 +82,31 @@ class XmlishLiveTest {
         assertThat(outer.getInner()).hasSize(2);
     }
 
-    @Disabled("DEFECT")
+    @Disabled("DEFECT WITH NIL AND LIST")
     @Test
-    void shouldParseNilNillity()
+    void shouldParseNilNillityWithJackson()
             throws IOException {
         final var name = "nil-nillity";
         final var nillity = objectMapper.readValue(
                 readXml(name),
                 Nillity.class);
+
+        assertThat(nillity.getOuter()).hasSize(1);
+        final var outer = nillity.getOuter().get(0);
+        assertThat(outer.getUpper().getFoo()).isEmpty();
+        assertThat(outer.getInner()).hasSize(2);
+    }
+
+    @Disabled("DEFECT WITH NIL AND LIST")
+    @Test
+    void shouldParseNilNillityWithXStream() {
+        final var name = "nil-nillity";
+        final var xStream = new XStream();
+        xStream.alias("nillity", Nillity.class);
+        xStream.alias("outer", Outer.class);
+        xStream.alias("upper", Upper.class);
+        xStream.alias("inner", Inner.class);
+        final var nillity = (Nillity) xStream.fromXML(readXml((name)));
 
         assertThat(nillity.getOuter()).hasSize(1);
         final var outer = nillity.getOuter().get(0);
