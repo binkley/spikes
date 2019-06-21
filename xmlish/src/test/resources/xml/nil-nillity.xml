@@ -5,11 +5,11 @@
             <bar>1</bar>
         </upper>
         <inner>
-            <qux>QUX</qux>
+            <foo>QUX</foo>
             <quux>2</quux>
         </inner>
         <inner>
-            <qux>BAR</qux>
+            <foo>BAR</foo>
             <quux>3</quux>
         </inner>
     </outer>

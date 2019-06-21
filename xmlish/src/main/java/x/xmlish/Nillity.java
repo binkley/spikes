@@ -1,27 +1,32 @@
 package x.xmlish;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Value;
 
 import java.util.List;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Value
 class Nillity {
-    Outer outer;
+    List<Outer> outer;
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
     @Value
     static class Outer {
         Upper upper;
         List<Inner> inner;
 
+        @JsonIgnoreProperties(ignoreUnknown = true)
         @Value
         static class Upper {
             String foo;
             Integer bar;
         }
 
+        @JsonIgnoreProperties(ignoreUnknown = true)
         @Value
         static class Inner {
-            String qux;
+            String foo;
             Integer quux;
         }
     }
