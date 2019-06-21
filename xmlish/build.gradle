@@ -11,9 +11,11 @@ sourceCompatibility = 11
 targetCompatibility = 11
 
 ext {
+    jacksonVersion = "2.9.9"
     jaxbVersion = "2.3.1"
 }
 
+ext["jackson.version"] = ext.jacksonVersion
 ext["junit-jupiter.version"] = "5.4.2"
 
 configurations {
@@ -29,6 +31,7 @@ dependencies {
 
     implementation "org.springframework.boot:spring-boot-starter-web"
     implementation "org.projectlombok:lombok"
+    implementation "com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}"
     implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-xml"
     implementation "javax.xml.bind:jaxb-api:${jaxbVersion}"
 
