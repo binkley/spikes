@@ -7,10 +7,12 @@
         <inner>
             <foo>QUX</foo>
             <quux>2</quux>
+            <when>123</when>
         </inner>
         <inner>
             <foo>BAR</foo>
             <quux>3</quux>
+            <when>456000000</when>
         </inner>
     </outer>
 </nillity>

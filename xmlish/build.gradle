@@ -35,7 +35,8 @@ dependencies {
     implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-xml"
     // JAXB
     implementation "javax.xml.bind:jaxb-api:${jaxbVersion}"
-    runtimeOnly "org.glassfish.jaxb:jaxb-runtime:2.3.1"
+//    implementation "com.addicticks.oss.jaxb:java8datetime:1.2.0"
+    runtimeOnly "org.glassfish.jaxb:jaxb-runtime:${jaxbVersion}"
     // XStream
     implementation "com.thoughtworks.xstream:xstream:1.4.11.1"
     implementation "xpp3:xpp3_min:1.1.4c"

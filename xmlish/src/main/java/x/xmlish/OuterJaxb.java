@@ -3,6 +3,9 @@ package x.xmlish;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.time.Instant;
 import java.util.List;
 
 @EqualsAndHashCode
@@ -23,5 +26,20 @@ public class OuterJaxb {
     public static class Inner {
         public String foo;
         public Integer quux;
+        @XmlJavaTypeAdapter(InstantAdapter.class)
+        public Instant when;
+    }
+
+    public static class InstantAdapter
+            extends XmlAdapter<String, Instant> {
+        @Override
+        public Instant unmarshal(final String instant) {
+            return Instant.parse(instant);
+        }
+
+        @Override
+        public String marshal(final Instant instant) {
+            return instant.toString();
+        }
     }
 }
