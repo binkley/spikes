@@ -13,10 +13,8 @@ import org.springframework.validation.Validator;
 import x.xmlish.Outer.Inner;
 import x.xmlish.Outer.Upper;
 
-import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
-import java.io.StringReader;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -40,6 +38,7 @@ class XmlishLiveTest {
 
     private final ObjectMapper objectMapper;
     private final Validator validator;
+    private final JaxbMapper jaxbMapper = new JaxbMapper();
 
     @LocalServerPort
     private int port;
@@ -121,11 +120,8 @@ class XmlishLiveTest {
     @Test
     void shouldParseNilNillityWithJaxb()
             throws JAXBException {
-        final var name = "nil-nillity";
-        final var jaxb = JAXBContext.newInstance(NillityJaxb.class)
-                .createUnmarshaller();
-        final var nillity = (NillityJaxb) jaxb.unmarshal(
-                new StringReader(readXml(name)));
+        final var nillity = jaxbMapper
+                .readValue(readXml("nil-nillity"), NillityJaxb.class);
 
         final NillityJaxb expected = expectedNillityJaxb();
 
