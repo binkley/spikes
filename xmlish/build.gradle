@@ -31,7 +31,7 @@ dependencies {
 
     implementation "org.projectlombok:lombok"
     implementation "org.springframework.boot:spring-boot-starter-web"
-    implementation "org.springframework:spring-oxm"
+//    implementation "org.springframework:spring-oxm"
     implementation "com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}"
     implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-xml"
     // JAXB

@@ -9,7 +9,6 @@ import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.oxm.Unmarshaller;
 import org.springframework.validation.Validator;
 import x.xmlish.Outer.Inner;
 import x.xmlish.Outer.Upper;
@@ -46,7 +45,6 @@ class XmlishLiveTest {
     private final ObjectMapper objectMapper;
     private final Validator validator;
     private final JaxbMapper jaxbMapper = new JaxbMapper();
-    private final Unmarshaller unmarshaller;
 
     @LocalServerPort
     private int port;
