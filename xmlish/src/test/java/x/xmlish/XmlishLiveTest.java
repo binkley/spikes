@@ -21,6 +21,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,6 +42,8 @@ class XmlishLiveTest {
     private static final Instant bInstant = Instant.ofEpochSecond(
             456_000_000L, 789L);
     private static final HttpClient client = HttpClient.newBuilder().build();
+    private static final LocalDate aLocalDate = LocalDate.of(2011, 2, 3);
+    private static final LocalDate bLocalDate = LocalDate.of(1999, 12, 13);
 
     private final ObjectMapper objectMapper;
     private final Validator validator;
@@ -90,8 +93,8 @@ class XmlishLiveTest {
     private static Nillity expectedGoodNillityJackson() {
         return new Nillity(
                 List.of(new Outer(new Upper("HI, MOM!", 1), List.of(
-                        new Inner("QUX", 2, aInstant),
-                        new Inner("BAR", 3, bInstant)))));
+                        new Inner("QUX", 2, aInstant, aLocalDate),
+                        new Inner("BAR", 3, bInstant, bLocalDate)))));
     }
 
     @Test
@@ -120,11 +123,13 @@ class XmlishLiveTest {
         innerA.foo = "QUX";
         innerA.quux = 2;
         innerA.when = aInstant;
+        innerA.day = aLocalDate;
         final var innerB = new OuterJaxb.Inner();
         inners.add(innerB);
         innerB.foo = "BAR";
         innerB.quux = 3;
         innerB.when = bInstant;
+        innerB.day = bLocalDate;
         return expected;
     }
 
@@ -156,11 +161,13 @@ class XmlishLiveTest {
         innerA.foo = "QUX";
         innerA.quux = 2;
         innerA.when = aInstant;
+        innerA.day = aLocalDate;
         final var innerB = new OuterJaxb.Inner();
         inners.add(innerB);
         innerB.foo = "BAR";
         innerB.quux = 3;
         innerB.when = bInstant;
+        innerB.day = bLocalDate;
         return expected;
     }
 
@@ -185,15 +192,5 @@ class XmlishLiveTest {
                 .readValue(readXml("nil-nillity"), NillityJaxb.class);
 
         assertThat(nillity).isEqualTo(expectedNilNillityJaxb());
-    }
-
-    @Test
-    void shouldParseOuterWithNillMember()
-            throws IOException {
-        final var name = "nil-outer";
-        final var outer = objectMapper.readValue(readXml(name), Outer.class);
-
-        assertThat(outer.getUpper().getFoo()).isEmpty();
-        assertThat(outer.getInner()).hasSize(2);
     }
 }

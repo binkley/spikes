@@ -6,12 +6,12 @@ import java.time.Instant;
 public final class InstantAdapter
         extends XmlAdapter<String, Instant> {
     @Override
-    public Instant unmarshal(final String instant) {
-        return Instant.parse(instant);
+    public Instant unmarshal(final String when) {
+        return Instant.parse(when);
     }
 
     @Override
-    public String marshal(final Instant instant) {
-        return instant.toString();
+    public String marshal(final Instant when) {
+        return when.toString();
     }
 }

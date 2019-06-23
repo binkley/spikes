@@ -5,6 +5,7 @@ import lombok.ToString;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 
 @EqualsAndHashCode
@@ -27,5 +28,7 @@ public class OuterJaxb {
         public Integer quux;
         @XmlJavaTypeAdapter(InstantAdapter.class)
         public Instant when;
+        @XmlJavaTypeAdapter(LocalDateAdapter.class)
+        public LocalDate day;
     }
 }
