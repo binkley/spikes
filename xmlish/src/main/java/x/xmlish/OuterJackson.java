@@ -12,7 +12,7 @@ import static com.fasterxml.jackson.annotation.JsonFormat.Shape.STRING;
 
 //@JsonIgnoreProperties(ignoreUnknown = true)
 @Value
-class Outer {
+class OuterJackson {
     Upper upper;
     List<Inner> inner;
 

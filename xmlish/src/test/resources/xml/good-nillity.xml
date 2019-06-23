@@ -7,13 +7,13 @@
         <inner>
             <foo>QUX</foo>
             <quux>2</quux>
-            <when>1970-01-01T00:02:03.000000456Z</when>
+            <when>1970-01-01T00:02:03.456Z</when>
             <day>20110203</day>
         </inner>
         <inner>
             <foo>BAR</foo>
             <quux>3</quux>
-            <when>1984-06-13T18:40:00.000000789Z</when>
+            <when>1984-06-13T18:40:00.789Z</when>
             <day>19991213</day>
         </inner>
     </outer>

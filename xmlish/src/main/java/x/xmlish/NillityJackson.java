@@ -7,6 +7,6 @@ import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Value
-class Nillity {
-    List<Outer> outer;
+class NillityJackson {
+    List<OuterJackson> outer;
 }
