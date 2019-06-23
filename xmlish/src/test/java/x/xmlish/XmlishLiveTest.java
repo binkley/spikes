@@ -72,7 +72,7 @@ class XmlishLiveTest {
     }
 
     @Test
-    void shouldParseGoodNillity()
+    void shouldParseGoodNillityWithJackson()
             throws IOException {
         final var name = "good-nillity";
         final var nillity = objectMapper.readValue(
@@ -83,6 +83,18 @@ class XmlishLiveTest {
         final var outer = nillity.getOuter().get(0);
         assertThat(outer.getUpper().getFoo()).isEqualTo("HI, MOM!");
         assertThat(outer.getInner()).hasSize(2);
+    }
+
+    @Test
+    void shouldParseGoodNillityWithJaxb()
+            throws JAXBException {
+        final var nillity = jaxbMapper
+                .readValue(readXml("good-nillity"), NillityJaxb.class);
+
+        assertThat(nillity.outer).hasSize(1);
+        final var outer = nillity.outer.get(0);
+        assertThat(outer.upper.foo).isEqualTo("HI, MOM!");
+        assertThat(outer.inner).hasSize(2);
     }
 
     @Disabled("DEFECT WITH NIL AND LIST")
