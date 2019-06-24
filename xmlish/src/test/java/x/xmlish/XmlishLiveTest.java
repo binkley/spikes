@@ -48,9 +48,8 @@ class XmlishLiveTest {
     @Test
     void shouldParseGoodNillityWithJackson()
             throws IOException {
-        final var name = "good-nillity";
         final var nillity = objectMapper
-                .readValue(readXml(name), NillityJackson.class);
+                .readValue(readXml("good-nillity"), NillityJackson.class);
 
         assertThat(nillity).isEqualTo(expectedGoodNillityJackson());
     }
