@@ -3,6 +3,7 @@ package x.xmlish;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thoughtworks.xstream.XStream;
 import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -35,7 +36,14 @@ class XmlishLiveTest {
     private static final LocalDate bLocalDate = LocalDate.of(1999, 12, 13);
 
     private final ObjectMapper objectMapper;
-    private final JaxbMapper jaxbMapper = new JaxbMapper();
+
+    private JaxbMapper<NillityJaxb> jaxbMapper;
+
+    @BeforeEach
+    void setUp()
+            throws JAXBException {
+        jaxbMapper = new JaxbMapper<>(NillityJaxb.class);
+    }
 
     @Test
     void shouldParseGoodNillityWithJackson()
@@ -58,7 +66,7 @@ class XmlishLiveTest {
     void shouldParseGoodNillityWithJaxb()
             throws JAXBException {
         final var nillity = jaxbMapper
-                .readValue(readXml("good-nillity"), NillityJaxb.class);
+                .readValue(readXml("good-nillity"));
 
         assertThat(nillity).isEqualTo(expectedGoodNillityJaxb());
     }
@@ -142,7 +150,7 @@ class XmlishLiveTest {
     void shouldParseNilNillityWithJaxb()
             throws JAXBException {
         final var nillity = jaxbMapper
-                .readValue(readXml("nil-nillity"), NillityJaxb.class);
+                .readValue(readXml("nil-nillity"));
 
         assertThat(nillity).isEqualTo(expectedNilNillityJaxb());
     }
