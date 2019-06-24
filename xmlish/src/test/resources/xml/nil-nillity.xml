@@ -1,11 +1,13 @@
-<nillity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<nillity>
     <outer>
         <upper>
-            <foo xsi:nil="true"/>
+            <foo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xsi:nil="true"/>
             <bar>1</bar>
         </upper>
         <inner>
-            <foo>QUX</foo>
+            <foo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xsi:nil="true"/>
             <quux>2</quux>
             <when>1970-01-01T00:02:03.456Z</when>
             <day>20110203</day>

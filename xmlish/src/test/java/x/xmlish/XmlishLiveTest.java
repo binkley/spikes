@@ -111,7 +111,7 @@ class XmlishLiveTest {
         outer.inner = new ArrayList<>();
         final var innerA = new OuterJaxb.Inner();
         outer.inner.add(innerA);
-        innerA.foo = "QUX";
+        innerA.foo = "";
         innerA.quux = 2;
         innerA.when = aInstant;
         innerA.day = aLocalDate;
