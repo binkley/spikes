@@ -13,10 +13,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @MicronautTest
 class AdminControllerSpec {
     @Inject
-    EmbeddedServer server;
-
+    private EmbeddedServer server;
     @Inject
-    AdminClient helloClient;
+    private AdminClient helloClient;
 
     @Test
     void shouldBeHealthy() {

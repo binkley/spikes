@@ -1,32 +1,31 @@
 package hello.world;
 
-import io.micronaut.http.HttpRequest;
 import io.micronaut.http.client.HttpClient;
 import io.micronaut.http.client.annotation.Client;
+import io.micronaut.http.client.exceptions.HttpClientResponseException;
 import io.micronaut.runtime.server.EmbeddedServer;
 import io.micronaut.test.annotation.MicronautTest;
 import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
 
+import static io.micronaut.http.HttpRequest.GET;
+import static io.micronaut.http.HttpStatus.BAD_REQUEST;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @MicronautTest
 class HelloControllerSpec {
     @Inject
-    EmbeddedServer server;
-
+    private EmbeddedServer server;
     @Inject
     @Client("/")
-    HttpClient client;
-
+    private HttpClient client;
     @Inject
-    HelloClient helloClient;
+    private HelloClient helloClient;
 
     @Test
     void testHelloWorldResponse() {
-        final var response = client.toBlocking()
-                .retrieve(HttpRequest.GET("/hello"));
+        final var response = client.toBlocking().retrieve(GET("/hello"));
 
         assertEquals("Hello World", response);
     }
@@ -36,5 +35,18 @@ class HelloControllerSpec {
         final var response = helloClient.hello().blockingGet();
 
         assertEquals("Hello World", response);
+    }
+
+    @Test
+    void testValidation() {
+        final var sampleData = new SampleData();
+        sampleData.setA("");
+        sampleData.setB(-3);
+
+        try {
+            helloClient.roundtrip(sampleData).blockingGet();
+        } catch (final HttpClientResponseException e) {
+            assertEquals(BAD_REQUEST, e.getStatus());
+        }
     }
 }
