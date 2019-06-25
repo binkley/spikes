@@ -20,10 +20,20 @@ class HelloControllerSpec {
     @Client("/")
     HttpClient client;
 
+    @Inject
+    HelloClient helloClient;
+
     @Test
     void testHelloWorldResponse() {
         final var response = client.toBlocking()
                 .retrieve(HttpRequest.GET("/hello"));
+
+        assertEquals("Hello World", response);
+    }
+
+    @Test
+    void testHelloWorldResponse2() {
+        final var response = helloClient.hello().blockingGet();
 
         assertEquals("Hello World", response);
     }
