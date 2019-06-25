@@ -11,7 +11,9 @@ import javax.inject.Inject;
 
 import static io.micronaut.http.HttpRequest.GET;
 import static io.micronaut.http.HttpStatus.BAD_REQUEST;
+import static io.micronaut.http.HttpStatus.NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @MicronautTest
 class HelloControllerSpec {
@@ -45,8 +47,19 @@ class HelloControllerSpec {
 
         try {
             helloClient.roundtrip(sampleData).blockingGet();
+            fail();
         } catch (final HttpClientResponseException e) {
             assertEquals(BAD_REQUEST, e.getStatus());
+        }
+    }
+
+    @Test
+    void testRetry() {
+        try {
+            helloClient.notThere().blockingGet();
+            fail();
+        } catch (final HttpClientResponseException e) {
+            assertEquals(NOT_FOUND, e.getStatus());
         }
     }
 }
