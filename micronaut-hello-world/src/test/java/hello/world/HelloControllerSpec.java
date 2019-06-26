@@ -3,11 +3,16 @@ package hello.world;
 import io.micronaut.http.client.HttpClient;
 import io.micronaut.http.client.annotation.Client;
 import io.micronaut.http.client.exceptions.HttpClientResponseException;
+import io.micronaut.retry.event.RetryEvent;
+import io.micronaut.runtime.event.annotation.EventListener;
 import io.micronaut.runtime.server.EmbeddedServer;
 import io.micronaut.test.annotation.MicronautTest;
 import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
+import java.util.ArrayList;
+import java.util.List;
 
 import static io.micronaut.http.HttpRequest.GET;
 import static io.micronaut.http.HttpStatus.BAD_REQUEST;
@@ -24,6 +29,8 @@ class HelloControllerSpec {
     private HttpClient client;
     @Inject
     private HelloClient helloClient;
+    @Inject
+    private RetryEventListener retryEventListener;
 
     @Test
     void testHelloWorldResponse() {
@@ -60,6 +67,17 @@ class HelloControllerSpec {
             fail();
         } catch (final HttpClientResponseException e) {
             assertEquals(NOT_FOUND, e.getStatus());
+            assertEquals(3, retryEventListener.events.size());
+        }
+    }
+
+    @Singleton
+    public static class RetryEventListener {
+        private final List<RetryEvent> events = new ArrayList<>();
+
+        @EventListener
+        void onRetry(final RetryEvent event) {
+            events.add(event);
         }
     }
 }
