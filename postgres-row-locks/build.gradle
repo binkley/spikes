@@ -1,0 +1,66 @@
+plugins {
+    id "org.springframework.boot" version "2.1.4.RELEASE"
+    id "java"
+}
+
+apply plugin: "io.spring.dependency-management"
+
+group = "x"
+version = "0.0.1-SNAPSHOT"
+
+sourceCompatibility = 11
+targetCompatibility = 11
+
+ext {
+    postgresVersion = "11.2.0"
+}
+
+ext["assertj.version"] = "3.12.2"
+ext["junit-jupiter.version"] = "5.4.2"
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    annotationProcessor "org.projectlombok:lombok"
+
+    compileOnly "org.projectlombok:lombok"
+
+    implementation "org.springframework.boot:spring-boot-starter-data-jdbc"
+
+    testImplementation "org.springframework.boot:spring-boot-starter-test"
+    testImplementation "org.junit.jupiter:junit-jupiter"
+    testImplementation "org.assertj:assertj-core"
+    testImplementation "org.mockito:mockito-core"
+    testImplementation "org.mockito:mockito-junit-jupiter"
+    testImplementation "io.zonky.test:embedded-database-spring-test:1.4.1"
+
+    runtime "org.postgresql:postgresql"
+    runtime "org.flywaydb:flyway-core"
+}
+
+dependencyManagement {
+    //noinspection GroovyAssignabilityCheck
+    imports {
+        mavenBom "io.zonky.test.postgres:embedded-postgres-binaries-bom:${postgresVersion}"
+    }
+}
+
+test {
+    useJUnitPlatform()
+}
+
+bootRun {
+    systemProperties = System.properties as Map<String, ?>
+}
+
+springBoot {
+    buildInfo()
+}
