@@ -1,6 +1,9 @@
 # Spring Boot transations
 
-Demonstrate an asynchronous, post-commit event listener.
+Demonstrate Spring transaction features
+
+* [An asynchronous, post-commit event listener](src/test/java/x/txns/DatabaseTest.java)
+* [Serailized read access with `SELECT ... FOR UPDATE`](src/test/java/x/txns/RowLockTest.java)
 
 ## Running the demonstration
 

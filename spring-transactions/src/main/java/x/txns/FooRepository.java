@@ -14,4 +14,9 @@ public interface FooRepository
 
     @Query("SELECT * FROM FOO WHERE key = :key")
     Optional<FooRecord> findByKey(@Param("key") String key);
+
+    @Query("SELECT * FROM FOO"
+            + " WHERE value = :value"
+            + " FOR UPDATE")
+    Optional<FooRecord> findByValueWithLock(@Param("value") Integer value);
 }
