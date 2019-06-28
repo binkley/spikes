@@ -1,8 +1,0 @@
-spring:
-  application:
-    name: txns
-  main:
-    banner-mode: 'OFF'
-  output:
-    ansi:
-      enabled: 'ALWAYS'
