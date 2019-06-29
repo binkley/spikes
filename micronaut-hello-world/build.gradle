@@ -71,3 +71,8 @@ shadowJar {
 
 run.classpath += configurations.developmentOnly
 run.jvmArgs("-noverify", "-XX:TieredStopAtLevel=1", "-Dcom.sun.management.jmxremote")
+
+wrapper {
+    distributionType = Wrapper.DistributionType.ALL
+    gradleVersion = "5.5"
+}
