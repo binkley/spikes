@@ -15,7 +15,7 @@ public interface HelloClient {
     Single<String> hello();
 
     @Post
-    Single<SampleData> roundtrip(final SampleData sampleData);
+    Single<RoundtripData> roundtrip(final RoundtripData roundtripData);
 
     @Post("/not-there")
     Single<Void> notThere();

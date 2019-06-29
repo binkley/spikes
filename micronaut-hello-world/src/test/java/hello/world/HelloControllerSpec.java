@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 @MicronautTest
 class HelloControllerSpec {
     @Inject
-    @SuppressWarnings("UnusedVariable")
+    @SuppressWarnings({"UnusedVariable", "unused"})
     private EmbeddedServer server;
     @Inject
     @Client("/")
@@ -47,10 +47,10 @@ class HelloControllerSpec {
         assertEquals("Hello World", response);
     }
 
-    @SuppressWarnings("CheckReturnValue")
+    @SuppressWarnings({"CheckReturnValue", "ResultOfMethodCallIgnored"})
     @Test
     void testValidation() {
-        final var sampleData = new SampleData();
+        final var sampleData = new RoundtripData();
         sampleData.setA("");
         sampleData.setB(-3);
 
@@ -62,6 +62,7 @@ class HelloControllerSpec {
         }
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     @Test
     void testRetry() {
         try {

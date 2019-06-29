@@ -5,18 +5,18 @@
     <title>Swagger-ui</title>
 
     <link rel="icon" type="image/png"
-          href="https://unpkg.com/swagger-ui-dist@{{version}}/favicon-32x32.png">
+          href="//unpkg.com/swagger-ui-dist@{{version}}/favicon-32x32.png">
     <link rel="stylesheet" type="text/css"
-          href="https://unpkg.com/swagger-ui-dist@{{version}}/swagger-ui.css">
+          href="//unpkg.com/swagger-ui-dist@{{version}}/swagger-ui.css">
 
-    <script src="https://unpkg.com/swagger-ui-dist@{{version}}/swagger-ui-standalone-preset.js"></script>
-    <script src="https://unpkg.com/swagger-ui-dist@{{version}}/swagger-ui-bundle.js"></script>
+    <script src="//unpkg.com/swagger-ui-dist@{{version}}/swagger-ui-standalone-preset.js"></script>
+    <script src="//unpkg.com/swagger-ui-dist@{{version}}/swagger-ui-bundle.js"></script>
 </head>
 <body>
 <div id="swagger-ui"></div>
 <script>
     window.onload = function () {
-        var ui = SwaggerUIBundle({
+        window.ui = SwaggerUIBundle({
             urls: [{{#each urls}}
                 {
                     name: "{{name}}",
@@ -34,7 +34,6 @@
             ],
             layout: "{{layout}}"
         });
-        window.ui = ui
     }
 </script>
 </body>

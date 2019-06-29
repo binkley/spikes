@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @MicronautTest
 class AdminControllerSpec {
     @Inject
-    @SuppressWarnings("UnusedVariable")
+    @SuppressWarnings({"UnusedVariableunused", "unused"})
     private EmbeddedServer server;
     @Inject
     private AdminClient helloClient;

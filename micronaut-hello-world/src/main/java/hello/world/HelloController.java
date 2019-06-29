@@ -25,12 +25,12 @@ public class HelloController {
     /**
      * Makes a roundtrip.
      *
-     * @param sampleData Garbage in
+     * @param roundtripData Garbage in
      *
      * @return Garbage out
      */
     @Post
-    public SampleData roundtrip(final @Valid SampleData sampleData) {
-        return sampleData;
+    public RoundtripData roundtrip(final @Valid RoundtripData roundtripData) {
+        return roundtripData;
     }
 }
