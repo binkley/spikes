@@ -8,6 +8,9 @@ swagger:
   version: 3  # Latest version, let UI get improvements automatically
   layout: StandaloneLayout
   deepLinking: true
+  displayRequestDuration: true
+  showCommonExtensions: true
+  showExtensions: true
   urls:
     - name: hello-world
       url: /api-docs/swagger/hello-world-0.1.yml

@@ -13,6 +13,9 @@ public class SwaggerConfig {
     private String version;
     private String layout;
     private boolean deepLinking;
+    private boolean displayRequestDuration;
+    private boolean showCommonExtensions;
+    private boolean showExtensions;
     private List<URIConfig> urls;
 
     @ConfigurationProperties("urls")
