@@ -1,3 +1,5 @@
+<img src="https://unlicense.org/pd-icon.png" alt="Public Domain" align="right"/>
+
 # Spike mini projects
 
 * [Amazon Java SDK logging demonstration](amazon-java-sdk-logging-demo/)
