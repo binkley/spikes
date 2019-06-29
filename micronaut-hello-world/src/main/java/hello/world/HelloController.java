@@ -12,11 +12,23 @@ import static io.micronaut.http.MediaType.TEXT_PLAIN;
 @Controller("/hello")
 @Validated
 public class HelloController {
+    /**
+     * Announces ourselves.
+     *
+     * @return A greeting
+     */
     @Get(produces = TEXT_PLAIN)
     public String index() {
         return "Hello World";
     }
 
+    /**
+     * Makes a roundtrip.
+     *
+     * @param sampleData Garbage in
+     *
+     * @return Garbage out
+     */
     @Post
     public SampleData roundtrip(final @Valid SampleData sampleData) {
         return sampleData;
