@@ -5,6 +5,7 @@ plugins {
     id "net.ltgt.apt-idea" version "0.21"
     id "com.github.johnrengelman.shadow" version "4.0.2"
     id "application"
+    id "net.ltgt.errorprone" version "0.8.1"
 }
 
 version "0.1"
@@ -31,6 +32,7 @@ configurations {
 }
 
 dependencies {
+    errorprone "com.google.errorprone:error_prone_core:2.3.3"
     compileOnly "org.projectlombok:lombok:${lombokVersion}"
     annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
     annotationProcessor "io.micronaut:micronaut-inject-java"
@@ -60,7 +62,10 @@ test {
     useJUnitPlatform()
 }
 
+//tasks.withType(JavaCompile).configureEach {
+//}
 tasks.withType(JavaCompile) {
+    options.errorprone.disableWarningsInGeneratedCode = true
     options.encoding = "UTF-8"
     options.compilerArgs.add("-parameters")
 }

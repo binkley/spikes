@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 @MicronautTest
 class HelloControllerSpec {
     @Inject
+    @SuppressWarnings("UnusedVariable")
     private EmbeddedServer server;
     @Inject
     @Client("/")
@@ -46,6 +47,7 @@ class HelloControllerSpec {
         assertEquals("Hello World", response);
     }
 
+    @SuppressWarnings("CheckReturnValue")
     @Test
     void testValidation() {
         final var sampleData = new SampleData();

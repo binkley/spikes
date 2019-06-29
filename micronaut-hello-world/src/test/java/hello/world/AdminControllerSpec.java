@@ -10,9 +10,10 @@ import javax.inject.Inject;
 import static io.micronaut.health.HealthStatus.UP;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@MicronautTest()
+@MicronautTest
 class AdminControllerSpec {
     @Inject
+    @SuppressWarnings("UnusedVariable")
     private EmbeddedServer server;
     @Inject
     private AdminClient helloClient;
