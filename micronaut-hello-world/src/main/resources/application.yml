@@ -1,12 +1,24 @@
+endpoints:
+  routes:
+    enabled: true
+    sensitive: false
+
+swagger:
+  path: /api-docs/swagger
+  version: 3.22.2
+  layout: StandaloneLayout
+  deepLinking: true
+  urls:
+    - name: hello-world
+      url: /api-docs/swagger/hello-world-0.1.yml
+
 micronaut:
   application:
     name: hello-world
+    instance: ${random.uuid}
+    version: 0.1
   router:
     static-resources:
       swagger:
         paths: classpath:META-INF/swagger
-        mapping: /swagger/**
-      webjars:
-        enabled: true
-        paths: classpath:META-INF/resources/webjars/swagger-ui/3.22.2
-        mapping: /swagger-ui/**
+        mapping: ${swagger.path}/**
