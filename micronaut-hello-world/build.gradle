@@ -67,6 +67,10 @@ dependencies {
     annotationProcessor "io.micronaut.configuration:micronaut-openapi"
     compile "io.swagger.core.v3:swagger-annotations"
 
+    // Tracing
+    compile "io.micronaut:micronaut-tracing"
+    compile "io.opentracing.brave:brave-opentracing"
+
     testAnnotationProcessor "io.micronaut:micronaut-inject-java"
 
     // JUnit 5

@@ -15,6 +15,12 @@ swagger:
     - name: hello-world
       url: /api-docs/swagger/hello-world-0.1.yml
 
+tracing:
+  zipkin:
+    enabled: true
+    sampler:
+      probability: 1
+
 micronaut:
   application:
     name: hello-world
