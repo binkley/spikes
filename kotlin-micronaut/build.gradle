@@ -42,9 +42,9 @@ dependencies {
     runtime "ch.qos.logback:logback-classic:1.2.3"
     runtime "com.fasterxml.jackson.module:jackson-module-kotlin:2.9.8"
     testCompile "org.junit.jupiter:junit-jupiter-api"
-    testCompile "org.jetbrains.spek:spek-api:1.1.5"
+    testCompile "org.jetbrains.spek:spek-api:${spekVersion}"
     testRuntime "org.junit.jupiter:junit-jupiter-engine"
-    testRuntime "org.jetbrains.spek:spek-junit-platform-engine:1.1.5"
+    testRuntime "org.jetbrains.spek:spek-junit-platform-engine:${spekVersion}"
 }
 
 test.classpath += configurations.developmentOnly
