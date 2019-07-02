@@ -6,6 +6,7 @@
 * [Custom Logback pattern](custom-logback-pattern/)
 * [Google's Flogger](googles-flogger/)
 * [Gradle pre-push](gradle-pre-push/)
+* [Kotlin micronaut](kotlin-micronaut/)
 * [Micronaut hello world](micronaut-hello-world/)
 * [Spring Boot Etag support](spring-boot-etag-support/)
 * [Spring Boot logging](spring-boot-logging/)
