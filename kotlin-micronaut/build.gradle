@@ -10,6 +10,9 @@ plugins {
 version "0.1"
 group "kotlin.micronaut"
 
+sourceCompatibility = 11
+targetCompatibility = 11
+
 repositories {
     mavenCentral()
     maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
