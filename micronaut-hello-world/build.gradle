@@ -70,6 +70,7 @@ dependencies {
     // Tracing
     compile "io.micronaut:micronaut-tracing"
     compile "io.opentracing.brave:brave-opentracing"
+//    runtime "io.zipkin.brave:brave-instrumentation-http"
 
     testAnnotationProcessor "io.micronaut:micronaut-inject-java"
 
