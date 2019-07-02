@@ -1,5 +1,5 @@
 plugins {
-    id "io.spring.dependency-management" version "1.0.6.RELEASE"
+    id "io.spring.dependency-management" version "1.0.8.RELEASE"
     id "com.github.johnrengelman.shadow" version "4.0.2"
     id "application"
     id "org.jetbrains.kotlin.jvm" version "1.3.21"
@@ -20,7 +20,7 @@ repositories {
 
 dependencyManagement {
     imports {
-        mavenBom 'io.micronaut:micronaut-bom:1.2.0.BUILD-SNAPSHOT'
+        mavenBom "io.micronaut:micronaut-bom:1.2.0.BUILD-SNAPSHOT"
     }
 }
 
@@ -49,14 +49,14 @@ dependencies {
 
 test.classpath += configurations.developmentOnly
 
-mainClassName = "kotlin.micronaut.Application"
+mainClassName = "x.micronaut.Application"
 
 shadowJar {
     mergeServiceFiles()
 }
 
 run.classpath += configurations.developmentOnly
-run.jvmArgs('-noverify', '-XX:TieredStopAtLevel=1', '-Dcom.sun.management.jmxremote')
+run.jvmArgs("-noverify", "-XX:TieredStopAtLevel=1", "-Dcom.sun.management.jmxremote")
 
 test {
     useJUnitPlatform()
@@ -68,15 +68,14 @@ allOpen {
 
 compileKotlin {
     kotlinOptions {
-        jvmTarget = '1.8'
-        //Will retain parameter names for Java reflection
+        jvmTarget = "1.8"
         javaParameters = true
     }
 }
 
 compileTestKotlin {
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = "1.8"
         javaParameters = true
     }
 }
