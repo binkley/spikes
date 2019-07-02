@@ -1,4 +1,4 @@
-package kotlin.micronaut
+package x.micronaut
 
 import io.micronaut.runtime.Micronaut
 
