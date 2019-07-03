@@ -8,8 +8,6 @@ import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.IntIdTable
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.StdOutSqlLogger
-import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.transactions.transaction
 import javax.sql.DataSource
 
@@ -33,18 +31,6 @@ class Location(id: EntityID<Int>) : IntEntity(id) {
     var name by Locations.name
 }
 
-object Ingredients : IntIdTable() {
-    val name = text("name")
-    val chef = reference("chef_id", Chefs)
-}
-
-class Ingredient(id: EntityID<Int>) : IntEntity(id) {
-    companion object : IntEntityClass<Ingredient>(Ingredients)
-
-    var name by Ingredients.name
-    var chef by Chef referencedOn Ingredients.chef
-}
-
 object Recipes : IntIdTable() {
     val name = text("name")
     val chef = reference("chef_id", Chefs)
@@ -57,13 +43,26 @@ class Recipe(id: EntityID<Int>) : IntEntity(id) {
     var chef by Chef referencedOn Recipes.chef
 }
 
+object Ingredients : IntIdTable() {
+    val name = text("name")
+    val chef = reference("chef_id", Chefs)
+    val recipe = reference("recipe_id", Recipes).nullable()
+}
+
+class Ingredient(id: EntityID<Int>) : IntEntity(id) {
+    companion object : IntEntityClass<Ingredient>(Ingredients)
+
+    var name by Ingredients.name
+    var chef by Chef referencedOn Ingredients.chef
+    var recipe by Recipe optionalReferencedOn Ingredients.recipe
+}
+
 @Context
 @Infrastructure
 class DatabaseSetup(dataSource: DataSource) {
     init {
         Database.connect(dataSource)
         transaction {
-            addLogger(StdOutSqlLogger)
             SchemaUtils.create(Locations, Ingredients, Recipes, Chefs)
         }
     }
