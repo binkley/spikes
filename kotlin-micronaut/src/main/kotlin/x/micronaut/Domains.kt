@@ -2,30 +2,53 @@ package x.micronaut
 
 import io.micronaut.context.annotation.Context
 import io.micronaut.context.annotation.Infrastructure
+import org.jetbrains.exposed.dao.EntityID
+import org.jetbrains.exposed.dao.IntEntity
+import org.jetbrains.exposed.dao.IntEntityClass
+import org.jetbrains.exposed.dao.IntIdTable
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.transactions.transaction
 import javax.sql.DataSource
 
-object Locations : Table() {
-    val id = integer("id").autoIncrement().primaryKey()
+object Locations : IntIdTable() {
     val name = varchar("name", length = 30) // TODO: Unlimited varchar?
 }
 
-object Ingredients : Table() {
-    val id = integer("id").autoIncrement().primaryKey()
+class Location(id: EntityID<Int>) : IntEntity(id) {
+    companion object : IntEntityClass<Location>(Locations)
+
+    var name by Locations.name
+}
+
+object Ingredients : IntIdTable() {
     val name = varchar("name", length = 30) // TODO: Unlimited varchar?
 }
 
-object Recipes : Table() {
-    val id = integer("id").autoIncrement().primaryKey()
+class Ingredient(id: EntityID<Int>) : IntEntity(id) {
+    companion object : IntEntityClass<Ingredient>(Ingredients)
+
+    var name by Ingredients.name
+}
+
+object Recipes : IntIdTable() {
     val name = varchar("name", length = 30) // TODO: Unlimited varchar?
 }
 
-object Chefs : Table() {
-    val id = integer("id").autoIncrement().primaryKey()
+class Recipe(id: EntityID<Int>) : IntEntity(id) {
+    companion object : IntEntityClass<Recipe>(Recipes)
+
+    var name by Recipes.name
+}
+
+object Chefs : IntIdTable() {
     val name = varchar("name", length = 30) // TODO: Unlimited varchar?
+}
+
+class Chef(id: EntityID<Int>) : IntEntity(id) {
+    companion object : IntEntityClass<Chef>(Chefs)
+
+    var name by Chefs.name
 }
 
 @Context
