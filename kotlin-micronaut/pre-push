@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+exec ./gradlew clean build --no-build-cache --rerun-tasks
