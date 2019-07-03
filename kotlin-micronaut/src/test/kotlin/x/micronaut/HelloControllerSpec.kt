@@ -1,5 +1,6 @@
 package x.micronaut
 
+import io.micronaut.http.HttpRequest.POST
 import io.micronaut.http.client.HttpClient
 import io.micronaut.http.client.annotation.Client
 import io.micronaut.runtime.server.EmbeddedServer
@@ -19,8 +20,10 @@ class HelloControllerSpec {
 
     @Test
     fun testHelloWorldResponse() {
-        val rsp: String = client.toBlocking().retrieve("/hello")
+        val response = client.toBlocking().retrieve(
+                POST("/hello", HelloRequest("World")),
+                HelloResponse::class.java)
 
-        assertEquals("Hello World", rsp)
+        assertEquals(HelloResponse("Hello, World!"), response)
     }
 }
