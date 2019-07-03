@@ -2,9 +2,9 @@ plugins {
     id "io.spring.dependency-management" version "1.0.8.RELEASE"
     id "com.github.johnrengelman.shadow" version "4.0.2"
     id "application"
-    id "org.jetbrains.kotlin.jvm" version "1.3.31"
-    id "org.jetbrains.kotlin.kapt" version "1.3.31"
-    id "org.jetbrains.kotlin.plugin.allopen" version "1.3.31"
+    id "org.jetbrains.kotlin.jvm" version "1.3.40"
+    id "org.jetbrains.kotlin.kapt" version "1.3.40"
+    id "org.jetbrains.kotlin.plugin.allopen" version "1.3.40"
 }
 
 version "0.1"
@@ -17,7 +17,7 @@ ext {
     atriumVersion = "0.8.0"
     jacksonVersion = "2.9.9"
     junitVersion = "5.5"
-    kotlinVersion = "1.3.31"
+    kotlinVersion = "1.3.40"
     logbackVersion = "1.2.3"
     spekVersion = "1.1.5"
 }
@@ -35,7 +35,6 @@ dependencyManagement {
 }
 
 configurations {
-    // for dependencies that are needed for development only
     developmentOnly
 }
 
