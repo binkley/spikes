@@ -6,6 +6,14 @@ datasources:
     password: ""
     driverClassName: org.h2.Driver
 
+endpoints:
+  all:
+    enabled: true
+    path: /admin
+    sensitive: false
+  health:
+    details-visible: ANONYMOUS
+
 micronaut:
   application:
     name: kotlin-micronaut
