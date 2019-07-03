@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="hm.binkley.basilisk.HelloControllerSpec" tests="1" skipped="0" failures="0" errors="0" timestamp="2019-07-03T22:50:40" hostname="boxley.local" time="0.424">
+  <properties/>
+  <testcase name="should greet the world()" classname="hm.binkley.basilisk.HelloControllerSpec" time="0.424"/>
+  <system-out><![CDATA[?[36m17:50:38.295?[0;39m ?[1;30m[Test worker]?[0;39m ?[34mINFO ?[0;39m ?[35mi.m.context.env.DefaultEnvironment?[0;39m - Established active environments: [test]
+?[36m17:50:39.098?[0;39m ?[1;30m[Test worker]?[0;39m ?[34mINFO ?[0;39m ?[35mcom.zaxxer.hikari.HikariDataSource?[0;39m - HikariPool-1 - Starting...
+?[36m17:50:39.226?[0;39m ?[1;30m[Test worker]?[0;39m ?[34mINFO ?[0;39m ?[35mcom.zaxxer.hikari.HikariDataSource?[0;39m - HikariPool-1 - Start completed.
+?[36m17:50:39.244?[0;39m ?[1;30m[Test worker]?[0;39m ?[34mINFO ?[0;39m ?[35mo.f.c.i.license.VersionPrinter?[0;39m - Flyway Community Edition 5.2.1 by Boxfuse
+?[36m17:50:39.254?[0;39m ?[1;30m[Test worker]?[0;39m ?[34mINFO ?[0;39m ?[35mo.f.c.i.database.DatabaseFactory?[0;39m - Database: jdbc:h2:mem:default (H2 1.4)
+?[36m17:50:39.305?[0;39m ?[1;30m[Test worker]?[0;39m ?[34mINFO ?[0;39m ?[35mo.f.core.internal.command.DbValidate?[0;39m - Successfully validated 1 migration (execution time 00:00.011s)
+?[36m17:50:39.313?[0;39m ?[1;30m[Test worker]?[0;39m ?[34mINFO ?[0;39m ?[35mo.f.c.i.s.JdbcTableSchemaHistory?[0;39m - Creating Schema History table: "PUBLIC"."flyway_schema_history"
+?[36m17:50:39.324?[0;39m ?[1;30m[Test worker]?[0;39m ?[34mINFO ?[0;39m ?[35mo.f.core.internal.command.DbMigrate?[0;39m - Current version of schema "PUBLIC": << Empty Schema >>
+?[36m17:50:39.325?[0;39m ?[1;30m[Test worker]?[0;39m ?[34mINFO ?[0;39m ?[35mo.f.core.internal.command.DbMigrate?[0;39m - Migrating schema "PUBLIC" to version 1 - init
+?[36m17:50:39.348?[0;39m ?[1;30m[Test worker]?[0;39m ?[34mINFO ?[0;39m ?[35mo.f.core.internal.command.DbMigrate?[0;39m - Successfully applied 1 migration to schema "PUBLIC" (execution time 00:00.035s)
+?[36m17:50:41.097?[0;39m ?[1;30m[Test worker]?[0;39m ?[34mINFO ?[0;39m ?[35mcom.zaxxer.hikari.HikariDataSource?[0;39m - HikariPool-1 - Shutdown initiated...
+?[36m17:50:41.101?[0;39m ?[1;30m[Test worker]?[0;39m ?[34mINFO ?[0;39m ?[35mcom.zaxxer.hikari.HikariDataSource?[0;39m - HikariPool-1 - Shutdown completed.
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
