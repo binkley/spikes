@@ -13,6 +13,6 @@ class HelloClientSpec {
     @Test
     fun testHelloWorldResponse() {
         assertEquals(HelloResponse("Hello, World!"),
-                client.greet(HelloRequest("World")).blockingGet())
+                client.greet(HelloRequest("World")))
     }
 }
