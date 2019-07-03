@@ -1,7 +1,8 @@
 package x.micronaut
 
+import ch.tutteli.atrium.api.cc.en_GB.toBe
+import ch.tutteli.atrium.verbs.expect
 import io.micronaut.test.annotation.MicronautTest
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import javax.inject.Inject
 
@@ -12,7 +13,7 @@ class HelloClientSpec {
 
     @Test
     fun `should greet the world`() {
-        assertThat(client.greet(HelloRequest("World")))
-                .isEqualTo(HelloResponse("Hello, World!"))
+        expect(client.greet(HelloRequest("World")))
+                .toBe(HelloResponse("Hello, World!"))
     }
 }

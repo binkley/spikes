@@ -1,11 +1,12 @@
 package x.micronaut
 
+import ch.tutteli.atrium.api.cc.en_GB.toBe
+import ch.tutteli.atrium.verbs.expect
 import io.micronaut.http.HttpRequest.POST
 import io.micronaut.http.client.HttpClient
 import io.micronaut.http.client.annotation.Client
 import io.micronaut.runtime.server.EmbeddedServer
 import io.micronaut.test.annotation.MicronautTest
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import javax.inject.Inject
 
@@ -24,7 +25,6 @@ class HelloControllerSpec {
                 POST("/hello", HelloRequest("World")),
                 HelloResponse::class.java)
 
-        assertThat(body)
-                .isEqualTo(HelloResponse("Hello, World!"))
+        expect(body).toBe(HelloResponse("Hello, World!"))
     }
 }
