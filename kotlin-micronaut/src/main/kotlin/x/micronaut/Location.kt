@@ -10,7 +10,7 @@ class Location(private val record: LocationRecord) {
         get() = record.name
 }
 
-object LocationRepository : IntIdTable() {
+object LocationRepository : IntIdTable("LOCATION") {
     val name = text("name")
 }
 

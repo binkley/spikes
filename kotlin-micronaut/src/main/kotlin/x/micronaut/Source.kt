@@ -5,17 +5,17 @@ import org.jetbrains.exposed.dao.IntEntity
 import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.IntIdTable
 
-class Chef(private val record: ChefRecord) {
+class Source(private val record: SourceRecord) {
     val name
         get() = record.name
 }
 
-object ChefRepository : IntIdTable("CHEF") {
+object SourceRepository : IntIdTable("SOURCE") {
     val name = text("name")
 }
 
-class ChefRecord(id: EntityID<Int>) : IntEntity(id) {
-    companion object : IntEntityClass<ChefRecord>(ChefRepository)
+class SourceRecord(id: EntityID<Int>) : IntEntity(id) {
+    companion object : IntEntityClass<SourceRecord>(SourceRepository)
 
-    var name by ChefRepository.name
+    var name by SourceRepository.name
 }

@@ -10,9 +10,9 @@ class Recipe(private val record: RecipeRecord) {
         get() = record.name
 }
 
-object RecipeRepository : IntIdTable() {
+object RecipeRepository : IntIdTable("RECIPE") {
     val name = text("name")
-    val chef = reference("chef_id", ChefRepository)
+    val chef = reference("CHEF_ID", ChefRepository)
 }
 
 class RecipeRecord(id: EntityID<Int>) : IntEntity(id) {

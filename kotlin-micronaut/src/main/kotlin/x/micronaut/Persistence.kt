@@ -12,7 +12,7 @@ import javax.sql.DataSource
 @Context
 @Infrastructure
 class DatabaseSetup(dataSource: DataSource) {
-    private val seeSchemaInStdOut = false
+    private val seeSchemaInStdOut = true
 
     init {
         Database.connect(dataSource)
