@@ -40,10 +40,11 @@ dependencies {
     kapt "io.micronaut:micronaut-validation"
     kaptTest "io.micronaut:micronaut-inject-java"
     runtime "ch.qos.logback:logback-classic:1.2.3"
-    runtime "com.fasterxml.jackson.module:jackson-module-kotlin:2.9.8"
+    runtime "com.fasterxml.jackson.module:jackson-module-kotlin:${jacksonVersion}"
     testCompile "org.junit.jupiter:junit-jupiter-api"
     testCompile "io.micronaut.test:micronaut-test-junit5"
     testCompile "org.jetbrains.spek:spek-api:${spekVersion}"
+    testCompile "org.assertj:assertj-core:${assertjVersion}"
     testRuntime "org.junit.jupiter:junit-jupiter-engine"
     testRuntime "org.jetbrains.spek:spek-junit-platform-engine:${spekVersion}"
 }

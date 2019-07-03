@@ -5,7 +5,7 @@ import io.micronaut.http.client.HttpClient
 import io.micronaut.http.client.annotation.Client
 import io.micronaut.runtime.server.EmbeddedServer
 import io.micronaut.test.annotation.MicronautTest
-import org.junit.jupiter.api.Assertions.assertEquals
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import javax.inject.Inject
 
@@ -20,10 +20,11 @@ class HelloControllerSpec {
 
     @Test
     fun testHelloWorldResponse() {
-        val response = client.toBlocking().retrieve(
+        val body = client.toBlocking().retrieve(
                 POST("/hello", HelloRequest("World")),
                 HelloResponse::class.java)
 
-        assertEquals(HelloResponse("Hello, World!"), response)
+        assertThat(body)
+                .isEqualTo(HelloResponse("Hello, World!"))
     }
 }
