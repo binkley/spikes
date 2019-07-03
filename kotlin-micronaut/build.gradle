@@ -48,8 +48,11 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlinVersion}"
     compile "org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}"
     compile "io.micronaut:micronaut-runtime"
+    compile "io.micronaut.configuration:micronaut-jdbc-hikari"
+
     runtime "ch.qos.logback:logback-classic:${logbackVersion}"
     runtime "com.fasterxml.jackson.module:jackson-module-kotlin:${jacksonVersion}"
+    runtime "com.h2database:h2"
 
     kaptTest "io.micronaut:micronaut-inject-java"
 
