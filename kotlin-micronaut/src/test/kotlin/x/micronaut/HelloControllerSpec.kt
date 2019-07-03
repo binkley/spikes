@@ -19,7 +19,7 @@ class HelloControllerSpec {
     lateinit var client: HttpClient
 
     @Test
-    fun testHelloWorldResponse() {
+    fun `should greet the world`() {
         val body = client.toBlocking().retrieve(
                 POST("/hello", HelloRequest("World")),
                 HelloResponse::class.java)

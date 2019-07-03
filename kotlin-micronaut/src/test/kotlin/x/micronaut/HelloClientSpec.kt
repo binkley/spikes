@@ -11,7 +11,7 @@ class HelloClientSpec {
     lateinit var client: HelloClient
 
     @Test
-    fun testHelloWorldResponse() {
+    fun `should greet the world`() {
         assertThat(client.greet(HelloRequest("World")))
                 .isEqualTo(HelloResponse("Hello, World!"))
     }
