@@ -42,6 +42,7 @@ configurations {
 
 dependencies {
     kapt "io.micronaut:micronaut-inject-java"
+
     kapt "io.micronaut:micronaut-validation"
 
     compile "io.micronaut:micronaut-http-client"
@@ -50,15 +51,15 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlinVersion}"
     compile "org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}"
     compile "io.micronaut:micronaut-runtime"
-    compile "io.micronaut.configuration:micronaut-jdbc-hikari"
-    compile "org.jetbrains.exposed:exposed:${exposedVersion}"
     compile "io.micronaut:micronaut-management"
-
     runtime "ch.qos.logback:logback-classic:${logbackVersion}"
     runtime "com.fasterxml.jackson.module:jackson-module-kotlin:${jacksonVersion}"
-    runtime "com.h2database:h2"
-
     kaptTest "io.micronaut:micronaut-inject-java"
+
+    compile "io.micronaut.configuration:micronaut-jdbc-hikari"
+    compile "org.jetbrains.exposed:exposed:${exposedVersion}"
+    compile "io.micronaut.configuration:micronaut-flyway"
+    runtime "com.h2database:h2"
 
     testCompile "org.junit.jupiter:junit-jupiter-api"
     testCompile "io.micronaut.test:micronaut-test-junit5"

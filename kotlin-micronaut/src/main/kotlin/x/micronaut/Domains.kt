@@ -8,6 +8,8 @@ import org.jetbrains.exposed.dao.IntEntityClass
 import org.jetbrains.exposed.dao.IntIdTable
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.StdOutSqlLogger
+import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.transactions.transaction
 import javax.sql.DataSource
 
@@ -60,9 +62,12 @@ class Ingredient(id: EntityID<Int>) : IntEntity(id) {
 @Context
 @Infrastructure
 class DatabaseSetup(dataSource: DataSource) {
+    private val seeSchemaInStdOut = false
+
     init {
         Database.connect(dataSource)
-        transaction {
+        if (seeSchemaInStdOut) transaction {
+            addLogger(StdOutSqlLogger)
             SchemaUtils.create(Locations, Ingredients, Recipes, Chefs)
         }
     }
