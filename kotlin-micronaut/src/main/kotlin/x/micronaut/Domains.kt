@@ -13,50 +13,50 @@ import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.transactions.transaction
 import javax.sql.DataSource
 
-object Chefs : IntIdTable() {
+object ChefRepository : IntIdTable() {
     val name = text("name")
 }
 
-class Chef(id: EntityID<Int>) : IntEntity(id) {
-    companion object : IntEntityClass<Chef>(Chefs)
+class ChefRecord(id: EntityID<Int>) : IntEntity(id) {
+    companion object : IntEntityClass<ChefRecord>(ChefRepository)
 
-    var name by Chefs.name
+    var name by ChefRepository.name
 }
 
-object Locations : IntIdTable() {
+object LocationRepository : IntIdTable() {
     val name = text("name")
 }
 
-class Location(id: EntityID<Int>) : IntEntity(id) {
-    companion object : IntEntityClass<Location>(Locations)
+class LocationRecord(id: EntityID<Int>) : IntEntity(id) {
+    companion object : IntEntityClass<LocationRecord>(LocationRepository)
 
-    var name by Locations.name
+    var name by LocationRepository.name
 }
 
-object Recipes : IntIdTable() {
+object RecipeRepository : IntIdTable() {
     val name = text("name")
-    val chef = reference("chef_id", Chefs)
+    val chef = reference("chef_id", ChefRepository)
 }
 
-class Recipe(id: EntityID<Int>) : IntEntity(id) {
-    companion object : IntEntityClass<Recipe>(Recipes)
+class RecipeRecord(id: EntityID<Int>) : IntEntity(id) {
+    companion object : IntEntityClass<RecipeRecord>(RecipeRepository)
 
-    var name by Recipes.name
-    var chef by Chef referencedOn Recipes.chef
+    var name by RecipeRepository.name
+    var chef by ChefRecord referencedOn RecipeRepository.chef
 }
 
-object Ingredients : IntIdTable() {
+object IngredientRepository : IntIdTable() {
     val name = text("name")
-    val chef = reference("chef_id", Chefs)
-    val recipe = reference("recipe_id", Recipes).nullable()
+    val chef = reference("chef_id", ChefRepository)
+    val recipe = reference("recipe_id", RecipeRepository).nullable()
 }
 
-class Ingredient(id: EntityID<Int>) : IntEntity(id) {
-    companion object : IntEntityClass<Ingredient>(Ingredients)
+class IngredientRecord(id: EntityID<Int>) : IntEntity(id) {
+    companion object : IntEntityClass<IngredientRecord>(IngredientRepository)
 
-    var name by Ingredients.name
-    var chef by Chef referencedOn Ingredients.chef
-    var recipe by Recipe optionalReferencedOn Ingredients.recipe
+    var name by IngredientRepository.name
+    var chef by ChefRecord referencedOn IngredientRepository.chef
+    var recipe by RecipeRecord optionalReferencedOn IngredientRepository.recipe
 }
 
 @Context
@@ -68,7 +68,7 @@ class DatabaseSetup(dataSource: DataSource) {
         Database.connect(dataSource)
         if (seeSchemaInStdOut) transaction {
             addLogger(StdOutSqlLogger)
-            SchemaUtils.create(Locations, Ingredients, Recipes, Chefs)
+            SchemaUtils.create(LocationRepository, IngredientRepository, RecipeRepository, ChefRepository)
         }
     }
 }
