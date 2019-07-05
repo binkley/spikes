@@ -1,6 +1,9 @@
 plugins {
-    id "org.springframework.boot" version "2.1.5.RELEASE"
+    // TODO: 1.0.9.RELEASE -- but from where?
+    id "io.spring.dependency-management" version "1.0.8.RELEASE"
+    id "org.springframework.boot" version "2.1.6.RELEASE"
     id "java"
+    id "com.github.ben-manes.versions" version "0.21.0"
 }
 
 apply plugin: "io.spring.dependency-management"
@@ -13,11 +16,11 @@ targetCompatibility = 11
 
 ext {
     logbookVersion = "1.13.0"
-    springCloudVersion = "Greenwich.SR1"
+    springCloudVersion = "Hoxton.M1"
 }
 
 ext["assertj.version"] = "3.12.2"
-ext["junit-jupiter.version"] = "5.4.2"
+ext["junit-jupiter.version"] = "5.5.0"
 ext["lombok.version"] = "1.18.8"
 ext["mockito.version"] = "2.27.2"
 
@@ -31,6 +34,7 @@ configurations {
 
 repositories {
     mavenCentral()
+    maven { url "https://repo.spring.io/milestone" }
 }
 
 dependencies {

@@ -16,6 +16,7 @@ final class LoggyErrorDecoder
                     response.request().url()));
         if (500 <= response.status() && response.status() < 600)
             return new RetryableException(
+                    response.status(),
                     null == exception ? null : exception.getMessage(),
                     response.request().httpMethod(), exception, null);
         return exception;
