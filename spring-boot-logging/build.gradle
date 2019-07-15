@@ -75,7 +75,14 @@ dependencyManagement {
 }
 
 test {
+    systemProperty "java.util.logging.config.file", "${project.rootDir}/config/logging.properties"
+
     useJUnitPlatform()
+
+    testLogging {
+        showExceptions = true
+        showStandardStreams = true
+    }
 }
 
 bootRun {
@@ -90,3 +97,5 @@ wrapper {
     distributionType = Wrapper.DistributionType.ALL
     gradleVersion = "5.5.1"
 }
+
+defaultTasks 'build'
