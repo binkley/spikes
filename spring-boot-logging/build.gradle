@@ -10,6 +10,7 @@ plugins {
     id "com.dorongold.task-tree" version "1.4"
 }
 
+// TODO: What's the point if it's in the "plugins" block?
 apply plugin: "io.spring.dependency-management"
 
 group = "x"
