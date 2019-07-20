@@ -30,6 +30,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.Map;
 
+import static java.net.http.HttpClient.newHttpClient;
 import static java.net.http.HttpRequest.BodyPublishers.noBody;
 import static java.net.http.HttpResponse.BodyHandlers.discarding;
 import static java.time.ZoneOffset.UTC;
@@ -58,7 +59,7 @@ import static x.loggy.HttpTrace.httpTracesOf;
 @TestInstance(PER_CLASS)
 class LoggyLiveTest {
     private static final String existingTraceId = "abcdef0987654321";
-    private static final HttpClient client = HttpClient.newBuilder().build();
+    private static final HttpClient client = newHttpClient();
 
     private final LoggyRemote loggy;
     private final NotFoundRemote notFound;
@@ -76,6 +77,37 @@ class LoggyLiveTest {
     private Logger httpLogger;
 
     private Extractor<HttpHeaders> httpExtractor;
+
+    private static HttpRequest.Builder requestWithTracing(
+            final String traceId) {
+        return HttpRequest.newBuilder().headers(
+                "X-B3-TraceId", traceId,
+                "X-B3-SpanId", traceId);
+    }
+
+    private static HttpResponse<Void> sendAndDiscardBody(
+            final HttpRequest request)
+            throws IOException, InterruptedException {
+        return client.send(request, discarding());
+    }
+
+    private static HttpRequest.Builder requestWithoutTracing() {
+        return HttpRequest.newBuilder();
+    }
+
+    private static void callWithExistingTrace() {
+        MDC.put("X-B3-TraceId", existingTraceId);
+        MDC.put("X-B3-SpanId", existingTraceId);
+    }
+
+    private static void assertHasExtra(final Problem problem) {
+        assertThat(problem.getParameters()).containsKeys(
+                "code-exception",
+                "code-location",
+                "response-status",
+                "request-method",
+                "request-url");
+    }
 
     @PostConstruct
     private void init() {
@@ -117,13 +149,6 @@ class LoggyLiveTest {
                 anyString(), anyString());
     }
 
-    private static HttpRequest.Builder requestWithTracing(
-            final String traceId) {
-        return HttpRequest.newBuilder().headers(
-                "X-B3-TraceId", traceId,
-                "X-B3-SpanId", traceId);
-    }
-
     @Test
     void givenExistingTrace_shouldTraceThoughWebDirectly()
             throws IOException, InterruptedException {
@@ -144,12 +169,6 @@ class LoggyLiveTest {
         final var response = sendAndDiscardBody(request);
 
         return extractTraceId(response);
-    }
-
-    private static HttpResponse<Void> sendAndDiscardBody(
-            final HttpRequest request)
-            throws IOException, InterruptedException {
-        return client.send(request, discarding());
     }
 
     private String extractTraceId(final HttpResponse<Void> response) {
@@ -173,10 +192,6 @@ class LoggyLiveTest {
                 .isNotNull();
 
         tracingLogs.assertExchange(null, true);
-    }
-
-    private static HttpRequest.Builder requestWithoutTracing() {
-        return HttpRequest.newBuilder();
     }
 
     @Test
@@ -238,11 +253,6 @@ class LoggyLiveTest {
                 new LoggyResponse("HI, MOM!", 22, Instant.now(clock)));
 
         tracingLogs.assertExchange(existingTraceId, false);
-    }
-
-    private static void callWithExistingTrace() {
-        MDC.put("X-B3-TraceId", existingTraceId);
-        MDC.put("X-B3-SpanId", existingTraceId);
     }
 
     @Test
@@ -358,15 +368,6 @@ class LoggyLiveTest {
                 .filter(HttpTrace::isProblem)
                 .map(trace -> trace.getBodyAs(Problem.class, objectMapper)))
                 .allSatisfy(LoggyLiveTest::assertHasExtra);
-    }
-
-    private static void assertHasExtra(final Problem problem) {
-        assertThat(problem.getParameters()).containsKeys(
-                "code-exception",
-                "code-location",
-                "response-status",
-                "request-method",
-                "request-url");
     }
 
     @Test
