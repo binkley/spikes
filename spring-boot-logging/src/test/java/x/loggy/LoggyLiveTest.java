@@ -18,6 +18,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.test.context.ActiveProfiles;
 import org.zalando.problem.Problem;
+import x.loggy.HttpTrace.RequestTrace;
+import x.loggy.HttpTrace.ResponseTrace;
+import x.loggy.LoggyRequest.Rolly;
+import x.loggy.TestableConstraintViolationProblem.TestableViolation;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
@@ -25,14 +29,17 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpHeaders;
 import java.net.http.HttpRequest;
+import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 
 import static java.net.http.HttpClient.newHttpClient;
 import static java.net.http.HttpRequest.BodyPublishers.noBody;
 import static java.net.http.HttpResponse.BodyHandlers.discarding;
+import static java.time.LocalDate.now;
 import static java.time.ZoneOffset.UTC;
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,15 +47,19 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.matches;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.DEFINED_PORT;
+import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.HttpStatus.BAD_GATEWAY;
+import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static x.loggy.AlertAssertions.assertThatAlertMessage;
 import static x.loggy.AlertMessage.Severity.HIGH;
 import static x.loggy.AlertMessage.Severity.MEDIUM;
 import static x.loggy.HttpTrace.httpHeaderTracesOf;
 import static x.loggy.HttpTrace.httpTracesOf;
+import static x.loggy.LogbookBodyOnErrorsOnlyFilter.HIDDEN_BODY_AS_STRING;
 
 @ActiveProfiles("json")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
@@ -77,37 +88,6 @@ class LoggyLiveTest {
     private Logger httpLogger;
 
     private Extractor<HttpHeaders> httpExtractor;
-
-    private static HttpRequest.Builder requestWithTracing(
-            final String traceId) {
-        return HttpRequest.newBuilder().headers(
-                "X-B3-TraceId", traceId,
-                "X-B3-SpanId", traceId);
-    }
-
-    private static HttpResponse<Void> sendAndDiscardBody(
-            final HttpRequest request)
-            throws IOException, InterruptedException {
-        return client.send(request, discarding());
-    }
-
-    private static HttpRequest.Builder requestWithoutTracing() {
-        return HttpRequest.newBuilder();
-    }
-
-    private static void callWithExistingTrace() {
-        MDC.put("X-B3-TraceId", existingTraceId);
-        MDC.put("X-B3-SpanId", existingTraceId);
-    }
-
-    private static void assertHasExtra(final Problem problem) {
-        assertThat(problem.getParameters()).containsKeys(
-                "code-exception",
-                "code-location",
-                "response-status",
-                "request-method",
-                "request-url");
-    }
 
     @PostConstruct
     private void init() {
@@ -149,6 +129,13 @@ class LoggyLiveTest {
                 anyString(), anyString());
     }
 
+    private static HttpRequest.Builder requestWithTracing(
+            final String traceId) {
+        return HttpRequest.newBuilder().headers(
+                "X-B3-TraceId", traceId,
+                "X-B3-SpanId", traceId);
+    }
+
     @Test
     void givenExistingTrace_shouldTraceThoughWebDirectly()
             throws IOException, InterruptedException {
@@ -169,6 +156,12 @@ class LoggyLiveTest {
         final var response = sendAndDiscardBody(request);
 
         return extractTraceId(response);
+    }
+
+    private static HttpResponse<Void> sendAndDiscardBody(
+            final HttpRequest request)
+            throws IOException, InterruptedException {
+        return client.send(request, discarding());
     }
 
     private String extractTraceId(final HttpResponse<Void> response) {
@@ -192,6 +185,10 @@ class LoggyLiveTest {
                 .isNotNull();
 
         tracingLogs.assertExchange(null, true);
+    }
+
+    private static HttpRequest.Builder requestWithoutTracing() {
+        return HttpRequest.newBuilder();
     }
 
     @Test
@@ -253,6 +250,11 @@ class LoggyLiveTest {
                 new LoggyResponse("HI, MOM!", 22, Instant.now(clock)));
 
         tracingLogs.assertExchange(existingTraceId, false);
+    }
+
+    private static void callWithExistingTrace() {
+        MDC.put("X-B3-TraceId", existingTraceId);
+        MDC.put("X-B3-SpanId", existingTraceId);
     }
 
     @Test
@@ -357,9 +359,10 @@ class LoggyLiveTest {
         assertThat(response.statusCode()).isEqualTo(500);
 
         verify(logger).error(anyString(), eq(HIGH), eq("NULLITY"),
-                eq("code-exception=java.lang.NullPointerException: SAD, SAD"
-                        + ";code-location=x.loggy.LoggyController.getNpe"
-                        + "(LoggyController.java:55)"
+                matches("code-exception=java\\.lang\\.NullPointerException:"
+                        + " SAD, SAD"
+                        + ";code-location=x\\.loggy\\.LoggyController"
+                        + "\\.getNpe\\(LoggyController\\.java:\\d+\\)"
                         + ";response-status=500"
                         + ";request-method=GET"
                         + ";request-url=http://localhost:8080/npe"));
@@ -368,6 +371,15 @@ class LoggyLiveTest {
                 .filter(HttpTrace::isProblem)
                 .map(trace -> trace.getBodyAs(Problem.class, objectMapper)))
                 .allSatisfy(LoggyLiveTest::assertHasExtra);
+    }
+
+    private static void assertHasExtra(final Problem problem) {
+        assertThat(problem.getParameters()).containsKeys(
+                "code-exception",
+                "code-location",
+                "response-status",
+                "request-method",
+                "request-url");
     }
 
     @Test
@@ -383,10 +395,10 @@ class LoggyLiveTest {
         assertThat(response.statusCode()).isEqualTo(500);
 
         verify(logger).error(anyString(), eq(MEDIUM), eq("CONFLICTED"),
-                eq("code-exception=feign.FeignException: status 409 reading"
-                        + " ConflictRemote#postConflict()"
-                        + ";code-location=x.loggy.LoggyController.conflict"
-                        + "(LoggyController.java:61)"
+                matches("code-exception=feign\\.FeignException: status 409"
+                        + " reading ConflictRemote#postConflict\\(\\)"
+                        + ";code-location=x\\.loggy\\.LoggyController"
+                        + "\\.conflict\\(LoggyController\\.java:\\d+\\)"
                         + ";response-status=500"
                         + ";request-method=POST"
                         + ";request-url=http://localhost:8080/conflict"));
@@ -405,10 +417,10 @@ class LoggyLiveTest {
         assertThat(response.statusCode()).isEqualTo(BAD_GATEWAY.value());
 
         verify(logger).error(anyString(), eq(HIGH), eq("UNKNOWABLE HOST"),
-                eq("code-exception=java.net.UnknownHostException: not"
-                        + ".really.a.place"
-                        + ";code-location=x.loggy.LoggyController"
-                        + ".getUnknownHost(LoggyController.java:79)"
+                matches("code-exception=java\\.net\\.UnknownHostException:"
+                        + " not\\.really\\.a\\.place"
+                        + ";code-location=x\\.loggy\\.LoggyController"
+                        + "\\.getUnknownHost\\(LoggyController\\.java:\\d+\\)"
                         + ";response-status=502"
                         + ";request-method=GET"
                         + ";request-url=http://localhost:8080/unknown-host"));
@@ -439,6 +451,54 @@ class LoggyLiveTest {
                 .filter(value -> value.equals(secret))
                 .findFirst())
                 .isEmpty();
+    }
+
+    @Test
+    void shouldNotLogRequestBodiesOnSuccess()
+            throws IOException, InterruptedException {
+        final var request = HttpRequest.newBuilder()
+                .POST(BodyPublishers.ofString(objectMapper.writeValueAsString(
+                        new LoggyRequest(3, List.of(new Rolly(now(clock)))))))
+                .uri(URI.create("http://localhost:8080/postish"))
+                .header(CONTENT_TYPE, APPLICATION_JSON_UTF8_VALUE)
+                .build();
+
+        sendAndDiscardBody(request);
+
+        assertThat(httpTracesOf(httpLogger, objectMapper)
+                .map(trace -> trace.getBodyAs(String.class, objectMapper)))
+                .containsExactly(
+                        HIDDEN_BODY_AS_STRING, HIDDEN_BODY_AS_STRING);
+    }
+
+    @Test
+    void shouldLogResponseBodiesOnlyOnFailure()
+            throws IOException, InterruptedException {
+        final var request = HttpRequest.newBuilder()
+                .POST(BodyPublishers.ofString(objectMapper.writeValueAsString(
+                        new LoggyRequest(-3,
+                                List.of(new Rolly(now(clock)))))))
+                .uri(URI.create("http://localhost:8080/unpostish"))
+                .header(CONTENT_TYPE, APPLICATION_JSON_UTF8_VALUE)
+                .build();
+
+        sendAndDiscardBody(request);
+
+        assertThat(httpTracesOf(httpLogger, objectMapper)
+                .filter(RequestTrace.class::isInstance)
+                .map(trace -> trace.getBodyAs(String.class, objectMapper)))
+                .containsExactly(HIDDEN_BODY_AS_STRING);
+        assertThat(httpTracesOf(httpLogger, objectMapper)
+                .filter(ResponseTrace.class::isInstance)
+                .map(trace -> trace.getBodyAs(
+                        TestableConstraintViolationProblem.class,
+                        objectMapper)))
+                .containsExactly(TestableConstraintViolationProblem.builder()
+                        .violation(TestableViolation.builder()
+                                .field("blinkenLights")
+                                .message("must be greater than or equal to 1")
+                                .build())
+                        .build());
     }
 
     @TestConfiguration

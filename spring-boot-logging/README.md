@@ -29,6 +29,7 @@ General:
   - Constraint violations respond with 422 status (no examples)
   - Feign exceptions respond with 502 status (one example)
 * Distinct logging from alerting
+* Suppress request body logging, and only show response bodies on error
 
 Local development:
 

@@ -44,8 +44,17 @@ public class LoggyController {
 
     @PostMapping("postish")
     @ResponseStatus(ACCEPTED)
-    public void post(@RequestBody final @Valid LoggyRequest request) {
+    public LoggyResponse post(
+            @RequestBody final @Valid LoggyRequest request) {
         logger.info("POSTED {}", request);
+        return new LoggyResponse("HI, MOM!", 22, Instant.now(clock));
+    }
+
+    @PostMapping("unpostish")
+    @ResponseStatus(ACCEPTED)
+    public LoggyResponse unpost(
+            @RequestBody final @Valid LoggyRequest request) {
+        throw new Bug("Not an invalid request: " + request);
     }
 
     @AlertMessage(message = "NULLITY", severity = HIGH)
