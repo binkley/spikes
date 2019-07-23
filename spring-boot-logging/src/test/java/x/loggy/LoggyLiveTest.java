@@ -57,9 +57,9 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static x.loggy.AlertAssertions.assertThatAlertMessage;
 import static x.loggy.AlertMessage.Severity.HIGH;
 import static x.loggy.AlertMessage.Severity.MEDIUM;
-import static x.loggy.HttpTrace.httpHeaderTracesOf;
-import static x.loggy.HttpTrace.httpTracesOf;
 import static x.loggy.LogbookBodyOnErrorsOnlyFilter.HIDDEN_BODY_AS_STRING;
+import static x.loggy.TestingHttpTrace.httpHeaderTracesOf;
+import static x.loggy.TestingHttpTrace.httpTracesOf;
 
 @ActiveProfiles("json")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))

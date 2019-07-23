@@ -30,6 +30,7 @@ General:
   - Feign exceptions respond with 502 status (one example)
 * Distinct logging from alerting
 * Suppress request body logging, and only show response bodies on error
+* Top-level custom JSON properties for request/response logging
 
 Local development:
 

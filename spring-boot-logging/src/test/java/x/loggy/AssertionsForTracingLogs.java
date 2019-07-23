@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
-import static x.loggy.HttpTrace.httpTracesOf;
+import static x.loggy.TestingHttpTrace.httpTracesOf;
 
 @Component
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))

@@ -1,5 +1,6 @@
 package x.loggy;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
@@ -10,64 +11,32 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import lombok.Value;
-import org.mockito.ArgumentCaptor;
-import org.slf4j.Logger;
 import x.loggy.HttpTrace.RequestTrace;
 import x.loggy.HttpTrace.ResponseTrace;
 
 import java.io.IOError;
 import java.io.IOException;
 import java.net.URI;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.stream.Stream;
-
-import static org.mockito.Mockito.atLeast;
-import static org.mockito.Mockito.verify;
 
 @Data
-@EqualsAndHashCode(exclude = "correlation")
+@EqualsAndHashCode(exclude = "correlation") // TODO: Needed?
 @JsonTypeInfo(use = Id.NAME, property = "type")
 @JsonSubTypes({
         @JsonSubTypes.Type(RequestTrace.class),
         @JsonSubTypes.Type(ResponseTrace.class)
 })
 public class HttpTrace {
-    protected String origin;
-    protected String type;
-    protected String correlation;
-    protected String protocol;
-    protected Map<String, List<String>> headers;
-    protected JsonNode body;
+    public String origin;
+    public String type;
+    public String correlation;
+    public String protocol;
+    public Map<String, List<String>> headers;
+    public JsonNode body;
 
-    public static Stream<String> httpHeaderTracesOf(
-            final Logger httpLogger, final ObjectMapper objectMapper,
-            final String headerName) {
-        return httpTracesOf(httpLogger, objectMapper)
-                .map(HttpTrace::getHeaders)
-                .map(Map::entrySet)
-                .flatMap(Set::stream)
-                .filter(header -> header.getKey()
-                        .equalsIgnoreCase(headerName))
-                .map(Entry::getValue)
-                .flatMap(Collection::stream);
-    }
-
-    public static Stream<HttpTrace> httpTracesOf(
-            final Logger httpLogger, final ObjectMapper objectMapper) {
-        final var captured = ArgumentCaptor.forClass(String.class);
-        verify(httpLogger, atLeast(1)).trace(captured.capture());
-
-        return captured.getAllValues().stream()
-                .map(message -> httpTraceOf(message, objectMapper));
-    }
-
-    private static HttpTrace httpTraceOf(final String logMessage,
-            final ObjectMapper objectMapper) {
+    public static HttpTrace httpTraceOf(final ObjectMapper objectMapper,
+            final String logMessage) {
         try {
             return objectMapper.readValue(logMessage, HttpTrace.class);
         } catch (final IOException e) {
@@ -75,6 +44,7 @@ public class HttpTrace {
         }
     }
 
+    @JsonIgnore
     public boolean isProblem() {
         return headers.containsValue(List.of("application/problem+json"));
     }
@@ -89,24 +59,24 @@ public class HttpTrace {
         }
     }
 
-    @Value
+    @Data
     @EqualsAndHashCode(callSuper = true)
     @JsonTypeName("request")
     @ToString(callSuper = true)
     public static class RequestTrace
             extends HttpTrace {
-        String remote;
-        String method;
-        URI uri;
+        public String remote;
+        public String method;
+        public URI uri;
     }
 
-    @Value
+    @Data
     @EqualsAndHashCode(callSuper = true)
     @JsonTypeName("response")
     @ToString(callSuper = true)
     public static class ResponseTrace
             extends HttpTrace {
-        int duration;
-        int status;
+        public int duration;
+        public int status;
     }
 }

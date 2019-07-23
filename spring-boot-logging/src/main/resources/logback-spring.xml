@@ -3,6 +3,11 @@
     <include
             resource="org/springframework/boot/logging/logback/defaults.xml"/>
 
+    <conversionRule conversionWord="logbook"
+                    converterClass="x.loggy.LogbookPropertyConverter"/>
+    <conversionRule conversionWord="try_message"
+                    converterClass="x.loggy.TryLogbookMessageConverter"/>
+
     <springProperty
             scope="context"
             name="spring.application.name"
@@ -33,11 +38,20 @@
                     </timestamp>
                     <version/>
                     <pattern>
+                        <omitEmptyFields>true</omitEmptyFields>
                         <pattern>
                             {
                             "service": "${spring.application.name}",
-                            "message": "#tryJson{%message}",
-                            "environment": "${environment}"
+                            "message": "%try_message{text}",
+                            "http_exchange": "#tryJson{%try_message{json}}",
+                            "environment": "${environment}",
+                            "http_exchange": "#tryJson{%try_message{json}}",
+                            "http_correlation": "%logbook{correlation}",
+                            "http_origin": "%logbook{origin}",
+                            "http_method": "%logbook{method}",
+                            "http_path": "%logbook{uriPath}",
+                            "http_status": "#asLong{%logbook{status}}",
+                            "http_duration": "#asLong{%logbook{duration}}"
                             }
                         </pattern>
                     </pattern>

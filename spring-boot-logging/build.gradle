@@ -19,7 +19,7 @@ targetCompatibility = 11
 
 ext {
     logbookVersion = "1.13.0"
-    logstashLogbackVersion = "5.3"
+    logstashLogbackVersion = "6.1"
     springCloudVersion = "Greenwich.SR1"
 }
 
