@@ -1,11 +1,9 @@
 package hm.binkley.spikes;
 
-import lombok.Value;
 import lombok.experimental.SuperBuilder;
 
-@Value
 @SuperBuilder(toBuilder = true)
-public class Dto {
+public abstract class BaseDto {
     String text;
     int number;
 }
