@@ -1,3 +1,13 @@
 plugins {
     id "java"
 }
+
+build {
+    doLast {
+        sourceSets.main.output.forEach {
+            println(it)
+        }
+    }
+}
+
+defaultTasks "clean", "build"
