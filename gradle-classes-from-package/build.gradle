@@ -4,15 +4,18 @@ plugins {
 
 build {
     doLast {
-        def mapped = sourceSets.main.output.classesDirs.collect { p ->
-            project.fileTree(p).collect {
-                p.relativePath(it)
-                        .replace(".class", "")
-                        .replace(File.separatorChar, '.' as char)
-            }
-        }
-        println(mapped.flatten())
+        println(mainClassNames())
     }
+}
+
+def mainClassNames() {
+    sourceSets.main.output.classesDirs.collect({ p ->
+        project.fileTree(p).collect {
+            p.relativePath(it)
+                    .replace(".class", "")
+                    .replace(File.separatorChar, '.' as char)
+        }
+    }).flatten()
 }
 
 defaultTasks "clean", "build"
