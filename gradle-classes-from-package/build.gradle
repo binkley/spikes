@@ -3,19 +3,33 @@ plugins {
 }
 
 build {
+    // Take advantage of "doList" to ensure the build is complete.  This is
+    // not necessary, just a way to ensure printing the result to console
     doLast {
         println(mainClassNames())
     }
 }
 
 def mainClassNames() {
-    sourceSets.main.output.classesDirs.collect({ p ->
-        project.fileTree(p).collect {
-            p.relativePath(it)
-                    .replace(".class", "")
-                    .replace(File.separatorChar, '.' as char)
+    // Choices:
+    // - Use "sourceSets.main" for production classes
+    // - Use "sourceSets.test" for test classes
+    sourceSets.main.output.classesDirs.collect({ classDir ->
+        project.fileTree(classDir).collect {
+            convertPathToClassName(classDir, it)
         }
+        // Flatten to turn nested list into simple list
+        // [["x.spike.A", "x.spike.B"]] -> ["x.spike.A", "x.spike.B"]
     }).flatten()
+}
+
+static def convertPathToClassName(File classDir, File compiledClassPath) {
+    // "compiledClassPath" is the full path
+    classDir.relativePath(compiledClassPath)
+    // Remove ".class" from the end of the file name
+            .replace(".class", "")
+    // Turn all the path separaters "/" in to dots
+            .replace(File.separatorChar, '.' as char)
 }
 
 defaultTasks "clean", "build"
