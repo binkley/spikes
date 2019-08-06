@@ -319,7 +319,7 @@ class LoggyLiveTest {
         callWithExistingTrace();
 
         assertThatThrownBy(unknownHost::get)
-                .hasFieldOrPropertyWithValue("status", 0);
+                .hasFieldOrPropertyWithValue("status", -1);
 
         tracingLogs.assertExchange(existingTraceId, false);
     }
@@ -327,7 +327,7 @@ class LoggyLiveTest {
     @Test
     void givenNoExistingTrace_shouldHandleUnknownHost() {
         assertThatThrownBy(unknownHost::get)
-                .hasFieldOrPropertyWithValue("status", 0);
+                .hasFieldOrPropertyWithValue("status", -1);
 
         final var traces = httpTracesOf(httpLogger, objectMapper)
                 .collect(toUnmodifiableList());
@@ -394,14 +394,14 @@ class LoggyLiveTest {
 
         assertThat(response.statusCode()).isEqualTo(500);
 
+        // TODO: Bad test
         verify(logger).error(anyString(), eq(MEDIUM), eq("CONFLICTED"),
-                matches("code-exception=feign\\.FeignException: status 409"
-                        + " reading ConflictRemote#postConflict\\(\\)"
-                        + ";code-location=x\\.loggy\\.LoggyController"
-                        + "\\.conflict\\(LoggyController\\.java:\\d+\\)"
-                        + ";response-status=500"
-                        + ";request-method=POST"
-                        + ";request-url=http://localhost:8080/conflict"));
+                eq("code-exception=feign.FeignException$Conflict:"
+                        + " status 409 reading ConflictRemote#postConflict();"
+                        + "code-location=x.loggy.LoggyController.conflict"
+                        + "(LoggyController.java:70);response-status=500;"
+                        + "request-method=POST;"
+                        + "request-url=http://localhost:8080/conflict"));
     }
 
     @Test
