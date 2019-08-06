@@ -7,7 +7,6 @@ import brave.propagation.TraceContext.Extractor;
 import brave.propagation.TraceContext.Injector;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
-import org.slf4j.Logger;
 import org.slf4j.spi.MDCAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -22,18 +21,16 @@ public class TraceRequestInterceptor
     private final Extractor<MDCAdapter> mdcExtractor;
     private final Extractor<RequestTemplate> requestExtractor;
     private final Injector<RequestTemplate> injector;
-    private final Logger logger;
 
     @Autowired
-    public TraceRequestInterceptor(final Tracing tracing,
-            final Tracer tracer, final Logger logger) {
+    public TraceRequestInterceptor(
+            final Tracing tracing, final Tracer tracer) {
         final var propagation = tracing.propagation();
         mdcExtractor = propagation.extractor(MDCAdapter::get);
         requestExtractor = propagation.extractor((r, k) ->
                 firstOf(r.headers().get(k)));
         injector = propagation.injector(RequestTemplate::header);
         this.tracer = tracer;
-        this.logger = logger;
     }
 
     private static <T> T firstOf(final Iterable<T> its) {
@@ -57,10 +54,8 @@ public class TraceRequestInterceptor
         final var extraction = mdcExtractor.extract(getMDCAdapter());
         final TraceContext currentContext;
         if (EMPTY == extraction) {
-            logger.trace("No trace extraction from MDC");
-            currentContext = currentContext(tracer, logger);
+            currentContext = currentContext(tracer);
         } else {
-            logger.trace("Using trace extraction from MDC: {}", extraction);
             currentContext = extraction.context();
         }
 

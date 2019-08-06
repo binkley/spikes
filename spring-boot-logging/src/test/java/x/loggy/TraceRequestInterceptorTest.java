@@ -44,7 +44,7 @@ class TraceRequestInterceptorTest {
                 .when(currentContext).spanIdString();
 
         final var interceptor = new TraceRequestInterceptor(
-                tracing, tracer, logger);
+                tracing, tracer);
         final var template = spy(new RequestTemplate());
 
         interceptor.apply(template);
@@ -59,7 +59,7 @@ class TraceRequestInterceptorTest {
         final var tracer = spy(tracing.tracer());
 
         final var interceptor = new TraceRequestInterceptor(
-                tracing, tracer, logger);
+                tracing, tracer);
         final var template = spy(new RequestTemplate());
 
         interceptor.apply(template);

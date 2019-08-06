@@ -32,7 +32,7 @@ public class TraceResponseFilter
     public void doFilterInternal(final HttpServletRequest request,
             final HttpServletResponse response, final FilterChain chain)
             throws IOException, ServletException {
-        final var currentContext = currentContext(tracer, logger);
+        final var currentContext = currentContext(tracer);
 
         warnIfRequestTraceHeadersInvalid(request, currentContext);
 
