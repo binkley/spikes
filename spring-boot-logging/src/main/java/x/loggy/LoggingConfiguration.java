@@ -29,6 +29,7 @@ public class LoggingConfiguration {
         return logbookFilter;
     }
 
+    @Bean
     public ResponseFilter responseBodyLoggingOnErrorsOnlyFilter() {
         return logbookFilter;
     }
