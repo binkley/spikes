@@ -48,10 +48,13 @@ public class LoggyDemo {
     private final UnknownHostRemote unknownHost;
     private final ObjectMapper objectMapper;
     private final Logger logger;
+    private final TraceIdsStarter starter;
 
     @EventListener
     public void ready(final ApplicationReadyEvent event)
             throws JsonProcessingException {
+        starter.newTraceIdsOnCurrentThread();
+
         logger.warn("SIMPLE LOGGING");
         logger.info("I am ready: {}", new ToStringCreator(event)
                 .append("args", event.getArgs())
@@ -258,18 +261,6 @@ public class LoggyDemo {
         logger.warn("DONE!");
     }
 
-    private void adjustLogging(final LogLevel level)
-            throws JsonProcessingException {
-        sendOrDie(HttpRequest.newBuilder()
-                .POST(BodyPublishers.ofString(objectMapper
-                        .writeValueAsString(new AdjustLogging(level))))
-                .uri(URI.create(format(
-                        "http://localhost:8080/actuator/loggers/%s",
-                        getClass().getName())))
-                .header("Content-Type", APPLICATION_JSON_VALUE)
-                .build());
-    }
-
     private HttpResponse<String> sendOrDie(final HttpRequest request) {
         try {
             return client.send(request, BodyHandlers.ofString());
@@ -283,6 +274,18 @@ public class LoggyDemo {
             currentThread().interrupt();
             return null;
         }
+    }
+
+    private void adjustLogging(final LogLevel level)
+            throws JsonProcessingException {
+        sendOrDie(HttpRequest.newBuilder()
+                .POST(BodyPublishers.ofString(objectMapper
+                        .writeValueAsString(new AdjustLogging(level))))
+                .uri(URI.create(format(
+                        "http://localhost:8080/actuator/loggers/%s",
+                        getClass().getName())))
+                .header("Content-Type", APPLICATION_JSON_VALUE)
+                .build());
     }
 
     @Value
