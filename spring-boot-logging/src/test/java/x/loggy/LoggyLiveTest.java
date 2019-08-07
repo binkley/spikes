@@ -81,6 +81,7 @@ class LoggyLiveTest {
     private final Tracing tracing;
     private final AssertionsForTracingLogs tracingLogs;
     private final ObjectMapper objectMapper;
+    private final TraceIdsStarter starter;
 
     @MockBean(name = "logger")
     private Logger logger;
@@ -88,6 +89,32 @@ class LoggyLiveTest {
     private Logger httpLogger;
 
     private Extractor<HttpHeaders> httpExtractor;
+
+    private static HttpRequest.Builder requestWithTracing(
+            final String traceId) {
+        return HttpRequest.newBuilder().headers(
+                "X-B3-TraceId", traceId,
+                "X-B3-SpanId", traceId);
+    }
+
+    private static HttpResponse<Void> sendAndDiscardBody(
+            final HttpRequest request)
+            throws IOException, InterruptedException {
+        return client.send(request, discarding());
+    }
+
+    private static HttpRequest.Builder requestWithoutTracing() {
+        return HttpRequest.newBuilder();
+    }
+
+    private static void assertHasExtra(final Problem problem) {
+        assertThat(problem.getParameters()).containsKeys(
+                "code-exception",
+                "code-location",
+                "response-status",
+                "request-method",
+                "request-url");
+    }
 
     @PostConstruct
     private void init() {
@@ -129,13 +156,6 @@ class LoggyLiveTest {
                 anyString(), anyString());
     }
 
-    private static HttpRequest.Builder requestWithTracing(
-            final String traceId) {
-        return HttpRequest.newBuilder().headers(
-                "X-B3-TraceId", traceId,
-                "X-B3-SpanId", traceId);
-    }
-
     @Test
     void givenExistingTrace_shouldTraceThoughWebDirectly()
             throws IOException, InterruptedException {
@@ -156,12 +176,6 @@ class LoggyLiveTest {
         final var response = sendAndDiscardBody(request);
 
         return extractTraceId(response);
-    }
-
-    private static HttpResponse<Void> sendAndDiscardBody(
-            final HttpRequest request)
-            throws IOException, InterruptedException {
-        return client.send(request, discarding());
     }
 
     private String extractTraceId(final HttpResponse<Void> response) {
@@ -185,10 +199,6 @@ class LoggyLiveTest {
                 .isNotNull();
 
         tracingLogs.assertExchange(null, true);
-    }
-
-    private static HttpRequest.Builder requestWithoutTracing() {
-        return HttpRequest.newBuilder();
     }
 
     @Test
@@ -242,19 +252,14 @@ class LoggyLiveTest {
 
     @Test
     void givenExistingTrace_shouldTraceThroughFeignDirectly() {
-        callWithExistingTrace();
+        final var context = starter.newTraceIdsOnCurrentThread();
 
         final var response = loggy.getDirect();
 
         assertThat(response).isEqualTo(
                 new LoggyResponse("HI, MOM!", 22, Instant.now(clock)));
 
-        tracingLogs.assertExchange(existingTraceId, false);
-    }
-
-    private static void callWithExistingTrace() {
-        MDC.put("X-B3-TraceId", existingTraceId);
-        MDC.put("X-B3-SpanId", existingTraceId);
+        tracingLogs.assertExchange(context.traceIdString(), false);
     }
 
     @Test
@@ -269,14 +274,14 @@ class LoggyLiveTest {
 
     @Test
     void givenExistingTrace_shouldTraceThroughFeignIndirectly() {
-        callWithExistingTrace();
+        final var context = starter.newTraceIdsOnCurrentThread();
 
         final var response = loggy.getIndirect();
 
         assertThat(response).isEqualTo(
                 new LoggyResponse("HI, MOM!", 22, Instant.now(clock)));
 
-        tracingLogs.assertExchange(existingTraceId, false);
+        tracingLogs.assertExchange(context.traceIdString(), false);
     }
 
     @Test
@@ -291,12 +296,12 @@ class LoggyLiveTest {
 
     @Test
     void givenExistingTrace_shouldHandleNotFound() {
-        callWithExistingTrace();
+        final var context = starter.newTraceIdsOnCurrentThread();
 
         assertThatThrownBy(notFound::get)
                 .hasFieldOrPropertyWithValue("status", 404);
 
-        tracingLogs.assertExchange(existingTraceId, false);
+        tracingLogs.assertExchange(context.traceIdString(), false);
     }
 
     @Test
@@ -316,12 +321,12 @@ class LoggyLiveTest {
 
     @Test
     void givenExistingTrace_shouldHandleUnknownHost() {
-        callWithExistingTrace();
+        final var context = starter.newTraceIdsOnCurrentThread();
 
         assertThatThrownBy(unknownHost::get)
                 .hasFieldOrPropertyWithValue("status", -1);
 
-        tracingLogs.assertExchange(existingTraceId, false);
+        tracingLogs.assertExchange(context.traceIdString(), false);
     }
 
     @Test
@@ -371,15 +376,6 @@ class LoggyLiveTest {
                 .filter(HttpTrace::isProblem)
                 .map(trace -> trace.getBodyAs(Problem.class, objectMapper)))
                 .allSatisfy(LoggyLiveTest::assertHasExtra);
-    }
-
-    private static void assertHasExtra(final Problem problem) {
-        assertThat(problem.getParameters()).containsKeys(
-                "code-exception",
-                "code-location",
-                "response-status",
-                "request-method",
-                "request-url");
     }
 
     @Test

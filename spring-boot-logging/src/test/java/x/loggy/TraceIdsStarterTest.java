@@ -4,8 +4,10 @@ import brave.Tracing;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.MDC;
+import org.slf4j.spi.MDCAdapter;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class TraceIdsStarterTest {
     @AfterEach
@@ -18,11 +20,25 @@ class TraceIdsStarterTest {
         final var tracing = Tracing.newBuilder().build();
         final var starter = new TraceIdsStarter(tracing);
 
+        final var expectedContext = starter.newTraceIdsOnCurrentThread();
+
+        final var actualContext = tracing
+                .propagation()
+                .extractor(MDCAdapter::get)
+                .extract(MDC.getMDCAdapter())
+                .context();
+
+        assertThat(actualContext).isEqualTo(expectedContext);
+    }
+
+    @Test
+    void shouldComplainIfThereAreAlreadyTraceIdsInMdc() {
+        final var tracing = Tracing.newBuilder().build();
+        final var starter = new TraceIdsStarter(tracing);
+
         starter.newTraceIdsOnCurrentThread();
 
-        assertThat(MDC.get("X-B3-Sampled")).isEqualTo("1");
-        final var traceId = MDC.get("X-B3-TraceId");
-        assertThat(traceId).isNotNull();
-        assertThat(MDC.get("X-B3-SpanId")).isEqualTo(traceId);
+        assertThatThrownBy(starter::newTraceIdsOnCurrentThread)
+                .isInstanceOf(Bug.class);
     }
 }

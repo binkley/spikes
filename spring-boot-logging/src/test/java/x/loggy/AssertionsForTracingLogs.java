@@ -72,30 +72,6 @@ public class AssertionsForTracingLogs {
             traces = httpTraces();
         }
 
-        private List<HttpTrace> httpTraces() {
-            return httpTracesOf(httpLogger, objectMapper)
-                    .peek(this::assertOrigin)
-                    .collect(toUnmodifiableList());
-        }
-
-        private void assertOrigin(final HttpTrace trace) {
-            if (trace.equals(previous.get()))
-                return; // Partial retry detection
-            previous.set(trace);
-
-            final var remote = remoteOrLocal.get();
-            if (remote)
-                assertThat(trace.getOrigin())
-                        .withFailMessage("Wrong origin")
-                        .isEqualTo("remote");
-            else
-                assertThat(trace.getOrigin())
-                        .withFailMessage("Wrong origin")
-                        .isEqualTo("local");
-
-            remoteOrLocal.set(!remote);
-        }
-
         private AssertionSetup(final boolean startsRemote) {
             remoteOrLocal = new AtomicBoolean(startsRemote);
 
@@ -108,14 +84,42 @@ public class AssertionsForTracingLogs {
                     beginAssertingTraceIdAt + 1, traces.size());
         }
 
+        private List<HttpTrace> httpTraces() {
+            return httpTracesOf(httpLogger, objectMapper)
+                    .peek(this::assertOrigin)
+                    .collect(toUnmodifiableList());
+        }
+
+        private void assertOrigin(final HttpTrace trace) {
+            if (trace.equals(previous.get())) {
+                return; // Partial retry detection
+            }
+            previous.set(trace);
+
+            final var remote = remoteOrLocal.get();
+            if (remote) {
+                assertThat(trace.getOrigin())
+                        .withFailMessage("Wrong origin")
+                        .isEqualTo("remote");
+            } else {
+                assertThat(trace.getOrigin())
+                        .withFailMessage("Wrong origin")
+                        .isEqualTo("local");
+            }
+
+            remoteOrLocal.set(!remote);
+        }
+
         private int beginAssertingTraceIdAt(final boolean startsRemote,
                 final List<HttpTrace> traces) {
-            if (!startsRemote)
+            if (!startsRemote) {
                 return 0;
+            }
 
             final var firstTrace = traces.get(0);
-            if (maybeTraceHeader(firstTrace).isPresent())
+            if (maybeTraceHeader(firstTrace).isPresent()) {
                 fail("Unexpected X-B3-TraceId header in first log message");
+            }
 
             return 1;
         }
@@ -152,7 +156,8 @@ public class AssertionsForTracingLogs {
             final var traceId = traceIdOf(trace);
 
             assertThat(traceId).withFailMessage(
-                    "Wrong X-B3-TraceId header")
+                    "Wrong X-B3-TraceId header; Expecting: <%s> to be equal to: <%s>",
+                    traceId, expectedTraceId)
                     .isEqualTo(expectedTraceId);
         }
     }
