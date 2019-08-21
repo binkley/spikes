@@ -42,6 +42,7 @@ Production use:
 * JSON logging suitable for Logstash with `-Dspring.profiles.active=json`
 * Embedded JSON payloads (not quoted-string JSON)
 * Custom JSON properties (ie, "environment")
+* Micrometer timings on Feign clients
 
 ## Key files
 
