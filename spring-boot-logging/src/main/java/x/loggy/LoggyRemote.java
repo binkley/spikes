@@ -1,5 +1,6 @@
 package x.loggy;
 
+import io.micrometer.core.annotation.Timed;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -7,6 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 @FeignClient(name = "loggy", url = "http://localhost:8080")
 public interface LoggyRemote {
     @GetMapping(path = "direct", produces = "application/json")
+    @Timed("bob.uncle")
     LoggyResponse getDirect();
 
     @GetMapping(path = "indirect", produces = "application/json")

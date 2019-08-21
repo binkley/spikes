@@ -3,10 +3,13 @@ package x.loggy;
 import feign.Retryer;
 import feign.Retryer.Default;
 import feign.codec.ErrorDecoder;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.cloud.openfeign.FeignLoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import x.loggy.ext.TimedAnnotationAdvisor;
+import x.loggy.ext.TimedMethodInterceptor;
 
 @Configuration
 @EnableFeignClients
@@ -25,5 +28,17 @@ public class FeignConfiguration {
     @Bean
     public ErrorDecoder errorDecoder() {
         return new LoggyErrorDecoder();
+    }
+
+    @Bean
+    public TimedMethodInterceptor timedMethodInterceptor(
+            final MeterRegistry meterRegistry) {
+        return new TimedMethodInterceptor(meterRegistry);
+    }
+
+    @Bean
+    public TimedAnnotationAdvisor timedAnnotationAdvisor(
+            final TimedMethodInterceptor timedMethodInterceptor) {
+        return new TimedAnnotationAdvisor(timedMethodInterceptor);
     }
 }
