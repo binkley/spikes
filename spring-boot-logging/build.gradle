@@ -24,6 +24,7 @@ ext {
     springCloudVersion = "Greenwich.SR2"
 }
 
+ext["aspectj.version"] = "1.9.4"
 ext["assertj.version"] = "3.13.2"
 // TODO: Junit5 5.5.1 -- something more is needed by Gradle
 ext["junit-jupiter.version"] = "5.4.2"
