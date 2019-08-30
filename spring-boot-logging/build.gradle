@@ -52,9 +52,12 @@ dependencies {
 
     implementation "org.springframework.boot:spring-boot-starter-web"
     implementation "org.springframework.boot:spring-boot-starter-actuator"
+    implementation "io.micrometer:micrometer-registry-prometheus"
     implementation "org.springframework.cloud:spring-cloud-starter-sleuth"
     implementation "org.springframework.cloud:spring-cloud-starter-openfeign"
     implementation "org.zalando:logbook-spring-boot-starter"
+    implementation "com.github.jsqlparser:jsqlparser:3.0"
+
     // TODO: Hrm ... too many dependencies for problems
     implementation "org.springframework.boot:spring-boot-starter-security"
     implementation "org.springframework.boot:spring-boot-starter-validation"
