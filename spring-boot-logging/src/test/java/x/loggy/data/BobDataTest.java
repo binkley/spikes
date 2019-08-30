@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.jdbc.DataJdbcTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static x.loggy.data.SqlQueryInMemoryAppender.sqlQueryInMemoryAppender;
 
 @AutoConfigureEmbeddedDatabase
 @DataJdbcTest
@@ -16,11 +17,17 @@ class BobDataTest {
 
     @Test
     void shouldRoundTrip() {
+        final var queries = sqlQueryInMemoryAppender();
+
         final var unsaved = new BobRecord();
         unsaved.name = "William";
         final var saved = repository.save(unsaved);
         final var found = repository.findById(saved.id);
 
         assertThat(found).contains(saved);
+
+        assertThat(queries.queries()).hasSize(2);
+        assertThat(queries.queries().get(0)).startsWith("INSERT");
+        assertThat(queries.queries().get(1)).startsWith("SELECT");
     }
 }
