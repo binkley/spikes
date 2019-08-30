@@ -3,7 +3,7 @@ package x.loggy.data;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
-import io.micrometer.core.instrument.DistributionSummary;
+import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
@@ -12,14 +12,15 @@ import org.springframework.stereotype.Component;
 
 import java.util.AbstractList;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
 import static ch.qos.logback.classic.Level.DEBUG;
 import static java.util.Locale.US;
+import static java.util.function.Function.identity;
 import static java.util.regex.Pattern.compile;
+import static java.util.stream.Collectors.toMap;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
@@ -31,16 +32,14 @@ public class SqlQueries
     @SuppressWarnings("unused")
     private final Appender appender = new Appender();
 
-    private final Map<String, DistributionSummary> histograms
-            = new HashMap<>();
+    private final Map<String, Counter> counters;
 
     public SqlQueries(final MeterRegistry registry) {
-        for (final var type : List
-                .of("SELECT", "INSERT", "UPDATE", "OTHER", "INVALID"))
-            histograms.put(type, DistributionSummary.builder("database.calls")
-                    .tags("sql", type.toLowerCase())
-                    .publishPercentiles(0.50, 0.90, 0.95, 0.99)
-                    .register(registry));
+        // Pre-build these, so we publish even with 0 events
+        counters = List.of("SELECT", "INSERT", "UPDATE", "OTHER", "INVALID")
+                .stream()
+                .collect(toMap(identity(), type -> registry.counter(
+                        "database.calls", "sql", type.toLowerCase())));
     }
 
     private static String bucket(final String query) {
@@ -95,10 +94,10 @@ public class SqlQueries
             case "INSERT":
             case "UPDATE":
             case "INVALID":
-                histograms.get(bucket).record(1);
+                counters.get(bucket).increment();
                 break;
             default:
-                histograms.get("OTHER").record(1);
+                counters.get("OTHER").increment();
                 break;
             }
         }

@@ -8,6 +8,6 @@ import org.springframework.data.relational.core.mapping.Table;
 @Table("BOB")
 public class BobRecord {
     @Id
-    Long id;
-    String name;
+    public Long id;
+    public String name;
 }

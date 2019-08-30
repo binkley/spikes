@@ -15,6 +15,8 @@ import org.springframework.context.event.EventListener;
 import org.springframework.core.style.ToStringCreator;
 import org.springframework.stereotype.Component;
 import x.loggy.LoggyRequest.Rolly;
+import x.loggy.data.BobRecord;
+import x.loggy.data.BobRepository;
 
 import java.io.IOError;
 import java.io.IOException;
@@ -49,6 +51,7 @@ public class LoggyDemo {
     private final ObjectMapper objectMapper;
     private final Logger logger;
     private final TraceIdsStarter starter;
+    private final BobRepository bobRepository;
 
     @EventListener
     public void ready(final ApplicationReadyEvent event)
@@ -249,6 +252,13 @@ public class LoggyDemo {
                 .uri(URI.create("http://localhost:8080/ping"))
                 .build());
         loggy.getPing();
+
+        logger.warn("MAKE SOME DATA -- TRY /actuator/prometheus");
+
+        final var unsaved = new BobRecord();
+        unsaved.name = "William";
+        final var saved = bobRepository.save(unsaved);
+        final var found = bobRepository.findById(saved.id);
 
         logger.warn("TURNING DOWN VOLUME ON LOGGER");
 
