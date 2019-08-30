@@ -13,16 +13,20 @@ import org.springframework.core.annotation.AnnotationUtils;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
-public class TimedAnnotationAdvisor extends AbstractPointcutAdvisor {
+public class TimedAnnotationAdvisor
+        extends AbstractPointcutAdvisor {
 
     private final Pointcut pointcut;
     private final MethodInterceptor advice;
 
-    public TimedAnnotationAdvisor(TimedMethodInterceptor timedMethodInterceptor) {
-        Pointcut cpc = new AnnotationMatchingPointcut(Timed.class, true);
-        Pointcut mpc = new ComposablePointcut(new InheritedAnnotationMethodMatcher(Timed.class));
-        this.pointcut = new ComposablePointcut(cpc).union(mpc);
-        this.advice = timedMethodInterceptor;
+    public TimedAnnotationAdvisor(
+            final TimedMethodInterceptor timedMethodInterceptor) {
+        final Pointcut cpc = new AnnotationMatchingPointcut(Timed.class,
+                true);
+        final Pointcut mpc = new ComposablePointcut(
+                new InheritedAnnotationMethodMatcher(Timed.class));
+        pointcut = new ComposablePointcut(cpc).union(mpc);
+        advice = timedMethodInterceptor;
     }
 
     @Override
@@ -35,18 +39,22 @@ public class TimedAnnotationAdvisor extends AbstractPointcutAdvisor {
         return advice;
     }
 
-    private static class InheritedAnnotationMethodMatcher extends AnnotationMethodMatcher {
+    private static class InheritedAnnotationMethodMatcher
+            extends AnnotationMethodMatcher {
 
-        private Class<? extends Annotation> annotationType;
+        private final Class<? extends Annotation> annotationType;
 
-        public InheritedAnnotationMethodMatcher(Class<? extends Annotation> annotationType) {
+        public InheritedAnnotationMethodMatcher(
+                final Class<? extends Annotation> annotationType) {
             super(annotationType);
             this.annotationType = annotationType;
         }
 
         @Override
-        public boolean matches(Method method, Class<?> targetClass) {
-            return AnnotationUtils.findAnnotation(method, annotationType) != null || super.matches(method, targetClass);
+        public boolean matches(final Method method,
+                final Class<?> targetClass) {
+            return AnnotationUtils.findAnnotation(method, annotationType)
+                    != null || super.matches(method, targetClass);
         }
     }
 }

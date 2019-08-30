@@ -197,7 +197,7 @@ public abstract class LogbookFeignLogger
                 final IOException ioe,
                 final long elapsedTime) {
             logger.error("Failed {} after {} ms: {}", configKey,
-                    elapsedTime, ioe.toString(), ioe);
+                    elapsedTime, ioe, ioe);
             return super.logIOException(
                     configKey, logLevel, ioe, elapsedTime);
         }

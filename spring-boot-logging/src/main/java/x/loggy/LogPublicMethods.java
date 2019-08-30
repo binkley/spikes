@@ -33,7 +33,7 @@ public class LogPublicMethods {
     }
 
     private static String nearestUs(final Throwable t) {
-        for (var frame : t.getStackTrace()) {
+        for (final var frame : t.getStackTrace()) {
             if (frame.getClassName().startsWith("x.loggy."))
                 return frame.toString();
         }

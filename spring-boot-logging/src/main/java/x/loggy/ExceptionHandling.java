@@ -215,7 +215,7 @@ public class ExceptionHandling
             logger.error("{}: {}: {}",
                     status.getReasonPhrase(),
                     requestURL,
-                    throwable.toString(),
+                    throwable,
                     throwable);
     }
 

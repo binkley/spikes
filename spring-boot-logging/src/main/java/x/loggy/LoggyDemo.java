@@ -162,7 +162,7 @@ public class LoggyDemo {
             notFound.get();
         } catch (final FeignException notFound) {
             logger.error("Feign angry: {}: {}",
-                    getMostSpecificCause(notFound).toString(),
+                    getMostSpecificCause(notFound),
                     notFound.contentUTF8(),
                     notFound);
         }
@@ -188,7 +188,7 @@ public class LoggyDemo {
                     new Rolly(LocalDate.of(9876, 5, 4)))));
         } catch (final FeignException violation) {
             logger.error("Feign displeased: {}: {}",
-                    getMostSpecificCause(violation).toString(), violation);
+                    getMostSpecificCause(violation), violation);
         }
 
         logger.warn("WEB + FEIGN");
@@ -266,11 +266,11 @@ public class LoggyDemo {
             return client.send(request, BodyHandlers.ofString());
         } catch (final IOException e) {
             logger.error("SERVER NOT READY? {}",
-                    getMostSpecificCause(e).toString(), e);
+                    getMostSpecificCause(e), e);
             throw new IOError(e);
         } catch (final InterruptedException e) {
             logger.error("INTERRUPTED? {}",
-                    getMostSpecificCause(e).toString(), e);
+                    getMostSpecificCause(e), e);
             currentThread().interrupt();
             return null;
         }

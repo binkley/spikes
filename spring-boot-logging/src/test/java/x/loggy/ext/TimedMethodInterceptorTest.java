@@ -32,8 +32,8 @@ class TimedMethodInterceptorTest {
         context.register(DefaultTimedMethodInterceptorConfig.class);
         context.refresh();
 
-        TimedService service = context.getBean(TimedService.class);
-        MeterRegistry registry = context.getBean(MeterRegistry.class);
+        final TimedService service = context.getBean(TimedService.class);
+        final MeterRegistry registry = context.getBean(MeterRegistry.class);
 
         service.timeWithExplicitValue();
         assertThat(registry.get("something")
@@ -48,8 +48,8 @@ class TimedMethodInterceptorTest {
         context.register(DefaultTimedMethodInterceptorConfig.class);
         context.refresh();
 
-        TimedService service = context.getBean(TimedService.class);
-        MeterRegistry registry = context.getBean(MeterRegistry.class);
+        final TimedService service = context.getBean(TimedService.class);
+        final MeterRegistry registry = context.getBean(MeterRegistry.class);
 
         service.timeWithoutValue();
         assertThat(registry.get(TimedAspect.DEFAULT_METRIC_NAME)
@@ -64,8 +64,8 @@ class TimedMethodInterceptorTest {
         context.register(DefaultTimedMethodInterceptorConfig.class);
         context.refresh();
 
-        TimedService service = context.getBean(TimedService.class);
-        MeterRegistry registry = context.getBean(MeterRegistry.class);
+        final TimedService service = context.getBean(TimedService.class);
+        final MeterRegistry registry = context.getBean(MeterRegistry.class);
 
         service.timeOnInterface();
         assertThat(registry.get(TimedAspect.DEFAULT_METRIC_NAME)
@@ -80,8 +80,8 @@ class TimedMethodInterceptorTest {
         context.register(CustomizedTimedMethodInterceptorConfig.class);
         context.refresh();
 
-        TimedService service = context.getBean(TimedService.class);
-        MeterRegistry registry = context.getBean(MeterRegistry.class);
+        final TimedService service = context.getBean(TimedService.class);
+        final MeterRegistry registry = context.getBean(MeterRegistry.class);
 
         service.timeWithoutValue();
         assertThat(registry.get("method.invoke")
@@ -95,9 +95,9 @@ class TimedMethodInterceptorTest {
         context.register(DefaultTimedMethodInterceptorConfig.class);
         context.refresh();
 
-        AnnotatedTimedService service = context
+        final AnnotatedTimedService service = context
                 .getBean(AnnotatedTimedService.class);
-        MeterRegistry registry = context.getBean(MeterRegistry.class);
+        final MeterRegistry registry = context.getBean(MeterRegistry.class);
 
         service.timeWithoutValue();
         assertThat(registry.get("class.invoke")
@@ -112,9 +112,9 @@ class TimedMethodInterceptorTest {
         context.register(DefaultTimedMethodInterceptorConfig.class);
         context.refresh();
 
-        AnnotatedTimedService service = context
+        final AnnotatedTimedService service = context
                 .getBean(AnnotatedTimedService.class);
-        MeterRegistry registry = context.getBean(MeterRegistry.class);
+        final MeterRegistry registry = context.getBean(MeterRegistry.class);
 
         service.timeWithMethodLevelName();
         assertThat(registry.get("my.method")
@@ -129,9 +129,9 @@ class TimedMethodInterceptorTest {
         context.register(DefaultTimedMethodInterceptorConfig.class);
         context.refresh();
 
-        AnnotatedTimedService service = context
+        final AnnotatedTimedService service = context
                 .getBean(AnnotatedTimedService.class);
-        MeterRegistry registry = context.getBean(MeterRegistry.class);
+        final MeterRegistry registry = context.getBean(MeterRegistry.class);
 
         service.timeWithMergedTags();
         assertThat(registry.get("class.invoke")
@@ -151,7 +151,8 @@ class TimedMethodInterceptorTest {
         String timeOnInterface();
     }
 
-    @Timed(value = "class.invoke", description = "class description", extraTags = { "extra", "tag" })
+    @Timed(value = "class.invoke", description = "class description",
+            extraTags = {"extra", "tag"})
     interface AnnotatedTimedService {
 
         String timeWithoutValue();
@@ -172,13 +173,13 @@ class TimedMethodInterceptorTest {
 
         @Bean
         public TimedMethodInterceptor timedMethodInterceptor(
-                MeterRegistry meterRegistry) {
+                final MeterRegistry meterRegistry) {
             return new TimedMethodInterceptor(meterRegistry);
         }
 
         @Bean
         public TimedAnnotationAdvisor timedAnnotationAdvisor(
-                TimedMethodInterceptor timedMethodInterceptor) {
+                final TimedMethodInterceptor timedMethodInterceptor) {
             return new TimedAnnotationAdvisor(timedMethodInterceptor);
         }
     }
@@ -194,7 +195,7 @@ class TimedMethodInterceptorTest {
 
         @Bean
         public TimedMethodInterceptor timedMethodInterceptor(
-                MeterRegistry meterRegistry) {
+                final MeterRegistry meterRegistry) {
             return new TimedMethodInterceptor(meterRegistry,
                     (metricName, invocation) -> "method.invoke",
                     invocation -> Tags.of("test", "tag"));
@@ -202,7 +203,7 @@ class TimedMethodInterceptorTest {
 
         @Bean
         public TimedAnnotationAdvisor timedAnnotationAdvisor(
-                TimedMethodInterceptor timedMethodInterceptor) {
+                final TimedMethodInterceptor timedMethodInterceptor) {
             return new TimedAnnotationAdvisor(timedMethodInterceptor);
         }
     }
@@ -229,7 +230,8 @@ class TimedMethodInterceptorTest {
     }
 
     @Service
-    static class AnnotatedTimedServiceImpl implements AnnotatedTimedService {
+    static class AnnotatedTimedServiceImpl
+            implements AnnotatedTimedService {
 
         @Override
         public String timeWithoutValue() {
@@ -243,7 +245,7 @@ class TimedMethodInterceptorTest {
         }
 
         @Override
-        @Timed(extraTags = { "extra2", "tag" })
+        @Timed(extraTags = {"extra2", "tag"})
         public String timeWithMergedTags() {
             return "that";
         }

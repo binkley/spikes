@@ -13,62 +13,81 @@ import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Method;
 
-public class TimedMethodInterceptor implements MethodInterceptor {
+public class TimedMethodInterceptor
+        implements MethodInterceptor {
     private final MeterRegistry registry;
     private final TimedMetricNameResolver timedMetricNameResolver;
     private final TimedTagsResolver timedTagsResolver;
 
-    public TimedMethodInterceptor(MeterRegistry registry) {
+    public TimedMethodInterceptor(final MeterRegistry registry) {
         this(registry, invocation ->
-            Tags.of("class", invocation.getMethod().getDeclaringClass().getSimpleName(),
-                    "method", invocation.getMethod().getName())
+                Tags.of("class", invocation.getMethod().getDeclaringClass()
+                                .getSimpleName(),
+                        "method", invocation.getMethod().getName())
         );
     }
 
-    public TimedMethodInterceptor(MeterRegistry registry, TimedTagsResolver timedTagsResolver) {
-        this(registry, (metricName, invocation) -> metricName, timedTagsResolver);
+    public TimedMethodInterceptor(final MeterRegistry registry,
+            final TimedTagsResolver timedTagsResolver) {
+        this(registry, (metricName, invocation) -> metricName,
+                timedTagsResolver);
     }
 
-    public TimedMethodInterceptor(MeterRegistry registry, TimedMetricNameResolver timedMetricNameResolver, TimedTagsResolver timedTagsResolver) {
+    public TimedMethodInterceptor(final MeterRegistry registry,
+            final TimedMetricNameResolver timedMetricNameResolver,
+            final TimedTagsResolver timedTagsResolver) {
         this.registry = registry;
         this.timedMetricNameResolver = timedMetricNameResolver;
         this.timedTagsResolver = timedTagsResolver;
     }
 
     @Override
-    public Object invoke(MethodInvocation invocation) throws Throwable {
+    public Object invoke(final MethodInvocation invocation)
+            throws Throwable {
         Method method = invocation.getMethod();
-        Timed methodLevelTimed = AnnotatedElementUtils.findMergedAnnotation(method, Timed.class);
-        Timed classLevelTimed = AnnotatedElementUtils.findMergedAnnotation(method.getDeclaringClass(), Timed.class);
+        Timed methodLevelTimed = AnnotatedElementUtils
+                .findMergedAnnotation(method, Timed.class);
+        final Timed classLevelTimed = AnnotatedElementUtils
+                .findMergedAnnotation(method.getDeclaringClass(),
+                        Timed.class);
         if (methodLevelTimed == null) {
-            method = ReflectionUtils.findMethod(invocation.getThis().getClass(), method.getName(), method.getParameterTypes());
-            methodLevelTimed = AnnotatedElementUtils.findMergedAnnotation(method, Timed.class);
+            method = ReflectionUtils
+                    .findMethod(invocation.getThis().getClass(),
+                            method.getName(), method.getParameterTypes());
+            methodLevelTimed = AnnotatedElementUtils
+                    .findMergedAnnotation(method, Timed.class);
         }
         if (classLevelTimed == null && methodLevelTimed == null) {
             return invocation.proceed();
         }
 
-        Timer.Sample sample = Timer.start(registry);
+        final Timer.Sample sample = Timer.start(registry);
         final String metricName;
         if (methodLevelTimed != null && !methodLevelTimed.value().isEmpty()) {
             metricName = methodLevelTimed.value();
-        }
-        else if (classLevelTimed != null && !classLevelTimed.value().isEmpty()){
+        } else if (classLevelTimed != null && !classLevelTimed.value()
+                .isEmpty()) {
             metricName = classLevelTimed.value();
-        }
-        else {
+        } else {
             metricName = TimedAspect.DEFAULT_METRIC_NAME;
         }
-        Builder builder = Timer.builder(timedMetricNameResolver.apply(metricName, invocation));
+        final Builder builder = Timer.builder(
+                timedMetricNameResolver.apply(metricName, invocation));
         if (methodLevelTimed != null) {
-            builder.description(methodLevelTimed.description().isEmpty() ? null : methodLevelTimed.description())
-                .publishPercentileHistogram(methodLevelTimed.histogram())
-                .publishPercentiles(methodLevelTimed.percentiles().length == 0 ? null : methodLevelTimed.percentiles());
-        }
-        else {
-            builder.description(classLevelTimed.description().isEmpty() ? null : classLevelTimed.description())
-                .publishPercentileHistogram(classLevelTimed.histogram())
-                .publishPercentiles(classLevelTimed.percentiles().length == 0 ? null : classLevelTimed.percentiles());
+            builder.description(
+                    methodLevelTimed.description().isEmpty() ? null
+                            : methodLevelTimed.description())
+                    .publishPercentileHistogram(methodLevelTimed.histogram())
+                    .publishPercentiles(
+                            methodLevelTimed.percentiles().length == 0 ? null
+                                    : methodLevelTimed.percentiles());
+        } else {
+            builder.description(classLevelTimed.description().isEmpty() ? null
+                    : classLevelTimed.description())
+                    .publishPercentileHistogram(classLevelTimed.histogram())
+                    .publishPercentiles(
+                            classLevelTimed.percentiles().length == 0 ? null
+                                    : classLevelTimed.percentiles());
         }
 
         if (classLevelTimed != null) {
