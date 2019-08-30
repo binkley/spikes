@@ -6,7 +6,6 @@ import ch.qos.logback.core.AppenderBase;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import net.sf.jsqlparser.JSQLParserException;
-import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
@@ -21,6 +20,7 @@ import static java.util.Locale.US;
 import static java.util.function.Function.identity;
 import static java.util.regex.Pattern.compile;
 import static java.util.stream.Collectors.toMap;
+import static net.sf.jsqlparser.parser.CCJSqlParserUtil.parse;
 import static org.slf4j.LoggerFactory.getLogger;
 
 @Component
@@ -44,8 +44,7 @@ public class SqlQueries
 
     private static String bucket(final String query) {
         try {
-            final var statement = CCJSqlParserUtil.parse(query);
-            return statement.getClass().getSimpleName()
+            return parse(query).getClass().getSimpleName()
                     .replace("Statement", "")
                     .toUpperCase(US);
         } catch (final JSQLParserException e) {
