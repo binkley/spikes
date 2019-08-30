@@ -4,7 +4,6 @@ import brave.Tracing;
 import brave.propagation.TraceContext.Extractor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.FeignException;
-import io.zonky.test.db.AutoConfigureEmbeddedDatabase;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -63,7 +62,6 @@ import static x.loggy.TestingHttpTrace.httpHeaderTracesOf;
 import static x.loggy.TestingHttpTrace.httpTracesOf;
 
 @ActiveProfiles("json")
-@AutoConfigureEmbeddedDatabase
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @SpringBootTest(properties = {
         "logging.level.x.loggy=WARN",

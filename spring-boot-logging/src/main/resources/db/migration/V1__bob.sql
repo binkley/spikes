@@ -1,5 +1,5 @@
 CREATE TABLE BOB
 (
-    id SERIAL,
-    name TEXT
+    id   IDENTITY NOT NULL PRIMARY KEY,
+    name VARCHAR
 );

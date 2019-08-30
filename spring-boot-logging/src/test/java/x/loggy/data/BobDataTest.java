@@ -1,6 +1,5 @@
 package x.loggy.data;
 
-import io.zonky.test.db.AutoConfigureEmbeddedDatabase;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -19,7 +18,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
-@AutoConfigureEmbeddedDatabase
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @SpringBootTest(properties = {
         "logging.level.x.loggy=WARN",
@@ -58,6 +56,7 @@ class BobDataTest {
                         "http://localhost:%d/actuator/prometheus", port)))
                 .build(), BodyHandlers.ofString(UTF_8));
 
-        assertThat(response.body()).contains("database_calls{sql=\"select\"");
+        assertThat(response.body())
+                .contains("database_calls_total{sql=\"select\"");
     }
 }

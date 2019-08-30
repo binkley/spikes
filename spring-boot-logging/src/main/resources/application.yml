@@ -44,7 +44,7 @@ spring:
   application:
     name: loggy
   datasource:
-    url: 'jdbc:postgresql:postgres?user=postgres&ApplicationName=loggy'
+    url: 'jdbc:h2:mem:testdb'
     username: postgres
   jackson:
     # TODO: Millis showing up anyways
