@@ -4,6 +4,7 @@ import brave.Tracing;
 import brave.propagation.TraceContext.Extractor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.FeignException;
+import io.zonky.test.db.AutoConfigureEmbeddedDatabase;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -62,6 +63,7 @@ import static x.loggy.TestingHttpTrace.httpHeaderTracesOf;
 import static x.loggy.TestingHttpTrace.httpTracesOf;
 
 @ActiveProfiles("json")
+@AutoConfigureEmbeddedDatabase
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @SpringBootTest(properties = {
         "logging.level.x.loggy=WARN",
@@ -89,32 +91,6 @@ class LoggyLiveTest {
     private Logger httpLogger;
 
     private Extractor<HttpHeaders> httpExtractor;
-
-    private static HttpRequest.Builder requestWithTracing(
-            final String traceId) {
-        return HttpRequest.newBuilder().headers(
-                "X-B3-TraceId", traceId,
-                "X-B3-SpanId", traceId);
-    }
-
-    private static HttpResponse<Void> sendAndDiscardBody(
-            final HttpRequest request)
-            throws IOException, InterruptedException {
-        return client.send(request, discarding());
-    }
-
-    private static HttpRequest.Builder requestWithoutTracing() {
-        return HttpRequest.newBuilder();
-    }
-
-    private static void assertHasExtra(final Problem problem) {
-        assertThat(problem.getParameters()).containsKeys(
-                "code-exception",
-                "code-location",
-                "response-status",
-                "request-method",
-                "request-url");
-    }
 
     @PostConstruct
     private void init() {
@@ -156,6 +132,13 @@ class LoggyLiveTest {
                 anyString(), anyString());
     }
 
+    private static HttpRequest.Builder requestWithTracing(
+            final String traceId) {
+        return HttpRequest.newBuilder().headers(
+                "X-B3-TraceId", traceId,
+                "X-B3-SpanId", traceId);
+    }
+
     @Test
     void givenExistingTrace_shouldTraceThoughWebDirectly()
             throws IOException, InterruptedException {
@@ -176,6 +159,12 @@ class LoggyLiveTest {
         final var response = sendAndDiscardBody(request);
 
         return extractTraceId(response);
+    }
+
+    private static HttpResponse<Void> sendAndDiscardBody(
+            final HttpRequest request)
+            throws IOException, InterruptedException {
+        return client.send(request, discarding());
     }
 
     private String extractTraceId(final HttpResponse<Void> response) {
@@ -199,6 +188,10 @@ class LoggyLiveTest {
                 .isNotNull();
 
         tracingLogs.assertExchange(null, true);
+    }
+
+    private static HttpRequest.Builder requestWithoutTracing() {
+        return HttpRequest.newBuilder();
     }
 
     @Test
@@ -376,6 +369,15 @@ class LoggyLiveTest {
                 .filter(HttpTrace::isProblem)
                 .map(trace -> trace.getBodyAs(Problem.class, objectMapper)))
                 .allSatisfy(LoggyLiveTest::assertHasExtra);
+    }
+
+    private static void assertHasExtra(final Problem problem) {
+        assertThat(problem.getParameters()).containsKeys(
+                "code-exception",
+                "code-location",
+                "response-status",
+                "request-method",
+                "request-url");
     }
 
     @Test

@@ -7,7 +7,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.stereotype.Component;
 
-import static org.springframework.core.NestedExceptionUtils.getRootCause;
+import static org.springframework.core.NestedExceptionUtils.getMostSpecificCause;
 
 @Aspect
 @Component
@@ -25,7 +25,7 @@ public class LogPublicMethods {
             log.trace("NORMAL {}.{}", className, methodName);
             return result;
         } catch (final Throwable throwable) {
-            final var rootCause = getRootCause(throwable);
+            final var rootCause = getMostSpecificCause(throwable);
             log.warn("FAILED {}.{}: {} at {}", className, methodName,
                     rootCause, nearestUs(rootCause));
             throw throwable;

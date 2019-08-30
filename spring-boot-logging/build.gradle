@@ -73,7 +73,7 @@ dependencies {
     testImplementation "io.zonky.test:embedded-database-spring-test:1.5.0"
 
     runtimeOnly "net.logstash.logback:logstash-logback-encoder:${logstashLogbackVersion}"
-    runtimeOnly "org.postgresql:postgresql"
+    runtimeOnly "org.postgresql:postgresql:42.2.6"
     runtimeOnly "org.flywaydb:flyway-core"
 }
 
