@@ -19,6 +19,7 @@ public final class SqlQueries
     private static final Pattern queryOnly = compile(
             "^Executing prepared SQL statement \\[(.*)]$");
     private final List<String> queries = new ArrayList<>();
+    @SuppressWarnings("unused")
     private final Appender appender = new Appender();
 
     @Override
@@ -31,6 +32,7 @@ public final class SqlQueries
         return queries.get(index);
     }
 
+    @Override
     public void clear() {
         queries.clear();
     }
