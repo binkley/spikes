@@ -59,6 +59,7 @@ dependencies {
     implementation "org.springframework.boot:spring-boot-starter-security"
     implementation "org.springframework.boot:spring-boot-starter-validation"
     implementation "org.zalando:problem-spring-web:${problemSpringWebVersion}"
+    implementation "org.springframework.boot:spring-boot-starter-data-jdbc"
 
     testAnnotationProcessor "org.projectlombok:lombok"
 
@@ -69,8 +70,11 @@ dependencies {
     testImplementation "org.mockito:mockito-core"
     testImplementation "org.mockito:mockito-junit-jupiter"
     testImplementation "org.assertj:assertj-core"
+    testImplementation "io.zonky.test:embedded-database-spring-test:1.5.0"
 
     runtimeOnly "net.logstash.logback:logstash-logback-encoder:${logstashLogbackVersion}"
+    runtimeOnly "org.postgresql:postgresql"
+    runtimeOnly "org.flywaydb:flyway-core"
 }
 
 dependencyManagement {
@@ -110,7 +114,7 @@ springBoot {
 
 wrapper {
     distributionType = Wrapper.DistributionType.ALL
-    gradleVersion = "5.6"
+    gradleVersion = "5.6.1"
 }
 
 defaultTasks 'build'
