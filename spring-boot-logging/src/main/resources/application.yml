@@ -19,7 +19,6 @@ logging:
     com.netflix.config.sources.URLConfigurationSource: ERROR
     org.zalando.logbook: TRACE
     x.loggy: DEBUG
-    x.loggy.LogPublicMethods: TRACE
     root: WARN
   pattern:
     dateformat: "yyyy-MM-dd'T'HH:mm:ss.SSSX,UTC"
