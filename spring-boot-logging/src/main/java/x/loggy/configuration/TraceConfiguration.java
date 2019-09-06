@@ -1,4 +1,4 @@
-package x.loggy;
+package x.loggy.configuration;
 
 import brave.Tracer;
 import brave.Tracing;
@@ -7,6 +7,7 @@ import org.springframework.cloud.sleuth.autoconfig.TraceAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import x.loggy.TraceResponseFilter;
 
 @Configuration
 @Import(TraceAutoConfiguration.class)

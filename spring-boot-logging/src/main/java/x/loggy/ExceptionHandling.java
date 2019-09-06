@@ -20,6 +20,7 @@ import org.zalando.problem.Problem;
 import org.zalando.problem.StatusType;
 import org.zalando.problem.ThrowableProblem;
 import org.zalando.problem.spring.web.advice.ProblemHandling;
+import x.loggy.configuration.ProblemConfiguration;
 
 import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletRequest;
@@ -93,7 +94,7 @@ public class ExceptionHandling
         return includeStackTrace(server);
     }
 
-    static boolean includeStackTrace(final ServerProperties server) {
+    private static boolean includeStackTrace(final ServerProperties server) {
         return ALWAYS == server.getError().getIncludeStacktrace();
     }
 

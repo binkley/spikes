@@ -1,4 +1,4 @@
-package x.loggy;
+package x.loggy.configuration;
 
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.zalando.problem.ProblemModule;
 import org.zalando.problem.violations.ConstraintViolationProblemModule;
 
-import static x.loggy.ExceptionHandling.includeStackTrace;
+import static org.springframework.boot.autoconfigure.web.ErrorProperties.IncludeStacktrace.ALWAYS;
 
 @Configuration
 @EnableAutoConfiguration(exclude = ErrorMvcAutoConfiguration.class)
@@ -17,6 +17,10 @@ public class ProblemConfiguration {
     public ProblemModule problemModule(final ServerProperties server) {
         return new ProblemModule()
                 .withStackTraces(includeStackTrace(server));
+    }
+
+    private static boolean includeStackTrace(final ServerProperties server) {
+        return ALWAYS == server.getError().getIncludeStacktrace();
     }
 
     @Bean
