@@ -36,6 +36,15 @@ management:
   endpoint:
     health:
       show-details: always
+  metrics:
+    distribution:
+      percentiles:
+        - 0.50
+        - 0.90
+        - 0.95
+        - 0.99
+      percentiles-histogram:
+        all: true
 
 server:
   port: 8080
