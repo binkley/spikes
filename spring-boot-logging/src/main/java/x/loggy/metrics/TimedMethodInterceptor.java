@@ -61,7 +61,6 @@ public class TimedMethodInterceptor
             return invocation.proceed();
         }
 
-        final Timer.Sample sample = Timer.start(registry);
         final String metricName;
         if (methodLevelTimed != null && !methodLevelTimed.value().isEmpty()) {
             metricName = methodLevelTimed.value();
@@ -97,6 +96,7 @@ public class TimedMethodInterceptor
             builder.tags(methodLevelTimed.extraTags());
         }
         builder.tags(timedTagsResolver.apply(invocation));
+        final Timer.Sample sample = Timer.start(registry);
         try {
             return invocation.proceed();
         } finally {
