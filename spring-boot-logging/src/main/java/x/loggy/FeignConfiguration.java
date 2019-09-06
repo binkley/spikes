@@ -8,8 +8,8 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.cloud.openfeign.FeignLoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import x.loggy.ext.TimedAnnotationAdvisor;
-import x.loggy.ext.TimedMethodInterceptor;
+import x.loggy.metrics.TimedAnnotationAdvisor;
+import x.loggy.metrics.TimedMethodInterceptor;
 
 @Configuration
 @EnableFeignClients

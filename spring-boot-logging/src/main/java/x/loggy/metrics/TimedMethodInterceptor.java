@@ -1,4 +1,4 @@
-package x.loggy.ext;
+package x.loggy.metrics;
 
 import io.micrometer.core.annotation.Timed;
 import io.micrometer.core.aop.TimedAspect;
