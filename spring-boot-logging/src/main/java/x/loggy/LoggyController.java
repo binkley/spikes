@@ -25,6 +25,7 @@ public class LoggyController {
     private final Clock clock;
     private final LoggyRemote loggy;
     private final NotFoundRemote notFound;
+    private final ServiceDownRemote serviceDown;
     private final UnknownHostRemote unknownHost;
     private final ConflictRemote conflict;
     private final RetryRemote retry;
@@ -82,9 +83,15 @@ public class LoggyController {
         return notFound.get();
     }
 
+    @GetMapping("service-down")
+    public String getServiceDown() {
+        logger.info("INTER THE SERVICE-DOWN WEBS");
+        return serviceDown.get();
+    }
+
     @GetMapping("unknown-host")
     public String getUnknownHost() {
-        logger.info("INTER THE UNKNOWN_HOST WEBS");
+        logger.info("INTER THE UNKNOWN-HOST WEBS");
         return unknownHost.get();
     }
 

@@ -41,6 +41,8 @@ class LoggyControllerTest {
     @MockBean
     private NotFoundRemote notFound;
     @MockBean
+    private ServiceDownRemote serviceDown;
+    @MockBean
     private UnknownHostRemote unknownHost;
     @MockBean
     private ConflictRemote conflict;

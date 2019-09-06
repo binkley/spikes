@@ -47,6 +47,7 @@ public class LoggyDemo {
 
     private final LoggyRemote loggy;
     private final NotFoundRemote notFound;
+    private final ServiceDownRemote serviceDown;
     private final UnknownHostRemote unknownHost;
     private final ObjectMapper objectMapper;
     private final Logger logger;
@@ -161,6 +162,8 @@ public class LoggyDemo {
 
         logger.info("{}", loggy.getIndirect());
 
+        logger.warn("NOT FOUND");
+
         try {
             notFound.get();
         } catch (final FeignException notFound) {
@@ -169,6 +172,16 @@ public class LoggyDemo {
                     notFound.contentUTF8(),
                     notFound);
         }
+
+        logger.warn("SERVICE DOWN");
+
+        try {
+            serviceDown.get();
+        } catch (final FeignException ignored) {
+            // Already logged by logbook-feign logger
+        }
+
+        logger.warn("UNKNOWN HOST");
 
         try {
             unknownHost.get();
@@ -208,6 +221,19 @@ public class LoggyDemo {
                 .build();
 
         sendOrDie(notFoundRequest);
+
+        logger.warn("SERVICE DOWN WITH FEIGN THROUGH WEB");
+
+        final var serviceDownRequest = HttpRequest.newBuilder()
+                .GET()
+                .uri(URI.create("http://localhost:8080/service-down"))
+                .expectContinue(true)
+                .headers(
+                        "X-B3-TraceId", "abcdef0987654321",
+                        "X-B3-SpanId", "abcdef0987654321")
+                .build();
+
+        sendOrDie(serviceDownRequest);
 
         logger.warn("UNKNOWN HOST WITH FEIGN THROUGH WEB");
 

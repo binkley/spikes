@@ -74,6 +74,7 @@ class LoggyLiveTest {
 
     private final LoggyRemote loggy;
     private final NotFoundRemote notFound;
+    private final ServiceDownRemote serviceDown;
     private final UnknownHostRemote unknownHost;
     private final ConflictRemote conflict;
     private final RetryRemote retry;
@@ -311,6 +312,38 @@ class LoggyLiveTest {
     }
 
     @Test
+    void givenExistingTrace_shouldHandleServiceDown() {
+        final var context = starter.newTraceIdsOnCurrentThread();
+
+        assertThatThrownBy(serviceDown::get)
+                .hasFieldOrPropertyWithValue("status", -1);
+
+        tracingLogs.assertExchange(context.traceIdString(), false);
+    }
+
+    @Test
+    void givenNoExistingTrace_shouldHandleServiceDown() {
+        assertThatThrownBy(serviceDown::get)
+                .hasFieldOrPropertyWithValue("status", -1);
+
+        final var traces = httpTracesOf(httpLogger, objectMapper)
+                .collect(toUnmodifiableList());
+
+        // Show retry in action; note each retry gets a fresh trace ID
+        // since none was provided externally
+        assertThat(traces)
+                .extracting(HttpTrace::getOrigin)
+                .containsExactly("local", "local");
+        assertThat(traces.stream()
+                .map(HttpTrace::getHeaders)
+                .flatMap(h -> h.entrySet().stream())
+                .filter(e -> e.getKey().equalsIgnoreCase("X-B3-TraceId"))
+                .map(Map.Entry::getValue)
+                .distinct())
+                .hasSize(1);
+    }
+
+    @Test
     void givenExistingTrace_shouldHandleUnknownHost() {
         final var context = starter.newTraceIdsOnCurrentThread();
 
@@ -395,7 +428,7 @@ class LoggyLiveTest {
                 eq("code-exception=feign.FeignException$Conflict:"
                         + " status 409 reading ConflictRemote#postConflict();"
                         + "code-location=x.loggy.LoggyController.conflict"
-                        + "(LoggyController.java:70);response-status=500;"
+                        + "(LoggyController.java:71);response-status=500;"
                         + "request-method=POST;"
                         + "request-url=http://localhost:8080/conflict"));
     }
