@@ -2,7 +2,16 @@ feign:
   client:
     config:
       default:
-        logger-level: "FULL"
+        # TODO: Somehow this corresponds to a Map.  What gives?
+        logger-level: FULL
+
+# Surprisingly, not under "management:"
+info:
+  app:
+    # These are Maven-specific
+    encoding: '@project.build.sourceEncoding@'
+    java.source: '@java.version@'
+    java.target: '@java.version@'
 
 logbook:
   exclude:
@@ -36,6 +45,9 @@ management:
   endpoint:
     health:
       show-details: always
+  info:
+    git:
+      mode: full
   metrics:
     distribution:
       percentiles:
