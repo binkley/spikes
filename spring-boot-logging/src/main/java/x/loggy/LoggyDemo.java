@@ -281,7 +281,19 @@ public class LoggyDemo {
         loggy.getPing();
 
         out.println();
-        informUser("MAKE SOME DATA -- TRY /actuator/prometheus");
+        informUser("BOB, BOB, BOB");
+        informUser("NO BOBS HERE");
+
+        final var bobsRequest = HttpRequest.newBuilder()
+                .GET()
+                .uri(URI.create("http://localhost:8080/bobs"))
+                .build();
+
+        final var bobsResponse = sendOrDie(bobsRequest).body();
+
+        logger.info("NO BOBS FOR YOU: {}", bobsResponse);
+
+        informUser("MAKE A BOB");
 
         final var unsaved = new BobRecord();
         unsaved.name = "William";

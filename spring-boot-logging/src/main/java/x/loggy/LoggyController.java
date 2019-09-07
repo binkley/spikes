@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import x.loggy.data.BobRecord;
+import x.loggy.data.BobRepository;
 
 import javax.validation.Valid;
 import java.nio.charset.CoderMalfunctionError;
@@ -29,6 +31,7 @@ public class LoggyController {
     private final UnknownHostRemote unknownHost;
     private final ConflictRemote conflict;
     private final RetryRemote retry;
+    private final BobRepository bobs;
     private final Logger logger;
 
     @GetMapping("direct")
@@ -93,6 +96,12 @@ public class LoggyController {
     public String getUnknownHost() {
         logger.info("INTER THE UNKNOWN-HOST WEBS");
         return unknownHost.get();
+    }
+
+    @GetMapping("bobs")
+    public Iterable<BobRecord> getBobs() {
+        logger.info("ALL THE BOBS, WELL, NONE, ACTUALLY");
+        return bobs.findAll();
     }
 
     @GetMapping("ping")

@@ -535,11 +535,11 @@ class LoggyLiveTest {
     @Test
     void shouldGatherHistogramMetrics()
             throws IOException, InterruptedException {
-        final var seedRequest = HttpRequest.newBuilder()
+        final var remoteRequest = HttpRequest.newBuilder()
                 .GET()
-                .uri(URI.create("http://localhost:8080/direct"))
+                .uri(URI.create("http://localhost:8080/indirect"))
                 .build();
-        sendAndDiscardBody(seedRequest);
+        sendAndDiscardBody(remoteRequest);
 
         final var metricsRequest = HttpRequest.newBuilder()
                 .GET()
@@ -549,6 +549,7 @@ class LoggyLiveTest {
                 .body();
 
         assertThat(metrics)
+                .contains("bob_repository_seconds_bucket")
                 .contains("http_server_requests_seconds_bucket")
                 .contains("loggy_remote_seconds_bucket");
     }
