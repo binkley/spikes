@@ -7,6 +7,7 @@ import feign.FeignException;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.NotFoundException;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -631,6 +632,24 @@ class LoggyLiveTest {
                 .contains("loggy_remote_seconds_bucket");
     }
 
+    @Test
+    void shouldHaveInfo()
+            throws IOException, InterruptedException {
+        final var request = HttpRequest.newBuilder()
+                .GET()
+                .uri(URI.create("http://localhost:8080/actuator/info"))
+                .build();
+
+        final var response = send(request);
+
+        final var info = objectMapper
+                .readValue(response.body(), InfoDetails.class);
+
+        assertThat(info.app).isNotEmpty();
+        assertThat(info.build).isNotEmpty();
+        assertThat(info.git).isNotEmpty();
+    }
+
     @TestConfiguration
     public static class MyTestConfiguration {
         @Bean
@@ -638,5 +657,12 @@ class LoggyLiveTest {
         public Clock testClock() {
             return Clock.fixed(Instant.ofEpochSecond(1_000_000L), UTC);
         }
+    }
+
+    @Data
+    public static class InfoDetails {
+        Map<String, Object> app;
+        Map<String, Object> build;
+        Map<String, Object> git;
     }
 }
