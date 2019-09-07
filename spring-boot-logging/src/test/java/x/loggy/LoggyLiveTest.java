@@ -39,6 +39,8 @@ import java.util.Map;
 import static java.net.http.HttpClient.newHttpClient;
 import static java.net.http.HttpRequest.BodyPublishers.noBody;
 import static java.net.http.HttpResponse.BodyHandlers.discarding;
+import static java.net.http.HttpResponse.BodyHandlers.ofString;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.time.LocalDate.now;
 import static java.time.ZoneOffset.UTC;
 import static java.util.stream.Collectors.toUnmodifiableList;
@@ -528,6 +530,27 @@ class LoggyLiveTest {
                                 .message("must be greater than or equal to 1")
                                 .build())
                         .build());
+    }
+
+    @Test
+    void shouldGatherHistogramMetrics()
+            throws IOException, InterruptedException {
+        final var seedRequest = HttpRequest.newBuilder()
+                .GET()
+                .uri(URI.create("http://localhost:8080/direct"))
+                .build();
+        sendAndDiscardBody(seedRequest);
+
+        final var metricsRequest = HttpRequest.newBuilder()
+                .GET()
+                .uri(URI.create("http://localhost:8080/actuator/prometheus"))
+                .build();
+        final var metrics = client.send(metricsRequest, ofString(UTF_8))
+                .body();
+
+        assertThat(metrics)
+                .contains("http_server_requests_seconds_bucket")
+                .contains("loggy_remote_seconds_bucket");
     }
 
     @TestConfiguration
