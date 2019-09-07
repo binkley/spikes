@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.zalando.problem.Problem;
+import org.zalando.problem.Status;
 import org.zalando.problem.StatusType;
 import org.zalando.problem.ThrowableProblem;
 import org.zalando.problem.spring.web.advice.ProblemHandling;
@@ -24,6 +25,7 @@ import x.loggy.configuration.ProblemConfiguration;
 
 import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletRequest;
+import java.net.ConnectException;
 import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -35,6 +37,7 @@ import static org.springframework.core.NestedExceptionUtils.getMostSpecificCause
 import static org.zalando.problem.Status.BAD_GATEWAY;
 import static org.zalando.problem.Status.BAD_REQUEST;
 import static org.zalando.problem.Status.INTERNAL_SERVER_ERROR;
+import static org.zalando.problem.Status.SERVICE_UNAVAILABLE;
 import static org.zalando.problem.Status.UNPROCESSABLE_ENTITY;
 import static x.loggy.AlertMessage.MessageFinder.findAlertMessage;
 
@@ -237,13 +240,12 @@ public class ExceptionHandling
         final var message = e.equals(rootException)
                 ? e.toString()
                 : e + ": " + rootException;
-        final var status = 400 <= e.status() && e.status() < 500
-                ? INTERNAL_SERVER_ERROR
-                : BAD_GATEWAY;
+
         final var problem = Problem.builder()
                 .withDetail(message)
-                .withStatus(status)
+                .withStatus(statusFor(e))
                 .with("code-location", codeLocation(e))
+                .with("feign-message", e.getMessage())
                 .with("feign-status", e.status());
 
         final var details = findRequestDetails(e);
@@ -252,6 +254,18 @@ public class ExceptionHandling
                 .with("feign-url", details.getUrl());
 
         return create(e, problem.build(), request);
+    }
+
+    private static Status statusFor(final FeignException e) {
+        final var feignStatus = e.status();
+        if (400 <= feignStatus && feignStatus < 500)
+            return INTERNAL_SERVER_ERROR;
+
+        final var rootException = getMostSpecificCause(e);
+        if (rootException instanceof ConnectException)
+            return SERVICE_UNAVAILABLE;
+
+        return BAD_GATEWAY;
     }
 
     private static FeignErrorDetails findRequestDetails(

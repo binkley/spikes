@@ -9,7 +9,6 @@ import javassist.CtClass;
 import javassist.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.slf4j.Logger;
@@ -35,6 +34,7 @@ import java.net.http.HttpHeaders;
 import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandlers;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
@@ -44,7 +44,6 @@ import static java.lang.String.format;
 import static java.net.http.HttpClient.newHttpClient;
 import static java.net.http.HttpRequest.BodyPublishers.noBody;
 import static java.net.http.HttpResponse.BodyHandlers.discarding;
-import static java.net.http.HttpResponse.BodyHandlers.ofString;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.time.LocalDate.now;
 import static java.time.ZoneOffset.UTC;
@@ -168,21 +167,19 @@ class LoggyLiveTest {
 
     private String sendAndExtractTraceId(final HttpRequest request)
             throws IOException, InterruptedException {
-        final var response = sendAndDiscardBody(request);
-
-        return extractTraceId(response);
+        return extractTraceId(send(request));
     }
 
-    private static HttpResponse<Void> sendAndDiscardBody(
-            final HttpRequest request)
-            throws IOException, InterruptedException {
-        return client.send(request, discarding());
-    }
-
-    private String extractTraceId(final HttpResponse<Void> response) {
+    private String extractTraceId(final HttpResponse<String> response) {
         return httpExtractor.extract(response.headers())
                 .context()
                 .traceIdString();
+    }
+
+    private static HttpResponse<String> send(
+            final HttpRequest request)
+            throws IOException, InterruptedException {
+        return client.send(request, BodyHandlers.ofString(UTF_8));
     }
 
     @Test
@@ -246,7 +243,7 @@ class LoggyLiveTest {
                 .uri(URI.create("http://localhost:8080/conflict"))
                 .build();
 
-        final var response = sendAndDiscardBody(request);
+        final var response = send(request);
         final var traceId = extractTraceId(response);
 
         assertThat(response.statusCode()).isEqualTo(500);
@@ -396,7 +393,7 @@ class LoggyLiveTest {
                 .uri(URI.create("http://localhost:8080/npe"))
                 .build();
 
-        final var response = sendAndDiscardBody(request);
+        final var response = send(request);
 
         assertThat(response.statusCode()).isEqualTo(500);
 
@@ -448,7 +445,7 @@ class LoggyLiveTest {
                 .uri(URI.create("http://localhost:8080/conflict"))
                 .build();
 
-        final var response = sendAndDiscardBody(request);
+        final var response = send(request);
 
         assertThat(response.statusCode()).isEqualTo(500);
 
@@ -466,7 +463,6 @@ class LoggyLiveTest {
                         lineNumberFor("conflict"))));
     }
 
-    @Disabled("TODO")
     @Test
     void shouldAlertThroughFeignIndirectlyOnExceptionForTemporaryFailure()
             throws IOException, InterruptedException {
@@ -475,7 +471,7 @@ class LoggyLiveTest {
                 .uri(URI.create("http://localhost:8080/service-down"))
                 .build();
 
-        final var response = sendAndDiscardBody(request);
+        final var response = send(request);
 
         assertThat(response.statusCode())
                 .isEqualTo(SERVICE_UNAVAILABLE.value());
@@ -500,7 +496,7 @@ class LoggyLiveTest {
                 .uri(URI.create("http://localhost:8080/unknown-host"))
                 .build();
 
-        final var response = sendAndDiscardBody(request);
+        final var response = send(request);
 
         assertThat(response.statusCode()).isEqualTo(BAD_GATEWAY.value());
 
@@ -534,7 +530,7 @@ class LoggyLiveTest {
                 .header("X-Secret-Value", secret)
                 .build();
 
-        sendAndDiscardBody(sensitive);
+        send(sensitive);
 
         assertThat(httpHeaderTracesOf(httpLogger, objectMapper,
                 "X-Secret-Value")
@@ -553,7 +549,7 @@ class LoggyLiveTest {
                 .header(CONTENT_TYPE, APPLICATION_JSON_UTF8_VALUE)
                 .build();
 
-        sendAndDiscardBody(request);
+        send(request);
 
         assertThat(httpTracesOf(httpLogger, objectMapper)
                 .map(trace -> trace.getBodyAs(String.class, objectMapper)))
@@ -572,7 +568,7 @@ class LoggyLiveTest {
                 .header(CONTENT_TYPE, APPLICATION_JSON_UTF8_VALUE)
                 .build();
 
-        sendAndDiscardBody(request);
+        send(request);
 
         assertThat(httpTracesOf(httpLogger, objectMapper)
                 .filter(RequestTrace.class::isInstance)
@@ -598,20 +594,19 @@ class LoggyLiveTest {
                 .GET()
                 .uri(URI.create("http://localhost:8080/indirect"))
                 .build();
-        sendAndDiscardBody(feignRequest);
+        send(feignRequest);
 
         final var repositoryRequest = HttpRequest.newBuilder()
                 .GET()
                 .uri(URI.create("http://localhost:8080/bobs"))
                 .build();
-        sendAndDiscardBody(repositoryRequest);
+        send(repositoryRequest);
 
         final var metricsRequest = HttpRequest.newBuilder()
                 .GET()
                 .uri(URI.create("http://localhost:8080/actuator/prometheus"))
                 .build();
-        final var metrics = client.send(metricsRequest, ofString(UTF_8))
-                .body();
+        final var metrics = send(metricsRequest).body();
 
         assertThat(metrics)
                 .contains("bob_repository_seconds_bucket")
