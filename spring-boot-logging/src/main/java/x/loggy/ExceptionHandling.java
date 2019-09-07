@@ -99,8 +99,8 @@ public class ExceptionHandling
     }
 
     @Override
-    public ResponseEntity<Problem> create(final Throwable throwable,
-            final NativeWebRequest request) {
+    public ResponseEntity<Problem> create(@Nonnull final Throwable throwable,
+            @Nonnull final NativeWebRequest request) {
         final ThrowableProblem problem = toProblem(throwable, request,
                 toProblem(throwable).getStatus());
         return create(throwable, problem, request);
@@ -174,17 +174,22 @@ public class ExceptionHandling
     }
 
     @Override
-    public ResponseEntity<Problem> create(final StatusType status,
-            final Throwable throwable, final NativeWebRequest request,
-            final HttpHeaders headers) {
+    public ResponseEntity<Problem> create(
+            @Nonnull final StatusType status,
+            @Nonnull final Throwable throwable,
+            @Nonnull final NativeWebRequest request,
+            @Nonnull final HttpHeaders headers) {
         return create(throwable, toProblem(throwable, request, status),
                 request, headers);
     }
 
     @Override
-    public ResponseEntity<Problem> create(final StatusType status,
-            final Throwable throwable, final NativeWebRequest request,
-            final HttpHeaders headers, final URI type) {
+    public ResponseEntity<Problem> create(
+            @Nonnull final StatusType status,
+            @Nonnull final Throwable throwable,
+            @Nonnull final NativeWebRequest request,
+            @Nonnull final HttpHeaders headers,
+            @Nonnull final URI type) {
         return create(throwable, toProblem(throwable, request, status, type),
                 request, headers);
     }
