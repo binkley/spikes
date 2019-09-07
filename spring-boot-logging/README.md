@@ -54,3 +54,7 @@ Production use:
 * [`application.yml`](src/main/resources/application.yml)
 * [`bootstrap.yml`](src/main/resources/bootstrap.yml)
 * [`logback-spring.xml`](src/main/resources/logback-spring.xml)
+
+## TODO
+
+* Upgrade to Flyway 6.0.+ -- Spring Boot 2.1.8.RELEASE is unhappy with this

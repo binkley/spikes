@@ -2,7 +2,7 @@ plugins {
     id "java"
     id "build-dashboard"
     id "io.spring.dependency-management" version "1.0.8.RELEASE"
-    id "org.springframework.boot" version "2.1.7.RELEASE"
+    id "org.springframework.boot" version "2.1.8.RELEASE"
     id "com.dorongold.task-tree" version "1.4"
     id "com.github.ben-manes.versions" version "0.22.0"
     id "se.patrikerdes.use-latest-versions" version "0.2.12"
@@ -12,13 +12,15 @@ plugins {
 apply plugin: "io.spring.dependency-management"
 
 group = "x"
-version = "0.0.1-SNAPSHOT"
+version = "0-SNAPSHOT"
 
 sourceCompatibility = 11
 targetCompatibility = 11
 
 ext {
     javassistVersion = "3.25.0-GA"
+    joptsimpleVersion = "5.0.4"
+    jsqlparserVersion = "3.0"
     logbookVersion = "1.13.0"
     logstashLogbackVersion = "6.1"
     problemSpringWebVersion = "0.24.0"
@@ -57,7 +59,8 @@ dependencies {
     implementation "org.springframework.cloud:spring-cloud-starter-sleuth"
     implementation "org.springframework.cloud:spring-cloud-starter-openfeign"
     implementation "org.zalando:logbook-spring-boot-starter"
-    implementation "com.github.jsqlparser:jsqlparser:3.0"
+    implementation "com.github.jsqlparser:jsqlparser:${jsqlparserVersion}"
+    implementation "net.sf.jopt-simple:jopt-simple:${joptsimpleVersion}"
 
     // TODO: Hrm ... too many dependencies for problems
     implementation "org.springframework.boot:spring-boot-starter-security"
