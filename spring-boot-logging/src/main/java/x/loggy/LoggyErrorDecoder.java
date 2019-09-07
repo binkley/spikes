@@ -4,7 +4,7 @@ import feign.Response;
 import feign.RetryableException;
 import feign.codec.ErrorDecoder;
 
-final class LoggyErrorDecoder
+public final class LoggyErrorDecoder
         extends ErrorDecoder.Default {
     @Override
     public Exception decode(final String methodKey,
