@@ -14,7 +14,7 @@ Second, as a "production" project with structured logging (JSON; eg, for ELK):
 1. Run `./gradlew build`.
 2. Run `java -Dspring.profiles.active=json -jar build/libs/spring-boot-logging-0.0.1-SNAPSHOT.jar`.
 3. For easier reading, pipe the previous step through `| jq -cC . | less`
-   (single line per JSON) or `| jq -C . less` (pretty-printed JSON).
+   (single line per JSON) or `| jq -C . | less -R` (pretty-printed JSON).
 
 ## Features
 
@@ -31,6 +31,7 @@ General:
 * Distinct logging from alerting
 * Suppress request body logging, and only show response bodies on error
 * Top-level custom JSON properties for request/response logging
+* Distinguish 502 (server issue) from 503 (remote issue)
 
 Local development:
 
