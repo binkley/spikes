@@ -31,6 +31,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static java.lang.String.format;
+import static java.lang.System.out;
 import static java.lang.Thread.currentThread;
 import static java.net.http.HttpClient.newHttpClient;
 import static java.net.http.HttpRequest.BodyPublishers.noBody;
@@ -59,7 +60,8 @@ public class LoggyDemo {
             throws JsonProcessingException {
         starter.newTraceIdsOnCurrentThread();
 
-        logger.warn("SIMPLE LOGGING");
+        out.println();
+        informUser("SIMPLE LOGGING");
         logger.info("I am ready: {}", new ToStringCreator(event)
                 .append("args", event.getArgs())
                 .append("source", event.getSource())
@@ -67,11 +69,17 @@ public class LoggyDemo {
         logger.debug("And this is json: {\"a\":3}"); // Logged as string
         logger.debug("{\"a\":3}"); // Logged as embedded JSON, not string
 
-        logger.warn("CALL OURSELVES");
+        informUser("EXCEPTIONS");
 
-        logger.warn("GET WITH WEB");
+        // Show stack trace logging
+        final var e = new CoderMalfunctionError(
+                new NullPointerException("OH MY, A NULL POINTER!"));
+        logger.error("And I fail: {}", e.getMessage(), e);
 
-        logger.warn("INVALID INBOUND TRACE ID");
+        out.println();
+        informUser("CALL OURSELVES");
+        informUser("GET WITH WEB");
+        informUser("INVALID INBOUND TRACE ID");
 
         final var invalidTracingRequest = HttpRequest.newBuilder()
                 .GET()
@@ -84,7 +92,7 @@ public class LoggyDemo {
 
         sendOrDie(invalidTracingRequest);
 
-        logger.warn("GET WITH WEB");
+        informUser("VALID INBOUND TRACE ID");
 
         final var request = HttpRequest.newBuilder()
                 .GET()
@@ -100,7 +108,7 @@ public class LoggyDemo {
         logger.info("{}", response.body());
         logger.debug("(Really got {} after sending {})", response, request);
 
-        logger.warn("POST WITH WEB");
+        informUser("POST WITH WEB");
 
         final var postRequest = HttpRequest.newBuilder()
                 .POST(BodyPublishers.ofString(objectMapper.writeValueAsString(
@@ -111,7 +119,7 @@ public class LoggyDemo {
                 .build();
         sendOrDie(postRequest);
 
-        logger.warn("CONSTRAINT VIOLATION WITH WEB");
+        informUser("CONSTRAINT VIOLATION WITH WEB");
 
         final var poorRequest = HttpRequest.newBuilder()
                 .POST(BodyPublishers.ofString(objectMapper.writeValueAsString(
@@ -122,7 +130,7 @@ public class LoggyDemo {
                 .build();
         sendOrDie(poorRequest);
 
-        logger.warn("MISMATCHED INPUT WITH WEB");
+        informUser("MISMATCHED INPUT WITH WEB");
 
         final var badRequest = HttpRequest.newBuilder()
                 .POST(BodyPublishers.ofString(
@@ -132,7 +140,7 @@ public class LoggyDemo {
                 .build();
         sendOrDie(badRequest);
 
-        logger.warn("NPE WITH WEB");
+        informUser("NPE WITH WEB");
 
         final var npeRequest = HttpRequest.newBuilder()
                 .GET()
@@ -140,29 +148,22 @@ public class LoggyDemo {
                 .build();
         sendOrDie(npeRequest);
 
-        logger.warn("EXCEPTIONS");
-
-        // Show stack trace logging
-        final var e = new CoderMalfunctionError(
-                new NullPointerException("OH MY, A NULL POINTER!"));
-        logger.error("And I fail: {}", e.getMessage(), e);
-
-        logger.warn("FEIGN");
-
-        logger.warn("CALL OURSELVES WITH FEIGN DIRECT");
+        out.println();
+        informUser("FEIGN");
+        informUser("CALL OURSELVES WITH FEIGN DIRECT");
 
         logger.info("{}", loggy.getDirect());
 
-        logger.warn("AND NOW FOR SOMETHING COMPLETELY POSTISH");
+        informUser("AND NOW FOR SOMETHING COMPLETELY POSTISH");
 
         loggy.post(new LoggyRequest(2, List.of(
                 new Rolly(LocalDate.of(9876, 5, 4)))));
 
-        logger.warn("CALL OURSELVES WITH FEIGN THROUGH FEIGN");
+        informUser("CALL OURSELVES WITH FEIGN THROUGH FEIGN");
 
         logger.info("{}", loggy.getIndirect());
 
-        logger.warn("NOT FOUND");
+        informUser("NOT FOUND");
 
         try {
             notFound.get();
@@ -173,7 +174,7 @@ public class LoggyDemo {
                     notFound);
         }
 
-        logger.warn("SERVICE DOWN");
+        informUser("SERVICE DOWN");
 
         try {
             serviceDown.get();
@@ -181,7 +182,7 @@ public class LoggyDemo {
             // Already logged by logbook-feign logger
         }
 
-        logger.warn("UNKNOWN HOST");
+        informUser("UNKNOWN HOST");
 
         try {
             unknownHost.get();
@@ -189,7 +190,7 @@ public class LoggyDemo {
             // Already logged by logbook-feign logger
         }
 
-        logger.warn("CONFLICT WITH FEIGN");
+        informUser("CONFLICT WITH FEIGN");
 
         try {
             loggy.postConflict();
@@ -197,7 +198,7 @@ public class LoggyDemo {
             // Already logged by logbook-feign logger
         }
 
-        logger.warn("CONSTRAINT VIOLATION WITH FEIGN");
+        informUser("CONSTRAINT VIOLATION WITH FEIGN");
 
         try {
             loggy.post(new LoggyRequest(-1, List.of(
@@ -207,9 +208,9 @@ public class LoggyDemo {
                     getMostSpecificCause(violation), violation);
         }
 
-        logger.warn("WEB + FEIGN");
-
-        logger.warn("NOT FOUND WITH FEIGN THROUGH WEB");
+        out.println();
+        informUser("WEB + FEIGN");
+        informUser("NOT FOUND WITH FEIGN THROUGH WEB");
 
         final var notFoundRequest = HttpRequest.newBuilder()
                 .GET()
@@ -222,7 +223,7 @@ public class LoggyDemo {
 
         sendOrDie(notFoundRequest);
 
-        logger.warn("SERVICE DOWN WITH FEIGN THROUGH WEB");
+        informUser("SERVICE DOWN WITH FEIGN THROUGH WEB");
 
         final var serviceDownRequest = HttpRequest.newBuilder()
                 .GET()
@@ -235,7 +236,7 @@ public class LoggyDemo {
 
         sendOrDie(serviceDownRequest);
 
-        logger.warn("UNKNOWN HOST WITH FEIGN THROUGH WEB");
+        informUser("UNKNOWN HOST WITH FEIGN THROUGH WEB");
 
         final var unknownHostRequest = HttpRequest.newBuilder()
                 .GET()
@@ -248,7 +249,7 @@ public class LoggyDemo {
 
         sendOrDie(unknownHostRequest);
 
-        logger.warn("CONFLICT WITH FEIGN THROUGH WEB");
+        informUser("CONFLICT WITH FEIGN THROUGH WEB");
 
         final var conflictRequest = HttpRequest.newBuilder()
                 .POST(noBody())
@@ -260,7 +261,7 @@ public class LoggyDemo {
 
         sendOrDie(conflictRequest);
 
-        logger.warn("RETRY WITH FEIGN THROUGH WEB");
+        informUser("RETRY WITH FEIGN THROUGH WEB");
 
         final var retryRequest = HttpRequest.newBuilder()
                 .GET()
@@ -269,9 +270,9 @@ public class LoggyDemo {
 
         sendOrDie(retryRequest);
 
-        logger.warn("BUT IT'S ALRIGHT, IT'S OK, I'M GONNA RUN THAT WAY");
-
-        logger.warn("PONG BUT NOT REQUEST/RESSPONSE LOGGING");
+        out.println();
+        informUser("BUT IT'S ALRIGHT, IT'S OK, I'M GONNA RUN THAT WAY");
+        informUser("PONG BUT NOT REQUEST/RESPONSE LOGGING (NO OUTPUT)");
 
         sendOrDie(HttpRequest.newBuilder()
                 .GET()
@@ -279,14 +280,19 @@ public class LoggyDemo {
                 .build());
         loggy.getPing();
 
-        logger.warn("MAKE SOME DATA -- TRY /actuator/prometheus");
+        out.println();
+        informUser("MAKE SOME DATA -- TRY /actuator/prometheus");
 
         final var unsaved = new BobRecord();
         unsaved.name = "William";
         final var saved = bobRepository.save(unsaved);
-        final var found = bobRepository.findById(saved.id);
+        final var found = bobRepository.findById(saved.id).get();
 
-        logger.warn("TURNING DOWN VOLUME ON LOGGER");
+        logger.info("{} THAT {} IS {}",
+                saved.equals(found), found, saved);
+
+        out.println();
+        informUser("TURNING DOWN VOLUME ON LOGGER (NO OUTPUT)");
 
         adjustLogging(OFF);
 
@@ -294,7 +300,12 @@ public class LoggyDemo {
 
         adjustLogging(WARN);
 
-        logger.warn("DONE!");
+        out.println();
+        informUser("DONE!");
+    }
+
+    private void informUser(final String message) {
+        logger.warn(message);
     }
 
     private HttpResponse<String> sendOrDie(final HttpRequest request) {
@@ -326,7 +337,8 @@ public class LoggyDemo {
 
     @Value
     private static class AdjustLogging {
-        @JsonProperty("configuredLevel") // Spring does not like kebab-case
-                LogLevel configuredLevel;
+        // TODO: Why no kebab-case in this annotation?
+        @JsonProperty("configuredLevel")
+        LogLevel configuredLevel;
     }
 }
