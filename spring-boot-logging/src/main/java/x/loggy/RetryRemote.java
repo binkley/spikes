@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import static x.loggy.AlertMessage.Severity.MEDIUM;
 
 @FeignClient(name = "retry",
-        url = "http://localhost:8080/feign/retry")
+        url = "http://localhost:8080/_feign/retry")
 public interface RetryRemote {
     String METRIC_NAME = "retry.remote";
 

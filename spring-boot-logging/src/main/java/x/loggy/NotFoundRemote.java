@@ -5,7 +5,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @FeignClient(name = "not-found",
-        url = "http://localhost:8080/feign/not-found")
+        url = "http://localhost:8080/_feign/not-found")
 public interface NotFoundRemote {
     String METRIC_NAME = "not-found.remote";
 

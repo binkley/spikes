@@ -469,7 +469,7 @@ class LoggyLiveTest {
                                 + " ConflictRemote#postConflict()"
                                 + ";feign-status=409"
                                 + ";feign-method=POST"
-                                + ";feign-url=http://localhost:8080/feign"
+                                + ";feign-url=http://localhost:8080/_feign"
                                 + "/conflict",
                         codeLocationFor("conflict"))));
     }

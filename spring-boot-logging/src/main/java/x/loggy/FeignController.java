@@ -18,7 +18,7 @@ import static org.springframework.http.HttpStatus.SERVICE_UNAVAILABLE;
 import static org.springframework.http.ResponseEntity.status;
 
 @RestController
-@RequestMapping("feign")
+@RequestMapping("_feign")
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class FeignController {
     private final AtomicBoolean flipflop = new AtomicBoolean();

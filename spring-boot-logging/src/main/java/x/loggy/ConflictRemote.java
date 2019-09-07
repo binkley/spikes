@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import static x.loggy.AlertMessage.Severity.MEDIUM;
 
 @FeignClient(name = "conflict",
-        url = "http://localhost:8080/feign/conflict")
+        url = "http://localhost:8080/_feign/conflict")
 public interface ConflictRemote {
     String METRIC_NAME = "conflict.remote";
 
