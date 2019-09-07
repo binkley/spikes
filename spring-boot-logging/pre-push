@@ -1,4 +1,0 @@
-#!/bin/sh
-
-# "offline" to demonstrate pusher actually built locally
-"$(git rev-parse --show-toplevel)/gradlew" clean build --offline --rerun-tasks
