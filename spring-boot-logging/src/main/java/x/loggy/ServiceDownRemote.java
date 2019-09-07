@@ -6,7 +6,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import static x.loggy.AlertMessage.Severity.HIGH;
 
-@FeignClient(name = "service-down", url = "https://localhost:0")
+// TODO: This will be confusing when something IS running on 17171
+@FeignClient(name = "service-down", url = "https://localhost:17171")
 public interface ServiceDownRemote {
     String METRIC_NAME = "service-down.remote";
 

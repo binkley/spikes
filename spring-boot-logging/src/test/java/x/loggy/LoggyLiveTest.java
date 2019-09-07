@@ -9,6 +9,7 @@ import javassist.CtClass;
 import javassist.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.slf4j.Logger;
@@ -53,12 +54,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.matches;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.DEFINED_PORT;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.HttpStatus.BAD_GATEWAY;
+import static org.springframework.http.HttpStatus.SERVICE_UNAVAILABLE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static x.loggy.AlertAssertions.assertThatAlertMessage;
 import static x.loggy.AlertMessage.Severity.HIGH;
@@ -399,16 +400,15 @@ class LoggyLiveTest {
 
         assertThat(response.statusCode()).isEqualTo(500);
 
-        final var at = lineNumberFor("getNpe");
-
         verify(logger).error(anyString(), eq(HIGH), eq("NULLITY"),
                 eq(format("code-exception=java.lang.NullPointerException:"
-                        + " SAD, SAD"
-                        + ";code-location=x.loggy.LoggyController"
-                        + ".getNpe(LoggyController.java:%d)"
-                        + ";response-status=500"
-                        + ";request-method=GET"
-                        + ";request-url=http://localhost:8080/npe", at)));
+                                + " SAD, SAD"
+                                + ";code-location=x.loggy.LoggyController"
+                                + ".getNpe(LoggyController.java:%d)"
+                                + ";response-status=500"
+                                + ";request-method=GET"
+                                + ";request-url=http://localhost:8080/npe",
+                        lineNumberFor("getNpe"))));
 
         assertThat(httpTracesOf(httpLogger, objectMapper)
                 .filter(HttpTrace::isProblem)
@@ -452,19 +452,48 @@ class LoggyLiveTest {
 
         assertThat(response.statusCode()).isEqualTo(500);
 
-        final var at = lineNumberFor("conflict");
-
         verify(logger).error(anyString(), eq(MEDIUM), eq("CONFLICTED"),
                 eq(format("code-exception=feign.FeignException$Conflict:"
-                        + " status 409 reading ConflictRemote#postConflict();"
-                        + "code-location=x.loggy.LoggyController.conflict"
-                        + "(LoggyController.java:%d);response-status=500;"
-                        + "request-method=POST;"
-                        + "request-url=http://localhost:8080/conflict", at)));
+                                + " status 409 reading "
+                                + "ConflictRemote#postConflict();"
+                                + "code-location=x.loggy.LoggyController"
+                                + ".conflict"
+                                + "(LoggyController.java:%d);"
+                                + "response-status=500;"
+                                + "request-method=POST;"
+                                + "request-url=http://localhost:8080"
+                                + "/conflict",
+                        lineNumberFor("conflict"))));
+    }
+
+    @Disabled("TODO")
+    @Test
+    void shouldAlertThroughFeignIndirectlyOnExceptionForTemporaryFailure()
+            throws IOException, InterruptedException {
+        final var request = HttpRequest.newBuilder()
+                .GET()
+                .uri(URI.create("http://localhost:8080/service-down"))
+                .build();
+
+        final var response = sendAndDiscardBody(request);
+
+        assertThat(response.statusCode())
+                .isEqualTo(SERVICE_UNAVAILABLE.value());
+
+        verify(logger).error(anyString(), eq(HIGH), eq("SERVICE DOWN"),
+                eq(format("code-exception=java.net.ConnectException:"
+                                + " Connection refused (Connection refused)"
+                                + ";code-location=x.loggy.LoggyController"
+                                + ".getServiceDown(LoggyController.java:%d)"
+                                + ";response-status=503"
+                                + ";request-method=GET"
+                                + ";request-url=http://localhost:8080"
+                                + "/service-down",
+                        lineNumberFor("getServiceDown"))));
     }
 
     @Test
-    void shouldAlertThroughFeignIndirectlyOnException()
+    void shouldAlertThroughFeignIndirectlyOnExceptionForPermanentFailure()
             throws IOException, InterruptedException {
         final var request = HttpRequest.newBuilder()
                 .GET()
@@ -476,13 +505,15 @@ class LoggyLiveTest {
         assertThat(response.statusCode()).isEqualTo(BAD_GATEWAY.value());
 
         verify(logger).error(anyString(), eq(HIGH), eq("UNKNOWABLE HOST"),
-                matches("code-exception=java\\.net\\.UnknownHostException:"
-                        + " not\\.really\\.a\\.place"
-                        + ";code-location=x\\.loggy\\.LoggyController"
-                        + "\\.getUnknownHost\\(LoggyController\\.java:\\d+\\)"
-                        + ";response-status=502"
-                        + ";request-method=GET"
-                        + ";request-url=http://localhost:8080/unknown-host"));
+                eq(format("code-exception=java.net.UnknownHostException:"
+                                + " not.really.a.place"
+                                + ";code-location=x.loggy.LoggyController"
+                                + ".getUnknownHost(LoggyController.java:%d)"
+                                + ";response-status=502"
+                                + ";request-method=GET"
+                                + ";request-url=http://localhost:8080"
+                                + "/unknown-host",
+                        lineNumberFor("getUnknownHost"))));
     }
 
     @Test
