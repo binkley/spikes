@@ -4,6 +4,9 @@ import brave.Tracing;
 import brave.propagation.TraceContext.Extractor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.FeignException;
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,6 +39,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
+import static java.lang.String.format;
 import static java.net.http.HttpClient.newHttpClient;
 import static java.net.http.HttpRequest.BodyPublishers.noBody;
 import static java.net.http.HttpResponse.BodyHandlers.discarding;
@@ -72,7 +76,9 @@ import static x.loggy.TestingHttpTrace.httpTracesOf;
 @TestInstance(PER_CLASS)
 class LoggyLiveTest {
     private static final String existingTraceId = "abcdef0987654321";
+
     private static final HttpClient client = newHttpClient();
+    private static final ClassPool pool = ClassPool.getDefault();
 
     private final LoggyRemote loggy;
     private final NotFoundRemote notFound;
@@ -92,12 +98,16 @@ class LoggyLiveTest {
     private Logger httpLogger;
 
     private Extractor<HttpHeaders> httpExtractor;
+    private CtClass controller;
 
     @PostConstruct
-    private void init() {
+    private void init()
+            throws NotFoundException {
         httpExtractor = tracing.propagation()
                 .extractor((HttpHeaders h, String key) ->
                         h.firstValue(key).orElse(null));
+
+        controller = pool.get(LoggyController.class.getName());
     }
 
     @BeforeEach
@@ -389,19 +399,36 @@ class LoggyLiveTest {
 
         assertThat(response.statusCode()).isEqualTo(500);
 
+        final var at = lineNumberFor("getNpe");
+
         verify(logger).error(anyString(), eq(HIGH), eq("NULLITY"),
-                matches("code-exception=java\\.lang\\.NullPointerException:"
+                eq(format("code-exception=java.lang.NullPointerException:"
                         + " SAD, SAD"
-                        + ";code-location=x\\.loggy\\.LoggyController"
-                        + "\\.getNpe\\(LoggyController\\.java:\\d+\\)"
+                        + ";code-location=x.loggy.LoggyController"
+                        + ".getNpe(LoggyController.java:%d)"
                         + ";response-status=500"
                         + ";request-method=GET"
-                        + ";request-url=http://localhost:8080/npe"));
+                        + ";request-url=http://localhost:8080/npe", at)));
 
         assertThat(httpTracesOf(httpLogger, objectMapper)
                 .filter(HttpTrace::isProblem)
                 .map(trace -> trace.getBodyAs(Problem.class, objectMapper)))
                 .allSatisfy(LoggyLiveTest::assertHasExtra);
+    }
+
+    private int lineNumberFor(final String methodName) {
+        try {
+            final var at = controller
+                    .getDeclaredMethod(methodName)
+                    .getMethodInfo()
+                    .getLineNumber(0);
+
+            // Offset by a fiddly number depending on how annotations work
+            return at + 1;
+        } catch (final NotFoundException ignored) { }
+
+        throw new AssertionError(format("Not a method in %s: %s",
+                LoggyController.class.getName(), methodName));
     }
 
     private static void assertHasExtra(final Problem problem) {
@@ -425,14 +452,15 @@ class LoggyLiveTest {
 
         assertThat(response.statusCode()).isEqualTo(500);
 
-        // TODO: Bad test
+        final var at = lineNumberFor("conflict");
+
         verify(logger).error(anyString(), eq(MEDIUM), eq("CONFLICTED"),
-                eq("code-exception=feign.FeignException$Conflict:"
+                eq(format("code-exception=feign.FeignException$Conflict:"
                         + " status 409 reading ConflictRemote#postConflict();"
                         + "code-location=x.loggy.LoggyController.conflict"
-                        + "(LoggyController.java:71);response-status=500;"
+                        + "(LoggyController.java:%d);response-status=500;"
                         + "request-method=POST;"
-                        + "request-url=http://localhost:8080/conflict"));
+                        + "request-url=http://localhost:8080/conflict", at)));
     }
 
     @Test
@@ -535,11 +563,17 @@ class LoggyLiveTest {
     @Test
     void shouldGatherHistogramMetrics()
             throws IOException, InterruptedException {
-        final var remoteRequest = HttpRequest.newBuilder()
+        final var feignRequest = HttpRequest.newBuilder()
                 .GET()
                 .uri(URI.create("http://localhost:8080/indirect"))
                 .build();
-        sendAndDiscardBody(remoteRequest);
+        sendAndDiscardBody(feignRequest);
+
+        final var repositoryRequest = HttpRequest.newBuilder()
+                .GET()
+                .uri(URI.create("http://localhost:8080/bobs"))
+                .build();
+        sendAndDiscardBody(repositoryRequest);
 
         final var metricsRequest = HttpRequest.newBuilder()
                 .GET()

@@ -12,6 +12,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.web.servlet.MockMvc;
 import x.loggy.LoggyRequest.Rolly;
+import x.loggy.data.BobRepository;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -48,6 +49,8 @@ class LoggyControllerTest {
     private ConflictRemote conflict;
     @MockBean
     private RetryRemote retry;
+    @MockBean
+    private BobRepository bobs;
 
     @Test
     void shouldAccept()
