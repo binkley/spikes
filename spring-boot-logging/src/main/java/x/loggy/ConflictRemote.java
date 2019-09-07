@@ -9,8 +9,10 @@ import static x.loggy.AlertMessage.Severity.MEDIUM;
 @FeignClient(name = "conflict",
         url = "http://localhost:8080/feign/conflict")
 public interface ConflictRemote {
+    String METRIC_NAME = "conflict.remote";
+
     @AlertMessage(message = "CONFLICTED", severity = MEDIUM)
     @PostMapping
-    @Timed("conflict.remote")
+    @Timed(METRIC_NAME)
     void postConflict();
 }

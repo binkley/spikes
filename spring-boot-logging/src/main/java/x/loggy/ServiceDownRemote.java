@@ -8,8 +8,10 @@ import static x.loggy.AlertMessage.Severity.HIGH;
 
 @FeignClient(name = "service-down", url = "https://localhost:0")
 public interface ServiceDownRemote {
+    String METRIC_NAME = "service-down.remote";
+
     @AlertMessage(message = "SERVICE DOWN", severity = HIGH)
     @GetMapping(produces = "application/json")
-    @Timed("service-down.remote")
+    @Timed(METRIC_NAME)
     String get();
 }

@@ -9,8 +9,10 @@ import static x.loggy.AlertMessage.Severity.MEDIUM;
 @FeignClient(name = "retry",
         url = "http://localhost:8080/feign/retry")
 public interface RetryRemote {
+    String METRIC_NAME = "retry.remote";
+
     @AlertMessage(message = "RETRYING", severity = MEDIUM)
     @GetMapping
-    @Timed("retry.remote")
+    @Timed(METRIC_NAME)
     void getRetry();
 }

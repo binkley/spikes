@@ -7,27 +7,29 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 @FeignClient(name = "loggy", url = "http://localhost:8080")
 public interface LoggyRemote {
+    String METRIC_NAME = "loggy.remote";
+
     @GetMapping(path = "direct", produces = "application/json")
-    @Timed("loggy.remote")
+    @Timed(METRIC_NAME)
     LoggyResponse getDirect();
 
     @GetMapping(path = "indirect", produces = "application/json")
-    @Timed("loggy.remote")
+    @Timed(METRIC_NAME)
     LoggyResponse getIndirect();
 
     @PostMapping(path = "postish")
-    @Timed("loggy.remote")
+    @Timed(METRIC_NAME)
     void post(final LoggyRequest request);
 
     @GetMapping(path = "npe")
-    @Timed("loggy.remote")
+    @Timed(METRIC_NAME)
     LoggyResponse getNpe();
 
     @PostMapping(path = "conflict")
-    @Timed("loggy.remote")
+    @Timed(METRIC_NAME)
     void postConflict();
 
     @GetMapping(path = "ping")
-    @Timed("loggy.remote")
+    @Timed(METRIC_NAME)
     void getPing();
 }

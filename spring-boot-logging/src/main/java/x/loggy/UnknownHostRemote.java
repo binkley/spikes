@@ -8,8 +8,10 @@ import static x.loggy.AlertMessage.Severity.HIGH;
 
 @FeignClient(name = "sad-path", url = "https://not.really.a.place/get")
 public interface UnknownHostRemote {
+    String METRIC_NAME = "unknown-host.remote";
+
     @AlertMessage(message = "UNKNOWABLE HOST", severity = HIGH)
     @GetMapping(produces = "application/json")
-    @Timed("unknown-host.remote")
+    @Timed(METRIC_NAME)
     String get();
 }

@@ -7,7 +7,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 @FeignClient(name = "not-found",
         url = "http://localhost:8080/feign/not-found")
 public interface NotFoundRemote {
+    String METRIC_NAME = "not-found.remote";
+
     @GetMapping(produces = "application/json")
-    @Timed("not-found.remote")
+    @Timed(METRIC_NAME)
     String get();
 }
