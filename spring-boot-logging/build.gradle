@@ -1,3 +1,8 @@
+import java.nio.file.Files
+import java.nio.file.Paths
+
+import static java.nio.file.Files.createSymbolicLink
+
 plugins {
     id "java"
     id "build-dashboard"
@@ -6,6 +11,10 @@ plugins {
     id "com.dorongold.task-tree" version "1.4"
     id "com.github.ben-manes.versions" version "0.22.0"
     id "se.patrikerdes.use-latest-versions" version "0.2.12"
+}
+
+gradle.afterProject { project ->
+    linkPrePush(project)
 }
 
 // TODO: What"s the point if it"s in the "plugins" block?
@@ -125,3 +134,9 @@ wrapper {
 }
 
 defaultTasks "build"
+
+static void linkPrePush(project) {
+    def link = Paths.get("${project.rootDir}", ".git", "hooks", "pre-push")
+    def target = Paths.get("${project.rootDir}", "pre-push")
+    if (!Files.exists(link)) createSymbolicLink(link, target)
+}
