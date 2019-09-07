@@ -127,16 +127,29 @@ public class ExceptionHandling
     }
 
     private static Map<String, Object> extra(
-            final Throwable throwable,
+            final Throwable e,
             final int httpStatus,
             final NativeWebRequest request) {
         final var extra = new LinkedHashMap<String, Object>(5);
-        final var rootCause = getMostSpecificCause(throwable);
+        final var rootCause = getMostSpecificCause(e);
         extra.put("code-exception", rootCause.toString());
         extra.put("code-location", codeLocation(rootCause));
         extra.put("response-status", httpStatus);
         extra.put("request-method", requestMethod(request));
         extra.put("request-url", requestUrl(request));
+
+        if (e instanceof FeignException) {
+            final var feign = (FeignException) e;
+            extra.put("feign-message", feign.getMessage());
+            extra.put("feign-status", feign.status());
+
+            final var details = findRequestDetails(e);
+            if (null != details) {
+                extra.put("feign-method", details.getMethod().name());
+                extra.put("feign-url", details.getUrl());
+            }
+        }
+
         return extra;
     }
 
@@ -158,6 +171,15 @@ public class ExceptionHandling
         final var query = request.getQueryString();
         if (null != query) url.append('?').append(query);
         return url.toString();
+    }
+
+    private static FeignErrorDetails findRequestDetails(
+            final Throwable throwable) {
+        for (Throwable x = throwable; null != x; x = x.getCause())
+            for (final Throwable suppressed : x.getSuppressed())
+                if (suppressed instanceof FeignErrorDetails)
+                    return (FeignErrorDetails) suppressed;
+        return null;
     }
 
     private static boolean isApplicationCode(final StackTraceElement frame) {
@@ -236,6 +258,7 @@ public class ExceptionHandling
     @ExceptionHandler(FeignException.class)
     public ResponseEntity<Problem> handleFeignException(
             final FeignException e, final NativeWebRequest request) {
+        // TODO: Reuse `extra` method
         final var rootException = getMostSpecificCause(e);
         final var message = e.equals(rootException)
                 ? e.toString()
@@ -266,14 +289,5 @@ public class ExceptionHandling
             return SERVICE_UNAVAILABLE;
 
         return BAD_GATEWAY;
-    }
-
-    private static FeignErrorDetails findRequestDetails(
-            final Throwable throwable) {
-        for (Throwable x = throwable; null != x; x = x.getCause())
-            for (final Throwable suppressed : x.getSuppressed())
-                if (suppressed instanceof FeignErrorDetails)
-                    return (FeignErrorDetails) suppressed;
-        return null;
     }
 }

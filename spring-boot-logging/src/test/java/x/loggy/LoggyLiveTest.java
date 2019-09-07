@@ -58,6 +58,8 @@ import static org.mockito.Mockito.verify;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.DEFINED_PORT;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.HttpStatus.BAD_GATEWAY;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.SERVICE_UNAVAILABLE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static x.loggy.AlertAssertions.assertThatAlertMessage;
@@ -176,8 +178,7 @@ class LoggyLiveTest {
                 .traceIdString();
     }
 
-    private static HttpResponse<String> send(
-            final HttpRequest request)
+    private static HttpResponse<String> send(final HttpRequest request)
             throws IOException, InterruptedException {
         return client.send(request, BodyHandlers.ofString(UTF_8));
     }
@@ -246,7 +247,8 @@ class LoggyLiveTest {
         final var response = send(request);
         final var traceId = extractTraceId(response);
 
-        assertThat(response.statusCode()).isEqualTo(500);
+        assertThat(response.statusCode())
+                .isEqualTo(INTERNAL_SERVER_ERROR.value());
         assertThat(traceId).isEqualTo(existingTraceId);
 
         tracingLogs.assertExchange(existingTraceId, true);
@@ -301,7 +303,7 @@ class LoggyLiveTest {
         final var context = starter.newTraceIdsOnCurrentThread();
 
         assertThatThrownBy(notFound::get)
-                .hasFieldOrPropertyWithValue("status", 404);
+                .hasFieldOrPropertyWithValue("status", NOT_FOUND.value());
 
         tracingLogs.assertExchange(context.traceIdString(), false);
     }
@@ -309,7 +311,7 @@ class LoggyLiveTest {
     @Test
     void givenNoExistingTrace_shouldHandleNotFound() {
         assertThatThrownBy(notFound::get)
-                .hasFieldOrPropertyWithValue("status", 404);
+                .hasFieldOrPropertyWithValue("status", NOT_FOUND.value());
 
         tracingLogs.assertExchange(null, false);
     }
@@ -395,17 +397,17 @@ class LoggyLiveTest {
 
         final var response = send(request);
 
-        assertThat(response.statusCode()).isEqualTo(500);
+        assertThat(response.statusCode())
+                .isEqualTo(INTERNAL_SERVER_ERROR.value());
 
         verify(logger).error(anyString(), eq(HIGH), eq("NULLITY"),
                 eq(format("code-exception=java.lang.NullPointerException:"
                                 + " SAD, SAD"
-                                + ";code-location=x.loggy.LoggyController"
-                                + ".getNpe(LoggyController.java:%d)"
+                                + ";code-location=%s"
                                 + ";response-status=500"
                                 + ";request-method=GET"
                                 + ";request-url=http://localhost:8080/npe",
-                        lineNumberFor("getNpe"))));
+                        codeLocationFor("getNpe"))));
 
         assertThat(httpTracesOf(httpLogger, objectMapper)
                 .filter(HttpTrace::isProblem)
@@ -413,15 +415,19 @@ class LoggyLiveTest {
                 .allSatisfy(LoggyLiveTest::assertHasExtra);
     }
 
-    private int lineNumberFor(final String methodName) {
+    private String codeLocationFor(final String methodName) {
         try {
-            final var at = controller
-                    .getDeclaredMethod(methodName)
+            final var method = controller.getDeclaredMethod(methodName);
+            final var at = method
                     .getMethodInfo()
-                    .getLineNumber(0);
-
-            // Offset by a fiddly number depending on how annotations work
-            return at + 1;
+                    .getLineNumber(0)
+                    + 1; // Leading annotatations count as "one" line
+            // x.loggy.LoggyController.getUnknownHost(LoggyController.java:%d)
+            return format("%s.%s(%s.java:%d)",
+                    LoggyController.class.getName(),
+                    methodName,
+                    LoggyController.class.getSimpleName(),
+                    at);
         } catch (final NotFoundException ignored) { }
 
         throw new AssertionError(format("Not a method in %s: %s",
@@ -447,20 +453,25 @@ class LoggyLiveTest {
 
         final var response = send(request);
 
-        assertThat(response.statusCode()).isEqualTo(500);
+        assertThat(response.statusCode())
+                .isEqualTo(INTERNAL_SERVER_ERROR.value());
 
         verify(logger).error(anyString(), eq(MEDIUM), eq("CONFLICTED"),
                 eq(format("code-exception=feign.FeignException$Conflict:"
                                 + " status 409 reading "
-                                + "ConflictRemote#postConflict();"
-                                + "code-location=x.loggy.LoggyController"
-                                + ".conflict"
-                                + "(LoggyController.java:%d);"
-                                + "response-status=500;"
-                                + "request-method=POST;"
-                                + "request-url=http://localhost:8080"
+                                + "ConflictRemote#postConflict()"
+                                + ";code-location=%s"
+                                + ";response-status=500"
+                                + ";request-method=POST"
+                                + ";request-url=http://localhost:8080"
+                                + "/conflict"
+                                + ";feign-message=status 409 reading"
+                                + " ConflictRemote#postConflict()"
+                                + ";feign-status=409"
+                                + ";feign-method=POST"
+                                + ";feign-url=http://localhost:8080/feign"
                                 + "/conflict",
-                        lineNumberFor("conflict"))));
+                        codeLocationFor("conflict"))));
     }
 
     @Test
@@ -479,13 +490,16 @@ class LoggyLiveTest {
         verify(logger).error(anyString(), eq(HIGH), eq("SERVICE DOWN"),
                 eq(format("code-exception=java.net.ConnectException:"
                                 + " Connection refused (Connection refused)"
-                                + ";code-location=x.loggy.LoggyController"
-                                + ".getServiceDown(LoggyController.java:%d)"
+                                + ";code-location=%s"
                                 + ";response-status=503"
                                 + ";request-method=GET"
                                 + ";request-url=http://localhost:8080"
-                                + "/service-down",
-                        lineNumberFor("getServiceDown"))));
+                                + "/service-down"
+                                + ";feign-message=Connection refused"
+                                + " (Connection refused) executing GET"
+                                + " https://localhost:17171"
+                                + ";feign-status=-1",
+                        codeLocationFor("getServiceDown"))));
     }
 
     @Test
@@ -503,13 +517,16 @@ class LoggyLiveTest {
         verify(logger).error(anyString(), eq(HIGH), eq("UNKNOWABLE HOST"),
                 eq(format("code-exception=java.net.UnknownHostException:"
                                 + " not.really.a.place"
-                                + ";code-location=x.loggy.LoggyController"
-                                + ".getUnknownHost(LoggyController.java:%d)"
+                                + ";code-location=%s"
                                 + ";response-status=502"
                                 + ";request-method=GET"
                                 + ";request-url=http://localhost:8080"
-                                + "/unknown-host",
-                        lineNumberFor("getUnknownHost"))));
+                                + "/unknown-host"
+                                + ";feign-message=not.really.a.place"
+                                + " executing GET"
+                                + " https://not.really.a.place/get"
+                                + ";feign-status=-1",
+                        codeLocationFor("getUnknownHost"))));
     }
 
     @Test
@@ -523,7 +540,7 @@ class LoggyLiveTest {
     @Test
     void shouldObfuscateSecrets()
             throws IOException, InterruptedException {
-        final var secret = "BOB BOB BOB";
+        final var secret = "BOB, BOB, BOB";
         final var sensitive = HttpRequest.newBuilder()
                 .GET()
                 .uri(URI.create("http://localhost:8080/direct"))
