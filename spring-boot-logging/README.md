@@ -6,12 +6,12 @@ Various Spring Boot logging niceties
 
 First, as a "local" program for developers:
 
-1. Run `./gradlew build`.
+1. Run `./mvn package` or `./gradlew build`.
 2. Run `java -jar build/libs/spring-boot-logging-0.0.1-SNAPSHOT.jar`.
 
 Second, as a "production" project with structured logging (JSON; eg, for ELK):
 
-1. Run `./gradlew build`.
+1. Run `./mvn package` or `./gradlew build`.
 2. Run `java -Dspring.profiles.active=json -jar build/libs/spring-boot-logging-0.0.1-SNAPSHOT.jar`.
 3. For easier reading, pipe the previous step through `| jq -cC . | less`
    (single line per JSON) or `| jq -C . | less -R` (pretty-printed JSON).
@@ -43,7 +43,7 @@ Production use:
 * JSON logging suitable for Logstash with `-Dspring.profiles.active=json`
 * Embedded JSON payloads (not quoted-string JSON)
 * Custom JSON properties (ie, "environment")
-* Micrometer timings on Feign clients
+* Micrometer timings on Feign clients and Spring Data repositories
 
 ## Key files
 
@@ -54,7 +54,3 @@ Production use:
 * [`application.yml`](src/main/resources/application.yml)
 * [`bootstrap.yml`](src/main/resources/bootstrap.yml)
 * [`logback-spring.xml`](src/main/resources/logback-spring.xml)
-
-## TODO
-
-* Upgrade to Flyway 6.0.+ -- Spring Boot 2.1.8.RELEASE is unhappy with this
