@@ -269,6 +269,7 @@
                 <groupId>pl.project13.maven</groupId>
                 <artifactId>git-commit-id-plugin</artifactId>
                 <configuration>
+                    <commitIdGenerationMode>full</commitIdGenerationMode>
                     <!-- Why does Spring choose override with true? -->
                     <verbose>false</verbose>
                 </configuration>
