@@ -12,6 +12,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.logging.LogLevel;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.env.Environment;
 import org.springframework.core.style.ToStringCreator;
 import org.springframework.stereotype.Component;
 import x.loggy.LoggyRequest.Rolly;
@@ -46,6 +47,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class LoggyDemo {
     private static final HttpClient client = newHttpClient();
 
+    private final Environment env;
     private final LoggyRemote loggy;
     private final NotFoundRemote notFound;
     private final ServiceDownRemote serviceDown;
@@ -60,7 +62,7 @@ public class LoggyDemo {
             throws JsonProcessingException {
         starter.newTraceIdsOnCurrentThread();
 
-        out.println();
+        nicerDevOutput();
         informUser("SIMPLE LOGGING");
         logger.info("I am ready: {}", new ToStringCreator(event)
                 .append("args", event.getArgs())
@@ -76,7 +78,7 @@ public class LoggyDemo {
                 new NullPointerException("OH MY, A NULL POINTER!"));
         logger.error("And I fail: {}", e.getMessage(), e);
 
-        out.println();
+        nicerDevOutput();
         informUser("CALL OURSELVES");
         informUser("GET WITH WEB");
         informUser("INVALID INBOUND TRACE ID");
@@ -148,7 +150,7 @@ public class LoggyDemo {
                 .build();
         sendOrDie(npeRequest);
 
-        out.println();
+        nicerDevOutput();
         informUser("FEIGN");
         informUser("CALL OURSELVES WITH FEIGN DIRECT");
 
@@ -208,7 +210,7 @@ public class LoggyDemo {
                     getMostSpecificCause(violation), violation);
         }
 
-        out.println();
+        nicerDevOutput();
         informUser("WEB + FEIGN");
         informUser("NOT FOUND WITH FEIGN THROUGH WEB");
 
@@ -270,7 +272,7 @@ public class LoggyDemo {
 
         sendOrDie(retryRequest);
 
-        out.println();
+        nicerDevOutput();
         informUser("BUT IT'S ALRIGHT, IT'S OK, I'M GONNA RUN THAT WAY");
         informUser("PONG BUT NOT REQUEST/RESPONSE LOGGING (NO OUTPUT)");
 
@@ -280,7 +282,7 @@ public class LoggyDemo {
                 .build());
         loggy.getPing();
 
-        out.println();
+        nicerDevOutput();
         informUser("BOB, BOB, BOB");
         informUser("NO BOBS HERE");
 
@@ -303,7 +305,7 @@ public class LoggyDemo {
         logger.info("{} THAT {} IS {}",
                 saved.equals(found), found, saved);
 
-        out.println();
+        nicerDevOutput();
         informUser("TURNING DOWN VOLUME ON LOGGER (NO OUTPUT)");
 
         adjustLogging(OFF);
@@ -312,8 +314,12 @@ public class LoggyDemo {
 
         adjustLogging(WARN);
 
-        out.println();
+        nicerDevOutput();
         informUser("DONE!");
+    }
+
+    private void nicerDevOutput() {
+        if (isDev()) out.println();
     }
 
     private void informUser(final String message) {
@@ -345,6 +351,10 @@ public class LoggyDemo {
                         getClass().getName())))
                 .header("Content-Type", APPLICATION_JSON_VALUE)
                 .build());
+    }
+
+    private boolean isDev() {
+        return !List.of(env.getActiveProfiles()).contains("json");
     }
 
     @Value
