@@ -21,6 +21,7 @@
 
     <properties>
         <!-- @formatter:off -->
+        <assertj.version>3.13.2</assertj.version>
         <!-- TODO: Spring Boot 2.1.8 and lower do not work with Flyway 6 -->
         <!-- <flyway.version>6.0.1</flyway.version> -->
         <git-commit-id-plugin.version>2.2.5</git-commit-id-plugin.version>
@@ -32,12 +33,16 @@
         <logbook.version>1.13.0</logbook.version>
         <lombok.version>1.18.8</lombok.version>
         <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
+        <!-- TODO: Track when 3.1.2 releases -->
+        <maven-dependency-plugin.version>3.1.2-SNAPSHOT</maven-dependency-plugin.version>
+        <maven-enforcer-plugin.version>1.4.1</maven-enforcer-plugin.version>
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
         <mockito.version>2.28.2</mockito.version>
         <problem-spring-web.version>0.25.0</problem-spring-web.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <spring-cloud.version>Greenwich.SR2</spring-cloud.version>
+        <versions-maven-plugin.version>2.7</versions-maven-plugin.version>
         <!-- @formatter:on -->
     </properties>
 
@@ -198,8 +203,32 @@
     <build>
         <plugins>
             <plugin>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>${maven-enforcer-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>enforce-maven</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <requireMavenVersion>
+                                    <version>3.6.2</version>
+                                </requireMavenVersion>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <artifactId>maven-dependency-plugin</artifactId>
-                <version>3.1.2-SNAPSHOT</version>
+                <version>${maven-dependency-plugin.version}</version>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>versions-maven-plugin</artifactId>
+                <version>${versions-maven-plugin.version}</version>
             </plugin>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
