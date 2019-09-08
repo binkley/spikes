@@ -25,13 +25,14 @@
         <!-- TODO: Spring Boot 2.1.8 and lower do not work with Flyway 6 -->
         <!-- <flyway.version>6.0.1</flyway.version> -->
         <git-commit-id-plugin.version>2.2.5</git-commit-id-plugin.version>
+        <h2.version>1.4.199</h2.version>
         <java.version>11</java.version>
         <javassist.version>3.25.0-GA</javassist.version>
         <jopt-simple.version>5.0.4</jopt-simple.version>
         <jsqlparser.version>3.0</jsqlparser.version>
         <junit-jupiter.version>5.5.1</junit-jupiter.version>
         <logbook.version>1.13.0</logbook.version>
-        <logstash-logback.version>6.1</logstash-logback.version>
+        <logstash-logback.version>6.2</logstash-logback.version>
         <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
         <!-- TODO: Track when 3.1.2 releases -->
         <maven-dependency-plugin.version>3.1.2-SNAPSHOT</maven-dependency-plugin.version>

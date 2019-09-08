@@ -22,7 +22,7 @@ ext {
     joptsimpleVersion = "5.0.4"
     jsqlparserVersion = "3.0"
     logbookVersion = "1.13.0"
-    logstashLogbackVersion = "6.1"
+    logstashLogbackVersion = "6.2"
     problemSpringWebVersion = "0.25.0"
     springCloudVersion = "Greenwich.SR2"
 }
