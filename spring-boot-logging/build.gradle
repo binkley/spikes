@@ -32,7 +32,7 @@ ext["assertj.version"] = "3.13.2" // TODO: SB 2.1.8?
 ext["flyway.version"] = "5.2.4" // TODO: 6.0.+
 ext["junit-jupiter.version"] = "5.4.2" // TODO: 5.5.+
 ext["lombok.version"] = "1.18.8" // TODO: SB 2.1.8?
-ext["micrometer.version"] = "1.1.2" // TODO: 1.2.+
+ext["micrometer.version"] = "1.2.0"
 ext["mockito.version"] = "2.28.2" // TODO: 3.0.+
 
 configurations {
