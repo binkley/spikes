@@ -24,6 +24,8 @@ public class LoggyApplication {
                 .forHelp();
         final var keepGoing = optionParser.accepts("continue",
                 "Continue running the application after the demo");
+        final var jsonLogging = optionParser.accepts("json-logging",
+                "Log in JSON format");
         final var noDemo = optionParser.accepts("no-demo",
                 "Do not first run the demo; implies \"continue\"");
         final var options = optionParser.parse(args);
@@ -34,6 +36,9 @@ public class LoggyApplication {
             exit(0);
         }
 
+        if (options.has(jsonLogging))
+            // TODO: How to merge profiles if user has -D?
+            System.setProperty("spring.profiles.active", "json");
         if (options.has(keepGoing) || options.has(noDemo))
             System.setProperty("loggy.run-once", "false");
         if (options.has(noDemo))

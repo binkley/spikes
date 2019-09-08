@@ -31,6 +31,7 @@
         <jsqlparser.version>3.0</jsqlparser.version>
         <junit-jupiter.version>5.5.1</junit-jupiter.version>
         <logbook.version>1.13.0</logbook.version>
+        <logstash-logback.version>6.1</logstash-logback.version>
         <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
         <!-- TODO: Track when 3.1.2 releases -->
         <maven-dependency-plugin.version>3.1.2-SNAPSHOT</maven-dependency-plugin.version>
@@ -60,10 +61,6 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-core</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-openfeign</artifactId>
         </dependency>
@@ -72,11 +69,6 @@
             <artifactId>spring-cloud-starter-sleuth</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <scope>runtime</scope>
-        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
@@ -157,6 +149,23 @@
             <artifactId>javassist</artifactId>
             <version>${javassist.version}</version>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.logstash.logback</groupId>
+            <artifactId>logstash-logback-encoder</artifactId>
+            <version>${logstash-logback.version}</version>
+            <scope>runtime</scope>
         </dependency>
     </dependencies>
 
@@ -260,5 +269,7 @@
                 <artifactId>git-commit-id-plugin</artifactId>
             </plugin>
         </plugins>
+
+        <defaultGoal>package</defaultGoal>
     </build>
 </project>
