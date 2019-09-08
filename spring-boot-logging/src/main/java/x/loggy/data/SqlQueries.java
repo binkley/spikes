@@ -32,6 +32,7 @@ public class SqlQueries
     @SuppressWarnings("unused")
     private final Appender appender = new Appender();
 
+    // TODO: Counter makes sense for runtime; Gauge makes sense for tests
     private final Map<String, Counter> counters;
 
     public SqlQueries(final MeterRegistry registry) {
