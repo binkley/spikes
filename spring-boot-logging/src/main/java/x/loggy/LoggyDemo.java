@@ -305,6 +305,15 @@ public class LoggyDemo {
         logger.info("{} THAT {} IS {}",
                 saved.equals(found), found, saved);
 
+        informUser("ROBBING BOB");
+
+        found.setName("ROBERT");
+        bobRepository.save(found);
+
+        informUser("BYE, BOB");
+
+        bobRepository.delete(found);
+
         nicerDevOutput();
         informUser("TURNING DOWN VOLUME ON LOGGER (NO OUTPUT)");
 
