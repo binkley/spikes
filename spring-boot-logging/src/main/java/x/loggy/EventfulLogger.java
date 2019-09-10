@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public class EventufulLogger {
+public class EventfulLogger {
     private final Logger logger;
 
     @EventListener
