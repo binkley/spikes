@@ -24,7 +24,7 @@ ext {
     logbookVersion = "1.13.0"
     logstashLogbackVersion = "6.2"
     problemSpringWebVersion = "0.25.0"
-    springCloudVersion = "Greenwich.SR2"
+    springCloudVersion = "Greenwich.SR3"
 }
 
 ext["aspectj.version"] = "1.9.4" // TODO: SB 2.1.8?
