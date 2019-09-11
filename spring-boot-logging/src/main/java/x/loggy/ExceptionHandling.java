@@ -50,28 +50,6 @@ public class ExceptionHandling
     private final Logger logger;
     private final Alerter alerter;
 
-    @Override
-    public ResponseEntity<Problem> handleMessageNotReadableException(
-            final HttpMessageNotReadableException exception,
-            @Nonnull final NativeWebRequest request) {
-        if (exception.getCause() instanceof MismatchedInputException)
-            return handleMismatchedInputException(
-                    (MismatchedInputException) exception.getCause(), request);
-
-        return create(BAD_REQUEST, exception, request);
-    }
-
-    @ExceptionHandler(MismatchedInputException.class)
-    public ResponseEntity<Problem> handleMismatchedInputException(
-            final MismatchedInputException e,
-            final NativeWebRequest request) {
-        return newConstraintViolationProblem(e, singleton(createViolation(
-                new FieldError("n/a", jsonFieldPath(e),
-                        e.getTargetType().getName() + ": "
-                                + getMostSpecificCause(e).getMessage()))),
-                request);
-    }
-
     private static String jsonFieldPath(final MismatchedInputException e) {
         final var parts = e.getPath();
         if (parts.isEmpty())
@@ -92,38 +70,8 @@ public class ExceptionHandling
         return buffer.toString();
     }
 
-    @Override
-    public boolean isCausalChainsEnabled() {
-        return includeStackTrace(server);
-    }
-
     private static boolean includeStackTrace(final ServerProperties server) {
         return ALWAYS == server.getError().getIncludeStacktrace();
-    }
-
-    @Override
-    public ResponseEntity<Problem> create(@Nonnull final Throwable throwable,
-            @Nonnull final NativeWebRequest request) {
-        final ThrowableProblem problem = toProblem(throwable, request,
-                toProblem(throwable).getStatus());
-        return create(throwable, problem, request);
-    }
-
-    private ThrowableProblem toProblem(final Throwable throwable,
-            final NativeWebRequest request, final StatusType status) {
-        return toProblem(throwable, request, status, Problem.DEFAULT_TYPE);
-    }
-
-    private ThrowableProblem toProblem(final Throwable throwable,
-            final NativeWebRequest request, final StatusType status,
-            final URI type) {
-        final var problemBuilder = prepare(throwable, status, type);
-        extra(throwable, status.getStatusCode(), request)
-                .forEach(problemBuilder::with);
-        final ThrowableProblem problem = problemBuilder.build();
-        final StackTraceElement[] stackTrace = createStackTrace(throwable);
-        problem.setStackTrace(stackTrace);
-        return problem;
     }
 
     private static Map<String, Object> extra(
@@ -198,6 +146,53 @@ public class ExceptionHandling
         return realRequest;
     }
 
+    private static Status statusFor(final FeignException e) {
+        final var feignStatus = e.status();
+        if (400 <= feignStatus && feignStatus < 500)
+            return INTERNAL_SERVER_ERROR;
+
+        final var rootException = getMostSpecificCause(e);
+        if (rootException instanceof ConnectException)
+            return SERVICE_UNAVAILABLE;
+
+        return BAD_GATEWAY;
+    }
+
+    @Override
+    public ResponseEntity<Problem> handleMessageNotReadableException(
+            final HttpMessageNotReadableException exception,
+            @Nonnull final NativeWebRequest request) {
+        if (exception.getCause() instanceof MismatchedInputException)
+            return handleMismatchedInputException(
+                    (MismatchedInputException) exception.getCause(), request);
+
+        return create(BAD_REQUEST, exception, request);
+    }
+
+    @ExceptionHandler(MismatchedInputException.class)
+    public ResponseEntity<Problem> handleMismatchedInputException(
+            final MismatchedInputException e,
+            final NativeWebRequest request) {
+        return newConstraintViolationProblem(e, singleton(createViolation(
+                new FieldError("n/a", jsonFieldPath(e),
+                        e.getTargetType().getName() + ": "
+                                + getMostSpecificCause(e).getMessage()))),
+                request);
+    }
+
+    @Override
+    public boolean isCausalChainsEnabled() {
+        return includeStackTrace(server);
+    }
+
+    @Override
+    public ResponseEntity<Problem> create(@Nonnull final Throwable throwable,
+            @Nonnull final NativeWebRequest request) {
+        final ThrowableProblem problem = toProblem(throwable, request,
+                toProblem(throwable).getStatus());
+        return create(throwable, problem, request);
+    }
+
     @Override
     public ResponseEntity<Problem> create(
             @Nonnull final StatusType status,
@@ -250,6 +245,23 @@ public class ExceptionHandling
                     throwable);
     }
 
+    private ThrowableProblem toProblem(final Throwable throwable,
+            final NativeWebRequest request, final StatusType status) {
+        return toProblem(throwable, request, status, Problem.DEFAULT_TYPE);
+    }
+
+    private ThrowableProblem toProblem(final Throwable throwable,
+            final NativeWebRequest request, final StatusType status,
+            final URI type) {
+        final var problemBuilder = prepare(throwable, status, type);
+        extra(throwable, status.getStatusCode(), request)
+                .forEach(problemBuilder::with);
+        final ThrowableProblem problem = problemBuilder.build();
+        final StackTraceElement[] stackTrace = createStackTrace(throwable);
+        problem.setStackTrace(stackTrace);
+        return problem;
+    }
+
     @Override
     public StatusType defaultConstraintViolationStatus() {
         return UNPROCESSABLE_ENTITY;
@@ -277,17 +289,5 @@ public class ExceptionHandling
                 .with("feign-url", details.getUrl());
 
         return create(e, problem.build(), request);
-    }
-
-    private static Status statusFor(final FeignException e) {
-        final var feignStatus = e.status();
-        if (400 <= feignStatus && feignStatus < 500)
-            return INTERNAL_SERVER_ERROR;
-
-        final var rootException = getMostSpecificCause(e);
-        if (rootException instanceof ConnectException)
-            return SERVICE_UNAVAILABLE;
-
-        return BAD_GATEWAY;
     }
 }

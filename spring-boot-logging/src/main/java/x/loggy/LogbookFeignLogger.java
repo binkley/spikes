@@ -43,27 +43,6 @@ public abstract class LogbookFeignLogger
     protected final Logger logger;
     protected final LoggyProperties loggy;
 
-    @Override
-    protected abstract void log(final String configKey,
-            final String format, final Object... args);
-
-    @Override
-    protected void logRequest(final String configKey,
-            final Level logLevel, final Request feignRequest) {
-        try {
-            final HttpEntityEnclosingRequest logbookRequest
-                    = logbookRequestFor(feignRequest);
-
-            final var context = new HttpClientContext();
-            new LogbookHttpRequestInterceptor(logbook).process(
-                    logbookRequest, context);
-            threadLocal.set(context);
-        } catch (final HttpException | IOException e) {
-            // It is unfortunate the logbook request interceptor throws
-            throw new IOError(e);
-        }
-    }
-
     private static HttpEntityEnclosingRequest logbookRequestFor(
             final Request feignRequest) {
         final var logbookRequest
@@ -100,27 +79,6 @@ public abstract class LogbookFeignLogger
                 ? new byte[0] : requestBody.asBytes();
     }
 
-    @Override
-    protected abstract void logRetry(
-            final String configKey, final Level logLevel);
-
-    @Override
-    protected Response logAndRebufferResponse(final String configKey,
-            final Level logLevel,
-            final Response feignResponse,
-            final long elapsedTime)
-            throws IOException {
-        final byte[] bodyData = bodyData(feignResponse);
-        final HttpResponse logbookResponse = logbookResponseFor(
-                feignResponse, bodyData);
-
-        new LogbookHttpResponseInterceptor().process(
-                logbookResponse, threadLocal.get());
-        threadLocal.remove();
-
-        return feignResponse.toBuilder().body(bodyData).build();
-    }
-
     private static byte[] bodyData(final Response response)
             throws IOException {
         final var status = response.status();
@@ -147,6 +105,48 @@ public abstract class LogbookFeignLogger
     private static void copyBodyTo(final byte[] bodyData,
             final HttpResponse logbookResponse) {
         logbookResponse.setEntity(new ByteArrayEntity(bodyData));
+    }
+
+    @Override
+    protected abstract void log(final String configKey,
+            final String format, final Object... args);
+
+    @Override
+    protected void logRequest(final String configKey,
+            final Level logLevel, final Request feignRequest) {
+        try {
+            final HttpEntityEnclosingRequest logbookRequest
+                    = logbookRequestFor(feignRequest);
+
+            final var context = new HttpClientContext();
+            new LogbookHttpRequestInterceptor(logbook).process(
+                    logbookRequest, context);
+            threadLocal.set(context);
+        } catch (final HttpException | IOException e) {
+            // It is unfortunate the logbook request interceptor throws
+            throw new IOError(e);
+        }
+    }
+
+    @Override
+    protected abstract void logRetry(
+            final String configKey, final Level logLevel);
+
+    @Override
+    protected Response logAndRebufferResponse(final String configKey,
+            final Level logLevel,
+            final Response feignResponse,
+            final long elapsedTime)
+            throws IOException {
+        final byte[] bodyData = bodyData(feignResponse);
+        final HttpResponse logbookResponse = logbookResponseFor(
+                feignResponse, bodyData);
+
+        new LogbookHttpResponseInterceptor().process(
+                logbookResponse, threadLocal.get());
+        threadLocal.remove();
+
+        return feignResponse.toBuilder().body(bodyData).build();
     }
 
     /**
@@ -218,19 +218,19 @@ public abstract class LogbookFeignLogger
             this.objectMapper = objectMapper;
         }
 
-        @Override
-        protected void log(final String configKey, final String format,
-                final Object... args) {
-            withJackson(() -> logger.trace(objectMapper.writeValueAsString(
-                    new Log(configKey, format(format, args)))));
-        }
-
         private static void withJackson(final JacksonCall call) {
             try {
                 call.call();
             } catch (final JsonProcessingException e) {
                 throw new Bug("Jackson missing or misconfigured", e);
             }
+        }
+
+        @Override
+        protected void log(final String configKey, final String format,
+                final Object... args) {
+            withJackson(() -> logger.trace(objectMapper.writeValueAsString(
+                    new Log(configKey, format(format, args)))));
         }
 
         @Override

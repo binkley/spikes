@@ -156,7 +156,8 @@ public class AssertionsForTracingLogs {
             final var traceId = traceIdOf(trace);
 
             assertThat(traceId).withFailMessage(
-                    "Wrong X-B3-TraceId header; Expecting: <%s> to be equal to: <%s>",
+                    "Wrong X-B3-TraceId header; Expecting: <%s> to be equal"
+                            + " to: <%s>",
                     traceId, expectedTraceId)
                     .isEqualTo(expectedTraceId);
         }

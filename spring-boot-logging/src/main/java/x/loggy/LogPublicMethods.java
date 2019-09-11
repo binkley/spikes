@@ -13,6 +13,14 @@ import static org.springframework.core.NestedExceptionUtils.getMostSpecificCause
 @Component
 @Slf4j
 public class LogPublicMethods {
+    private static String nearestUs(final Throwable t) {
+        for (final var frame : t.getStackTrace()) {
+            if (frame.getClassName().startsWith("x.loggy."))
+                return frame.toString();
+        }
+        return "JDK INTERNAL";
+    }
+
     @Around("execution(public * x.loggy.*Controller.*(..))")
     public Object logPublicMethods(final ProceedingJoinPoint pjp)
             throws Throwable {
@@ -30,13 +38,5 @@ public class LogPublicMethods {
                     rootCause, nearestUs(rootCause));
             throw throwable;
         }
-    }
-
-    private static String nearestUs(final Throwable t) {
-        for (final var frame : t.getStackTrace()) {
-            if (frame.getClassName().startsWith("x.loggy."))
-                return frame.toString();
-        }
-        return "JDK INTERNAL";
     }
 }

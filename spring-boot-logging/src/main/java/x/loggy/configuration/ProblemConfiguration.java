@@ -13,14 +13,14 @@ import static org.springframework.boot.autoconfigure.web.ErrorProperties.Include
 @Configuration
 @EnableAutoConfiguration(exclude = ErrorMvcAutoConfiguration.class)
 public class ProblemConfiguration {
+    private static boolean includeStackTrace(final ServerProperties server) {
+        return ALWAYS == server.getError().getIncludeStacktrace();
+    }
+
     @Bean
     public ProblemModule problemModule(final ServerProperties server) {
         return new ProblemModule()
                 .withStackTraces(includeStackTrace(server));
-    }
-
-    private static boolean includeStackTrace(final ServerProperties server) {
-        return ALWAYS == server.getError().getIncludeStacktrace();
     }
 
     @Bean

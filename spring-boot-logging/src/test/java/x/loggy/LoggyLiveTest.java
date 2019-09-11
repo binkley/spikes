@@ -104,6 +104,31 @@ class LoggyLiveTest {
     private Extractor<HttpHeaders> httpExtractor;
     private CtClass controller;
 
+    private static HttpRequest.Builder requestWithTracing(
+            final String traceId) {
+        return HttpRequest.newBuilder().headers(
+                "X-B3-TraceId", traceId,
+                "X-B3-SpanId", traceId);
+    }
+
+    private static HttpResponse<String> send(final HttpRequest request)
+            throws IOException, InterruptedException {
+        return client.send(request, BodyHandlers.ofString(UTF_8));
+    }
+
+    private static HttpRequest.Builder requestWithoutTracing() {
+        return HttpRequest.newBuilder();
+    }
+
+    private static void assertHasExtra(final Problem problem) {
+        assertThat(problem.getParameters()).containsKeys(
+                "code-exception",
+                "code-location",
+                "response-status",
+                "request-method",
+                "request-url");
+    }
+
     @PostConstruct
     private void init()
             throws NotFoundException {
@@ -158,13 +183,6 @@ class LoggyLiveTest {
                 anyString(), anyString());
     }
 
-    private static HttpRequest.Builder requestWithTracing(
-            final String traceId) {
-        return HttpRequest.newBuilder().headers(
-                "X-B3-TraceId", traceId,
-                "X-B3-SpanId", traceId);
-    }
-
     @Test
     void givenExistingTrace_shouldTraceThoughWebDirectly()
             throws IOException, InterruptedException {
@@ -191,11 +209,6 @@ class LoggyLiveTest {
                 .traceIdString();
     }
 
-    private static HttpResponse<String> send(final HttpRequest request)
-            throws IOException, InterruptedException {
-        return client.send(request, BodyHandlers.ofString(UTF_8));
-    }
-
     @Test
     void givenNoExistingTrace_shouldTraceThoughWebDirectly()
             throws IOException, InterruptedException {
@@ -211,10 +224,6 @@ class LoggyLiveTest {
                 .isNotNull();
 
         tracingLogs.assertExchange(null, true);
-    }
-
-    private static HttpRequest.Builder requestWithoutTracing() {
-        return HttpRequest.newBuilder();
     }
 
     @Test
@@ -445,15 +454,6 @@ class LoggyLiveTest {
 
         throw new AssertionError(format("Not a method in %s: %s",
                 LoggyController.class.getName(), methodName));
-    }
-
-    private static void assertHasExtra(final Problem problem) {
-        assertThat(problem.getParameters()).containsKeys(
-                "code-exception",
-                "code-location",
-                "response-status",
-                "request-method",
-                "request-url");
     }
 
     @Test
