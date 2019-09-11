@@ -15,6 +15,7 @@ import org.junit.jupiter.api.TestInstance;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -127,6 +128,17 @@ class LoggyLiveTest {
         lenient().when(httpLogger.isInfoEnabled()).thenReturn(true);
         lenient().when(httpLogger.isWarnEnabled()).thenReturn(true);
         lenient().when(httpLogger.isErrorEnabled()).thenReturn(true);
+    }
+
+    @Test
+    void shouldUseCorrectSpringBootVersion_GradleLookingAtYou() {
+        final var jarUrl = SpringBootApplication.class
+                .getProtectionDomain()
+                .getCodeSource()
+                .getLocation()
+                .toExternalForm();
+
+        assertThat(jarUrl).contains("2.1.8.RELEASE");
     }
 
     @Test
