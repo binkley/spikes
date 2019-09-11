@@ -57,6 +57,7 @@ class BobDataTest {
                 .build(), BodyHandlers.ofString(UTF_8));
 
         assertThat(response.body())
-                .contains("database_calls_total{sql=\"select\"");
+                .contains("database_calls_total{sql=\"select\"")
+                .contains("database_calls_total{sql=\"insert\"");
     }
 }

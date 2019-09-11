@@ -307,7 +307,7 @@ public class LoggyDemo {
 
         informUser("ROBBING BOB");
 
-        found.setName("ROBERT");
+        found.name = "ROBERT";
         bobRepository.save(found);
 
         informUser("BYE, BOB");
