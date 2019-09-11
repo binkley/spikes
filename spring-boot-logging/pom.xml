@@ -24,7 +24,7 @@
         <assertj.version>3.13.2</assertj.version>
         <!-- TODO: Spring Boot 2.1.8 and lower do not work with Flyway 6 -->
         <!-- <flyway.version>6.0.1</flyway.version> -->
-        <git-commit-id-plugin.version>2.2.5</git-commit-id-plugin.version>
+        <git-commit-id-plugin.version>3.0.1</git-commit-id-plugin.version>
         <h2.version>1.4.199</h2.version>
         <java.version>11</java.version>
         <javassist.version>3.25.0-GA</javassist.version>
