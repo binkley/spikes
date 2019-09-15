@@ -8,6 +8,7 @@ import io.micronaut.runtime.event.annotation.EventListener;
 import io.micronaut.runtime.server.EmbeddedServer;
 import io.micronaut.test.annotation.MicronautTest;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
@@ -21,6 +22,7 @@ import static io.micronaut.http.HttpStatus.BAD_REQUEST;
 import static io.micronaut.http.HttpStatus.NOT_FOUND;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @MicronautTest
@@ -68,6 +70,7 @@ class HelloControllerSpec {
         assertFalse(result.isEmpty());
     }
 
+    @Disabled("Demonstrate issue with retry after failed validation")
     @SuppressWarnings({"CheckReturnValue", "ResultOfMethodCallIgnored"})
     @Test
     void testControllerValidation() {
@@ -80,6 +83,7 @@ class HelloControllerSpec {
             fail();
         } catch (final HttpClientResponseException e) {
             assertEquals(BAD_REQUEST, e.getStatus());
+            assertTrue(retryEventListener.events.isEmpty());
         }
     }
 
