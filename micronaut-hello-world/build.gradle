@@ -15,6 +15,7 @@ ext {
     handlebarsVersion = "4.1.2"
     logbackVersion = "1.2.3"
     lombokVersion = "1.18.8"
+    micronautDataVersion = "1.0.0.M1"
 }
 
 repositories {
@@ -46,6 +47,10 @@ dependencies {
     implementation "javax.annotation:javax.annotation-api"
     implementation "io.micronaut:micronaut-http-server-netty"
 
+    // Data and JDBC
+    annotationProcessor "io.micronaut.data:micronaut-data-processor:${micronautDataVersion}"
+    implementation "io.micronaut.data:micronaut-data-jdbc:${micronautDataVersion}"
+
     // Admin endpoints
     implementation "io.micronaut:micronaut-management"
 
@@ -61,7 +66,6 @@ dependencies {
     // Tracing
     implementation "io.micronaut:micronaut-tracing"
     implementation "io.opentracing.brave:brave-opentracing"
-//    runtime "io.zipkin.brave:brave-instrumentation-http"
 
     testAnnotationProcessor "io.micronaut:micronaut-inject-java"
 
