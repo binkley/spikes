@@ -7,8 +7,9 @@ datasources:
     dialect: H2
 
 endpoints:
-  routes:
+  all:
     enabled: true
+    path: /admin
     sensitive: false
 
 swagger:

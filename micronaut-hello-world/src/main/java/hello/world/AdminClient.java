@@ -17,7 +17,7 @@ import static io.micronaut.health.HealthStatus.NAME_DOWN;
 import static io.micronaut.health.HealthStatus.NAME_UP;
 import static io.micronaut.health.HealthStatus.UP;
 
-@Client("/")
+@Client("/admin")
 public interface AdminClient {
     @Get("health")
     Single<Health> health();
