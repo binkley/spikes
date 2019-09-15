@@ -5,7 +5,7 @@ import io.micronaut.data.annotation.MappedEntity;
 import lombok.Data;
 
 @Data
-@MappedEntity
+@MappedEntity("foo")
 public class FooRecord {
     @Id
     private String code;
