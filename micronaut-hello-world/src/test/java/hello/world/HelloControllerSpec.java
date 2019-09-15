@@ -7,7 +7,7 @@ import io.micronaut.retry.event.RetryEvent;
 import io.micronaut.runtime.event.annotation.EventListener;
 import io.micronaut.runtime.server.EmbeddedServer;
 import io.micronaut.test.annotation.MicronautTest;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import javax.inject.Inject;
@@ -37,6 +37,11 @@ class HelloControllerSpec {
     private RetryEventListener retryEventListener;
     @Inject
     private Validator validator;
+
+    @BeforeEach
+    void setUp() {
+        retryEventListener.events.clear();
+    }
 
     @Test
     void testHelloWorldResponse() {
@@ -71,14 +76,13 @@ class HelloControllerSpec {
         sampleData.setB(-3);
 
         try {
-            helloClient.roundtrip(sampleData).blockingGet();
+            helloClient.roundTrip(sampleData).blockingGet();
             fail();
         } catch (final HttpClientResponseException e) {
             assertEquals(BAD_REQUEST, e.getStatus());
         }
     }
 
-    @Disabled("TODO: Why DOUBLE number of retries?")
     @SuppressWarnings("ResultOfMethodCallIgnored")
     @Test
     void testRetry() {
