@@ -3,14 +3,12 @@ package hello.world;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Post;
-import io.micronaut.validation.Validated;
 
 import javax.validation.Valid;
 
 import static io.micronaut.http.MediaType.TEXT_PLAIN;
 
 @Controller("/hello")
-@Validated
 public class HelloController {
     /**
      * Announces ourselves.
@@ -25,12 +23,12 @@ public class HelloController {
     /**
      * Makes a roundtrip.
      *
-     * @param roundtripData Garbage in
+     * @param roundTripData Garbage in
      *
      * @return Garbage out
      */
     @Post
-    public RoundtripData roundtrip(final @Valid RoundtripData roundtripData) {
-        return roundtripData;
+    public RoundTripData roundTrip(final @Valid RoundTripData roundTripData) {
+        return roundTripData;
     }
 }
