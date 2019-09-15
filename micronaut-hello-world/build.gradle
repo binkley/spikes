@@ -103,5 +103,5 @@ run.jvmArgs("-noverify", "-XX:TieredStopAtLevel=1", "-Dcom.sun.management.jmxrem
 
 wrapper {
     distributionType = Wrapper.DistributionType.ALL
-    gradleVersion = "5.5"
+    gradleVersion = "5.6.2"
 }
