@@ -3,7 +3,6 @@ plugins {
     id "build-dashboard"
     id "java"
     id "application"
-    id "net.ltgt.errorprone" version "0.8.1"
     id "com.github.johnrengelman.shadow" version "4.0.2"
     id "net.ltgt.apt-idea" version "0.21"
 }
@@ -12,7 +11,6 @@ version "0.1"
 group "hello.world"
 
 ext {
-    errorproneVersion = "2.3.3"
     h2Version = "1.4.199"
     handlebarsVersion = "4.1.2"
     logbackVersion = "1.2.3"
@@ -32,8 +30,6 @@ dependencyManagement {
 }
 
 dependencies {
-    errorprone "com.google.errorprone:error_prone_core:${errorproneVersion}"
-
     // Lombok
     annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
     compileOnly "org.projectlombok:lombok:${lombokVersion}"
@@ -88,7 +84,6 @@ test {
 }
 
 tasks.withType(JavaCompile) {
-    options.errorprone.disableWarningsInGeneratedCode = true
     options.encoding = "UTF-8"
     options.compilerArgs.add("-parameters")
 }
