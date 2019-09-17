@@ -53,7 +53,7 @@ class BobDataTest {
         final var response = client.send(HttpRequest.newBuilder()
                 .GET()
                 .uri(URI.create(format(
-                        "http://localhost:%d/actuator/prometheus", port)))
+                        "http://localhost:%d/admin/prometheus", port)))
                 .build(), BodyHandlers.ofString(UTF_8));
 
         assertThat(response.body())

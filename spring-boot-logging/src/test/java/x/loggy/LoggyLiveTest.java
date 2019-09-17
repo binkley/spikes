@@ -634,7 +634,7 @@ class LoggyLiveTest {
 
         final var metricsRequest = HttpRequest.newBuilder()
                 .GET()
-                .uri(URI.create("http://localhost:8080/actuator/prometheus"))
+                .uri(URI.create("http://localhost:8080/admin/prometheus"))
                 .build();
         final var metrics = send(metricsRequest).body();
 
@@ -649,7 +649,7 @@ class LoggyLiveTest {
             throws IOException, InterruptedException {
         final var request = HttpRequest.newBuilder()
                 .GET()
-                .uri(URI.create("http://localhost:8080/actuator/info"))
+                .uri(URI.create("http://localhost:8080/admin/info"))
                 .build();
 
         final var response = send(request);

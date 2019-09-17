@@ -356,7 +356,7 @@ public class LoggyDemo {
                 .POST(BodyPublishers.ofString(objectMapper
                         .writeValueAsString(new AdjustLogging(level))))
                 .uri(URI.create(format(
-                        "http://localhost:8080/actuator/loggers/%s",
+                        "http://localhost:8080/admin/loggers/%s",
                         getClass().getName())))
                 .header("Content-Type", APPLICATION_JSON_VALUE)
                 .build());
