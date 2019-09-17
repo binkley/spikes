@@ -3,7 +3,7 @@ datasources:
     dialect: H2
     driverClassName: org.h2.Driver
     password: ""
-    url: jdbc:h2:mem:flywayDb;MVCC=TRUE;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    url: jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;MVCC=TRUE
     username: sa
 
 endpoints:
@@ -11,6 +11,15 @@ endpoints:
     enabled: true
     path: /admin
     sensitive: false
+
+flyway:
+  datasources:
+    default:
+      dialect: H2
+      driverClassName: org.h2.Driver
+      password: ""
+      url: jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;MVCC=TRUE
+      username: sa
 
 swagger:
   path: /api-docs/swagger

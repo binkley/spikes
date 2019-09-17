@@ -2,7 +2,6 @@ package hello.world.data;
 
 import io.micronaut.test.annotation.MicronautTest;
 import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -12,7 +11,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class FooRepositoryTest {
     private final FooRepository repository;
 
-    @Disabled("Micronaut not running Flyway migrations")
     @Test
     void shouldRoundTrip() {
         final var unsaved = new FooRecord();
