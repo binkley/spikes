@@ -59,7 +59,10 @@ dependencies {
     runtime "com.h2database:h2:${h2Version}"
 
     // Admin endpoints
-    implementation "io.micronaut:micronaut-management"
+    implementation "io.micronaut.configuration:micronaut-micrometer-registry-prometheus"
+
+    // Metrics
+    implementation "io.micronaut.configuration:micronaut-micrometer-core"
 
     // Logback
     runtime "ch.qos.logback:logback-classic:${logbackVersion}"

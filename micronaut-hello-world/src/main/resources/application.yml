@@ -44,6 +44,8 @@ micronaut:
     name: hello-world
     instance: ${random.uuid}
     version: 0.1
+  metrics:
+    enabled: true
   router:
     static-resources:
       swagger:
