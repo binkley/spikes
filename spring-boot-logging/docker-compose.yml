@@ -1,0 +1,14 @@
+version: '3'
+services:
+  spring-boot-logging:
+    build:
+      context: .
+      dockerfile: spring-boot-logging-Dockerfile
+    ports:
+      - 8080:8080
+  prometheus:
+    build:
+      context: .
+      dockerfile: prometheus-Dockerfile
+    ports:
+      - 9090:9090

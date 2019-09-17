@@ -1,0 +1,12 @@
+scrape_configs:
+  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+  - job_name: prometheus
+    # metrics_path defaults to '/metrics'
+    # scheme defaults to 'http'.
+    static_configs:
+      - targets: [localhost:9090]
+
+  - job_name: spring-boot-logging
+    metrics_path: /admin/prometheus
+    static_configs:
+      - targets: [spring-boot-logging:8080]

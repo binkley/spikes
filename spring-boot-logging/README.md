@@ -33,6 +33,7 @@ General:
 * Top-level custom JSON properties for request/response logging
 * Counting SQL queries for performance tests
 * Distinguish 502 (server issue) from 503 (remote issue)
+* [Prometheus queries](#prometheus-queries)
 
 Local development:
 
@@ -57,3 +58,12 @@ Production use:
 * [`bootstrap.yml`](src/main/resources/bootstrap.yml)
 * [configuration classes](src/main/java/x/loggy/configuration/)
 * [`logback-spring.xml`](src/main/resources/logback-spring.xml)
+
+## Prometheus queries
+
+```sh
+$ ./gradlew build
+$ ./docker-compose build
+$ ./docker-compose up
+$ open http://localhost:9090
+```
