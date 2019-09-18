@@ -62,7 +62,7 @@ Production use:
 ## Prometheus queries
 
 ```sh
-$ ./gradlew build
+$ ./gradlew bootJar
 $ ./docker-compose build
 $ ./docker-compose up
 $ open http://localhost:9090

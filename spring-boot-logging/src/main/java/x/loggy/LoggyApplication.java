@@ -18,6 +18,19 @@ import static org.springframework.boot.SpringApplication.run;
 public class LoggyApplication {
     public static void main(final String... args)
             throws IOException {
+        setUpSpringConfigurationBasedOnCommandLine(args);
+
+        final var context = run(LoggyApplication.class, args);
+        final var loggy = context.getBean(LoggyProperties.class);
+        if (loggy.isRunOnce()) {
+            context.close();
+        }
+    }
+
+    /** @todo Read up if Spring has any support for this natively */
+    private static void setUpSpringConfigurationBasedOnCommandLine(
+            final String[] args)
+            throws IOException {
         final var optionParser = new OptionParser();
         final var help = optionParser.accepts("help",
                 "Print help and exit")
@@ -28,6 +41,11 @@ public class LoggyApplication {
                 "Log in JSON format");
         final var noDemo = optionParser.accepts("no-demo",
                 "Do not first run the demo; implies \"continue\"");
+        final var simulateSlowResponses = optionParser.accepts(
+                "simulate-slow-responses",
+                "Pauses before responding to an HTTP request")
+                .withRequiredArg()
+                .ofType(String.class); // Let Spring parse
         final var options = optionParser.parse(args);
 
         if (options.has(help)) {
@@ -43,11 +61,8 @@ public class LoggyApplication {
             System.setProperty("loggy.run-once", "false");
         if (options.has(noDemo))
             System.setProperty("loggy.enable-demo", "false");
-
-        final var context = run(LoggyApplication.class, args);
-        final var loggy = context.getBean(LoggyProperties.class);
-        if (loggy.isRunOnce()) {
-            context.close();
-        }
+        if (options.has(simulateSlowResponses))
+            System.setProperty("loggy.simulate-slow-responses",
+                    options.valueOf(simulateSlowResponses));
     }
 }

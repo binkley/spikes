@@ -36,6 +36,7 @@ loggy:
   enable-demo: true
   log-feign-retries: true
   run-once: true
+  # simulate-slow-responses: '1s'
 
 management:
   endpoints:
@@ -58,6 +59,10 @@ management:
         - 0.997
       percentiles-histogram:
         all: true
+      sla:
+        all:
+          - 1ms
+          - 5ms
 
 server:
   port: 8080
