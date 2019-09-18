@@ -9,7 +9,7 @@
 * [Micronaut hello world](micronaut-hello-world/)
 * [Spring Boot Etag support](spring-boot-etag-support/)
 * [Spring Boot JMS client](spring-boot-jms-client/)
-* [Spring Boot logging](spring-boot-logging/)
+* Spring Boot logging &mdash; moved to [https://github.com/binkley/spring-boot-logging]
 * [Spring transactions](spring-transactions/)
 * [Spring XML support](xmlish/)
 * [Gradle test sets](gradle-test-sets/)
