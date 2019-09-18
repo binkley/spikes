@@ -1,3 +1,4 @@
 FROM grafana/grafana:6.3.5
 
-ADD grafana-datasource.yml /etc/grafana/provisioning/datasource.yaml
+COPY grafana.ini /etc/grafana/grafana.ini
+COPY grafana-datasource.yml /etc/grafana/provisioning/datasources/prometheus.yaml
