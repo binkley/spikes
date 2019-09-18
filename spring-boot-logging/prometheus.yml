@@ -6,7 +6,13 @@ scrape_configs:
     static_configs:
       - targets: [localhost:9090]
 
-  - job_name: spring-boot-logging
+  - job_name: healthy-spring-boot-logging
     metrics_path: /admin/prometheus
     static_configs:
-      - targets: [spring-boot-logging:8080]
+      - targets: [healthy-spring-boot-logging:8080]
+
+  - job_name: unhealthy-spring-boot-logging
+    metrics_path: /admin/prometheus
+    static_configs:
+    # Note: the port is the CONTAINER port, not the host port
+      - targets: [unhealthy-spring-boot-logging:8080]

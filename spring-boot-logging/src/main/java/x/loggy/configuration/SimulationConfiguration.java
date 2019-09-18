@@ -5,15 +5,15 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import x.loggy.LoggyProperties;
-import x.loggy.SimulateSlowResponsesResponseFilter;
+import x.loggy.SimulationResponseFilter;
 
 @Configuration
 public class SimulationConfiguration {
     @Bean
     @ConditionalOnProperty(value = "loggy.simulate-slow-responses")
-    public SimulateSlowResponsesResponseFilter simulateSlowResponsesResponseFilter(
+    public SimulationResponseFilter simulateSlowResponsesResponseFilter(
             final LoggyProperties properties, final Logger logger) {
-        return new SimulateSlowResponsesResponseFilter(
+        return new SimulationResponseFilter(
                 properties.getSimulateSlowResponses(), logger);
     }
 }

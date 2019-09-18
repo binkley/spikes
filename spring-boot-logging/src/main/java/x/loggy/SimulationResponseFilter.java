@@ -15,13 +15,13 @@ import static java.lang.Thread.sleep;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-public class SimulateSlowResponsesResponseFilter
+public class SimulationResponseFilter
         extends OncePerRequestFilter
         implements TraceMixin {
     private final Duration delay;
     private final Logger logger;
 
-    public SimulateSlowResponsesResponseFilter(
+    public SimulationResponseFilter(
             final Duration delay,
             final Logger logger) {
         this.delay = delay;
@@ -32,7 +32,7 @@ public class SimulateSlowResponsesResponseFilter
     public void doFilterInternal(final HttpServletRequest request,
             final HttpServletResponse response, final FilterChain chain)
             throws IOException, ServletException {
-        logger.info("Simulating slow response of {} to {}",
+        logger.debug("Simulating slow response of {} to {}",
                 delay, request.getRequestURL());
 
         try {
