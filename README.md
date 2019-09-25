@@ -4,6 +4,7 @@
 
 * [Amazon Java SDK logging demonstration](amazon-java-sdk-logging-demo/)
 * [Custom Logback pattern](custom-logback-pattern/)
+* [Exploring Kotlin async](kotlin-async/)
 * [Google's Flogger](googles-flogger/)
 * [Gradle pre-push](gradle-pre-push/)
 * [Micronaut hello world](micronaut-hello-world/)
