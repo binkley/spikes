@@ -42,7 +42,7 @@
         <!-- @formatter:off -->
         <generateBackupPoms>false</generateBackupPoms>
         <jacoco.haltOnFailure>true</jacoco.haltOnFailure>
-        <jacoco.minimum>0.00</jacoco.minimum>
+        <jacoco.minimum>1.00</jacoco.minimum>
         <jacoco.version>0.8.4</jacoco.version>
         <java.charset>UTF-8</java.charset>
         <java.version>8</java.version>
