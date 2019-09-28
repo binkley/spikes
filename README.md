@@ -7,6 +7,7 @@
 * [Exploring Kotlin async](kotlin-async/)
 * [Google's Flogger](googles-flogger/)
 * [Gradle pre-push](gradle-pre-push/)
+* [Layers](layers/)
 * [Micronaut hello world](micronaut-hello-world/)
 * [Spring Boot Etag support](spring-boot-etag-support/)
 * [Spring Boot JMS client](spring-boot-jms-client/)
