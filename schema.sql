@@ -37,9 +37,12 @@ CREATE OR REPLACE FUNCTION insert_audit_f()
     LANGUAGE plpgsql
 AS
 $$
+DECLARE
+    now TIMESTAMP DEFAULT now();
 BEGIN
     new.version := 1;
-    new.created_at := now();
+    new.created_at := now;
+    new.updated_at := now;
     RETURN new;
 END;
 $$;
@@ -74,6 +77,9 @@ CREATE OR REPLACE FUNCTION insert_child_parent_f()
 AS
 $$
 BEGIN
+    -- Pick a column that:
+    -- 1) Really changes, so "ignore unchanged" does not kick in
+    -- 2) Is not user-data visible, so remains truly an "audit" field
     UPDATE parent
        SET updated_at = now()
      WHERE id = new.parent_id;
@@ -87,6 +93,9 @@ CREATE OR REPLACE FUNCTION update_child_parent_f()
 AS
 $$
 BEGIN
+    -- Pick a column that:
+    -- 1) Really changes, so "ignore unchanged" does not kick in
+    -- 2) Is not user-data visible, so remains truly an "audit" field
     UPDATE parent
        SET updated_at = now()
      WHERE id IN (old.parent_id, new.parent_id);
@@ -100,6 +109,9 @@ CREATE OR REPLACE FUNCTION delete_child_parent_f()
 AS
 $$
 BEGIN
+    -- Pick a column that:
+    -- 1) Really changes, so "ignore unchanged" does not kick in
+    -- 2) Is not user-data visible, so remains truly an "audit" field
     UPDATE parent
        SET updated_at = now()
      WHERE id = old.parent_id;
