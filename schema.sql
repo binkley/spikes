@@ -50,7 +50,8 @@ CREATE OR REPLACE FUNCTION update_audit_f()
 AS
 $BODY$
 BEGIN
-    new.version := new.version + 1;
+    -- Ignore if caller tried to replace the version, so "old.version + 1"
+    new.version := old.version + 1;
     new.updated_at = now();
     RETURN new;
 END;

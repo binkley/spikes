@@ -19,7 +19,6 @@ UPDATE child
    SET parent_id = (SELECT id FROM parent WHERE natural_id = 'a')
  WHERE natural_id = 'p';
 
-
 UPDATE child
    SET value = 'BAR!'
  WHERE natural_id = 'p';
