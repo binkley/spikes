@@ -13,7 +13,7 @@ CREATE TABLE child
     version   INT
 );
 
-CREATE OR REPLACE FUNCTION insert_parent_version_f()
+CREATE OR REPLACE FUNCTION insert_version_f()
     RETURNS TRIGGER
     LANGUAGE plpgsql
 AS
@@ -24,34 +24,7 @@ BEGIN
 END;
 $BODY$;
 
-CREATE OR REPLACE FUNCTION update_parent_version_f()
-    RETURNS TRIGGER
-    LANGUAGE plpgsql
-AS
-$BODY$
-BEGIN
-    new.version := new.version + 1;
-    RETURN new;
-END;
-$BODY$;
-
-CREATE OR REPLACE FUNCTION insert_child_version_f()
-    RETURNS TRIGGER
-    LANGUAGE plpgsql
-AS
-$BODY$
-BEGIN
-    new.version := 1;
-    IF (new.parent_id IS NOT NULL) THEN
-        UPDATE parent
-           SET version = version
-         WHERE id = new.parent_id;
-    END IF;
-    RETURN new;
-END;
-$BODY$;
-
-CREATE OR REPLACE FUNCTION update_child_version_f()
+CREATE OR REPLACE FUNCTION update_version_f()
     RETURNS TRIGGER
     LANGUAGE plpgsql
 AS
@@ -105,25 +78,25 @@ CREATE TRIGGER insert_parent_version_t
     BEFORE INSERT
     ON parent
     FOR EACH ROW
-EXECUTE PROCEDURE insert_parent_version_f();
+EXECUTE PROCEDURE insert_version_f();
 
 CREATE TRIGGER update_parent_version_t
     BEFORE UPDATE
     ON parent
     FOR EACH ROW
-EXECUTE PROCEDURE update_parent_version_f();
+EXECUTE PROCEDURE update_version_f();
 
 CREATE TRIGGER insert_child_version_t
     BEFORE INSERT
     ON child
     FOR EACH ROW
-EXECUTE PROCEDURE insert_child_version_f();
+EXECUTE PROCEDURE insert_version_f();
 
 CREATE TRIGGER update_child_version_t
     BEFORE UPDATE
     ON child
     FOR EACH ROW
-EXECUTE PROCEDURE update_child_version_f();
+EXECUTE PROCEDURE update_version_f();
 
 CREATE TRIGGER insert_child_parent_t
     AFTER INSERT

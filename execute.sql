@@ -18,11 +18,3 @@ UPDATE child
 DELETE
   FROM child
  WHERE pqr = 'p';
-
-
-
-SELECT *
-  FROM parent;
-
-SELECT *
-  FROM child;
