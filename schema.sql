@@ -15,6 +15,19 @@ CREATE TABLE child
     version    INT
 );
 
+CREATE OR REPLACE FUNCTION immutable_natural_key_f()
+    RETURNS TRIGGER
+    LANGUAGE plpgsql
+AS
+$BODY$
+BEGIN
+    IF (new.natural_id <> old.natural_id) THEN
+        RAISE 'Cannot change the natural key';
+    END IF;
+    RETURN new;
+END;
+$BODY$;
+
 CREATE OR REPLACE FUNCTION insert_version_f()
     RETURNS TRIGGER
     LANGUAGE plpgsql
@@ -88,6 +101,12 @@ CREATE TRIGGER update_parent_version_t
     FOR EACH ROW
 EXECUTE PROCEDURE update_version_f();
 
+CREATE TRIGGER immutable_parent_natural_key_t
+    AFTER UPDATE
+    ON parent
+    FOR EACH ROW
+EXECUTE PROCEDURE immutable_natural_key_f();
+
 CREATE TRIGGER insert_child_version_t
     BEFORE INSERT
     ON child
@@ -99,6 +118,12 @@ CREATE TRIGGER update_child_version_t
     ON child
     FOR EACH ROW
 EXECUTE PROCEDURE update_version_f();
+
+CREATE TRIGGER immutable_child_natural_key_t
+    AFTER UPDATE
+    ON child
+    FOR EACH ROW
+EXECUTE PROCEDURE immutable_natural_key_f();
 
 CREATE TRIGGER insert_child_parent_t
     AFTER INSERT
