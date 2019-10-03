@@ -1,20 +1,20 @@
 INSERT INTO parent
-    (abc)
+    (natural_id)
 VALUES
     ('a');
 
 UPDATE parent
-   SET abc = 'b'
- WHERE abc = 'a';
+   SET natural_id = 'b'
+ WHERE natural_id = 'a';
 
-INSERT INTO child(pqr)
+INSERT INTO child(natural_id)
 VALUES
     ('p');
 
 UPDATE child
-   SET parent_id = (SELECT id FROM parent WHERE abc = 'b')
- WHERE pqr = 'p';
+   SET parent_id = (SELECT id FROM parent WHERE natural_id = 'b')
+ WHERE natural_id = 'p';
 
 DELETE
   FROM child
- WHERE pqr = 'p';
+ WHERE natural_id = 'p';

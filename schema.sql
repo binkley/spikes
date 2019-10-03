@@ -1,16 +1,18 @@
 CREATE TABLE parent
 (
-    id      SERIAL PRIMARY KEY,
-    abc     VARCHAR NOT NULL UNIQUE,
-    version INT
+    id         SERIAL PRIMARY KEY,
+    natural_id VARCHAR NOT NULL UNIQUE,
+    value      VARCHAR,
+    version    INT
 );
 
 CREATE TABLE child
 (
-    id        SERIAL PRIMARY KEY,
-    pqr       VARCHAR NOT NULL UNIQUE,
-    parent_id INT REFERENCES parent (id),
-    version   INT
+    id         SERIAL PRIMARY KEY,
+    natural_id VARCHAR NOT NULL UNIQUE,
+    parent_id  INT REFERENCES parent (id),
+    value      VARCHAR,
+    version    INT
 );
 
 CREATE OR REPLACE FUNCTION insert_version_f()
