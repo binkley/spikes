@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: spring-boot-domain-persistence-modeling
+  datasource:
+    username: postgres
+    url: jdbc:postgresql:postgres
+  main:
+    banner-mode: 'OFF'
+  output:
+    ansi:
+      enabled: 'ALWAYS'
