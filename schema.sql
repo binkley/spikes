@@ -23,78 +23,95 @@ CREATE OR REPLACE FUNCTION immutable_natural_key_f()
     RETURNS TRIGGER
     LANGUAGE plpgsql
 AS
-$BODY$
+$$
 BEGIN
     IF (new.natural_id <> old.natural_id) THEN
         RAISE 'Cannot change the natural key';
     END IF;
     RETURN new;
 END;
-$BODY$;
+$$;
 
 CREATE OR REPLACE FUNCTION insert_audit_f()
     RETURNS TRIGGER
     LANGUAGE plpgsql
 AS
-$BODY$
+$$
 BEGIN
     new.version := 1;
     new.created_at := now();
     RETURN new;
 END;
-$BODY$;
+$$;
 
 CREATE OR REPLACE FUNCTION update_audit_f()
     RETURNS TRIGGER
     LANGUAGE plpgsql
 AS
-$BODY$
+$$
+DECLARE
+    old_hash VARCHAR;
+    new_hash VARCHAR;
 BEGIN
+    old_hash := md5(CAST((old.*) AS TEXT));
+    new_hash := md5(CAST((new.*) AS TEXT));
+
+    -- Ignore the update, stop processing triggers
+    IF (old_hash = new_hash) THEN
+        RETURN NULL;
+    END IF;
+
     -- Ignore if caller tried to replace the version, so "old.version + 1"
     new.version := old.version + 1;
     new.updated_at = now();
     RETURN new;
 END;
-$BODY$;
+$$;
 
 CREATE OR REPLACE FUNCTION insert_child_parent_f()
     RETURNS TRIGGER
     LANGUAGE plpgsql
 AS
-$BODY$
+$$
 BEGIN
     UPDATE parent
-       SET version = version
+       SET updated_at = now()
      WHERE id = new.parent_id;
     RETURN new;
 END;
-$BODY$;
+$$;
 
 CREATE OR REPLACE FUNCTION update_child_parent_f()
     RETURNS TRIGGER
     LANGUAGE plpgsql
 AS
-$BODY$
+$$
 BEGIN
     UPDATE parent
-       SET version = version
+       SET updated_at = now()
      WHERE id IN (old.parent_id, new.parent_id);
     RETURN new;
 END;
-$BODY$;
+$$;
 
 CREATE OR REPLACE FUNCTION delete_child_parent_f()
     RETURNS TRIGGER
     LANGUAGE plpgsql
 AS
-$BODY$
+$$
 BEGIN
     UPDATE parent
-       SET version = version
+       SET updated_at = now()
      WHERE id = old.parent_id;
     RETURN old;
 END;
-$BODY$;
+$$;
+
+CREATE TRIGGER immutable_parent_natural_key_t
+    BEFORE UPDATE
+    ON parent
+    FOR EACH ROW
+EXECUTE PROCEDURE immutable_natural_key_f();
 
 CREATE TRIGGER insert_parent_audit_t
     BEFORE INSERT
@@ -108,9 +125,9 @@ CREATE TRIGGER update_parent_audit_t
     FOR EACH ROW
 EXECUTE PROCEDURE update_audit_f();
 
-CREATE TRIGGER immutable_parent_natural_key_t
-    AFTER UPDATE
-    ON parent
+CREATE TRIGGER immutable_child_natural_key_t
+    BEFORE UPDATE
+    ON child
     FOR EACH ROW
 EXECUTE PROCEDURE immutable_natural_key_f();
 
@@ -125,12 +142,6 @@ CREATE TRIGGER update_child_audit_t
     ON child
     FOR EACH ROW
 EXECUTE PROCEDURE update_audit_f();
-
-CREATE TRIGGER immutable_child_natural_key_t
-    AFTER UPDATE
-    ON child
-    FOR EACH ROW
-EXECUTE PROCEDURE immutable_natural_key_f();
 
 CREATE TRIGGER insert_child_parent_t
     AFTER INSERT

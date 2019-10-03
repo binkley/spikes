@@ -11,6 +11,10 @@ UPDATE parent
    SET value = 'FOO!'
  WHERE natural_id = 'a';
 
+UPDATE parent -- Should be ignored: No change; audit columns should remain the same
+   SET value = 'FOO!'
+ WHERE natural_id = 'a';
+
 INSERT INTO child(natural_id)
 VALUES
     ('p');
