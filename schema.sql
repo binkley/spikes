@@ -1,20 +1,3 @@
-DROP TRIGGER insert_parent_version_t ON parent;
-DROP TRIGGER update_parent_version_t ON parent;
-DROP TRIGGER insert_child_version_t ON child;
-DROP TRIGGER update_child_version_t ON child;
-DROP TRIGGER insert_child_parent_t ON child;
-DROP TRIGGER update_child_parent_t ON child;
-DROP TRIGGER delete_child_parent_t ON child;
-DROP FUNCTION insert_parent_version_f();
-DROP FUNCTION update_parent_version_f();
-DROP FUNCTION insert_child_version_f();
-DROP FUNCTION update_child_version_f();
-DROP FUNCTION insert_child_parent_f();
-DROP FUNCTION update_child_parent_f();
-DROP FUNCTION delete_child_parent_f();
-DROP TABLE child;
-DROP TABLE parent;
-
 CREATE TABLE parent
 (
     id      SERIAL PRIMARY KEY,
@@ -159,34 +142,3 @@ CREATE TRIGGER delete_child_parent_t
     ON child
     FOR EACH ROW
 EXECUTE PROCEDURE delete_child_parent_f();
-
-
-
-INSERT INTO parent
-    (abc)
-VALUES
-    ('a');
-
-UPDATE parent
-   SET abc = 'b'
- WHERE abc = 'a';
-
-INSERT INTO child(pqr)
-VALUES
-    ('p');
-
-UPDATE child
-   SET parent_id = (SELECT id FROM parent WHERE abc = 'b')
- WHERE pqr = 'p';
-
-DELETE
-  FROM child
- WHERE pqr = 'p';
-
-
-
-SELECT *
-  FROM parent;
-
-SELECT *
-  FROM child;
