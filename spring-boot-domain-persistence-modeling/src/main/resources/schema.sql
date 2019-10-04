@@ -19,6 +19,12 @@ CREATE TABLE child
     updated_at TIMESTAMP
 );
 
+CREATE TABLE subchild
+(
+    child_id INT NOT NULL REFERENCES child (id) ON DELETE CASCADE,
+    value    VARCHAR
+);
+
 CREATE OR REPLACE FUNCTION update_immutable_natural_key_f()
     RETURNS TRIGGER
     LANGUAGE plpgsql
