@@ -2,6 +2,7 @@ package x.domainpersistencemodeling
 
 import io.micronaut.context.event.ApplicationEventPublisher
 import io.micronaut.data.annotation.Query
+import io.micronaut.data.annotation.Repository
 import io.micronaut.data.repository.CrudRepository
 import java.time.Instant
 import java.time.Instant.EPOCH
@@ -128,6 +129,7 @@ class PersistedMutableChild internal constructor(
             "${super.toString()}{snapshot=$snapshot, record=$record}"
 }
 
+@Repository
 interface ChildRepository : CrudRepository<ChildRecord, Long> {
     @Query("SELECT * FROM child WHERE natural_id = :naturalId")
     fun findByNaturalId(naturalId: String)

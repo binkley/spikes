@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>x</groupId>
-    <artifactId>x</artifactId>
+    <artifactId>micronaut-domain-persistence-modeling</artifactId>
     <version>0-SNAPSHOT</version>
 
     <properties>
@@ -24,7 +24,7 @@
         <micronaut.data.version>1.0.0.M2</micronaut.data.version>
         <micronaut.version>1.2.3</micronaut.version>
         <mockk.version>1.9.3</mockk.version>
-        <persistence.version>2.2.2</persistence.version>
+        <persistence.version>2.2.3</persistence.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <!-- @formatter:on -->
@@ -150,6 +150,11 @@
     </dependencies>
 
     <build>
+        <!-- @formatter:off -->
+        <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
+        <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
+        <!-- @formatter:on -->
+
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -186,8 +191,6 @@
                         <argument>-noverify</argument>
                         <argument>-XX:TieredStopAtLevel=1</argument>
                         <argument>-Dcom.sun.management.jmxremote</argument>
-
-
                         <argument>${exec.mainClass}</argument>
                     </arguments>
                 </configuration>
@@ -212,11 +215,11 @@
                             <goal>kapt</goal>
                         </goals>
                         <configuration>
-                            <sourceDirs>
-                                <sourceDir>
-                                    ${project.basedir}/src/main/kotlin
-                                </sourceDir>
-                            </sourceDirs>
+                            <!--                            <sourceDirs>-->
+                            <!--                                <sourceDir>-->
+                            <!--                                    ${project.basedir}/src/main/kotlin-->
+                            <!--                                </sourceDir>-->
+                            <!--                            </sourceDirs>-->
                             <annotationProcessorPaths>
                                 <annotationProcessorPath>
                                     <groupId>io.micronaut</groupId>
@@ -238,15 +241,15 @@
                         <goals>
                             <goal>compile</goal>
                         </goals>
-                        <configuration>
-                            <sourceDirs>
-                                <sourceDir>
-                                    ${project.basedir}/src/main/kotlin
-                                </sourceDir>
-                                <sourceDir>${project.basedir}/src/main/java
-                                </sourceDir>
-                            </sourceDirs>
-                        </configuration>
+                        <!--                        <configuration>-->
+                        <!--                            <sourceDirs>-->
+                        <!--                                <sourceDir>-->
+                        <!--                                    ${project.basedir}/src/main/kotlin-->
+                        <!--                                </sourceDir>-->
+                        <!--                                <sourceDir>${project.basedir}/src/main/java-->
+                        <!--                                </sourceDir>-->
+                        <!--                            </sourceDirs>-->
+                        <!--                        </configuration>-->
                     </execution>
                     <execution>
                         <id>test-kapt</id>
@@ -254,11 +257,11 @@
                             <goal>test-kapt</goal>
                         </goals>
                         <configuration>
-                            <sourceDirs>
-                                <sourceDir>
-                                    ${project.basedir}/src/test/kotlin
-                                </sourceDir>
-                            </sourceDirs>
+                            <!--                            <sourceDirs>-->
+                            <!--                                <sourceDir>-->
+                            <!--                                    ${project.basedir}/src/test/kotlin-->
+                            <!--                                </sourceDir>-->
+                            <!--                            </sourceDirs>-->
                             <annotationProcessorPaths>
                                 <annotationProcessorPath>
                                     <groupId>io.micronaut</groupId>
@@ -280,16 +283,16 @@
                         <goals>
                             <goal>test-compile</goal>
                         </goals>
-                        <configuration>
-                            <sourceDirs>
-                                <sourceDir>
-                                    ${project.basedir}/src/test/kotlin
-                                </sourceDir>
-                                <sourceDir>
-                                    ${project.basedir}/target/generated-sources/kapt/test
-                                </sourceDir>
-                            </sourceDirs>
-                        </configuration>
+                        <!--                        <configuration>-->
+                        <!--                            <sourceDirs>-->
+                        <!--                                <sourceDir>-->
+                        <!--                                    ${project.basedir}/src/test/kotlin-->
+                        <!--                                </sourceDir>-->
+                        <!--                                <sourceDir>-->
+                        <!--                                    ${project.basedir}/target/generated-sources/kapt/test-->
+                        <!--                                </sourceDir>-->
+                        <!--                            </sourceDirs>-->
+                        <!--                        </configuration>-->
                     </execution>
                 </executions>
                 <dependencies>
@@ -341,12 +344,12 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>${maven-surefire-plugin.version}</version>
-                    <configuration>
-                        <includes>
-                            <include>**/*Spec.*</include>
-                            <include>**/*Test.*</include>
-                        </includes>
-                    </configuration>
+                    <!--                    <configuration>-->
+                    <!--                        <includes>-->
+                    <!--                            <include>**/*Spec.*</include>-->
+                    <!--                            <include>**/*Test.*</include>-->
+                    <!--                        </includes>-->
+                    <!--                    </configuration>-->
                     <dependencies>
                         <dependency>
                             <groupId>org.junit.jupiter</groupId>
