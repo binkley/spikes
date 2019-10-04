@@ -3,7 +3,7 @@ INSERT INTO parent
 VALUES
     ('a');
 
-UPDATE parent
+UPDATE parent -- Should fail with custom DB error message
    SET natural_id = 'b'
  WHERE natural_id = 'a';
 

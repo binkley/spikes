@@ -12,7 +12,7 @@ CREATE TABLE child
 (
     id         SERIAL PRIMARY KEY,
     natural_id VARCHAR NOT NULL UNIQUE,
-    parent_id  INT REFERENCES parent (id),
+    parent_id  INT REFERENCES parent (id), -- Nullable
     value      VARCHAR,
     version    INT,
     created_at TIMESTAMP,
