@@ -3,6 +3,7 @@ package x.springbootdomainpersistencemodeling
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.annotation.Id
 import org.springframework.data.jdbc.repository.query.Query
+import org.springframework.data.relational.core.mapping.Table
 import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Component
@@ -113,6 +114,7 @@ interface ParentRepository : CrudRepository<ParentRecord, Long> {
             : ParentRecord?
 }
 
+@Table("parent")
 data class ParentRecord(
         @Id val id: Long?,
         override val naturalId: String,
