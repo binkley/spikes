@@ -21,6 +21,7 @@
         <!-- @formatter:off -->
         <java.version>11</java.version>
         <kotlin.version>1.3.50</kotlin.version>
+        <test-containers.version>1.12.1</test-containers.version>
         <!-- @formatter:on -->
     </properties>
 
@@ -70,6 +71,18 @@
                     <artifactId>junit-vintage-engine</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${test-containers.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${test-containers.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
