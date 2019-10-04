@@ -19,7 +19,7 @@ CREATE TABLE child
     updated_at TIMESTAMP
 );
 
-CREATE OR REPLACE FUNCTION immutable_natural_key_f()
+CREATE OR REPLACE FUNCTION update_immutable_natural_key_f()
     RETURNS TRIGGER
     LANGUAGE plpgsql
 AS
@@ -64,11 +64,10 @@ BEGIN
         RETURN NULL;
     END IF;
 
-    -- Ignore if caller tried to replace the version, so "old.version + 1"
-    -- TODO: Alternative: Pay attention to new.version, and RAISE exception on stale update
-    -- IF (new.version <> old.version) THEN
-    --     RAISE 'Outdated: %, %', old.version, new.version;
-    -- END IF;
+    IF (new.version <> old.version) THEN
+        RAISE 'Outdated: %, %', old.version, new.version;
+    END IF;
+
     new.version := old.version + 1;
     new.updated_at = now();
     RETURN new;
@@ -127,7 +126,7 @@ CREATE TRIGGER a_immutable_parent_natural_key_t
     BEFORE UPDATE
     ON parent
     FOR EACH ROW
-EXECUTE PROCEDURE immutable_natural_key_f();
+EXECUTE PROCEDURE update_immutable_natural_key_f();
 
 CREATE TRIGGER b_insert_parent_audit_t
     BEFORE INSERT
@@ -145,7 +144,7 @@ CREATE TRIGGER a_immutable_child_natural_key_t
     BEFORE UPDATE
     ON child
     FOR EACH ROW
-EXECUTE PROCEDURE immutable_natural_key_f();
+EXECUTE PROCEDURE update_immutable_natural_key_f();
 
 CREATE TRIGGER b_insert_child_audit_t
     BEFORE INSERT
