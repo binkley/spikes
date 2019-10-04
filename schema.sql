@@ -74,7 +74,7 @@ BEGIN
 END;
 $$;
 
-CREATE OR REPLACE FUNCTION insert_child_parent_f()
+CREATE OR REPLACE FUNCTION insert_child_update_parent_f()
     RETURNS TRIGGER
     LANGUAGE plpgsql
 AS
@@ -90,7 +90,7 @@ BEGIN
 END;
 $$;
 
-CREATE OR REPLACE FUNCTION update_child_parent_f()
+CREATE OR REPLACE FUNCTION update_child_update_parent_f()
     RETURNS TRIGGER
     LANGUAGE plpgsql
 AS
@@ -106,7 +106,7 @@ BEGIN
 END;
 $$;
 
-CREATE OR REPLACE FUNCTION delete_child_parent_f()
+CREATE OR REPLACE FUNCTION delete_child_update_parent_f()
     RETURNS TRIGGER
     LANGUAGE plpgsql
 AS
@@ -122,7 +122,7 @@ BEGIN
 END;
 $$;
 
-CREATE TRIGGER a_immutable_parent_natural_key_t
+CREATE TRIGGER a_update_parent_immutable_natural_key_t
     BEFORE UPDATE
     ON parent
     FOR EACH ROW
@@ -140,7 +140,7 @@ CREATE TRIGGER b_update_parent_audit_t
     FOR EACH ROW
 EXECUTE PROCEDURE update_audit_f();
 
-CREATE TRIGGER a_immutable_child_natural_key_t
+CREATE TRIGGER a_update_child_immutable_natural_key_t
     BEFORE UPDATE
     ON child
     FOR EACH ROW
@@ -158,20 +158,20 @@ CREATE TRIGGER b_update_child_audit_t
     FOR EACH ROW
 EXECUTE PROCEDURE update_audit_f();
 
-CREATE TRIGGER c_insert_child_parent_t
+CREATE TRIGGER c_insert_child_update_parent_t
     AFTER INSERT
     ON child
     FOR EACH ROW
-EXECUTE PROCEDURE insert_child_parent_f();
+EXECUTE PROCEDURE insert_child_update_parent_f();
 
-CREATE TRIGGER c_update_child_parent_t
+CREATE TRIGGER c_update_child_update_parent_t
     AFTER UPDATE
     ON child
     FOR EACH ROW
-EXECUTE PROCEDURE update_child_parent_f();
+EXECUTE PROCEDURE update_child_update_parent_f();
 
-CREATE TRIGGER c_delete_child_parent_t
+CREATE TRIGGER c_delete_child_update_parent_t
     AFTER DELETE
     ON child
     FOR EACH ROW
-EXECUTE PROCEDURE delete_child_parent_f();
+EXECUTE PROCEDURE delete_child_update_parent_f();
