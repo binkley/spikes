@@ -1,4 +1,4 @@
-profile: cli
+profile: service
 defaultPackage: x
 ---
 testFramework: kotlintest
