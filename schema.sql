@@ -65,6 +65,10 @@ BEGIN
     END IF;
 
     -- Ignore if caller tried to replace the version, so "old.version + 1"
+    -- TODO: Alternative: Pay attention to new.version, and RAISE exception on stale update
+    -- IF (new.version <> old.version) THEN
+    --     RAISE 'Outdated: %, %', old.version, new.version;
+    -- END IF;
     new.version := old.version + 1;
     new.updated_at = now();
     RETURN new;
@@ -119,55 +123,55 @@ BEGIN
 END;
 $$;
 
-CREATE TRIGGER immutable_parent_natural_key_t
+CREATE TRIGGER a_immutable_parent_natural_key_t
     BEFORE UPDATE
     ON parent
     FOR EACH ROW
 EXECUTE PROCEDURE immutable_natural_key_f();
 
-CREATE TRIGGER insert_parent_audit_t
+CREATE TRIGGER b_insert_parent_audit_t
     BEFORE INSERT
     ON parent
     FOR EACH ROW
 EXECUTE PROCEDURE insert_audit_f();
 
-CREATE TRIGGER update_parent_audit_t
+CREATE TRIGGER b_update_parent_audit_t
     BEFORE UPDATE
     ON parent
     FOR EACH ROW
 EXECUTE PROCEDURE update_audit_f();
 
-CREATE TRIGGER immutable_child_natural_key_t
+CREATE TRIGGER a_immutable_child_natural_key_t
     BEFORE UPDATE
     ON child
     FOR EACH ROW
 EXECUTE PROCEDURE immutable_natural_key_f();
 
-CREATE TRIGGER insert_child_audit_t
+CREATE TRIGGER b_insert_child_audit_t
     BEFORE INSERT
     ON child
     FOR EACH ROW
 EXECUTE PROCEDURE insert_audit_f();
 
-CREATE TRIGGER update_child_audit_t
+CREATE TRIGGER b_update_child_audit_t
     BEFORE UPDATE
     ON child
     FOR EACH ROW
 EXECUTE PROCEDURE update_audit_f();
 
-CREATE TRIGGER insert_child_parent_t
+CREATE TRIGGER c_insert_child_parent_t
     AFTER INSERT
     ON child
     FOR EACH ROW
 EXECUTE PROCEDURE insert_child_parent_f();
 
-CREATE TRIGGER update_child_parent_t
+CREATE TRIGGER c_update_child_parent_t
     AFTER UPDATE
     ON child
     FOR EACH ROW
 EXECUTE PROCEDURE update_child_parent_f();
 
-CREATE TRIGGER delete_child_parent_t
+CREATE TRIGGER c_delete_child_parent_t
     AFTER DELETE
     ON child
     FOR EACH ROW
