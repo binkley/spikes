@@ -1,4 +1,4 @@
-package x.springbootdomainpersistencemodeling
+package x.domainpersistencemodeling
 
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.annotation.Id

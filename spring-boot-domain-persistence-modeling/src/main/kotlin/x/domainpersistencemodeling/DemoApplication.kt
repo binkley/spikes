@@ -1,4 +1,4 @@
-package x.springbootdomainpersistencemodeling
+package x.domainpersistencemodeling
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication

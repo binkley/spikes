@@ -2,7 +2,8 @@ spring:
   application:
     name: spring-boot-domain-persistence-modeling
   datasource:
-    url: jdbc:postgresql:postgres
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+    url: jdbc:tc:postgresql:postgres
     username: postgres
   main:
     banner-mode: 'OFF'

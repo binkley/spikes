@@ -1,4 +1,4 @@
-package x.springbootdomainpersistencemodeling
+package x.domainpersistencemodeling
 
 import org.springframework.context.ApplicationEvent
 import org.springframework.context.ApplicationEventPublisher
