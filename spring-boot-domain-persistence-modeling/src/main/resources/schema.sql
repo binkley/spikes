@@ -3,7 +3,8 @@ CREATE TABLE parent
     id         SERIAL PRIMARY KEY,
     natural_id VARCHAR NOT NULL UNIQUE,
     value      VARCHAR,
-    version    INT,
+    -- DB controls Audit columns, not caller
+    version    INT DEFAULT 0,
     created_at TIMESTAMP,
     updated_at TIMESTAMP
 );
@@ -14,7 +15,8 @@ CREATE TABLE child
     natural_id VARCHAR NOT NULL UNIQUE,
     parent_id  INT REFERENCES parent (id), -- Nullable
     value      VARCHAR,
-    version    INT,
+    -- DB controls Audit columns, not caller
+    version    INT DEFAULT 0,
     created_at TIMESTAMP,
     updated_at TIMESTAMP
 );
@@ -46,6 +48,10 @@ $$
 DECLARE
     now TIMESTAMP DEFAULT now();
 BEGIN
+    IF (new.version <> 0) THEN
+        RAISE 'Illegal version';
+    END IF;
+
     new.version := 1;
     new.created_at := now;
     new.updated_at := now;

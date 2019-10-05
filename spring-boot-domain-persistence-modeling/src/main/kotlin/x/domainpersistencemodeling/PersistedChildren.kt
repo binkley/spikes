@@ -23,13 +23,17 @@ class PersistedChildFactory(
                 PersistedChild(it.asResource(this), it, this)
             }.asSequence()
 
-    override fun byNaturalId(naturalId: String) =
-            repository.findByNaturalId(naturalId)?.let {
+    override fun findExisting(naturalId: String) =
+            repository.findByNaturalId(naturalId).orElse(null)?.let {
                 PersistedChild(it.asResource(this), it, this)
             }
 
-    override fun new(resource: ChildResource): Child =
+    override fun createNew(resource: ChildResource): Child =
             PersistedChild(null, ChildRecord(resource, this), this)
+
+    override fun findExistingOrCreateNew(naturalId: String) =
+            findExisting(naturalId) ?: createNew(
+                    ChildResource(naturalId, null, null, 0))
 
     internal fun save(record: ChildRecord) = repository.save(record)
 
@@ -67,6 +71,8 @@ class PersistedChild internal constructor(
         get() = record.value
     override val version: Int
         get() = record.version
+    override val existing: Boolean
+        get() = 0 < version
 
     override fun update(block: MutableChild.() -> Unit) = apply {
         PersistedMutableChild(::snapshot, record, factory).block()
@@ -137,7 +143,7 @@ class PersistedMutableChild internal constructor(
 interface ChildRepository : CrudRepository<ChildRecord, Long> {
     @Query("SELECT * FROM child WHERE natural_id = :naturalId")
     fun findByNaturalId(@Param("naturalId") naturalId: String)
-            : ChildRecord?
+            : Optional<ChildRecord>
 }
 
 @Table("child")

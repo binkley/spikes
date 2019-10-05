@@ -9,10 +9,9 @@ data class ParentResource(
 
 interface ParentFactory {
     fun all(): Sequence<Parent>
-
-    fun byNaturalId(naturalId: String): Parent?
-
-    fun new(resource: ParentResource): Parent
+    fun findExisting(naturalId: String): Parent?
+    fun createNew(resource: ParentResource): Parent
+    fun findExistingOrCreateNew(naturalId: String): Parent
 }
 
 interface ParentDetails {
@@ -35,6 +34,8 @@ interface MutableParent : MutableParentDetails {
 }
 
 interface Parent : ParentDetails {
+    val existing: Boolean
+
     fun update(block: MutableParent.() -> Unit): Parent
 }
 
