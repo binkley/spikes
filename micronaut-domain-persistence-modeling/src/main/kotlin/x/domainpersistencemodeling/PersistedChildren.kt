@@ -1,6 +1,7 @@
 package x.domainpersistencemodeling
 
 import io.micronaut.context.event.ApplicationEventPublisher
+import io.micronaut.core.annotation.Introspected
 import io.micronaut.data.jdbc.annotation.JdbcRepository
 import io.micronaut.data.model.query.builder.sql.Dialect.POSTGRES
 import io.micronaut.data.repository.CrudRepository
@@ -8,6 +9,7 @@ import java.time.Instant
 import java.time.Instant.EPOCH
 import java.util.*
 import javax.inject.Singleton
+import javax.persistence.GeneratedValue
 import javax.persistence.Id
 import javax.persistence.Table
 import kotlin.reflect.KMutableProperty0
@@ -23,13 +25,17 @@ class PersistedChildFactory(
                 PersistedChild(it.asResource(this), it, this)
             }.asSequence()
 
-    override fun byNaturalId(naturalId: String) =
+    override fun findExisting(naturalId: String) =
             repository.findByNaturalId(naturalId).orElse(null)?.let {
                 PersistedChild(it.asResource(this), it, this)
             }
 
-    override fun new(resource: ChildResource): Child =
+    override fun createNew(resource: ChildResource): Child =
             PersistedChild(null, ChildRecord(resource, this), this)
+
+    override fun findExistingOrCreateNew(naturalId: String) =
+            findExisting(naturalId) ?: createNew(
+                    ChildResource(naturalId, null, null, 0))
 
     internal fun save(record: ChildRecord) = repository.save(record)
 
@@ -63,6 +69,8 @@ class PersistedChild internal constructor(
         get() = record.value
     override val version: Int
         get() = record.version
+    override val existing: Boolean
+        get() = 0 < version
 
     override fun update(block: MutableChild.() -> Unit) = apply {
         PersistedMutableChild(::snapshot, record, factory).block()
@@ -104,9 +112,10 @@ class PersistedMutableChild internal constructor(
 
     override fun save() = apply {
         factory.save(record)
+        val before = snapshot.get()
         val after = record.asResource(factory)
-        factory.notifyChanged(snapshot.get(), after)
         snapshot.set(after)
+        factory.notifyChanged(before, after)
     }
 
     override fun delete() {
@@ -135,9 +144,10 @@ interface ChildRepository : CrudRepository<ChildRecord, Long> {
     fun findByNaturalId(naturalId: String): Optional<ChildRecord>
 }
 
+@Introspected
 @Table(name = "child")
 data class ChildRecord(
-        @Id val id: Long?,
+        @Id @GeneratedValue val id: Long?,
         val naturalId: String,
         var parentId: Long?,
         var value: String?,

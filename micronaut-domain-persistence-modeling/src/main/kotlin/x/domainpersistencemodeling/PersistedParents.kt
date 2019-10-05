@@ -1,6 +1,7 @@
 package x.domainpersistencemodeling
 
 import io.micronaut.context.event.ApplicationEventPublisher
+import io.micronaut.core.annotation.Introspected
 import io.micronaut.data.jdbc.annotation.JdbcRepository
 import io.micronaut.data.model.query.builder.sql.Dialect.POSTGRES
 import io.micronaut.data.repository.CrudRepository
@@ -8,6 +9,7 @@ import java.time.Instant
 import java.time.Instant.EPOCH
 import java.util.*
 import javax.inject.Singleton
+import javax.persistence.GeneratedValue
 import javax.persistence.Id
 import javax.persistence.Table
 import kotlin.reflect.KMutableProperty0
@@ -89,9 +91,10 @@ class PersistedMutableParent internal constructor(
         MutableParentDetails by record {
     override fun save() = apply {
         factory.save(record)
+        val before = snapshot.get()
         val after = record.asResource()
-        factory.notifyChanged(snapshot.get(), after)
         snapshot.set(after)
+        factory.notifyChanged(before, after)
     }
 
     override fun delete() {
@@ -120,9 +123,10 @@ interface ParentRepository : CrudRepository<ParentRecord, Long> {
     fun findByNaturalId(naturalId: String): Optional<ParentRecord>
 }
 
+@Introspected
 @Table(name = "parent")
 data class ParentRecord(
-        @Id val id: Long?,
+        @Id @GeneratedValue val id: Long?,
         override val naturalId: String,
         override var value: String?,
         override val version: Int,

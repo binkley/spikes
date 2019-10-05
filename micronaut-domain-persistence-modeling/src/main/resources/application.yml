@@ -6,6 +6,11 @@ datasources:
     url: jdbc:postgresql:postgres
     username: postgres
 
+flyway:
+  datasources:
+    default:
+      locations: classpath:db/migration
+
 micronaut:
   application:
     name: domain-persistence-modeling

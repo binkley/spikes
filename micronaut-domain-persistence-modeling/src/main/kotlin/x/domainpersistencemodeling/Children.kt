@@ -11,9 +11,11 @@ data class ChildResource(
 interface ChildFactory {
     fun all(): Sequence<Child>
 
-    fun byNaturalId(naturalId: String): Child?
+    fun findExisting(naturalId: String): Child?
 
-    fun new(resource: ChildResource): Child
+    fun createNew(resource: ChildResource): Child
+
+    fun findExistingOrCreateNew(naturalId: String): Child
 }
 
 interface ChildDetails {
@@ -39,6 +41,8 @@ interface MutableChild : MutableChildDetails {
 
 interface Child : ChildDetails {
     fun update(block: MutableChild.() -> Unit): Child
+
+    val existing: Boolean
 }
 
 data class ChildChangedEvent(
