@@ -23,7 +23,6 @@
         <maven.compiler.target>${jdk.version}</maven.compiler.target>
         <micronaut.data.version>1.0.0.M2</micronaut.data.version>
         <micronaut.version>1.2.3</micronaut.version>
-        <mockk.version>1.9.3</mockk.version>
         <persistence.version>2.2.3</persistence.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -139,12 +138,6 @@
             <groupId>ch.tutteli.atrium</groupId>
             <artifactId>atrium-cc-en_GB-robstoll</artifactId>
             <version>${atrium.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.mockk</groupId>
-            <artifactId>mockk</artifactId>
-            <version>${mockk.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
