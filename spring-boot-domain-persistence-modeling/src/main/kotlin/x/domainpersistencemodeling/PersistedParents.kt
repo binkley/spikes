@@ -34,7 +34,10 @@ class PersistedParentFactory(
             findExisting(naturalId) ?: createNew(
                     ParentResource(naturalId, null, 0))
 
-    internal fun save(record: ParentRecord) = repository.save(record)
+    // TODO: Refetch to see changes in audit columns
+    internal fun save(record: ParentRecord) =
+            repository.findByNaturalId(
+                    repository.save(record).naturalId).get()
 
     internal fun delete(record: ParentRecord) = repository.delete(record)
 
@@ -83,21 +86,25 @@ class PersistedParent internal constructor(
 
 class PersistedMutableParent internal constructor(
         private val snapshot: KMutableProperty0<ParentResource?>,
-        private val record: ParentRecord,
+        private var record: ParentRecord?,
         private val factory: PersistedParentFactory)
     : MutableParent,
-        MutableParentDetails by record {
+        MutableParentDetails by record!! {
     override fun save() = apply {
-        factory.save(record)
-        val after = record.asResource()
-        factory.notifyChanged(snapshot.get(), after)
+        val before = snapshot.get()
+        record = factory.save(record!!)
+        val after = record!!.asResource()
         snapshot.set(after)
+        factory.notifyChanged(before, after)
     }
 
     override fun delete() {
-        factory.delete(record)
-        factory.notifyChanged(snapshot.get(), null)
-        snapshot.set(null)
+        val before = snapshot.get()
+        factory.delete(record!!)
+        record = null
+        val after = null
+        snapshot.set(after)
+        factory.notifyChanged(before, after)
     }
 
     override fun equals(other: Any?): Boolean {
