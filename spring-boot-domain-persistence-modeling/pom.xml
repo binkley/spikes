@@ -4,7 +4,6 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
          https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
@@ -15,17 +14,25 @@
     <groupId>x</groupId>
     <artifactId>spring-boot-domain-persistence-modeling</artifactId>
     <version>0-SNAPSHOT</version>
-    <name>Spring Boot Domain Persistence Modeling</name>
+    <name>Spring Boot Persistence Modeling</name>
+    <description>Demo project for Spring Boot Data</description>
 
     <properties>
         <!-- @formatter:off -->
         <java.version>11</java.version>
         <kotlin.version>1.3.50</kotlin.version>
+        <postgres.version>11</postgres.version>
         <test-containers.version>1.12.1</test-containers.version>
         <!-- @formatter:on -->
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
@@ -39,8 +46,16 @@
             <artifactId>spring-boot-starter-data-rest</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
             <artifactId>jackson-module-kotlin</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
@@ -89,7 +104,7 @@
         <!-- @formatter:off -->
         <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
         <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
-        <!-- @formatter:on -->
+        <!-- @formatter:off -->
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -124,7 +139,6 @@
             <url>https://repo.spring.io/milestone</url>
         </repository>
     </repositories>
-
     <pluginRepositories>
         <pluginRepository>
             <id>spring-milestones</id>
