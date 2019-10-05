@@ -1,9 +1,9 @@
 datasources:
   default:
     dialect: POSTGRES
-    driverClassName: org.postgresql.Driver
+    driverClassName: org.testcontainers.jdbc.ContainerDatabaseDriver
     password: ""
-    url: jdbc:postgresql:postgres
+    url: jdbc:tc:postgresql:11:///postgres
     username: postgres
 
 micronaut:

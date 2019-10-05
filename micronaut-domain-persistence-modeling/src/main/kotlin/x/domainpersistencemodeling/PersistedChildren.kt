@@ -1,12 +1,12 @@
 package x.domainpersistencemodeling
 
 import io.micronaut.context.event.ApplicationEventPublisher
-import io.micronaut.data.annotation.Query
-import io.micronaut.data.annotation.Repository
+import io.micronaut.data.jdbc.annotation.JdbcRepository
+import io.micronaut.data.model.query.builder.sql.Dialect.POSTGRES
 import io.micronaut.data.repository.CrudRepository
 import java.time.Instant
 import java.time.Instant.EPOCH
-import java.util.Objects
+import java.util.*
 import javax.inject.Singleton
 import javax.persistence.Id
 import javax.persistence.Table
@@ -24,7 +24,7 @@ class PersistedChildFactory(
             }.asSequence()
 
     override fun byNaturalId(naturalId: String) =
-            repository.findByNaturalId(naturalId)?.let {
+            repository.findByNaturalId(naturalId).orElse(null)?.let {
                 PersistedChild(it.asResource(this), it, this)
             }
 
@@ -129,11 +129,10 @@ class PersistedMutableChild internal constructor(
             "${super.toString()}{snapshot=$snapshot, record=$record}"
 }
 
-@Repository
+@JdbcRepository(dialect = POSTGRES)
 interface ChildRepository : CrudRepository<ChildRecord, Long> {
-    @Query("SELECT * FROM child WHERE natural_id = :naturalId")
-    fun findByNaturalId(naturalId: String)
-            : ChildRecord?
+    // TODO: Can I return Kotlin `ChildRecord?`
+    fun findByNaturalId(naturalId: String): Optional<ChildRecord>
 }
 
 @Table(name = "child")

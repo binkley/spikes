@@ -1,12 +1,12 @@
 package x.domainpersistencemodeling
 
 import io.micronaut.context.event.ApplicationEventPublisher
-import io.micronaut.data.annotation.Query
-import io.micronaut.data.annotation.Repository
+import io.micronaut.data.jdbc.annotation.JdbcRepository
+import io.micronaut.data.model.query.builder.sql.Dialect.POSTGRES
 import io.micronaut.data.repository.CrudRepository
 import java.time.Instant
 import java.time.Instant.EPOCH
-import java.util.Objects
+import java.util.*
 import javax.inject.Singleton
 import javax.persistence.Id
 import javax.persistence.Table
@@ -22,13 +22,17 @@ class PersistedParentFactory(
                 PersistedParent(it.asResource(), it, this)
             }.asSequence()
 
-    override fun byNaturalId(naturalId: String) =
-            repository.findByNaturalId(naturalId)?.let {
+    override fun findExisting(naturalId: String) =
+            repository.findByNaturalId(naturalId).orElse(null)?.let {
                 PersistedParent(it.asResource(), it, this)
             }
 
-    override fun new(resource: ParentResource) =
+    override fun createNew(resource: ParentResource) =
             PersistedParent(null, ParentRecord(resource), this)
+
+    override fun findExistingOrCreateNew(naturalId: String) =
+            findExisting(naturalId) ?: createNew(
+                    ParentResource(naturalId, null, 0))
 
     internal fun save(record: ParentRecord) = repository.save(record)
 
@@ -39,7 +43,7 @@ class PersistedParentFactory(
             notifyIfChanged(before, after, publisher, ::ParentChangedEvent)
 
     internal fun idOf(resource: ParentResource) =
-            repository.findByNaturalId(resource.naturalId)?.id
+            repository.findByNaturalId(resource.naturalId).orElse(null)?.id
 
     internal fun resourceOf(id: Long): ParentResource? =
             repository.findById(id).orElse(null)?.asResource()
@@ -56,6 +60,8 @@ class PersistedParent internal constructor(
         get() = record.value
     override val version: Int
         get() = record.version
+    override val existing: Boolean
+        get() = 0 < version
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -108,11 +114,10 @@ class PersistedMutableParent internal constructor(
             "${super.toString()}{snapshot=$snapshot, record=$record}"
 }
 
-@Repository
+@JdbcRepository(dialect = POSTGRES)
 interface ParentRepository : CrudRepository<ParentRecord, Long> {
-    @Query("SELECT * FROM parent WHERE natural_id = :naturalId")
-    fun findByNaturalId(naturalId: String)
-            : ParentRecord?
+    // TODO: Can I return Kotlin `ParentRecord?`
+    fun findByNaturalId(naturalId: String): Optional<ParentRecord>
 }
 
 @Table(name = "parent")
