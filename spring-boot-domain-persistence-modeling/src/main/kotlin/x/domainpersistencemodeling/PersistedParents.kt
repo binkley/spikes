@@ -74,8 +74,10 @@ class PersistedParent internal constructor(
                 && record == other.record
     }
 
-    override fun update(block: MutableParent.() -> Unit) = apply {
-        PersistedMutableParent(::snapshot, record, factory).block()
+    override fun update(block: MutableParent.() -> Unit) = let {
+        val mutable = PersistedMutableParent(::snapshot, record, factory)
+        mutable.block()
+        mutable.asImmutable()
     }
 
     override fun hashCode() = Objects.hash(snapshot, record)
@@ -94,7 +96,7 @@ class PersistedMutableParent internal constructor(
         val before = snapshot.get()
         record = factory.save(record!!)
         val after = record!!.asResource()
-        snapshot.set(after)
+        snapshot.set(after) // TODO: Update my own snapshot
         factory.notifyChanged(before, after)
     }
 
@@ -105,6 +107,12 @@ class PersistedMutableParent internal constructor(
         val after = null
         snapshot.set(after)
         factory.notifyChanged(before, after)
+    }
+
+    internal fun asImmutable(): PersistedParent? {
+        val record = this.record
+        return if (null == record) null
+        else PersistedParent(snapshot.get(), record, factory)
     }
 
     override fun equals(other: Any?): Boolean {

@@ -39,10 +39,6 @@ class PersistedChildFactory(
 
     internal fun delete(record: ChildRecord) = repository.delete(record)
 
-    internal fun notifyChanged(event: ChildChangedEvent) =
-            notifyIfChanged(event.before, event.after,
-                    publisher, ::ChildChangedEvent)
-
     internal fun notifyChanged(
             before: ChildResource?, after: ChildResource?) =
             notifyIfChanged(before, after, publisher, ::ChildChangedEvent)
@@ -60,7 +56,7 @@ class PersistedChildFactory(
 
 class PersistedChild internal constructor(
         private var snapshot: ChildResource?,
-        private val record: ChildRecord,
+        private var record: ChildRecord,
         private val factory: PersistedChildFactory)
     : Child {
     override val naturalId: String
@@ -94,36 +90,39 @@ class PersistedChild internal constructor(
 
 class PersistedMutableChild internal constructor(
         private val snapshot: KMutableProperty0<ChildResource?>,
-        private val record: ChildRecord,
+        private var record: ChildRecord?,
         private val factory: PersistedChildFactory)
     : MutableChild {
     override val naturalId: String
-        get() = record.naturalId
+        get() = record!!.naturalId
     override var parentId: Long?
-        get() = record.parentId
+        get() = record!!.parentId
         set(parentId) {
-            record.parentId = parentId
+            record!!.parentId = parentId
         }
     override var value: String?
-        get() = record.value
+        get() = record!!.value
         set(value) {
-            record.value = value
+            record!!.value = value
         }
     override val version: Int
-        get() = record.version
+        get() = record!!.version
 
     override fun save() = apply {
-        factory.save(record)
-        val after = record.asResource(factory)
-        factory.notifyChanged(snapshot.get(), after)
-        snapshot.set(after)
+        val before = snapshot.get()
+        record = factory.save(record!!)
+        val after = record!!.asResource(factory)
+        snapshot.set(after) // TODO: Update my own snapshot
+        factory.notifyChanged(before, after)
     }
 
     override fun delete() {
-        factory.delete(record)
-        factory.notifyChanged(
-                ChildChangedEvent(snapshot.get(), null))
-        snapshot.set(null)
+        val before = snapshot.get()
+        factory.delete(record!!)
+        record = null
+        val after = null
+        snapshot.set(after)
+        factory.notifyChanged(before, after)
     }
 
     override fun equals(other: Any?): Boolean {

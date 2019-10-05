@@ -36,7 +36,12 @@ interface MutableParent : MutableParentDetails {
 interface Parent : ParentDetails {
     val existing: Boolean
 
-    fun update(block: MutableParent.() -> Unit): Parent
+    /**
+     * Runs [block] against [this], and returns a new, updated version
+     * of `Parent`.  Afterwards, do not reuse the original `Parent, but
+     * capture the return.
+     */
+    fun update(block: MutableParent.() -> Unit): Parent?
 }
 
 data class ParentChangedEvent(

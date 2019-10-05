@@ -39,6 +39,11 @@ interface MutableChild : MutableChildDetails {
 interface Child : ChildDetails {
     val existing: Boolean
 
+    /**
+     * Runs [block] against [this], and returns a new, updated version
+     * of `Parent`.  Afterwards, do not reuse the original `Parent, but
+     * capture the return.
+     */
     fun update(block: MutableChild.() -> Unit): Child
 }
 
