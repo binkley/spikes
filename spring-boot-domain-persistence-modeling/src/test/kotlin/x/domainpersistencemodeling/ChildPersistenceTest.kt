@@ -12,27 +12,27 @@ import org.springframework.context.annotation.Import
 @AutoConfigureTestDatabase(replace = NONE)
 @DataJdbcTest
 @Import(value = [PersistedParentFactory::class, TestListener::class])
-class ParentPersistenceTest {
+class ChildPersistenceTest {
     @Autowired
-    lateinit var parents: ParentFactory
+    lateinit var children: ParentFactory
     @Autowired
     lateinit var testListener: TestListener<ParentChangedEvent>
 
     @Test
     fun shouldRoundTrip() {
-        val unsaved = parents.findExistingOrCreateNew("a")
+        val unsaved = children.findExistingOrCreateNew("a")
         val saved = unsaved.update {
             save()
         }!!
 
-        val found = parents.findExisting(unsaved.naturalId)!!
+        val found = children.findExisting(unsaved.naturalId)!!
 
         expect(found).toBe(saved)
     }
 
     @Test
     fun shouldBeUnsuableAfterDelete() {
-        val unsaved = parents.findExistingOrCreateNew("a")
+        val unsaved = children.findExistingOrCreateNew("a")
         val saved = unsaved.update {
             save()
             delete()
