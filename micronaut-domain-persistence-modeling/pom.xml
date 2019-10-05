@@ -52,57 +52,46 @@
         <dependency>
             <groupId>javax.annotation</groupId>
             <artifactId>javax.annotation-api</artifactId>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-stdlib-jdk8</artifactId>
             <version>${kotlinVersion}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-reflect</artifactId>
             <version>${kotlinVersion}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>io.micronaut</groupId>
             <artifactId>micronaut-runtime</artifactId>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>io.micronaut</groupId>
             <artifactId>micronaut-http-client</artifactId>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>io.micronaut.configuration</groupId>
             <artifactId>micronaut-jdbc-hikari</artifactId>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>io.micronaut.configuration</groupId>
             <artifactId>micronaut-flyway</artifactId>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>jakarta.persistence</groupId>
             <artifactId>jakarta.persistence-api</artifactId>
             <version>${persistence.version}</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>io.micronaut.data</groupId>
             <artifactId>micronaut-data-jdbc</artifactId>
             <version>${micronaut.data.version}</version>
-            <scope>compile</scope>
         </dependency>
-
         <dependency>
             <groupId>io.micronaut</groupId>
             <artifactId>micronaut-http-server-netty</artifactId>
-            <scope>compile</scope>
         </dependency>
 
         <dependency>
