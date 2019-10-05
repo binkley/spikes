@@ -13,9 +13,11 @@
         <!-- @formatter:off -->
         <atrium.version>0.8.0</atrium.version>
         <exec.mainClass>x.Application</exec.mainClass>
+        <!-- TODO: Jackson 2.10.0 -->
+        <jackson.version>2.9.10</jackson.version>
         <jdk.version>11</jdk.version>
         <junit.version>5.5.2</junit.version>
-        <kotlinVersion>1.3.50</kotlinVersion>
+        <kotlin.version>1.3.50</kotlin.version>
         <logback.version>1.2.3</logback.version>
         <maven-failsafe-plugin.version>2.22.2</maven-failsafe-plugin.version>
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
@@ -56,12 +58,12 @@
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-stdlib-jdk8</artifactId>
-            <version>${kotlinVersion}</version>
+            <version>${kotlin.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-reflect</artifactId>
-            <version>${kotlinVersion}</version>
+            <version>${kotlin.version}</version>
         </dependency>
         <dependency>
             <groupId>io.micronaut</groupId>
@@ -97,7 +99,7 @@
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
             <artifactId>jackson-module-kotlin</artifactId>
-            <version>2.9.8</version>
+            <version>${jackson.version}</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
@@ -182,7 +184,7 @@
             <plugin>
                 <artifactId>kotlin-maven-plugin</artifactId>
                 <groupId>org.jetbrains.kotlin</groupId>
-                <version>${kotlinVersion}</version>
+                <version>${kotlin.version}</version>
                 <configuration>
                     <compilerPlugins>
                         <plugin>all-open</plugin>
@@ -254,7 +256,7 @@
                     <dependency>
                         <groupId>org.jetbrains.kotlin</groupId>
                         <artifactId>kotlin-maven-allopen</artifactId>
-                        <version>${kotlinVersion}</version>
+                        <version>${kotlin.version}</version>
                     </dependency>
                 </dependencies>
             </plugin>
