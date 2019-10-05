@@ -13,4 +13,4 @@ flyway:
 
 micronaut:
   application:
-    name: domain-persistence-modeling
+    name: micronaut-domain-persistence-modeling
