@@ -28,12 +28,13 @@ class PersistedChildFactory(
                 PersistedChild(it.asResource(this), it, this)
             }
 
-    override fun createNew(resource: ChildResource): Child =
-            PersistedChild(null, ChildRecord(resource, this), this)
+    override fun createNew(naturalId: String): Child =
+            PersistedChild(null, ChildRecord(
+                    ChildResource(naturalId, null, null, 0), this),
+                    this)
 
     override fun findExistingOrCreateNew(naturalId: String) =
-            findExisting(naturalId) ?: createNew(
-                    ChildResource(naturalId, null, null, 0))
+            findExisting(naturalId) ?: createNew(naturalId)
 
     // TODO: Refetch to see changes in audit columns
     internal fun save(record: ChildRecord) =
@@ -45,6 +46,10 @@ class PersistedChildFactory(
     internal fun notifyChanged(
             before: ChildResource?, after: ChildResource?) =
             notifyIfChanged(before, after, publisher, ::ChildChangedEvent)
+
+    internal fun addTo(child: MutableChild, parent: ParentResource) =
+            repository.updateParentId(child.naturalId, parent.naturalId)
+                    .orElse(null)
 
     internal fun parentIdFor(resource: ChildResource) =
             resource.parent?.let {
@@ -79,8 +84,11 @@ class PersistedChild internal constructor(
         mutable.asImmutable()
     }
 
-    override fun updateAndSave(block: MutableChild.() -> Unit) =
-            update(block)!!
+    override fun updateAndSave(block: MutableChild.() -> Unit) = let {
+        val mutable = PersistedMutableChild(::snapshot, record, factory)
+        mutable.block()
+        mutable.save().asImmutable()
+    }!!
 
     override fun delete() {
         update {
@@ -139,6 +147,10 @@ class PersistedMutableChild internal constructor(
         factory.notifyChanged(before, after)
     }
 
+    override fun addTo(parent: ParentResource) = apply {
+        factory.addTo(this, parent)
+    }
+
     internal fun asImmutable(): PersistedChild? {
         val record = this.record
         return if (null == record) null
@@ -162,6 +174,17 @@ class PersistedMutableChild internal constructor(
 interface ChildRepository : CrudRepository<ChildRecord, Long> {
     @Query("SELECT * FROM child WHERE natural_id = :naturalId")
     fun findByNaturalId(@Param("naturalId") naturalId: String)
+            : Optional<ChildRecord>
+
+    @Query("""
+        UPDATE child
+        SET parent_id = (SELECT id FROM parent WHERE natural_id = :parentNaturalId)
+        WHERE natural_id = :naturalId
+        RETURNING *
+        """)
+    fun updateParentId(
+            @Param("naturalId") naturalId: String,
+            @Param("parentNaturalId") parentNaturalId: String)
             : Optional<ChildRecord>
 }
 

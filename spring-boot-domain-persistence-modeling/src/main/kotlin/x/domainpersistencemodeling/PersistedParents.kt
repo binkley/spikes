@@ -72,14 +72,19 @@ class PersistedParent internal constructor(
         mutable.asImmutable()
     }
 
-    override fun updateAndSave(block: MutableParent.() -> Unit) =
-            update(block)!!
+    override fun updateAndSave(block: MutableParent.() -> Unit) = let {
+        val mutable = PersistedMutableParent(::snapshot, record, factory)
+        mutable.block()
+        mutable.save().asImmutable()
+    }!!
 
     override fun delete() {
         update {
             delete()
         }
     }
+
+    override fun asResource() = ParentResource(naturalId, value, version)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

@@ -46,6 +46,8 @@ interface Parent : ParentDetails {
     fun updateAndSave(block: MutableParent.() -> Unit): Parent
 
     fun delete()
+
+    fun asResource(): ParentResource
 }
 
 data class ParentChangedEvent(

@@ -2,6 +2,7 @@ package x.domainpersistencemodeling
 
 import ch.tutteli.atrium.api.cc.en_GB.toBe
 import ch.tutteli.atrium.verbs.expect
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.data.jdbc.DataJdbcTest
@@ -19,11 +20,23 @@ class ChildPersistenceTest {
     @Autowired
     lateinit var children: ChildFactory
     @Autowired
+    lateinit var parents: ParentFactory
+    @Autowired
     lateinit var testListener: TestListener<ChildChangedEvent>
+
+    @AfterEach
+    fun tearDown() {
+        children.all().forEach {
+            it.delete()
+        }
+        parents.all().forEach {
+            it.delete()
+        }
+    }
 
     @Test
     fun shouldRoundTrip() {
-        val unsaved = children.findExistingOrCreateNew("a")
+        val unsaved = newChild()
         val saved = unsaved.update {
             save()
         }!!
@@ -35,7 +48,7 @@ class ChildPersistenceTest {
 
     @Test
     fun shouldBeUnsuableAfterDelete() {
-        val unsaved = children.findExistingOrCreateNew("a")
+        val unsaved = newChild()
         val saved = unsaved.update {
             save()
             delete()
@@ -43,4 +56,20 @@ class ChildPersistenceTest {
 
         expect(saved).toBe(null)
     }
+
+    @Test
+    fun shouldAddToParent() {
+        val parent = parents.findExistingOrCreateNew("a").updateAndSave { }
+
+        val unsaved = newChild()
+        val saved = unsaved.updateAndSave {
+            addTo(parent.asResource())
+        }
+
+        val found = children.findExisting(saved.naturalId)!!
+
+//        expect(saved.parentNaturalId).toBe(parent.naturalId)
+    }
+
+    private fun newChild() = children.findExistingOrCreateNew("p")
 }

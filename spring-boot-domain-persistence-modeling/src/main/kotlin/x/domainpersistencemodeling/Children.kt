@@ -11,7 +11,7 @@ data class ChildResource(
 interface ChildFactory {
     fun all(): Sequence<Child>
     fun findExisting(naturalId: String): Child?
-    fun createNew(resource: ChildResource): Child
+    fun createNew(naturalId: String): Child
     fun findExistingOrCreateNew(naturalId: String): Child
 }
 
@@ -34,6 +34,8 @@ interface MutableChild : MutableChildDetails {
     fun save(): MutableChild
 
     fun delete()
+
+    fun addTo(parent: ParentResource): MutableChild
 }
 
 interface Child : ChildDetails {
