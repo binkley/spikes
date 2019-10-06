@@ -61,6 +61,10 @@ class ChildPersistenceTest {
 
         saved.delete()
 
+        val found = children.findExisting(naturalId)
+
+        expect(found).toBe(null)
+
         expect {
             saved.naturalId
         }.toThrow<NullPointerException> { }

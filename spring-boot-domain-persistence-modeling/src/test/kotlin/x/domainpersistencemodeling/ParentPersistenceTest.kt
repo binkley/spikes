@@ -2,6 +2,7 @@ package x.domainpersistencemodeling
 
 import ch.tutteli.atrium.api.cc.en_GB.containsExactly
 import ch.tutteli.atrium.api.cc.en_GB.toBe
+import ch.tutteli.atrium.api.cc.en_GB.toThrow
 import ch.tutteli.atrium.verbs.expect
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -52,6 +53,10 @@ internal class ParentPersistenceTest {
         val found = parents.findExisting(naturalId)
 
         expect(found).toBe(null)
+
+        expect {
+            saved.naturalId
+        }.toThrow<NullPointerException> { }
 
         testListener.expectNext.containsExactly(
                 ParentChangedEvent(null, ParentResource(naturalId, null, 1)),
