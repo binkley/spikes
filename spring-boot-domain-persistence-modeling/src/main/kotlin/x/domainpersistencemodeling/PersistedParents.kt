@@ -44,10 +44,10 @@ internal class PersistedParentFactory(
             before: ParentResource?, after: ParentResource?) =
             notifyIfChanged(before, after, publisher, ::ParentChangedEvent)
 
-    internal fun idOf(resource: ParentResource) =
-            repository.findByNaturalId(resource.naturalId).orElse(null)?.id
+    internal fun idOf(naturalId: String) =
+            repository.findByNaturalId(naturalId).orElse(null)?.id
 
-    internal fun resourceOf(id: Long): ParentResource? =
+    internal fun resourceOf(id: Long) =
             repository.findById(id).orElse(null)?.asResource()
 }
 

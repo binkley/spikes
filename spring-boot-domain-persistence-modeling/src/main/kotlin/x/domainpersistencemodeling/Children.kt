@@ -2,7 +2,7 @@ package x.domainpersistencemodeling
 
 data class ChildResource(
         val naturalId: String,
-        val parent: ParentResource?,
+        val parentNaturalId: String?,
         val value: String?,
         val version: Int)
 
@@ -13,7 +13,7 @@ interface ChildFactory {
     fun findExistingOrCreateNew(naturalId: String): Child
 }
 
-interface ChildDetails {
+interface ChildPersistedDetails {
     val naturalId: String
     val parentId: Long?
     val value: String?
@@ -21,7 +21,7 @@ interface ChildDetails {
 }
 
 interface MutableChildDetails
-    : ChildDetails {
+    : ChildPersistedDetails {
     override val naturalId: String
     override var parentId: Long?
     override var value: String?
@@ -31,9 +31,12 @@ interface MutableChild : MutableChildDetails {
     fun addTo(parent: ParentResource): MutableChild
 }
 
-interface Child : ChildDetails,
-        ScopedMutation<Child, MutableChild>,
-        Persisted
+interface Child : ScopedMutation<Child, MutableChild>,
+        Persisted {
+    val naturalId: String
+    val parentNaturalId: String?
+    val value: String?
+}
 
 data class ChildChangedEvent(
         val before: ChildResource?,
