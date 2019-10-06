@@ -10,27 +10,26 @@ import org.springframework.stereotype.Component
 import java.time.Instant
 import java.time.Instant.EPOCH
 import java.util.*
-import kotlin.reflect.KMutableProperty0
 
 @Component
-class PersistedParentFactory(
+internal class PersistedParentFactory(
         private val repository: ParentRepository,
         private val publisher: ApplicationEventPublisher)
     : ParentFactory {
-    override fun all() =
+    override fun all(): Sequence<Parent> =
             repository.findAll().map {
                 PersistedParent(it.asResource(), it, this)
             }.asSequence()
 
-    override fun findExisting(naturalId: String) =
+    override fun findExisting(naturalId: String): Parent? =
             repository.findByNaturalId(naturalId).orElse(null)?.let {
                 PersistedParent(it.asResource(), it, this)
             }
 
-    override fun createNew(resource: ParentResource) =
+    override fun createNew(resource: ParentResource): Parent =
             PersistedParent(null, ParentRecord(resource), this)
 
-    override fun findExistingOrCreateNew(naturalId: String) =
+    override fun findExistingOrCreateNew(naturalId: String): Parent =
             findExisting(naturalId) ?: createNew(
                     ParentResource(naturalId, null, 0))
 
@@ -52,7 +51,7 @@ class PersistedParentFactory(
             repository.findById(id).orElse(null)?.asResource()
 }
 
-class PersistedParent internal constructor(
+internal class PersistedParent internal constructor(
         private var snapshot: ParentResource?,
         private var record: ParentRecord?,
         private val factory: PersistedParentFactory)
@@ -67,7 +66,7 @@ class PersistedParent internal constructor(
         get() = 0 < version
 
     override fun update(block: MutableParent.() -> Unit) = apply {
-        val mutable = PersistedMutableParent(::snapshot, record!!)
+        val mutable = PersistedMutableParent(record!!)
         mutable.block()
     }
 
@@ -104,8 +103,7 @@ class PersistedParent internal constructor(
             "${super.toString()}{snapshot=$snapshot, record=$record}"
 }
 
-class PersistedMutableParent internal constructor(
-        private val snapshot: KMutableProperty0<ParentResource?>,
+internal class PersistedMutableParent internal constructor(
         private val record: ParentRecord)
     : MutableParent,
         MutableParentDetails by record {
@@ -113,14 +111,12 @@ class PersistedMutableParent internal constructor(
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
         other as PersistedMutableParent
-        return snapshot == other.snapshot
-                && record == other.record
+        return record == other.record
     }
 
-    override fun hashCode() = Objects.hash(snapshot, record)
+    override fun hashCode() = Objects.hash(record)
 
-    override fun toString() =
-            "${super.toString()}{snapshot=$snapshot, record=$record}"
+    override fun toString() = "${super.toString()}{record=$record}"
 }
 
 interface ParentRepository : CrudRepository<ParentRecord, Long> {

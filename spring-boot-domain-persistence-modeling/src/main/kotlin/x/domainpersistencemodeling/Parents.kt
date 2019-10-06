@@ -22,7 +22,6 @@ interface MutableParentDetails
     : ParentDetails {
     override val naturalId: String
     override var value: String?
-    override val version: Int
 }
 
 interface MutableParent : MutableParentDetails

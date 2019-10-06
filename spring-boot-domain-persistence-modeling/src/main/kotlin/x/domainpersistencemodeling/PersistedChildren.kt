@@ -10,20 +10,19 @@ import org.springframework.stereotype.Component
 import java.time.Instant
 import java.time.Instant.EPOCH
 import java.util.*
-import kotlin.reflect.KMutableProperty0
 
 @Component
-class PersistedChildFactory(
+internal class PersistedChildFactory(
         private val repository: ChildRepository,
         private val parentFactory: PersistedParentFactory,
         private val publisher: ApplicationEventPublisher)
     : ChildFactory {
-    override fun all() =
+    override fun all(): Sequence<Child> =
             repository.findAll().map {
                 PersistedChild(it.asResource(this), it, this)
             }.asSequence()
 
-    override fun findExisting(naturalId: String) =
+    override fun findExisting(naturalId: String): Child? =
             repository.findByNaturalId(naturalId).orElse(null)?.let {
                 PersistedChild(it.asResource(this), it, this)
             }
@@ -33,7 +32,7 @@ class PersistedChildFactory(
                     ChildResource(naturalId, null, null, 0), this),
                     this)
 
-    override fun findExistingOrCreateNew(naturalId: String) =
+    override fun findExistingOrCreateNew(naturalId: String): Child =
             findExisting(naturalId) ?: createNew(naturalId)
 
     // TODO: Refetch to see changes in audit columns
@@ -62,7 +61,7 @@ class PersistedChildFactory(
             }
 }
 
-class PersistedChild internal constructor(
+internal class PersistedChild internal constructor(
         private var snapshot: ChildResource?,
         private var record: ChildRecord?,
         private val factory: PersistedChildFactory)
@@ -79,7 +78,7 @@ class PersistedChild internal constructor(
         get() = 0 < version
 
     override fun update(block: MutableChild.() -> Unit) = apply {
-        val mutable = PersistedMutableChild(::snapshot, record, factory)
+        val mutable = PersistedMutableChild(record!!, factory)
         mutable.block()
     }
 
@@ -114,26 +113,11 @@ class PersistedChild internal constructor(
             "${super.toString()}{snapshot=$snapshot, record=$record}"
 }
 
-class PersistedMutableChild internal constructor(
-        private val snapshot: KMutableProperty0<ChildResource?>,
-        private var record: ChildRecord?,
+internal class PersistedMutableChild internal constructor(
+        private val record: ChildRecord,
         private val factory: PersistedChildFactory)
-    : MutableChild {
-    override val naturalId: String
-        get() = record!!.naturalId
-    override var parentId: Long?
-        get() = record!!.parentId
-        set(parentId) {
-            record!!.parentId = parentId
-        }
-    override var value: String?
-        get() = record!!.value
-        set(value) {
-            record!!.value = value
-        }
-    override val version: Int
-        get() = record!!.version
-
+    : MutableChild,
+        MutableChildDetails by record {
     override fun addTo(parent: ParentResource) = apply {
         factory.addTo(this, parent)
     }
@@ -142,14 +126,12 @@ class PersistedMutableChild internal constructor(
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
         other as PersistedMutableChild
-        return snapshot == other.snapshot
-                && record == other.record
+        return record == other.record
     }
 
-    override fun hashCode() = Objects.hash(snapshot, record)
+    override fun hashCode() = Objects.hash(record)
 
-    override fun toString() =
-            "${super.toString()}{snapshot=$snapshot, record=$record}"
+    override fun toString() = "${super.toString()}{record=$record}"
 }
 
 interface ChildRepository : CrudRepository<ChildRecord, Long> {
@@ -172,12 +154,13 @@ interface ChildRepository : CrudRepository<ChildRecord, Long> {
 @Table("child")
 data class ChildRecord(
         @Id val id: Long?,
-        val naturalId: String,
-        var parentId: Long?,
-        var value: String?,
-        val version: Int,
+        override val naturalId: String,
+        override var parentId: Long?,
+        override var value: String?,
+        override val version: Int,
         val createdAt: Instant,
-        val updatedAt: Instant) {
+        val updatedAt: Instant) :
+        MutableChildDetails {
     internal constructor(resource: ChildResource,
             factory: PersistedChildFactory) : this(
             null,
