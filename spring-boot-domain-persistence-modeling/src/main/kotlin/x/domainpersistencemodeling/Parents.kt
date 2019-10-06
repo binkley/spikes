@@ -28,9 +28,8 @@ interface MutableParentDetails
 interface MutableParent : MutableParentDetails
 
 interface Parent : ParentDetails,
-        ScopedMutationDomainObject<Parent, MutableParent> {
-    val existing: Boolean
-
+        ScopedMutation<Parent, MutableParent>,
+        Persisted {
     fun toResource(): ParentResource
 }
 

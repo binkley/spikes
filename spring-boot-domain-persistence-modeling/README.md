@@ -20,7 +20,7 @@ Goals:
 4. Make saving and deleting obvious.
 
 To achieve these goals, each domain object implements
-[`ScopedMutationDomainObject`](src/main/kotlin/x/domainpersistencemodeling/ScopedMutationDomainObject.kt),
+[`ScopedMutation`](src/main/kotlin/x/domainpersistencemodeling/ScopedMutation.kt),
 which provides three methods:
 
 * `update(block)`, running the mutations of `block` against a mutable version

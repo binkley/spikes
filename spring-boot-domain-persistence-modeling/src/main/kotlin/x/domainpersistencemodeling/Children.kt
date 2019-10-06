@@ -33,9 +33,8 @@ interface MutableChild : MutableChildDetails {
 }
 
 interface Child : ChildDetails,
-        ScopedMutationDomainObject<Child, MutableChild> {
-    val existing: Boolean
-}
+        ScopedMutation<Child, MutableChild>,
+        Persisted
 
 data class ChildChangedEvent(
         val before: ChildResource?,
