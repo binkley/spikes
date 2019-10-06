@@ -71,15 +71,6 @@ class PersistedParent internal constructor(
         mutable.block()
     }
 
-    /*
-    override fun save() = apply {
-        val before = snapshot.get()
-        record = factory.save(record)
-        val after = record.asResource()
-        snapshot.set(after)
-        factory.notifyChanged(before, after)
-    }
-     */
     override fun save() = apply {
         val before = snapshot
         record = factory.save(record!!)
@@ -88,16 +79,6 @@ class PersistedParent internal constructor(
         factory.notifyChanged(before, after)
     }
 
-    /*
-    override fun delete() {
-        val before = snapshot.get()
-        factory.delete(record!!)
-        record = null
-        val after = null
-        snapshot.set(after)
-        factory.notifyChanged(before, after)
-    }
-     */
     override fun delete() {
         val before = snapshot
         val after = null
