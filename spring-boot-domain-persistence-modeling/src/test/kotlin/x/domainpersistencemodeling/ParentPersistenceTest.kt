@@ -25,7 +25,7 @@ class ParentPersistenceTest {
             save()
         }!!
 
-        val found = parents.findExisting(unsaved.naturalId)!!
+        val found = parents.findExisting(saved.naturalId)!!
 
         expect(found).toBe(saved)
     }
