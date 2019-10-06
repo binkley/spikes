@@ -64,36 +64,59 @@ class PersistedChildFactory(
 
 class PersistedChild internal constructor(
         private var snapshot: ChildResource?,
-        private var record: ChildRecord,
+        private var record: ChildRecord?,
         private val factory: PersistedChildFactory)
     : Child {
     override val naturalId: String
-        get() = record.naturalId
+        get() = record!!.naturalId
     override val parentId: Long?
-        get() = record.parentId
+        get() = record!!.parentId
     override val value: String?
-        get() = record.value
+        get() = record!!.value
     override val version: Int
-        get() = record.version
+        get() = record!!.version
     override val existing: Boolean
         get() = 0 < version
 
-    override fun update(block: MutableChild.() -> Unit) = let {
+    override fun update(block: MutableChild.() -> Unit) = apply {
         val mutable = PersistedMutableChild(::snapshot, record, factory)
         mutable.block()
-        mutable.asImmutable()
     }
 
-    override fun updateAndSave(block: MutableChild.() -> Unit) = let {
-        val mutable = PersistedMutableChild(::snapshot, record, factory)
-        mutable.block()
-        mutable.save().asImmutable()
-    }!!
+    /*
+    override fun save() = apply {
+        val before = snapshot.get()
+        record = factory.save(record!!)
+        val after = record!!.asResource(factory)
+        snapshot.set(after)
+        factory.notifyChanged(before, after)
+    }
+*/
+    override fun save() = apply {
+        val before = snapshot
+        record = factory.save(record!!)
+        val after = record!!.asResource(factory)
+        snapshot = after
+        factory.notifyChanged(before, after)
+    }
 
+    /*
     override fun delete() {
-        update {
-            delete()
-        }
+        val before = snapshot.get()
+        factory.delete(record!!)
+        record = null
+        val after = null
+        snapshot.set(after)
+        factory.notifyChanged(before, after)
+    }
+ */
+    override fun delete() {
+        val before = snapshot
+        val after = null
+        factory.delete(record!!)
+        record = null
+        snapshot = null
+        factory.notifyChanged(before, after)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -130,31 +153,8 @@ class PersistedMutableChild internal constructor(
     override val version: Int
         get() = record!!.version
 
-    override fun save() = apply {
-        val before = snapshot.get()
-        record = factory.save(record!!)
-        val after = record!!.asResource(factory)
-        snapshot.set(after)
-        factory.notifyChanged(before, after)
-    }
-
-    override fun delete() {
-        val before = snapshot.get()
-        factory.delete(record!!)
-        record = null
-        val after = null
-        snapshot.set(after)
-        factory.notifyChanged(before, after)
-    }
-
     override fun addTo(parent: ParentResource) = apply {
         factory.addTo(this, parent)
-    }
-
-    internal fun asImmutable(): PersistedChild? {
-        val record = this.record
-        return if (null == record) null
-        else PersistedChild(snapshot.get(), record, factory)
     }
 
     override fun equals(other: Any?): Boolean {

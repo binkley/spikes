@@ -1,7 +1,5 @@
 package x.domainpersistencemodeling
 
-import org.springframework.context.ApplicationEvent
-
 data class ChildResource(
         val naturalId: String,
         val parent: ParentResource?,
@@ -31,29 +29,15 @@ interface MutableChildDetails
 }
 
 interface MutableChild : MutableChildDetails {
-    fun save(): MutableChild
-
-    fun delete()
-
     fun addTo(parent: ParentResource): MutableChild
 }
 
-interface Child : ChildDetails {
+interface Child : ChildDetails,
+        ScopedMutationDomainObject<Child, MutableChild> {
     val existing: Boolean
-
-    /**
-     * Runs [block] against [this], and returns a new, updated version
-     * of `Parent`.  Afterwards, do not reuse the original `Parent, but
-     * capture the return.
-     */
-    fun update(block: MutableChild.() -> Unit): Child?
-
-    fun updateAndSave(block: MutableChild.() -> Unit): Child
-
-    fun delete()
 }
 
 data class ChildChangedEvent(
         val before: ChildResource?,
         val after: ChildResource?)
-    : ApplicationEvent(after ?: before!!)
+    : DomainChangedEvent<ChildResource>(before, after)

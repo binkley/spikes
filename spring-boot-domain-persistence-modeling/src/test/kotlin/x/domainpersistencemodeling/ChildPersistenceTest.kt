@@ -1,6 +1,8 @@
 package x.domainpersistencemodeling
 
+import ch.tutteli.atrium.api.cc.en_GB.containsExactly
 import ch.tutteli.atrium.api.cc.en_GB.toBe
+import ch.tutteli.atrium.api.cc.en_GB.toThrow
 import ch.tutteli.atrium.verbs.expect
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -17,6 +19,10 @@ import org.springframework.context.annotation.Import
     PersistedParentFactory::class,
     TestListener::class])
 class ChildPersistenceTest {
+    companion object {
+        val naturalId = "p"
+    }
+
     @Autowired
     lateinit var children: ChildFactory
     @Autowired
@@ -36,40 +42,50 @@ class ChildPersistenceTest {
 
     @Test
     fun shouldRoundTrip() {
-        val unsaved = newChild()
-        val saved = unsaved.update {
-            save()
-        }!!
+        val unsaved = newUnsavedChild()
+        val saved = unsaved.save()
 
-        val found = children.findExisting(saved.naturalId)!!
+        val found = children.findExisting(saved.naturalId)
 
         expect(found).toBe(saved)
+
+        testListener.expectNext.containsExactly(
+                ChildChangedEvent(null, ChildResource(
+                        naturalId, null, null, 1)))
     }
 
     @Test
-    fun shouldBeUnsuableAfterDelete() {
-        val unsaved = newChild()
-        val saved = unsaved.update {
-            save()
-            delete()
-        }
+    fun shouldDelete() {
+        val unsaved = newUnsavedChild()
+        val saved = unsaved.save()
 
-        expect(saved).toBe(null)
+        saved.delete()
+
+        expect {
+            saved.naturalId
+        }.toThrow<NullPointerException> { }
+
+        testListener.expectNext.containsExactly(
+                ChildChangedEvent(null, ChildResource(
+                        naturalId, null, null, 1)),
+                ChildChangedEvent(ChildResource(
+                        naturalId, null, null, 1), null))
     }
 
     @Test
     fun shouldAddToParent() {
-        val parent = parents.findExistingOrCreateNew("a").updateAndSave { }
+        val parent = parents.findExistingOrCreateNew("a").save()
 
-        val unsaved = newChild()
-        val saved = unsaved.updateAndSave {
-            addTo(parent.asResource())
-        }
+        val unsaved = newUnsavedChild()
+        val saved = unsaved.update {
+            addTo(parent.toResource())
+        }.save()
 
         val found = children.findExisting(saved.naturalId)!!
 
 //        expect(saved.parentNaturalId).toBe(parent.naturalId)
     }
 
-    private fun newChild() = children.findExistingOrCreateNew("p")
+    private fun newUnsavedChild() =
+            children.findExistingOrCreateNew(naturalId)
 }

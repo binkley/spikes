@@ -1,3 +1,8 @@
+logging:
+  level:
+    x: DEBUG
+    root: WARN
+
 spring:
   application:
     name: spring-boot-domain-persistence-modeling

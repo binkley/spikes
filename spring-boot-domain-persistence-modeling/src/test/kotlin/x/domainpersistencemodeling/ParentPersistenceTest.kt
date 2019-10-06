@@ -1,5 +1,6 @@
 package x.domainpersistencemodeling
 
+import ch.tutteli.atrium.api.cc.en_GB.containsExactly
 import ch.tutteli.atrium.api.cc.en_GB.toBe
 import ch.tutteli.atrium.verbs.expect
 import org.junit.jupiter.api.Test
@@ -12,32 +13,51 @@ import org.springframework.context.annotation.Import
 @AutoConfigureTestDatabase(replace = NONE)
 @DataJdbcTest
 @Import(value = [PersistedParentFactory::class, TestListener::class])
-class ParentPersistenceTest {
+internal class ParentPersistenceTest {
+    companion object {
+        private val naturalId = "a"
+    }
+
     @Autowired
     lateinit var parents: ParentFactory
     @Autowired
     lateinit var testListener: TestListener<ParentChangedEvent>
 
+    fun tearDown() {
+        parents.all().forEach {
+            it.delete()
+        }
+    }
+
     @Test
     fun shouldRoundTrip() {
-        val unsaved = parents.findExistingOrCreateNew("a")
-        val saved = unsaved.update {
-            save()
-        }!!
+        val unsaved = newUnsavedParent()
+        val saved = unsaved.save()
 
-        val found = parents.findExisting(saved.naturalId)!!
+        val found = parents.findExisting(naturalId)
 
         expect(found).toBe(saved)
+
+        testListener.expectNext.containsExactly(
+                ParentChangedEvent(null, ParentResource(naturalId, null, 1)))
     }
 
     @Test
-    fun shouldBeUnsuableAfterDelete() {
-        val unsaved = parents.findExistingOrCreateNew("a")
-        val saved = unsaved.update {
-            save()
-            delete()
-        }
+    fun shouldDelete() {
+        val unsaved = newUnsavedParent()
+        val saved = unsaved.save()
 
-        expect(saved).toBe(null)
+        saved.delete()
+
+        val found = parents.findExisting(naturalId)
+
+        expect(found).toBe(null)
+
+        testListener.expectNext.containsExactly(
+                ParentChangedEvent(null, ParentResource(naturalId, null, 1)),
+                ParentChangedEvent(ParentResource(naturalId, null, 1), null))
     }
+
+    private fun newUnsavedParent() =
+            parents.findExistingOrCreateNew(naturalId)
 }
