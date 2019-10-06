@@ -1,7 +1,5 @@
 package x.domainpersistencemodeling
 
-import io.micronaut.context.event.ApplicationEvent
-
 data class ChildResource(
         val naturalId: String,
         val parent: ParentResource?,
@@ -10,11 +8,8 @@ data class ChildResource(
 
 interface ChildFactory {
     fun all(): Sequence<Child>
-
     fun findExisting(naturalId: String): Child?
-
-    fun createNew(resource: ChildResource): Child
-
+    fun createNew(naturalId: String): Child
     fun findExistingOrCreateNew(naturalId: String): Child
 }
 
@@ -30,22 +25,17 @@ interface MutableChildDetails
     override val naturalId: String
     override var parentId: Long?
     override var value: String?
-    override val version: Int
 }
 
 interface MutableChild : MutableChildDetails {
-    fun save(): MutableChild
-
-    fun delete()
+    fun addTo(parent: ParentResource): MutableChild
 }
 
-interface Child : ChildDetails {
-    fun update(block: MutableChild.() -> Unit): Child
-
-    val existing: Boolean
-}
+interface Child : ChildDetails,
+        ScopedMutation<Child, MutableChild>,
+        Persisted
 
 data class ChildChangedEvent(
         val before: ChildResource?,
         val after: ChildResource?)
-    : ApplicationEvent(after ?: before!!)
+    : DomainChangedEvent<ChildResource>(before, after)

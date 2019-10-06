@@ -12,30 +12,30 @@ import javax.inject.Singleton
 import javax.persistence.GeneratedValue
 import javax.persistence.Id
 import javax.persistence.Table
-import kotlin.reflect.KMutableProperty0
 
 @Singleton
-class PersistedParentFactory(
+internal class PersistedParentFactory(
         private val repository: ParentRepository,
         private val publisher: ApplicationEventPublisher)
     : ParentFactory {
-    override fun all() =
+    override fun all(): Sequence<Parent> =
             repository.findAll().map {
                 PersistedParent(it.asResource(), it, this)
             }.asSequence()
 
-    override fun findExisting(naturalId: String) =
+    override fun findExisting(naturalId: String): Parent? =
             repository.findByNaturalId(naturalId).orElse(null)?.let {
                 PersistedParent(it.asResource(), it, this)
             }
 
-    override fun createNew(resource: ParentResource) =
+    override fun createNew(resource: ParentResource): Parent =
             PersistedParent(null, ParentRecord(resource), this)
 
-    override fun findExistingOrCreateNew(naturalId: String) =
+    override fun findExistingOrCreateNew(naturalId: String): Parent =
             findExisting(naturalId) ?: createNew(
                     ParentResource(naturalId, null, 0))
 
+    // TODO: Refetch to see changes in audit columns
     internal fun save(record: ParentRecord) =
             repository.findByNaturalId(
                     repository.save(record).naturalId).get()
@@ -53,19 +53,43 @@ class PersistedParentFactory(
             repository.findById(id).orElse(null)?.asResource()
 }
 
-class PersistedParent internal constructor(
+internal class PersistedParent internal constructor(
         private var snapshot: ParentResource?,
-        private val record: ParentRecord,
+        private var record: ParentRecord?,
         private val factory: PersistedParentFactory)
     : Parent {
     override val naturalId: String
-        get() = record.naturalId
+        get() = record!!.naturalId
     override val value: String?
-        get() = record.value
+        get() = record!!.value
     override val version: Int
-        get() = record.version
+        get() = record!!.version
     override val existing: Boolean
         get() = 0 < version
+
+    override fun update(block: MutableParent.() -> Unit) = apply {
+        val mutable = PersistedMutableParent(record!!)
+        mutable.block()
+    }
+
+    override fun save() = apply {
+        val before = snapshot
+        record = factory.save(record!!)
+        val after = record!!.asResource()
+        snapshot = after
+        factory.notifyChanged(before, after)
+    }
+
+    override fun delete() {
+        val before = snapshot
+        val after = null
+        factory.delete(record!!)
+        record = null
+        snapshot = null
+        factory.notifyChanged(before, after)
+    }
+
+    override fun toResource() = ParentResource(naturalId, value, version)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -75,51 +99,26 @@ class PersistedParent internal constructor(
                 && record == other.record
     }
 
-    override fun update(block: MutableParent.() -> Unit) = apply {
-        PersistedMutableParent(::snapshot, record, factory).block()
-    }
-
     override fun hashCode() = Objects.hash(snapshot, record)
 
     override fun toString() =
             "${super.toString()}{snapshot=$snapshot, record=$record}"
 }
 
-class PersistedMutableParent internal constructor(
-        private val snapshot: KMutableProperty0<ParentResource?>,
-        private var record: ParentRecord?,
-        private val factory: PersistedParentFactory)
+internal class PersistedMutableParent internal constructor(
+        private val record: ParentRecord)
     : MutableParent,
-        MutableParentDetails by record!! {
-    override fun save() = apply {
-        val before = snapshot.get()
-        record = factory.save(record!!)
-        val after = record!!.asResource()
-        snapshot.set(after)
-        factory.notifyChanged(before, after)
-    }
-
-    override fun delete() {
-        val before = snapshot.get()
-        factory.delete(record!!)
-        record = null
-        val after = null
-        snapshot.set(after)
-        factory.notifyChanged(before, after)
-    }
-
+        MutableParentDetails by record {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
         other as PersistedMutableParent
-        return snapshot == other.snapshot
-                && record == other.record
+        return record == other.record
     }
 
-    override fun hashCode() = Objects.hash(snapshot, record)
+    override fun hashCode() = Objects.hash(record)
 
-    override fun toString() =
-            "${super.toString()}{snapshot=$snapshot, record=$record}"
+    override fun toString() = "${super.toString()}{record=$record}"
 }
 
 @JdbcRepository(dialect = POSTGRES)
