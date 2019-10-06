@@ -18,7 +18,7 @@ class PersistedChildFactory(
         private val parentFactory: PersistedParentFactory,
         private val publisher: ApplicationEventPublisher)
     : ChildFactory {
-    override fun all(): Sequence<Child> =
+    override fun all() =
             repository.findAll().map {
                 PersistedChild(it.asResource(this), it, this)
             }.asSequence()
@@ -35,7 +35,10 @@ class PersistedChildFactory(
             findExisting(naturalId) ?: createNew(
                     ChildResource(naturalId, null, null, 0))
 
-    internal fun save(record: ChildRecord) = repository.save(record)
+    // TODO: Refetch to see changes in audit columns
+    internal fun save(record: ChildRecord) =
+            repository.findByNaturalId(
+                    repository.save(record).naturalId).get()
 
     internal fun delete(record: ChildRecord) = repository.delete(record)
 
@@ -70,8 +73,19 @@ class PersistedChild internal constructor(
     override val existing: Boolean
         get() = 0 < version
 
-    override fun update(block: MutableChild.() -> Unit) = apply {
-        PersistedMutableChild(::snapshot, record, factory).block()
+    override fun update(block: MutableChild.() -> Unit) = let {
+        val mutable = PersistedMutableChild(::snapshot, record, factory)
+        mutable.block()
+        mutable.asImmutable()
+    }
+
+    override fun updateAndSave(block: MutableChild.() -> Unit) =
+            update(block)!!
+
+    override fun delete() {
+        update {
+            delete()
+        }
     }
 
     override fun equals(other: Any?): Boolean {
@@ -112,7 +126,7 @@ class PersistedMutableChild internal constructor(
         val before = snapshot.get()
         record = factory.save(record!!)
         val after = record!!.asResource(factory)
-        snapshot.set(after) // TODO: Update my own snapshot
+        snapshot.set(after)
         factory.notifyChanged(before, after)
     }
 
@@ -123,6 +137,12 @@ class PersistedMutableChild internal constructor(
         val after = null
         snapshot.set(after)
         factory.notifyChanged(before, after)
+    }
+
+    internal fun asImmutable(): PersistedChild? {
+        val record = this.record
+        return if (null == record) null
+        else PersistedChild(snapshot.get(), record, factory)
     }
 
     override fun equals(other: Any?): Boolean {

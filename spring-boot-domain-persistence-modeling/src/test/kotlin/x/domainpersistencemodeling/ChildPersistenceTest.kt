@@ -11,12 +11,15 @@ import org.springframework.context.annotation.Import
 
 @AutoConfigureTestDatabase(replace = NONE)
 @DataJdbcTest
-@Import(value = [PersistedParentFactory::class, TestListener::class])
+@Import(value = [
+    PersistedChildFactory::class,
+    PersistedParentFactory::class,
+    TestListener::class])
 class ChildPersistenceTest {
     @Autowired
-    lateinit var children: ParentFactory
+    lateinit var children: ChildFactory
     @Autowired
-    lateinit var testListener: TestListener<ParentChangedEvent>
+    lateinit var testListener: TestListener<ChildChangedEvent>
 
     @Test
     fun shouldRoundTrip() {
@@ -25,7 +28,7 @@ class ChildPersistenceTest {
             save()
         }!!
 
-        val found = children.findExisting(unsaved.naturalId)!!
+        val found = children.findExisting(saved.naturalId)!!
 
         expect(found).toBe(saved)
     }

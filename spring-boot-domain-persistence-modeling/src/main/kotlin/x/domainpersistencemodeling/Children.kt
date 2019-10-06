@@ -44,7 +44,11 @@ interface Child : ChildDetails {
      * of `Parent`.  Afterwards, do not reuse the original `Parent, but
      * capture the return.
      */
-    fun update(block: MutableChild.() -> Unit): Child
+    fun update(block: MutableChild.() -> Unit): Child?
+
+    fun updateAndSave(block: MutableChild.() -> Unit): Child
+
+    fun delete()
 }
 
 data class ChildChangedEvent(
