@@ -24,12 +24,17 @@ To achieve these goals, each domain object implements
 which provides three methods:
 
 * `update(block)`, running the mutations of `block` against a mutable version
-  of the domain object, and returning an updated domain object
+  of the domain object, and returning an updated and immutable domain object
 * `save()`, saving the domain object in persistence, and returning an updated
-  domain object with any changes made by persistence (eg, audit columns)
+  and immutable domain object including any changes made by persistence (eg,
+  audit columns)
 * `delete()`, deleting the domain object in persistence.  Afterwards, the
   domain object is _unusable_
 
+In each method, the return is the _same reference_ as the original object.
+(This supports method chaining, and delegating mutations to another method or
+object when it makes sense.)
+  
 These are the _only ways_ to mutate a domain object.  As a consequence, you
 can directly inspect for any domain object mutation by searching for uses of
 these three methods, and if there are no uses, the domain object is guaranteed
