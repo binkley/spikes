@@ -10,9 +10,11 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.data.jdbc.DataJdbcTest
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE
+import org.springframework.boot.test.autoconfigure.json.AutoConfigureJson
 import org.springframework.context.annotation.Import
 
 @AutoConfigureTestDatabase(replace = NONE)
+@AutoConfigureJson
 @DataJdbcTest
 @Import(value = [
     PersistedChildFactory::class,
@@ -51,7 +53,7 @@ class ChildPersistenceTest {
 
         testListener.expectNext.containsExactly(
                 ChildChangedEvent(null, ChildResource(
-                        naturalId, null, null, 1)))
+                        naturalId, null, null, listOf(), 1)))
     }
 
     @Test
@@ -71,9 +73,9 @@ class ChildPersistenceTest {
 
         testListener.expectNext.containsExactly(
                 ChildChangedEvent(null, ChildResource(
-                        naturalId, null, null, 1)),
+                        naturalId, null, null, listOf(), 1)),
                 ChildChangedEvent(ChildResource(
-                        naturalId, null, null, 1), null))
+                        naturalId, null, null, listOf(), 1), null))
     }
 
     @Test

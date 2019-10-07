@@ -1,5 +1,7 @@
 package x.domainpersistencemodeling
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.annotation.Id
 import org.springframework.data.jdbc.repository.query.Query
@@ -14,6 +16,7 @@ import java.util.*
 @Component
 internal class PersistedChildFactory(
         private val repository: ChildRepository,
+        private val objectMapper: ObjectMapper,
         private val parentFactory: PersistedParentFactory,
         private val publisher: ApplicationEventPublisher)
     : ChildFactory {
@@ -57,6 +60,12 @@ internal class PersistedChildFactory(
     internal fun parentNaturalIdFor(parentId: Long) =
             parentFactory.naturalIdFor(parentId)
 
+    internal fun fromJsonArray(json: String): List<String> =
+            objectMapper.readValue(json)
+
+    internal fun toJsonArray(items: List<String>): String =
+            objectMapper.writeValueAsString(items)
+
     private fun forRecord(record: ChildRecord): PersistedChild {
         val parentId = record.parentId
         val resource = ChildResource(
@@ -65,6 +74,7 @@ internal class PersistedChildFactory(
                     parentNaturalIdFor(it)
                 },
                 record.value,
+                fromJsonArray(record.subchildJson),
                 record.version)
         return PersistedChild(resource, record, this)
     }
@@ -83,6 +93,8 @@ internal class PersistedChild internal constructor(
         }
     override val value: String?
         get() = record!!.value
+    override val subchildren: List<String>
+        get() = factory.fromJsonArray(record!!.subchildJson)
     override val version: Int
         get() = record!!.version
     override val existing: Boolean
@@ -118,8 +130,8 @@ internal class PersistedChild internal constructor(
                 && record == other.record
     }
 
-    internal fun toResource() =
-            ChildResource(naturalId, parentNaturalId, value, version)
+    internal fun toResource() = ChildResource(
+            naturalId, parentNaturalId, value, subchildren, version)
 
     override fun hashCode() = Objects.hash(snapshot, record)
 
@@ -132,6 +144,13 @@ internal class PersistedMutableChild internal constructor(
         private val factory: PersistedChildFactory)
     : MutableChild,
         MutableChildDetails by record {
+    override var subchildren: MutableList<String>
+        get() = factory.fromJsonArray(record.subchildJson).toMutableList()
+        set(value) {
+            // TODO: BORKEN -- list needs to save back each update
+            record.subchildJson = factory.toJsonArray(value)
+        }
+
     override fun addTo(parent: ParentResource) = apply {
         factory.addTo(this, parent)
     }
@@ -171,10 +190,11 @@ data class ChildRecord(
         override val naturalId: String,
         override var parentId: Long?,
         override var value: String?,
+        override var subchildJson: String,
         override val version: Int,
         val createdAt: Instant,
         val updatedAt: Instant) :
         MutableChildDetails {
     internal constructor(naturalId: String, parentId: Long?)
-            : this(null, naturalId, parentId, null, 0, EPOCH, EPOCH)
+            : this(null, naturalId, parentId, null, "[]", 0, EPOCH, EPOCH)
 }
