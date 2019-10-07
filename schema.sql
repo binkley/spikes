@@ -3,7 +3,7 @@ CREATE TABLE parent
     id         SERIAL PRIMARY KEY,
     natural_id VARCHAR NOT NULL UNIQUE,
     value      VARCHAR,
-    version    INT     NOT NULL DEFAULT 1,
+    version    INT,
     created_at TIMESTAMP,
     updated_at TIMESTAMP
 );
@@ -15,7 +15,7 @@ CREATE TABLE child
     parent_id   INT REFERENCES parent (id), -- Nullable
     value       VARCHAR,
     subchildren JSON    NOT NULL,
-    version     INT     NOT NULL DEFAULT 1,
+    version     INT,
     created_at  TIMESTAMP,
     updated_at  TIMESTAMP
 );

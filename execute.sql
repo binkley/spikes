@@ -3,14 +3,22 @@ INSERT INTO parent
 VALUES
     ('a');
 
-SELECT upsert_parent('b', NULL, 0);
+SELECT upsert_parent('b', NULL, NULL); -- Batch update
 
 UPDATE parent -- Should fail with custom DB error message
    SET natural_id = 'c'
  WHERE natural_id = 'a';
 
-SELECT upsert_parent('a', NULL, 0); -- Nothing happens
+SELECT upsert_parent('a', NULL, 1); -- Nothing happens
 SELECT upsert_parent('a', 'BARBARBAR', 1); -- Something happens
+
+
+SELECT upsert_parent('a', NULL, 0); -- Fail
+SELECT upsert_parent('a', NULL, 1); -- Fail
+SELECT upsert_parent('a', NULL, 3); -- Fail
+SELECT upsert_parent('a', NULL, 2); -- Pass
+
+
 
 UPDATE parent -- Should fail: avoid stale updates
    SET version = version - 1
