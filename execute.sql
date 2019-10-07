@@ -3,14 +3,14 @@ INSERT INTO parent
 VALUES
     ('a');
 
-INSERT INTO parent
-    (natural_id)
-VALUES
-    ('b');
+SELECT upsert_parent('b', NULL, 0);
 
 UPDATE parent -- Should fail with custom DB error message
    SET natural_id = 'c'
  WHERE natural_id = 'a';
+
+SELECT upsert_parent('a', NULL, 0); -- Nothing happens
+SELECT upsert_parent('a', 'BARBARBAR', 1); -- Something happens
 
 UPDATE parent -- Should fail: avoid stale updates
    SET version = version - 1
