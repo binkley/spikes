@@ -17,15 +17,13 @@ internal class PersistedChildFactory(
         private val parentFactory: PersistedParentFactory,
         private val publisher: ApplicationEventPublisher)
     : ChildFactory {
-    override fun all(): Sequence<Child> {
-        return repository.findAll().map {
-            childForRecord(it)
-        }.asSequence()
-    }
+    override fun all(): Sequence<Child> = repository.findAll().map {
+        forRecord(it)
+    }.asSequence()
 
     override fun findExisting(naturalId: String): Child? =
             repository.findByNaturalId(naturalId).orElse(null)?.let {
-                childForRecord(it)
+                forRecord(it)
             }
 
     override fun createNew(naturalId: String): Child =
@@ -50,35 +48,25 @@ internal class PersistedChildFactory(
                     publisher,
                     ::ChildChangedEvent)
 
-    internal fun addTo(
-            child: MutableChild,
-            parent: ParentResource) =
+    internal fun addTo(child: MutableChild, parent: ParentResource) =
             repository.updateParentId(
                     child.naturalId,
                     parent.naturalId)
                     .orElse(null)
 
-    internal fun parentResourceFor(
-            parentId: Long) =
-            parentFactory.resourceOf(
-                    parentId)
+    internal fun parentNaturalIdFor(parentId: Long) =
+            parentFactory.naturalIdFor(parentId)
 
-    private fun childForRecord(
-            it: ChildRecord): PersistedChild {
-        val parentId =
-                it.parentId
-        val resource =
-                ChildResource(
-                        it.naturalId,
-                        if (null == parentId) null
-                        else parentResourceFor(
-                                parentId)?.naturalId,
-                        it.value,
-                        it.version)
-        return PersistedChild(
-                resource,
-                it,
-                this)
+    private fun forRecord(record: ChildRecord): PersistedChild {
+        val parentId = record.parentId
+        val resource = ChildResource(
+                record.naturalId,
+                parentId?.let {
+                    parentNaturalIdFor(it)
+                },
+                record.value,
+                record.version)
+        return PersistedChild(resource, record, this)
     }
 }
 
@@ -90,10 +78,8 @@ internal class PersistedChild internal constructor(
     override val naturalId: String
         get() = record!!.naturalId
     override val parentNaturalId: String?
-        get() = record!!.let {
-            it.parentId?.let {
-                factory.parentResourceFor(it)!!.naturalId
-            }
+        get() = record!!.parentId?.let {
+            factory.parentNaturalIdFor(it)
         }
     override val value: String?
         get() = record!!.value
