@@ -59,9 +59,8 @@ BEGIN
     old_hash := md5(CAST((old.*) AS TEXT));
     new_hash := md5(CAST((new.*) AS TEXT));
 
-    -- Ignore the update, stop processing triggers
     IF (old_hash = new_hash) THEN
-        RETURN NULL;
+        RETURN NULL; -- Ignore the update, stop processing triggers
     END IF;
 
     IF (new.version <> old.version) THEN
@@ -80,11 +79,8 @@ CREATE OR REPLACE FUNCTION insert_child_update_parent_f()
 AS
 $$
 BEGIN
-    -- Pick a column that:
-    -- 1) Really changes, so "ignore unchanged" does not kick in
-    -- 2) Is not user-data visible, so remains truly an "audit" field
     UPDATE parent
-       SET updated_at = now()
+       SET updated_at = now() -- Fire the UPDATE trigger of parent, to update audit/version
      WHERE id = new.parent_id;
     RETURN new;
 END;
@@ -96,11 +92,8 @@ CREATE OR REPLACE FUNCTION update_child_update_parent_f()
 AS
 $$
 BEGIN
-    -- Pick a column that:
-    -- 1) Really changes, so "ignore unchanged" does not kick in
-    -- 2) Is not user-data visible, so remains truly an "audit" field
     UPDATE parent
-       SET updated_at = now()
+       SET updated_at = now() -- Fire the UPDATE trigger of parent, to update audit/version
      WHERE id IN (old.parent_id, new.parent_id);
     RETURN new;
 END;
@@ -112,11 +105,8 @@ CREATE OR REPLACE FUNCTION delete_child_update_parent_f()
 AS
 $$
 BEGIN
-    -- Pick a column that:
-    -- 1) Really changes, so "ignore unchanged" does not kick in
-    -- 2) Is not user-data visible, so remains truly an "audit" field
     UPDATE parent
-       SET updated_at = now()
+       SET updated_at = now() -- Fire the UPDATE trigger of parent, to update audit/version
      WHERE id = old.parent_id;
     RETURN old;
 END;
