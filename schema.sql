@@ -10,13 +10,14 @@ CREATE TABLE parent
 
 CREATE TABLE child
 (
-    id         SERIAL PRIMARY KEY,
-    natural_id VARCHAR NOT NULL UNIQUE,
-    parent_id  INT REFERENCES parent (id), -- Nullable
-    value      VARCHAR,
-    version    INT,
-    created_at TIMESTAMP,
-    updated_at TIMESTAMP
+    id          SERIAL PRIMARY KEY,
+    natural_id  VARCHAR NOT NULL UNIQUE,
+    parent_id   INT REFERENCES parent (id), -- Nullable
+    value       VARCHAR,
+    subchildren JSON    NOT NULL,
+    version     INT,
+    created_at  TIMESTAMP,
+    updated_at  TIMESTAMP
 );
 
 CREATE OR REPLACE FUNCTION update_immutable_natural_key_f()

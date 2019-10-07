@@ -13,8 +13,12 @@ UPDATE parent -- Should fail with custom DB error message
  WHERE natural_id = 'a';
 
 UPDATE parent -- Should fail: avoid stale updates
-    SET version = version - 1
-WHERE natural_id = 'a';
+   SET version = version - 1
+ WHERE natural_id = 'a';
+
+UPDATE parent -- Should be ignored: No change; audit columns should remain the same
+   SET version = version
+ WHERE natural_id = 'a';
 
 UPDATE parent
    SET value = 'FOO!'
@@ -24,9 +28,9 @@ UPDATE parent -- Should be ignored: No change; audit columns should remain the s
    SET value = 'FOO!'
  WHERE natural_id = 'a';
 
-INSERT INTO child(natural_id) -- unassigned
+INSERT INTO child(natural_id, subchildren) -- unassigned
 VALUES
-    ('p');
+    ('p', '[]');
 
 UPDATE child -- assign
    SET parent_id = (SELECT id FROM parent WHERE natural_id = 'a') -- ID is 1
@@ -40,6 +44,23 @@ UPDATE child
    SET value = 'BAR!'
  WHERE natural_id = 'p';
 
+UPDATE child -- Should be ignored: No change; audit columns should remain the same
+   SET subchildren = '[]'
+ WHERE natural_id = 'p';
+
+UPDATE child
+   SET subchildren = '[
+     "x",
+     "y",
+     "z"
+   ]'
+ WHERE natural_id = 'p';
+
 DELETE -- and unassign
+  FROM child
+ WHERE natural_id = 'p';
+
+
+SELECT json_array_length(subchildren)
   FROM child
  WHERE natural_id = 'p';
