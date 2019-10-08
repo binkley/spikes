@@ -64,9 +64,19 @@ class ChildPersistenceTest {
         }
         val saved = unsaved.save()
 
-        val found = children.findExisting(saved.naturalId)
+        val found = children.findExisting(saved.naturalId)!!
 
-        expect(found!!.subchildren).containsExactly("BAT", "MOAT")
+        expect(found.subchildren).containsExactly("BAT", "MOAT")
+
+        found.update {
+            subchildren.clear();
+            subchildren.add("NANCY");
+        }
+        val resaved = found.save()
+
+        val refound = children.findExisting(resaved.naturalId)!!
+
+        expect(refound.subchildren).containsExactly("NANCY")
     }
 
     @Test
