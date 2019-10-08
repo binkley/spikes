@@ -3,20 +3,10 @@ CREATE TABLE parent
     id         SERIAL PRIMARY KEY,
     natural_id VARCHAR NOT NULL UNIQUE,
     value      VARCHAR,
+    version    INT,
     created_at TIMESTAMP,
     updated_at TIMESTAMP
 );
-
-INSERT INTO parent
-    (natural_id)
-VALUES
-    ('clarinet');
-
-ALTER TABLE parent
-    ADD COLUMN version INT;
-
-UPDATE parent
-   SET version = 1;
 
 CREATE TABLE child
 (

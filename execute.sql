@@ -19,7 +19,6 @@ SELECT upsert_parent('a', NULL, 3); -- Fail
 SELECT upsert_parent('a', NULL, 2); -- Pass
 
 
-
 UPDATE parent -- Should fail: avoid stale updates
    SET version = version - 1
  WHERE natural_id = 'a';
