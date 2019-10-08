@@ -3,6 +3,7 @@ package x.domainpersistencemodeling
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.springframework.context.ApplicationEventPublisher
+import org.springframework.context.annotation.Lazy
 import org.springframework.data.annotation.Id
 import org.springframework.data.jdbc.repository.query.Query
 import org.springframework.data.relational.core.mapping.Table
@@ -14,10 +15,10 @@ import java.time.Instant.EPOCH
 import java.util.*
 
 @Component
-internal class PersistedChildFactory(
+internal open class PersistedChildFactory(
         private val repository: ChildRepository,
         private val objectMapper: ObjectMapper,
-        private val parentFactory: PersistedParentFactory,
+        @Lazy private val parentFactory: PersistedParentFactory,
         private val publisher: ApplicationEventPublisher)
     : ChildFactory {
     override fun all(): Sequence<Child> = repository.findAll().map {
@@ -35,6 +36,11 @@ internal class PersistedChildFactory(
     override fun findExistingOrCreateNew(
             naturalId: String): Child =
             findExisting(naturalId) ?: createNew(naturalId)
+
+    override fun findOwned(parentNaturalId: String) =
+            repository.findByParentNaturalId(parentNaturalId).map {
+                forRecord(it)
+            };
 
     // TODO: Refetch to see changes in audit columns
     internal fun save(record: ChildRecord) =
@@ -143,7 +149,7 @@ internal class PersistedMutableChild internal constructor(
         MutableChildDetails by record {
     override val subchildren = SaveBack(
             factory.fromJsonArray(record.subchildJson),
-            ::saveSubchildren)
+            ::updateSubchildren, ::updateSubchildren)
 
     override fun addTo(parent: Parent) = apply {
         record.parentId = factory.parentIdFor(parent)
@@ -160,8 +166,8 @@ internal class PersistedMutableChild internal constructor(
 
     override fun toString() = "${super.toString()}{record=$record}"
 
-    private fun saveSubchildren(toSave: SortedSet<String>) {
-        record.subchildJson = factory.toJsonArray(toSave)
+    private fun updateSubchildren(changed: String, all: SortedSet<String>) {
+        record.subchildJson = factory.toJsonArray(all)
     }
 }
 
@@ -169,6 +175,14 @@ interface ChildRepository : CrudRepository<ChildRecord, Long> {
     @Query("SELECT * FROM child WHERE natural_id = :naturalId")
     fun findByNaturalId(@Param("naturalId") naturalId: String)
             : Optional<ChildRecord>
+
+    @Query("""
+        SELECT * FROM child
+        WHERE parent_id = (SELECT id FROM parent WHERE natural_id = :parentNaturalId)
+        """)
+    fun findByParentNaturalId(
+            @Param("parentNaturalId") parentNaturalId: String)
+            : Iterable<ChildRecord>
 }
 
 @Table("child")
@@ -184,33 +198,4 @@ data class ChildRecord(
         MutableChildDetails {
     internal constructor(naturalId: String, parentId: Long?)
             : this(null, naturalId, parentId, null, "[]", 0, EPOCH, EPOCH)
-}
-
-internal class SaveBack(
-        private val buf: SortedSet<String>,
-        private val save: (SortedSet<String>) -> Unit)
-    : AbstractMutableSet<String>() {
-    override val size: Int
-        get() = buf.size
-
-    override fun add(element: String): Boolean {
-        val add = buf.add(element)
-        save(buf)
-        return add
-    }
-
-    override fun iterator(): MutableIterator<String> {
-        return object : MutableIterator<String> {
-            private val it = buf.iterator()
-
-            override fun hasNext() = it.hasNext()
-
-            override fun next() = it.next()
-
-            override fun remove() {
-                it.remove()
-                save(buf)
-            }
-        }
-    }
 }

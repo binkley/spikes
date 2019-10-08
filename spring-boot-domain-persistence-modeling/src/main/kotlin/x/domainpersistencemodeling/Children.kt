@@ -14,6 +14,7 @@ interface ChildFactory {
     fun findExisting(naturalId: String): Child?
     fun createNew(naturalId: String): Child
     fun findExistingOrCreateNew(naturalId: String): Child
+    fun findOwned(parentNaturalId: String): Iterable<Child>
 }
 
 interface ChildPersistedDetails {

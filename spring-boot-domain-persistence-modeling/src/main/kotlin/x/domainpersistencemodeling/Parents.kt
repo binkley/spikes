@@ -1,5 +1,7 @@
 package x.domainpersistencemodeling
 
+import java.util.*
+
 data class ParentResource(
         val naturalId: String,
         val value: String?,
@@ -29,6 +31,8 @@ interface MutableParent : MutableParentDetails
 interface Parent : ParentDetails,
         ScopedMutation<Parent, MutableParent>,
         Persisted {
+    val children: SortedSet<Child>
+
     fun toResource(): ParentResource
 }
 

@@ -1,6 +1,7 @@
 package x.domainpersistencemodeling
 
 import org.springframework.context.ApplicationEventPublisher
+import org.springframework.context.annotation.Lazy
 import org.springframework.data.annotation.Id
 import org.springframework.data.jdbc.repository.query.Query
 import org.springframework.data.relational.core.mapping.Table
@@ -12,8 +13,9 @@ import java.time.Instant.EPOCH
 import java.util.*
 
 @Component
-internal class PersistedParentFactory(
+internal open class PersistedParentFactory(
         private val repository: ParentRepository,
+        @Lazy private val childFactory: PersistedChildFactory,
         private val publisher: ApplicationEventPublisher)
     : ParentFactory {
     override fun all(): Sequence<Parent> = repository.findAll().map {
@@ -43,6 +45,9 @@ internal class PersistedParentFactory(
             before: ParentResource?, after: ParentResource?) =
             notifyIfChanged(before, after, publisher, ::ParentChangedEvent)
 
+    internal fun childrenOf(naturalId: String) =
+            childFactory.findOwned(naturalId);
+
     internal fun idFor(naturalId: String) =
             repository.findByNaturalId(naturalId)
                     .map(ParentRecord::id)
@@ -53,7 +58,7 @@ internal class PersistedParentFactory(
                     .map(ParentRecord::naturalId)
                     .get()
 
-    private fun forRecord(record: ParentRecord) =
+    internal fun forRecord(record: ParentRecord) =
             PersistedParent(ParentResource(
                     record.naturalId, null, record.version), record, this)
 }
@@ -71,6 +76,9 @@ internal class PersistedParent internal constructor(
         get() = record!!.version
     override val existing: Boolean
         get() = 0 < version
+    override val children: SortedSet<Child>
+        get() = TODO(
+                "not implemented") //To change initializer of created properties use File | Settings | File Templates.
 
     override fun update(block: MutableParent.() -> Unit) = apply {
         val mutable = PersistedMutableParent(record!!)
