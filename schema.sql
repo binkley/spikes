@@ -50,7 +50,7 @@ AS
 $$
 BEGIN
     IF (new.natural_id <> old.natural_id) THEN
-        RAISE 'Cannot change the natural key';
+        RAISE 'Cannot change the natural key: NEW: %, OLD: %', new, old;
     END IF;
     RETURN new;
 END;
@@ -72,6 +72,10 @@ BEGIN
     PERFORM * FROM parent WHERE natural_id = new.natural_id;
     IF FOUND THEN
         RETURN new;
+    END IF;
+
+    IF new.version IS NOT NULL THEN
+        RAISE 'New rows should not provide a version: %', new;
     END IF;
 
     new.version := 1;
