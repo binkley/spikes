@@ -60,14 +60,13 @@ class ChildPersistenceTest {
     fun shouldRoundTripJson() {
         val unsaved = newUnsavedChild()
         unsaved.update {
-            // TODO: Add/remove, et al, on subchildren
-            subchildren = listOf("BOAT").toMutableList()
+            subchildren.add("BOAT")
         }
         val saved = unsaved.save()
 
         val found = children.findExisting(saved.naturalId)
 
-        expect(found).toBe(saved)
+        expect(found!!.subchildren).containsExactly("BOAT")
     }
 
     @Test

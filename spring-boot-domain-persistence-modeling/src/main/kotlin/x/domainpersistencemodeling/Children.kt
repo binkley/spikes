@@ -31,7 +31,7 @@ interface MutableChildDetails
 }
 
 interface MutableChild : MutableChildDetails {
-    var subchildren: MutableList<String>
+    val subchildren: MutableList<String>
     fun addTo(parent: ParentResource): MutableChild
 }
 

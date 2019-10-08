@@ -144,12 +144,9 @@ internal class PersistedMutableChild internal constructor(
         private val factory: PersistedChildFactory)
     : MutableChild,
         MutableChildDetails by record {
-    override var subchildren: MutableList<String>
-        get() = factory.fromJsonArray(record.subchildJson).toMutableList()
-        set(value) {
-            // TODO: BORKEN -- list needs to save back each update
-            record.subchildJson = factory.toJsonArray(value)
-        }
+    override val subchildren = SaveBack(
+            factory.fromJsonArray(record.subchildJson),
+            ::saveSubchildren)
 
     override fun addTo(parent: ParentResource) = apply {
         factory.addTo(this, parent)
@@ -165,6 +162,10 @@ internal class PersistedMutableChild internal constructor(
     override fun hashCode() = Objects.hash(record)
 
     override fun toString() = "${super.toString()}{record=$record}"
+
+    private fun saveSubchildren(toSave: List<String>) {
+        record.subchildJson = factory.toJsonArray(toSave)
+    }
 }
 
 interface ChildRepository : CrudRepository<ChildRecord, Long> {
@@ -197,4 +198,32 @@ data class ChildRecord(
         MutableChildDetails {
     internal constructor(naturalId: String, parentId: Long?)
             : this(null, naturalId, parentId, null, "[]", 0, EPOCH, EPOCH)
+}
+
+internal class SaveBack(initial: List<String>,
+        private val save: (List<String>) -> Unit)
+    : AbstractMutableList<String>() {
+    private val buf = initial.toMutableList()
+
+    override val size: Int
+        get() = buf.size
+
+    override fun add(index: Int, element: String) {
+        buf.add(index, element)
+        save(buf)
+    }
+
+    override fun get(index: Int) = buf[index]
+
+    override fun removeAt(index: Int): String {
+        val removeAt = buf.removeAt(index)
+        save(buf)
+        return removeAt
+    }
+
+    override fun set(index: Int, element: String): String {
+        val set = buf.set(index, element)
+        save(buf)
+        return set
+    }
 }
