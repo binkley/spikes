@@ -37,6 +37,7 @@ interface MutableChild : MutableChildDetails {
 }
 
 interface Child : ScopedMutation<Child, MutableChild>,
+        Comparable<Child>,
         Persisted {
     val naturalId: String
     val parentNaturalId: String?

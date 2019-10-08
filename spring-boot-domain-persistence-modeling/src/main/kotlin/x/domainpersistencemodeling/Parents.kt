@@ -29,8 +29,6 @@ interface MutableParent : MutableParentDetails
 interface Parent : ParentDetails,
         ScopedMutation<Parent, MutableParent>,
         Persisted {
-    val children: Set<Child> // Sorted
-
     fun toResource(): ParentResource
 }
 

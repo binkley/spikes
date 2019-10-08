@@ -22,7 +22,7 @@ import org.springframework.context.annotation.Import
     TestListener::class])
 class ChildPersistenceTest {
     companion object {
-        val naturalId = "p"
+        const val naturalId = "p"
     }
 
     @Autowired

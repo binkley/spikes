@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Import
 @Import(value = [PersistedParentFactory::class, TestListener::class])
 internal class ParentPersistenceTest {
     companion object {
-        private val naturalId = "a"
+        private const val naturalId = "a"
     }
 
     @Autowired

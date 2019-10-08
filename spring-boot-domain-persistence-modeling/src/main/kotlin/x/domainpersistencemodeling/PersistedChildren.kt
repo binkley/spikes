@@ -3,7 +3,6 @@ package x.domainpersistencemodeling
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.springframework.context.ApplicationEventPublisher
-import org.springframework.context.annotation.Lazy
 import org.springframework.data.annotation.Id
 import org.springframework.data.jdbc.repository.query.Query
 import org.springframework.data.relational.core.mapping.Table
@@ -18,7 +17,7 @@ import java.util.*
 internal open class PersistedChildFactory(
         private val repository: ChildRepository,
         private val objectMapper: ObjectMapper,
-        @Lazy private val parentFactory: PersistedParentFactory,
+        private val parentFactory: PersistedParentFactory,
         private val publisher: ApplicationEventPublisher)
     : ChildFactory {
     override fun all(): Sequence<Child> = repository.findAll().map {
@@ -124,6 +123,9 @@ internal class PersistedChild internal constructor(
         snapshot = null
         factory.notifyChanged(before, after)
     }
+
+    override fun compareTo(other: Child) =
+            naturalId.compareTo(other.naturalId);
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
