@@ -97,12 +97,12 @@ class ChildPersistenceTest {
 
         val unsaved = newUnsavedChild()
         val saved = unsaved.update {
-            addTo(parent.toResource())
+            addTo(parent)
         }.save()
 
         val found = children.findExisting(saved.naturalId)!!
 
-//        expect(saved.parentNaturalId).toBe(parent.naturalId)
+        expect(saved.parentNaturalId).toBe(parent.naturalId)
     }
 
     private fun newUnsavedChild() =

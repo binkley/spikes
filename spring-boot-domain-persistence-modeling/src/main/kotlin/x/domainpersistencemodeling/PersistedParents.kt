@@ -43,8 +43,15 @@ internal class PersistedParentFactory(
             before: ParentResource?, after: ParentResource?) =
             notifyIfChanged(before, after, publisher, ::ParentChangedEvent)
 
+    internal fun idFor(naturalId: String) =
+            repository.findByNaturalId(naturalId)
+                    .map(ParentRecord::id)
+                    .get();
+
     internal fun naturalIdFor(id: Long) =
-            repository.findById(id).orElse(null)?.naturalId
+            repository.findById(id)
+                    .map(ParentRecord::naturalId)
+                    .get()
 
     private fun forRecord(record: ParentRecord) =
             PersistedParent(ParentResource(

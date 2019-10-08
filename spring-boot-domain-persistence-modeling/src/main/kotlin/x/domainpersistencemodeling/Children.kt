@@ -34,7 +34,7 @@ interface MutableChildDetails
 
 interface MutableChild : MutableChildDetails {
     val subchildren: MutableSet<String>
-    fun addTo(parent: ParentResource): MutableChild
+    fun addTo(parent: Parent): MutableChild
 }
 
 interface Child : ScopedMutation<Child, MutableChild>,

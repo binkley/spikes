@@ -51,14 +51,11 @@ internal class PersistedChildFactory(
                     publisher,
                     ::ChildChangedEvent)
 
-    internal fun addTo(child: MutableChild, parent: ParentResource) =
-            repository.updateParentId(
-                    child.naturalId,
-                    parent.naturalId)
-                    .orElse(null)
-
     internal fun parentNaturalIdFor(parentId: Long) =
             parentFactory.naturalIdFor(parentId)
+
+    internal fun parentIdFor(parent: Parent) =
+            parentFactory.idFor(parent.naturalId);
 
     internal fun fromJsonArray(json: String): SortedSet<String> =
             objectMapper.readValue(json)
@@ -148,8 +145,8 @@ internal class PersistedMutableChild internal constructor(
             factory.fromJsonArray(record.subchildJson),
             ::saveSubchildren)
 
-    override fun addTo(parent: ParentResource) = apply {
-        factory.addTo(this, parent)
+    override fun addTo(parent: Parent) = apply {
+        record.parentId = factory.parentIdFor(parent)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -171,17 +168,6 @@ internal class PersistedMutableChild internal constructor(
 interface ChildRepository : CrudRepository<ChildRecord, Long> {
     @Query("SELECT * FROM child WHERE natural_id = :naturalId")
     fun findByNaturalId(@Param("naturalId") naturalId: String)
-            : Optional<ChildRecord>
-
-    @Query("""
-        UPDATE child
-        SET parent_id = (SELECT id FROM parent WHERE natural_id = :parentNaturalId)
-        WHERE natural_id = :naturalId
-        RETURNING *
-        """)
-    fun updateParentId(
-            @Param("naturalId") naturalId: String,
-            @Param("parentNaturalId") parentNaturalId: String)
             : Optional<ChildRecord>
 }
 
