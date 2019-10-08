@@ -63,10 +63,10 @@ internal open class PersistedChildFactory(
     internal fun parentIdFor(parent: Parent) =
             parentFactory.idFor(parent.naturalId);
 
-    internal fun fromJsonArray(json: String): SortedSet<String> =
+    internal fun fromJsonArray(json: String): Collection<String> =
             objectMapper.readValue(json)
 
-    internal fun toJsonArray(items: SortedSet<String>): String =
+    internal fun toJsonArray(items: Collection<String>): String =
             objectMapper.writeValueAsString(items)
 
     private fun forRecord(record: ChildRecord): PersistedChild {
@@ -77,7 +77,7 @@ internal open class PersistedChildFactory(
                     parentNaturalIdFor(it)
                 },
                 record.value,
-                fromJsonArray(record.subchildJson),
+                fromJsonArray(record.subchildJson).toSet(),
                 record.version)
         return PersistedChild(resource, record, this)
     }
@@ -96,8 +96,8 @@ internal class PersistedChild internal constructor(
         }
     override val value: String?
         get() = record!!.value
-    override val subchildren: SortedSet<String>
-        get() = factory.fromJsonArray(record!!.subchildJson)
+    override val subchildren: Set<String>
+        get() = factory.fromJsonArray(record!!.subchildJson).toSet()
     override val version: Int
         get() = record!!.version
     override val existing: Boolean
@@ -147,7 +147,7 @@ internal class PersistedMutableChild internal constructor(
         private val factory: PersistedChildFactory)
     : MutableChild,
         MutableChildDetails by record {
-    override val subchildren = SaveBack(
+    override val subchildren = TrackedSortedSet(
             factory.fromJsonArray(record.subchildJson),
             ::updateSubchildren, ::updateSubchildren)
 
@@ -166,7 +166,7 @@ internal class PersistedMutableChild internal constructor(
 
     override fun toString() = "${super.toString()}{record=$record}"
 
-    private fun updateSubchildren(changed: String, all: SortedSet<String>) {
+    private fun updateSubchildren(changed: String, all: Set<String>) {
         record.subchildJson = factory.toJsonArray(all)
     }
 }

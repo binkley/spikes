@@ -2,11 +2,13 @@ package x.domainpersistencemodeling
 
 import java.util.*
 
-internal class SaveBack<T>(
-        private val buf: SortedSet<T>,
-        private val added: (T, SortedSet<T>) -> Unit,
-        private val removed: (T, SortedSet<T>) -> Unit)
+internal class TrackedSortedSet<T : Comparable<T>>(
+        initial: Collection<T>,
+        private val added: (T, Set<T>) -> Unit,
+        private val removed: (T, Set<T>) -> Unit)
     : AbstractMutableSet<T>() {
+    private val buf = TreeSet(initial)
+
     override val size: Int
         get() = buf.size
 
