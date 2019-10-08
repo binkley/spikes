@@ -53,20 +53,20 @@ class ChildPersistenceTest {
 
         testListener.expectNext.containsExactly(
                 ChildChangedEvent(null, ChildResource(
-                        naturalId, null, null, listOf(), 1)))
+                        naturalId, null, null, sortedSetOf(), 1)))
     }
 
     @Test
     fun shouldRoundTripJson() {
         val unsaved = newUnsavedChild()
         unsaved.update {
-            subchildren.add("BOAT")
+            subchildren.addAll(listOf("MOAT", "BAT"))
         }
         val saved = unsaved.save()
 
         val found = children.findExisting(saved.naturalId)
 
-        expect(found!!.subchildren).containsExactly("BOAT")
+        expect(found!!.subchildren).containsExactly("BAT", "MOAT")
     }
 
     @Test
@@ -86,9 +86,9 @@ class ChildPersistenceTest {
 
         testListener.expectNext.containsExactly(
                 ChildChangedEvent(null, ChildResource(
-                        naturalId, null, null, listOf(), 1)),
+                        naturalId, null, null, sortedSetOf(), 1)),
                 ChildChangedEvent(ChildResource(
-                        naturalId, null, null, listOf(), 1), null))
+                        naturalId, null, null, sortedSetOf(), 1), null))
     }
 
     @Test

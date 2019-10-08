@@ -1,10 +1,12 @@
 package x.domainpersistencemodeling
 
+import java.util.*
+
 data class ChildResource(
         val naturalId: String,
         val parentNaturalId: String?,
         val value: String?,
-        val subchildren: List<String>,
+        val subchildren: SortedSet<String>,
         val version: Int)
 
 interface ChildFactory {
@@ -31,7 +33,7 @@ interface MutableChildDetails
 }
 
 interface MutableChild : MutableChildDetails {
-    val subchildren: MutableList<String>
+    val subchildren: MutableSet<String>
     fun addTo(parent: ParentResource): MutableChild
 }
 
@@ -40,7 +42,7 @@ interface Child : ScopedMutation<Child, MutableChild>,
     val naturalId: String
     val parentNaturalId: String?
     val value: String?
-    val subchildren: List<String>
+    val subchildren: SortedSet<String>
 }
 
 data class ChildChangedEvent(

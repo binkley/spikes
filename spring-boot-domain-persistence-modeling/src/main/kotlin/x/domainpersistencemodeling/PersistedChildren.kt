@@ -60,10 +60,10 @@ internal class PersistedChildFactory(
     internal fun parentNaturalIdFor(parentId: Long) =
             parentFactory.naturalIdFor(parentId)
 
-    internal fun fromJsonArray(json: String): List<String> =
+    internal fun fromJsonArray(json: String): SortedSet<String> =
             objectMapper.readValue(json)
 
-    internal fun toJsonArray(items: List<String>): String =
+    internal fun toJsonArray(items: SortedSet<String>): String =
             objectMapper.writeValueAsString(items)
 
     private fun forRecord(record: ChildRecord): PersistedChild {
@@ -93,7 +93,7 @@ internal class PersistedChild internal constructor(
         }
     override val value: String?
         get() = record!!.value
-    override val subchildren: List<String>
+    override val subchildren: SortedSet<String>
         get() = factory.fromJsonArray(record!!.subchildJson)
     override val version: Int
         get() = record!!.version
@@ -163,7 +163,7 @@ internal class PersistedMutableChild internal constructor(
 
     override fun toString() = "${super.toString()}{record=$record}"
 
-    private fun saveSubchildren(toSave: List<String>) {
+    private fun saveSubchildren(toSave: SortedSet<String>) {
         record.subchildJson = factory.toJsonArray(toSave)
     }
 }
@@ -200,30 +200,31 @@ data class ChildRecord(
             : this(null, naturalId, parentId, null, "[]", 0, EPOCH, EPOCH)
 }
 
-internal class SaveBack(initial: List<String>,
-        private val save: (List<String>) -> Unit)
-    : AbstractMutableList<String>() {
-    private val buf = initial.toMutableList()
-
+internal class SaveBack(
+        private val buf: SortedSet<String>,
+        private val save: (SortedSet<String>) -> Unit)
+    : AbstractMutableSet<String>() {
     override val size: Int
         get() = buf.size
 
-    override fun add(index: Int, element: String) {
-        buf.add(index, element)
+    override fun add(element: String): Boolean {
+        val add = buf.add(element)
         save(buf)
+        return add
     }
 
-    override fun get(index: Int) = buf[index]
+    override fun iterator(): MutableIterator<String> {
+        return object : MutableIterator<String> {
+            private val it = buf.iterator()
 
-    override fun removeAt(index: Int): String {
-        val removeAt = buf.removeAt(index)
-        save(buf)
-        return removeAt
-    }
+            override fun hasNext() = it.hasNext()
 
-    override fun set(index: Int, element: String): String {
-        val set = buf.set(index, element)
-        save(buf)
-        return set
+            override fun next() = it.next()
+
+            override fun remove() {
+                it.remove()
+                save(buf)
+            }
+        }
     }
 }
