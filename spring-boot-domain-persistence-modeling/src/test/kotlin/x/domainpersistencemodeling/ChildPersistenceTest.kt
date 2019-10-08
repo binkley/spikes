@@ -10,11 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.data.jdbc.DataJdbcTest
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE
-import org.springframework.boot.test.autoconfigure.json.AutoConfigureJson
 import org.springframework.context.annotation.Import
 
 @AutoConfigureTestDatabase(replace = NONE)
-@AutoConfigureJson
 @DataJdbcTest
 @Import(value = [
     PersistedChildFactory::class,
@@ -69,8 +67,8 @@ class ChildPersistenceTest {
         expect(found.subchildren).containsExactly("BAT", "MOAT")
 
         found.update {
-            subchildren.clear();
-            subchildren.add("NANCY");
+            subchildren.clear()
+            subchildren.add("NANCY")
         }
         val resaved = found.save()
 

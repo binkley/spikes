@@ -11,15 +11,15 @@ CREATE TABLE parent
 
 CREATE TABLE child
 (
-    id            SERIAL PRIMARY KEY,
-    natural_id    VARCHAR NOT NULL UNIQUE,
-    parent_id     INT REFERENCES parent (id), -- Nullable
-    value         VARCHAR,
-    subchild_json VARCHAR NOT NULL,
+    id          SERIAL PRIMARY KEY,
+    natural_id  VARCHAR NOT NULL UNIQUE,
+    parent_id   INT REFERENCES parent (id), -- Nullable
+    value       VARCHAR,
+    subchildren VARCHAR[],
     -- DB controls Audit columns, not caller
-    version       INT DEFAULT 0,
-    created_at    TIMESTAMP,
-    updated_at    TIMESTAMP
+    version     INT DEFAULT 0,
+    created_at  TIMESTAMP,
+    updated_at  TIMESTAMP
 );
 
 CREATE OR REPLACE FUNCTION upsert_parent(_natural_id parent.natural_id%TYPE,
@@ -44,7 +44,7 @@ $$;
 CREATE OR REPLACE FUNCTION upsert_child(_natural_id child.natural_id%TYPE,
                                         _parent_id child.parent_id%TYPE,
                                         _value child.value%TYPE,
-                                        _subchild_json child.subchild_json%TYPE,
+                                        _subchildren child.subchildren%TYPE,
                                         _version child.version%TYPE)
     RETURNS SETOF CHILD
     ROWS 1
@@ -53,11 +53,11 @@ AS
 $$
 BEGIN
     RETURN QUERY INSERT INTO child
-        (natural_id, parent_id, value, subchild_json, version)
-        VALUES (_natural_id, _parent_id, _value, _subchild_json, _version)
+        (natural_id, parent_id, value, subchildren, version)
+        VALUES (_natural_id, _parent_id, _value, _subchildren, _version)
         ON CONFLICT (natural_id) DO UPDATE
-            SET (parent_id, value, subchild_json, version)
-                = (excluded.parent_id, excluded.value, excluded.subchild_json,
+            SET (parent_id, value, subchildren, version)
+                = (excluded.parent_id, excluded.value, excluded.subchildren,
                    excluded.version)
         RETURNING *;
 END;

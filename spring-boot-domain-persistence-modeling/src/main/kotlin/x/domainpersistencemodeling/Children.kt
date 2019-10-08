@@ -19,7 +19,7 @@ interface ChildPersistedDetails {
     val naturalId: String
     val parentId: Long?
     val value: String?
-    val subchildJson: String
+    val subchildren: Set<String>
     val version: Int
 }
 
@@ -27,12 +27,11 @@ interface MutableChildDetails
     : ChildPersistedDetails {
     override val naturalId: String
     override var parentId: Long?
-    override var value: String? // TODO: List<String>
-    override var subchildJson: String
+    override var value: String?
+    override val subchildren: MutableSet<String>
 }
 
 interface MutableChild : MutableChildDetails {
-    val subchildren: MutableSet<String>
     fun addTo(parent: Parent): MutableChild
 }
 

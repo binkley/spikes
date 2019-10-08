@@ -1,7 +1,5 @@
 package x.domainpersistencemodeling
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.annotation.Id
 import org.springframework.data.jdbc.repository.query.Query
@@ -16,7 +14,6 @@ import java.util.*
 @Component
 internal open class PersistedChildFactory(
         private val repository: ChildRepository,
-        private val objectMapper: ObjectMapper,
         private val parentFactory: PersistedParentFactory,
         private val publisher: ApplicationEventPublisher)
     : ChildFactory {
@@ -39,7 +36,7 @@ internal open class PersistedChildFactory(
     override fun findOwned(parentNaturalId: String) =
             repository.findByParentNaturalId(parentNaturalId).map {
                 forRecord(it)
-            };
+            }
 
     // TODO: Refetch to see changes in audit columns
     internal fun save(record: ChildRecord) =
@@ -60,13 +57,7 @@ internal open class PersistedChildFactory(
             parentFactory.naturalIdFor(parentId)
 
     internal fun parentIdFor(parent: Parent) =
-            parentFactory.idFor(parent.naturalId);
-
-    internal fun fromJsonArray(json: String): Collection<String> =
-            objectMapper.readValue(json)
-
-    internal fun toJsonArray(items: Collection<String>): String =
-            objectMapper.writeValueAsString(items)
+            parentFactory.idFor(parent.naturalId)
 
     private fun forRecord(record: ChildRecord): PersistedChild {
         val parentId = record.parentId
@@ -76,7 +67,7 @@ internal open class PersistedChildFactory(
                     parentNaturalIdFor(it)
                 },
                 record.value,
-                fromJsonArray(record.subchildJson).toSet(),
+                record.subchildren,
                 record.version)
         return PersistedChild(resource, record, this)
     }
@@ -95,8 +86,8 @@ internal class PersistedChild internal constructor(
         }
     override val value: String?
         get() = record!!.value
-    override val subchildren: Set<String>
-        get() = factory.fromJsonArray(record!!.subchildJson).toSet()
+    override val subchildren: Set<String> // Sorted
+        get() = TreeSet(record!!.subchildren)
     override val version: Int
         get() = record!!.version
     override val existing: Boolean
@@ -125,7 +116,7 @@ internal class PersistedChild internal constructor(
     }
 
     override fun compareTo(other: Child) =
-            naturalId.compareTo(other.naturalId);
+            naturalId.compareTo(other.naturalId)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -149,9 +140,14 @@ internal class PersistedMutableChild internal constructor(
         private val factory: PersistedChildFactory)
     : MutableChild,
         MutableChildDetails by record {
-    override val subchildren = TrackedSortedSet(
-            factory.fromJsonArray(record.subchildJson),
-            ::updateSubchildren, ::updateSubchildren)
+    override var subchildren =
+            TrackedSortedSet(record.subchildren, { _, buf ->
+                record.subchildren.clear()
+                record.subchildren.addAll(buf)
+            }, { _, buf ->
+                record.subchildren.clear()
+                record.subchildren.addAll(buf)
+            })
 
     override fun addTo(parent: Parent) = apply {
         record.parentId = factory.parentIdFor(parent)
@@ -167,10 +163,6 @@ internal class PersistedMutableChild internal constructor(
     override fun hashCode() = Objects.hash(record)
 
     override fun toString() = "${super.toString()}{record=$record}"
-
-    private fun updateSubchildren(changed: String, all: Set<String>) {
-        record.subchildJson = factory.toJsonArray(all)
-    }
 }
 
 interface ChildRepository : CrudRepository<ChildRecord, Long> {
@@ -193,11 +185,12 @@ data class ChildRecord(
         override val naturalId: String,
         override var parentId: Long?,
         override var value: String?,
-        override var subchildJson: String,
+        override var subchildren: MutableSet<String>,
         override val version: Int,
         val createdAt: Instant,
         val updatedAt: Instant) :
         MutableChildDetails {
     internal constructor(naturalId: String, parentId: Long?)
-            : this(null, naturalId, parentId, null, "[]", 0, EPOCH, EPOCH)
+            : this(null, naturalId, parentId, null, mutableSetOf(),
+            0, EPOCH, EPOCH)
 }
