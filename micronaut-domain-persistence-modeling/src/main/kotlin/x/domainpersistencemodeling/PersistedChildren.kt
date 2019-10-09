@@ -20,10 +20,9 @@ internal class PersistedChildFactory(
         private val parentFactory: PersistedParentFactory,
         private val publisher: ApplicationEventPublisher)
     : ChildFactory {
-    override fun all(): Sequence<Child> =
-            repository.findAll().map {
-                PersistedChild(it.asResource(this), it, this)
-            }.asSequence()
+    override fun all(): Sequence<Child> = repository.findAll().map {
+        PersistedChild(it.asResource(this), it, this)
+    }.asSequence()
 
     override fun findExisting(naturalId: String): Child? =
             repository.findByNaturalId(naturalId).orElse(null)?.let {
