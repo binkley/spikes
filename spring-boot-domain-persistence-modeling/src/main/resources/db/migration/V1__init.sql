@@ -131,6 +131,10 @@ DECLARE
     old_hash VARCHAR;
     new_hash VARCHAR;
 BEGIN
+    IF new.version IS NULL THEN
+        new.version = old.version;
+    end if;
+
     old_hash := md5(CAST((old.*) AS TEXT));
     new_hash := md5(CAST((new.*) AS TEXT));
 

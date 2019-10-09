@@ -112,6 +112,34 @@ class ChildPersistenceTest @Autowired constructor(
         expect(refound.parentNaturalId).toBe(null)
     }
 
+    @Test
+    fun shouldIncrementParentVersionWhenChildrenChange() {
+        val parent = parents.findExistingOrCreateNew("a").save()
+
+        expect(parent.version).toBe(1)
+
+        val child = newUnsavedChild().update {
+            assignTo(parent)
+        }.save()
+
+        expect(child.version).toBe(1)
+        expect(parent.version).toBe(2)
+
+        child.update {
+            value = "Elephant"
+        }.save()
+
+        expect(child.version).toBe(2)
+        expect(parent.version).toBe(3)
+
+        child.update {
+            unassignFromAny()
+        }.save()
+
+        expect(child.version).toBe(3)
+        expect(parent.version).toBe(4)
+    }
+
     private fun newUnsavedChild() =
             children.findExistingOrCreateNew(naturalId)
 }

@@ -4,6 +4,7 @@ import ch.tutteli.atrium.api.cc.en_GB.containsExactly
 import ch.tutteli.atrium.api.cc.en_GB.toBe
 import ch.tutteli.atrium.api.cc.en_GB.toThrow
 import ch.tutteli.atrium.verbs.expect
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.data.jdbc.DataJdbcTest
@@ -21,6 +22,7 @@ internal class ParentPersistenceTest @Autowired constructor(
         private const val naturalId = "a"
     }
 
+    @AfterEach
     fun tearDown() {
         testListener.reset()
     }
