@@ -18,26 +18,16 @@ import org.springframework.context.annotation.Import
     PersistedChildFactory::class,
     PersistedParentFactory::class,
     TestListener::class])
-class ChildPersistenceTest {
+class ChildPersistenceTest @Autowired constructor(
+        private val children: ChildFactory,
+        private val parents: ParentFactory,
+        private val testListener: TestListener<ChildChangedEvent>) {
     companion object {
         const val naturalId = "p"
     }
 
-    @Autowired
-    lateinit var children: ChildFactory
-    @Autowired
-    lateinit var parents: ParentFactory
-    @Autowired
-    lateinit var testListener: TestListener<ChildChangedEvent>
-
     @AfterEach
     fun tearDown() {
-        children.all().forEach {
-            it.delete()
-        }
-        parents.all().forEach {
-            it.delete()
-        }
         testListener.reset()
     }
 

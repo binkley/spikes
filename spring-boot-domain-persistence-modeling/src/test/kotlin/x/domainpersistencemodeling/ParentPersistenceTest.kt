@@ -14,20 +14,15 @@ import org.springframework.context.annotation.Import
 @AutoConfigureTestDatabase(replace = NONE)
 @DataJdbcTest
 @Import(value = [PersistedParentFactory::class, TestListener::class])
-internal class ParentPersistenceTest {
+internal class ParentPersistenceTest @Autowired constructor(
+        private val parents: ParentFactory,
+        private val testListener: TestListener<ParentChangedEvent>) {
     companion object {
         private const val naturalId = "a"
     }
 
-    @Autowired
-    lateinit var parents: ParentFactory
-    @Autowired
-    lateinit var testListener: TestListener<ParentChangedEvent>
-
     fun tearDown() {
-        parents.all().forEach {
-            it.delete()
-        }
+        testListener.reset()
     }
 
     @Test

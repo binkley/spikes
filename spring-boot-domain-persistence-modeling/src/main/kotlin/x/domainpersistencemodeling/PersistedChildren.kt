@@ -141,13 +141,9 @@ internal class PersistedMutableChild internal constructor(
     : MutableChild,
         MutableChildDetails by record {
     override var subchildren =
-            TrackedSortedSet(record.subchildren, { _, buf ->
-                record.subchildren.clear()
-                record.subchildren.addAll(buf)
-            }, { _, buf ->
-                record.subchildren.clear()
-                record.subchildren.addAll(buf)
-            })
+            TrackedSortedSet(record.subchildren,
+                    ::resetSubchildrenToPreserveSorting,
+                    ::resetSubchildrenToPreserveSorting)
 
     override fun assignTo(parent: Parent) = run {
         record.parentId = factory.parentIdFor(parent)
@@ -167,6 +163,12 @@ internal class PersistedMutableChild internal constructor(
     override fun hashCode() = Objects.hash(record)
 
     override fun toString() = "${super.toString()}{record=$record}"
+
+    private fun resetSubchildrenToPreserveSorting(
+            item: String, all: Set<String>) {
+        record.subchildren.clear()
+        record.subchildren.addAll(all)
+    }
 }
 
 interface ChildRepository : CrudRepository<ChildRecord, Long> {
