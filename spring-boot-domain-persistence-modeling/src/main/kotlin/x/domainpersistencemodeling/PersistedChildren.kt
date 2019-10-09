@@ -166,13 +166,17 @@ internal class PersistedMutableChild internal constructor(
 }
 
 interface ChildRepository : CrudRepository<ChildRecord, Long> {
-    @Query("SELECT * FROM child WHERE natural_id = :naturalId")
+    @Query("""
+        SELECT * FROM child WHERE natural_id = :naturalId
+        """)
     fun findByNaturalId(@Param("naturalId") naturalId: String)
             : Optional<ChildRecord>
 
     @Query("""
         SELECT * FROM child
-        WHERE parent_id = (SELECT id FROM parent WHERE natural_id = :parentNaturalId)
+        WHERE parent_id = (SELECT id 
+        FROM parent 
+        WHERE natural_id = :parentNaturalId)
         """)
     fun findByParentNaturalId(
             @Param("parentNaturalId") parentNaturalId: String)
