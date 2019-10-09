@@ -32,7 +32,8 @@ interface MutableChildDetails
 }
 
 interface MutableChild : MutableChildDetails {
-    fun addTo(parent: Parent): MutableChild
+    fun assignTo(parent: Parent)
+    fun unassignFromAny()
 }
 
 interface Child : ScopedMutation<Child, MutableChild>,

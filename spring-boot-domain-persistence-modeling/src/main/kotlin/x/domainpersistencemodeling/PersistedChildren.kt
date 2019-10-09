@@ -149,8 +149,12 @@ internal class PersistedMutableChild internal constructor(
                 record.subchildren.addAll(buf)
             })
 
-    override fun addTo(parent: Parent) = apply {
+    override fun assignTo(parent: Parent) = run {
         record.parentId = factory.parentIdFor(parent)
+    }
+
+    override fun unassignFromAny() = run {
+        record.parentId = null
     }
 
     override fun equals(other: Any?): Boolean {

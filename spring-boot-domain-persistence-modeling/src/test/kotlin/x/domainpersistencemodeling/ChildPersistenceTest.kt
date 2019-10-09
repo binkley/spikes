@@ -38,6 +38,7 @@ class ChildPersistenceTest {
         parents.all().forEach {
             it.delete()
         }
+        testListener.reset()
     }
 
     @Test
@@ -55,7 +56,7 @@ class ChildPersistenceTest {
     }
 
     @Test
-    fun shouldRoundTripJson() {
+    fun shouldRoundTripSubchildren() {
         val unsaved = newUnsavedChild()
         unsaved.update {
             subchildren.addAll(listOf("MOAT", "BAT"))
@@ -100,17 +101,25 @@ class ChildPersistenceTest {
     }
 
     @Test
-    fun shouldAddToParent() {
+    fun shouldAddAndRemoveToFromParents() {
         val parent = parents.findExistingOrCreateNew("a").save()
 
         val unsaved = newUnsavedChild()
         val saved = unsaved.update {
-            addTo(parent)
+            assignTo(parent)
         }.save()
 
         val found = children.findExisting(saved.naturalId)!!
 
         expect(found.parentNaturalId).toBe(parent.naturalId)
+
+        val resaved = saved.update {
+            unassignFromAny()
+        }.save()
+
+        val refound = children.findExisting(resaved.naturalId)!!
+
+        expect(refound.parentNaturalId).toBe(null)
     }
 
     private fun newUnsavedChild() =
