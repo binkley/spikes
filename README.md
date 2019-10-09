@@ -2,6 +2,8 @@
 
 # Spike mini projects
 
+Spikes are not to be considered stable.
+
 * [Amazon Java SDK logging demonstration](amazon-java-sdk-logging-demo/)
 * [Custom Logback pattern](custom-logback-pattern/)
 * [Exploring Kotlin async](kotlin-async/)
@@ -17,3 +19,7 @@
 * [Spring transactions](spring-transactions/)
 * [Spring XML support](xmlish/)
 * [Gradle test sets](gradle-test-sets/)
+
+*NB* &mdash; `micronaut-domain-persistence-model` and
+`spring-boot-domain-persistence-model` are the same project implemented with
+different frameworks.
