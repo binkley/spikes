@@ -63,7 +63,7 @@ internal open class PersistedChildFactory(
             record.version)
 }
 
-internal class PersistedChild internal constructor(
+internal class PersistedChild(
         private var snapshot: ChildResource?,
         private var record: ChildRecord?,
         private val factory: PersistedChildFactory)
@@ -103,6 +103,9 @@ internal class PersistedChild internal constructor(
         factory.notifyChanged(before, after)
     }
 
+    internal fun toResource() = ChildResource(
+            naturalId, parentNaturalId, value, subchildren, version)
+
     override fun compareTo(other: Child) =
             naturalId.compareTo(other.naturalId)
 
@@ -113,9 +116,6 @@ internal class PersistedChild internal constructor(
         return snapshot == other.snapshot
                 && record == other.record
     }
-
-    internal fun toResource() = ChildResource(
-            naturalId, parentNaturalId, value, subchildren, version)
 
     override fun hashCode() = Objects.hash(snapshot, record)
 

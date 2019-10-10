@@ -61,7 +61,7 @@ internal open class PersistedParentFactory(
             ParentResource(record.naturalId, record.value, record.version)
 }
 
-internal class PersistedParent internal constructor(
+internal class PersistedParent(
         private var snapshot: ParentResource?,
         private var record: ParentRecord?,
         private val factory: PersistedParentFactory)
