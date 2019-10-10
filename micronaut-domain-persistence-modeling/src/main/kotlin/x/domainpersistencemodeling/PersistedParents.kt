@@ -18,22 +18,21 @@ internal class PersistedParentFactory(
         private val repository: ParentRepository,
         private val publisher: ApplicationEventPublisher)
     : ParentFactory {
-    override fun all(): Sequence<Parent> =
-            repository.findAll().map {
-                PersistedParent(it.asResource(), it, this)
-            }.asSequence()
+    override fun all(): Sequence<Parent> = repository.findAll().map {
+        forRecord(it)
+    }.asSequence()
 
     override fun findExisting(naturalId: String): Parent? =
             repository.findByNaturalId(naturalId).orElse(null)?.let {
-                PersistedParent(it.asResource(), it, this)
+                forRecord(it)
             }
 
-    override fun createNew(resource: ParentResource): Parent =
-            PersistedParent(null, ParentRecord(resource), this)
+    override fun createNew(naturalId: String): Parent =
+            PersistedParent(null, ParentRecord(naturalId), this)
 
-    override fun findExistingOrCreateNew(naturalId: String): Parent =
-            findExisting(naturalId) ?: createNew(
-                    ParentResource(naturalId, null, 0))
+    override fun findExistingOrCreateNew(
+            naturalId: String): Parent =
+            findExisting(naturalId) ?: createNew(naturalId)
 
     // TODO: Refetch to see changes in audit columns
     internal fun save(record: ParentRecord) =
@@ -46,11 +45,19 @@ internal class PersistedParentFactory(
             before: ParentResource?, after: ParentResource?) =
             notifyIfChanged(before, after, publisher, ::ParentChangedEvent)
 
-    internal fun idOf(resource: ParentResource) =
-            repository.findByNaturalId(resource.naturalId).orElse(null)?.id
+    internal fun idFor(naturalId: String) =
+            repository.findByNaturalId(naturalId)
+                    .map(ParentRecord::id)
+                    .get()
 
-    internal fun resourceOf(id: Long): ParentResource? =
-            repository.findById(id).orElse(null)?.asResource()
+    internal fun naturalIdFor(id: Long) =
+            repository.findById(id)
+                    .map(ParentRecord::naturalId)
+                    .get()
+
+    internal fun forRecord(record: ParentRecord) =
+            PersistedParent(ParentResource(
+                    record.naturalId, null, record.version), record, this)
 }
 
 internal class PersistedParent internal constructor(
@@ -75,7 +82,7 @@ internal class PersistedParent internal constructor(
     override fun save() = apply {
         val before = snapshot
         record = factory.save(record!!)
-        val after = record!!.asResource()
+        val after = toResource()
         snapshot = after
         factory.notifyChanged(before, after)
     }
@@ -137,13 +144,6 @@ data class ParentRecord(
         val createdAt: Instant,
         val updatedAt: Instant)
     : MutableParentDetails {
-    internal constructor(resource: ParentResource) : this(
-            null,
-            resource.naturalId,
-            resource.value,
-            0,
-            EPOCH,
-            EPOCH)
-
-    internal fun asResource() = ParentResource(naturalId, value, version)
+    internal constructor(naturalId: String)
+            : this(null, naturalId, null, 0, EPOCH, EPOCH)
 }

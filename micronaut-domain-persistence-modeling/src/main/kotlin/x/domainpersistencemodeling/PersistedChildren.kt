@@ -21,46 +21,59 @@ internal class PersistedChildFactory(
         private val publisher: ApplicationEventPublisher)
     : ChildFactory {
     override fun all(): Sequence<Child> = repository.findAll().map {
-        PersistedChild(it.asResource(this), it, this)
+        forRecord(it)
     }.asSequence()
 
     override fun findExisting(naturalId: String): Child? =
             repository.findByNaturalId(naturalId).orElse(null)?.let {
-                PersistedChild(it.asResource(this), it, this)
+                forRecord(it)
             }
 
     override fun createNew(naturalId: String): Child =
-            PersistedChild(null, ChildRecord(
-                    ChildResource(naturalId, null, null, 0), this),
-                    this)
+            PersistedChild(null, ChildRecord(naturalId, null), this)
 
-    override fun findExistingOrCreateNew(naturalId: String): Child =
+    override fun findExistingOrCreateNew(
+            naturalId: String): Child =
             findExisting(naturalId) ?: createNew(naturalId)
+
+    override fun findOwned(parentNaturalId: String) =
+            repository.findByParentNaturalId(parentNaturalId).map {
+                forRecord(it)
+            }
 
     // TODO: Refetch to see changes in audit columns
     internal fun save(record: ChildRecord) =
             repository.findByNaturalId(
                     repository.save(record).naturalId).get()
 
-    internal fun delete(record: ChildRecord) = repository.delete(record)
+    internal fun delete(record: ChildRecord) =
+            repository.delete(record)
 
     internal fun notifyChanged(
-            before: ChildResource?, after: ChildResource?) =
-            notifyIfChanged(before, after, publisher, ::ChildChangedEvent)
+            before: ChildResource?,
+            after: ChildResource?) =
+            notifyIfChanged(before, after,
+                    publisher,
+                    ::ChildChangedEvent)
 
-    internal fun addTo(child: MutableChild, parent: ParentResource) =
-            repository.updateParentId(child.naturalId, parent.naturalId)
-                    .orElse(null)
+    internal fun parentNaturalIdFor(parentId: Long) =
+            parentFactory.naturalIdFor(parentId)
 
-    internal fun parentIdFor(resource: ChildResource) =
-            resource.parent?.let {
-                parentFactory.idOf(it)
-            }
+    internal fun parentIdFor(parent: Parent) =
+            parentFactory.idFor(parent.naturalId)
 
-    internal fun parentResourceFor(parentId: Long?) =
-            parentId?.let {
-                parentFactory.resourceOf(parentId)
-            }
+    private fun forRecord(record: ChildRecord): PersistedChild {
+        val parentId = record.parentId
+        val resource = ChildResource(
+                record.naturalId,
+                parentId?.let {
+                    parentNaturalIdFor(it)
+                },
+                record.value,
+                record.subchildren,
+                record.version)
+        return PersistedChild(resource, record, this)
+    }
 }
 
 internal class PersistedChild internal constructor(
@@ -70,10 +83,14 @@ internal class PersistedChild internal constructor(
     : Child {
     override val naturalId: String
         get() = record!!.naturalId
-    override val parentId: Long?
-        get() = record!!.parentId
+    override val parentNaturalId: String?
+        get() = record!!.parentId?.let {
+            factory.parentNaturalIdFor(it)
+        }
     override val value: String?
         get() = record!!.value
+    override val subchildren: Set<String> // Sorted
+        get() = TreeSet(record!!.subchildren)
     override val version: Int
         get() = record!!.version
     override val existing: Boolean
@@ -87,7 +104,7 @@ internal class PersistedChild internal constructor(
     override fun save() = apply {
         val before = snapshot
         record = factory.save(record!!)
-        val after = record!!.asResource(factory)
+        val after = toResource()
         snapshot = after
         factory.notifyChanged(before, after)
     }
@@ -101,6 +118,9 @@ internal class PersistedChild internal constructor(
         factory.notifyChanged(before, after)
     }
 
+    override fun compareTo(other: Child) =
+            naturalId.compareTo(other.naturalId)
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -108,6 +128,9 @@ internal class PersistedChild internal constructor(
         return snapshot == other.snapshot
                 && record == other.record
     }
+
+    internal fun toResource() = ChildResource(
+            naturalId, parentNaturalId, value, subchildren, version)
 
     override fun hashCode() = Objects.hash(snapshot, record)
 
@@ -120,8 +143,17 @@ internal class PersistedMutableChild internal constructor(
         private val factory: PersistedChildFactory)
     : MutableChild,
         MutableChildDetails by record {
-    override fun addTo(parent: ParentResource) = apply {
-        factory.addTo(this, parent)
+    override var subchildren =
+            TrackedSortedSet(record.subchildren,
+                    ::resetSubchildrenToPreserveSorting,
+                    ::resetSubchildrenToPreserveSorting)
+
+    override fun assignTo(parent: Parent) = run {
+        record.parentId = factory.parentIdFor(parent)
+    }
+
+    override fun unassignFromAny() = run {
+        record.parentId = null
     }
 
     override fun equals(other: Any?): Boolean {
@@ -134,6 +166,12 @@ internal class PersistedMutableChild internal constructor(
     override fun hashCode() = Objects.hash(record)
 
     override fun toString() = "${super.toString()}{record=$record}"
+
+    private fun resetSubchildrenToPreserveSorting(
+            item: String, all: Set<String>) {
+        record.subchildren.clear()
+        record.subchildren.addAll(all)
+    }
 }
 
 @JdbcRepository(dialect = POSTGRES)
@@ -142,14 +180,12 @@ interface ChildRepository : CrudRepository<ChildRecord, Long> {
     fun findByNaturalId(naturalId: String): Optional<ChildRecord>
 
     @Query("""
-        UPDATE child
-        SET parent_id = (SELECT id FROM parent WHERE natural_id = :parentNaturalId)
-        WHERE natural_id = :naturalId
-        RETURNING *
+        SELECT * FROM child
+        WHERE parent_id = (SELECT id 
+        FROM parent 
+        WHERE natural_id = :parentNaturalId)
         """)
-    fun updateParentId(naturalId: String,
-            parentNaturalId: String)
-            : Optional<ChildRecord>
+    fun findByParentNaturalId(parentNaturalId: String): Iterable<ChildRecord>
 }
 
 @Introspected
@@ -159,24 +195,12 @@ data class ChildRecord(
         override val naturalId: String,
         override var parentId: Long?,
         override var value: String?,
+        override var subchildren: MutableSet<String>,
         override val version: Int,
         val createdAt: Instant,
-        val updatedAt: Instant)
-    : MutableChildDetails {
-    internal constructor(resource: ChildResource,
-            factory: PersistedChildFactory) : this(
-            null,
-            resource.naturalId,
-            factory.parentIdFor(resource),
-            resource.value,
-            resource.version,
-            EPOCH,
-            EPOCH)
-
-    internal fun asResource(factory: PersistedChildFactory) =
-            ChildResource(
-                    naturalId,
-                    factory.parentResourceFor(parentId),
-                    value,
-                    version)
+        val updatedAt: Instant) :
+        MutableChildDetails {
+    internal constructor(naturalId: String, parentId: Long?)
+            : this(null, naturalId, parentId, null, mutableSetOf(),
+            0, EPOCH, EPOCH)
 }

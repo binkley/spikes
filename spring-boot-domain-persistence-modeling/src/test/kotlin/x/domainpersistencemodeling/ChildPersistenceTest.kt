@@ -24,6 +24,7 @@ class ChildPersistenceTest @Autowired constructor(
         private val testListener: TestListener<ChildChangedEvent>) {
     companion object {
         const val naturalId = "p"
+        const val parentNaturalId = "a"
     }
 
     @AfterEach
@@ -114,7 +115,10 @@ class ChildPersistenceTest @Autowired constructor(
 
     @Test
     fun shouldIncrementParentVersionWhenChildrenChange() {
-        val parent = parents.findExistingOrCreateNew("a").save()
+        fun currentParentVersion() =
+                parents.findExisting(parentNaturalId)?.version
+
+        val parent = parents.findExistingOrCreateNew(parentNaturalId).save()
 
         expect(parent.version).toBe(1)
 
@@ -123,21 +127,21 @@ class ChildPersistenceTest @Autowired constructor(
         }.save()
 
         expect(child.version).toBe(1)
-        expect(parent.version).toBe(2)
+        expect(currentParentVersion()).toBe(2)
 
         child.update {
             value = "Elephant"
         }.save()
 
         expect(child.version).toBe(2)
-        expect(parent.version).toBe(3)
+        expect(currentParentVersion()).toBe(3)
 
         child.update {
             unassignFromAny()
         }.save()
 
         expect(child.version).toBe(3)
-        expect(parent.version).toBe(4)
+        expect(currentParentVersion()).toBe(4)
     }
 
     private fun newUnsavedChild() =

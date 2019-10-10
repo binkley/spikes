@@ -9,7 +9,9 @@ import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Component
 import java.time.Instant
 import java.time.Instant.EPOCH
-import java.util.*
+import java.util.Objects
+import java.util.Optional
+import java.util.TreeSet
 
 @Component
 internal open class PersistedChildFactory(
@@ -18,12 +20,12 @@ internal open class PersistedChildFactory(
         private val publisher: ApplicationEventPublisher)
     : ChildFactory {
     override fun all(): Sequence<Child> = repository.findAll().map {
-        forRecord(it)
+        toRecord(it)
     }.asSequence()
 
     override fun findExisting(naturalId: String): Child? =
             repository.findByNaturalId(naturalId).orElse(null)?.let {
-                forRecord(it)
+                toRecord(it)
             }
 
     override fun createNew(naturalId: String): Child =
@@ -35,7 +37,7 @@ internal open class PersistedChildFactory(
 
     override fun findOwned(parentNaturalId: String) =
             repository.findByParentNaturalId(parentNaturalId).map {
-                forRecord(it)
+                toRecord(it)
             }
 
     // TODO: Refetch to see changes in audit columns
@@ -59,17 +61,19 @@ internal open class PersistedChildFactory(
     internal fun parentIdFor(parent: Parent) =
             parentFactory.idFor(parent.naturalId)
 
-    private fun forRecord(record: ChildRecord): PersistedChild {
-        val parentId = record.parentId
+    private fun toRecord(record: ChildRecord) =
+            PersistedChild(toResource(record), record, this)
+
+    private fun toResource(record: ChildRecord): ChildResource {
         val resource = ChildResource(
                 record.naturalId,
-                parentId?.let {
+                record.parentId?.let {
                     parentNaturalIdFor(it)
                 },
                 record.value,
                 record.subchildren,
                 record.version)
-        return PersistedChild(resource, record, this)
+        return resource
     }
 }
 

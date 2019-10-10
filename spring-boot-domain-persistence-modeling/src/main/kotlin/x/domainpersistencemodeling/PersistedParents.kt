@@ -9,7 +9,8 @@ import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Component
 import java.time.Instant
 import java.time.Instant.EPOCH
-import java.util.*
+import java.util.Objects
+import java.util.Optional
 
 @Component
 internal open class PersistedParentFactory(
@@ -17,12 +18,12 @@ internal open class PersistedParentFactory(
         private val publisher: ApplicationEventPublisher)
     : ParentFactory {
     override fun all(): Sequence<Parent> = repository.findAll().map {
-        forRecord(it)
+        toParent(it)
     }.asSequence()
 
     override fun findExisting(naturalId: String): Parent? =
             repository.findByNaturalId(naturalId).orElse(null)?.let {
-                forRecord(it)
+                toParent(it)
             }
 
     override fun createNew(naturalId: String): Parent =
@@ -53,9 +54,11 @@ internal open class PersistedParentFactory(
                     .map(ParentRecord::naturalId)
                     .get()
 
-    internal fun forRecord(record: ParentRecord) =
-            PersistedParent(ParentResource(
-                    record.naturalId, null, record.version), record, this)
+    internal fun toParent(record: ParentRecord) =
+            PersistedParent(toResource(record), record, this)
+
+    internal fun toResource(record: ParentRecord) =
+            ParentResource(record.naturalId, record.value, record.version)
 }
 
 internal class PersistedParent internal constructor(
@@ -94,7 +97,7 @@ internal class PersistedParent internal constructor(
         factory.notifyChanged(before, after)
     }
 
-    override fun toResource() = ParentResource(naturalId, value, version)
+    override fun toResource() = factory.toResource(record!!)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
