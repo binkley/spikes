@@ -17,7 +17,7 @@ interface ChildFactory {
 
 interface ChildPersistedDetails {
     val naturalId: String
-    val parentId: Long?
+    val parentNaturalId: String?
     val value: String?
     val subchildren: Set<String>
     val version: Int
@@ -26,7 +26,7 @@ interface ChildPersistedDetails {
 interface MutableChildDetails
     : ChildPersistedDetails {
     override val naturalId: String
-    override var parentId: Long?
+    override var parentNaturalId: String?
     override var value: String?
     override val subchildren: MutableSet<String>
 }

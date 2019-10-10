@@ -16,7 +16,6 @@ import java.util.TreeSet
 @Component
 internal open class PersistedChildFactory(
         private val repository: ChildRepository,
-        private val parentFactory: PersistedParentFactory,
         private val publisher: ApplicationEventPublisher)
     : ChildFactory {
     override fun all(): Sequence<Child> = repository.findAll().map {
@@ -55,26 +54,15 @@ internal open class PersistedChildFactory(
                     publisher,
                     ::ChildChangedEvent)
 
-    internal fun parentNaturalIdFor(parentId: Long) =
-            parentFactory.naturalIdFor(parentId)
-
-    internal fun parentIdFor(parent: Parent) =
-            parentFactory.idFor(parent.naturalId)
-
     private fun toRecord(record: ChildRecord) =
             PersistedChild(toResource(record), record, this)
 
-    private fun toResource(record: ChildRecord): ChildResource {
-        val resource = ChildResource(
-                record.naturalId,
-                record.parentId?.let {
-                    parentNaturalIdFor(it)
-                },
-                record.value,
-                record.subchildren,
-                record.version)
-        return resource
-    }
+    private fun toResource(record: ChildRecord) = ChildResource(
+            record.naturalId,
+            record.parentNaturalId,
+            record.value,
+            record.subchildren,
+            record.version)
 }
 
 internal class PersistedChild internal constructor(
@@ -85,9 +73,7 @@ internal class PersistedChild internal constructor(
     override val naturalId: String
         get() = record!!.naturalId
     override val parentNaturalId: String?
-        get() = record!!.parentId?.let {
-            factory.parentNaturalIdFor(it)
-        }
+        get() = record!!.parentNaturalId
     override val value: String?
         get() = record!!.value
     override val subchildren: Set<String> // Sorted
@@ -98,7 +84,7 @@ internal class PersistedChild internal constructor(
         get() = 0 < version
 
     override fun update(block: MutableChild.() -> Unit) = apply {
-        val mutable = PersistedMutableChild(record!!, factory)
+        val mutable = PersistedMutableChild(record!!)
         mutable.block()
     }
 
@@ -140,8 +126,7 @@ internal class PersistedChild internal constructor(
 }
 
 internal class PersistedMutableChild internal constructor(
-        private val record: ChildRecord,
-        private val factory: PersistedChildFactory)
+        private val record: ChildRecord)
     : MutableChild,
         MutableChildDetails by record {
     override var subchildren =
@@ -150,11 +135,11 @@ internal class PersistedMutableChild internal constructor(
                     ::resetSubchildrenToPreserveSorting)
 
     override fun assignTo(parent: Parent) = run {
-        record.parentId = factory.parentIdFor(parent)
+        record.parentNaturalId = parent.naturalId
     }
 
     override fun unassignFromAny() = run {
-        record.parentId = null
+        record.parentNaturalId = null
     }
 
     override fun equals(other: Any?): Boolean {
@@ -197,14 +182,14 @@ interface ChildRepository : CrudRepository<ChildRecord, Long> {
 data class ChildRecord(
         @Id val id: Long?,
         override val naturalId: String,
-        override var parentId: Long?,
+        override var parentNaturalId: String?,
         override var value: String?,
         override var subchildren: MutableSet<String>,
         override val version: Int,
         val createdAt: Instant,
         val updatedAt: Instant) :
         MutableChildDetails {
-    internal constructor(naturalId: String, parentId: Long?)
-            : this(null, naturalId, parentId, null, mutableSetOf(),
+    internal constructor(naturalId: String, parentNaturalId: String?)
+            : this(null, naturalId, parentNaturalId, null, mutableSetOf(),
             0, EPOCH, EPOCH)
 }
