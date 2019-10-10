@@ -4,6 +4,7 @@ VALUES
     ('a');
 
 SELECT upsert_parent('b', NULL, NULL); -- Batch update
+SELECT upsert_parent('b', NULL, 1); -- Batch update
 
 UPDATE parent -- Should fail with custom DB error message
    SET natural_id = 'c'

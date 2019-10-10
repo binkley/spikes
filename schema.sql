@@ -12,6 +12,7 @@ CREATE TABLE child
 (
     id          SERIAL PRIMARY KEY,
     natural_id  VARCHAR NOT NULL UNIQUE,
+    -- TODO: Better/shorter/simpler Java code if natural key, not surrogate key
     parent_id   INT REFERENCES parent (id), -- Nullable
     value       VARCHAR,
     subchildren JSON    NOT NULL,
@@ -125,9 +126,8 @@ BEGIN
     new_hash := md5(CAST((new.*) AS TEXT));
 
     IF (old_hash = new_hash) THEN
-        RETURN NULL; -- Ignore the update, stop processing triggers
+        RETURN NEW; -- Skip bumping version number if no changes
     END IF;
-
 
     IF (new.version <> old.version) THEN
         RAISE 'Outdated: NEW: %, OLD: %', new, old;
@@ -148,6 +148,7 @@ BEGIN
     UPDATE parent
        SET updated_at = now() -- Fire the UPDATE trigger of parent, to update audit/version
      WHERE id = new.parent_id;
+
     RETURN new;
 END;
 $$;
@@ -158,9 +159,15 @@ CREATE OR REPLACE FUNCTION update_child_update_parent_f()
 AS
 $$
 BEGIN
+    -- No longer skip reset of triggers when no delta
+    IF new.version = old.version THEN
+        RETURN new;
+    END IF;
+
     UPDATE parent
        SET updated_at = now() -- Fire the UPDATE trigger of parent, to update audit/version
      WHERE id IN (old.parent_id, new.parent_id);
+
     RETURN new;
 END;
 $$;
@@ -174,6 +181,7 @@ BEGIN
     UPDATE parent
        SET updated_at = now() -- Fire the UPDATE trigger of parent, to update audit/version
      WHERE id = old.parent_id;
+
     RETURN old;
 END;
 $$;
