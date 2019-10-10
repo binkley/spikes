@@ -19,12 +19,12 @@ internal open class PersistedChildFactory(
         private val publisher: ApplicationEventPublisher)
     : ChildFactory {
     override fun all(): Sequence<Child> = repository.findAll().map {
-        toRecord(it)
+        toChild(it)
     }.asSequence()
 
     override fun findExisting(naturalId: String): Child? =
             repository.findByNaturalId(naturalId).orElse(null)?.let {
-                toRecord(it)
+                toChild(it)
             }
 
     override fun createNew(naturalId: String): Child =
@@ -36,7 +36,7 @@ internal open class PersistedChildFactory(
 
     override fun findOwned(parentNaturalId: String) =
             repository.findByParentNaturalId(parentNaturalId).map {
-                toRecord(it)
+                toChild(it)
             }
 
     // TODO: Refetch to see changes in audit columns
@@ -50,11 +50,9 @@ internal open class PersistedChildFactory(
     internal fun notifyChanged(
             before: ChildResource?,
             after: ChildResource?) =
-            notifyIfChanged(before, after,
-                    publisher,
-                    ::ChildChangedEvent)
+            notifyIfChanged(before, after, publisher, ::ChildChangedEvent)
 
-    private fun toRecord(record: ChildRecord) =
+    private fun toChild(record: ChildRecord) =
             PersistedChild(toResource(record), record, this)
 
     private fun toResource(record: ChildRecord) = ChildResource(

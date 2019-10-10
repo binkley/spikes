@@ -121,12 +121,14 @@ class ChildPersistenceTest @Autowired constructor(
 
     @Test
     fun shouldIncrementParentVersionWhenChildrenChange() {
-        fun currentParentVersion() =
-                parents.findExisting(parentNaturalId)?.version
+        fun currentParentVersion(): Int {
+            val found = parents.findExisting(parentNaturalId)
+            println("PARENT found = ${found}")
+            return found!!.version
+        }
 
         val parent = parents.findExistingOrCreateNew(parentNaturalId).save()
-
-        expect(parent.version).toBe(1)
+        expect(currentParentVersion()).toBe(1)
 
         val child = newUnsavedChild().update {
             assignTo(parent)
