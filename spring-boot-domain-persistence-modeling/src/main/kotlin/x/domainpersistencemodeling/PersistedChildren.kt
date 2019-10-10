@@ -41,8 +41,7 @@ internal open class PersistedChildFactory(
 
     // TODO: Refetch to see changes in audit columns
     internal fun save(record: ChildRecord) =
-            repository.findByNaturalId(
-                    repository.save(record).naturalId).get()
+            repository.findById(repository.save(record).id!!).get()
 
     internal fun delete(record: ChildRecord) =
             repository.delete(record)

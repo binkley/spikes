@@ -35,24 +35,13 @@ internal open class PersistedParentFactory(
 
     // TODO: Refetch to see changes in audit columns
     internal fun save(record: ParentRecord) =
-            repository.findByNaturalId(
-                    repository.save(record).naturalId).get()
+            repository.findById(repository.save(record).id!!).get()
 
     internal fun delete(record: ParentRecord) = repository.delete(record)
 
     internal fun notifyChanged(
             before: ParentResource?, after: ParentResource?) =
             notifyIfChanged(before, after, publisher, ::ParentChangedEvent)
-
-    internal fun idFor(naturalId: String) =
-            repository.findByNaturalId(naturalId)
-                    .map(ParentRecord::id)
-                    .get()
-
-    internal fun naturalIdFor(id: Long) =
-            repository.findById(id)
-                    .map(ParentRecord::naturalId)
-                    .get()
 
     internal fun toParent(record: ParentRecord) =
             PersistedParent(toResource(record), record, this)
