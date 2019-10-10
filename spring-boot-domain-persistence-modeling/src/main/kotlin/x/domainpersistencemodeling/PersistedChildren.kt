@@ -168,7 +168,7 @@ data class ChildRecord(
         override val naturalId: String,
         override var parentNaturalId: String?,
         override var value: String?,
-        override var subchildren: MutableSet<String>,
+        override val subchildren: MutableSet<String>,
         override val version: Int,
         val createdAt: Instant,
         val updatedAt: Instant) :
