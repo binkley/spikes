@@ -99,8 +99,7 @@ class ChildPersistenceTest @Autowired constructor(
 
     @Test
     fun shouldAddAndRemoveToFromParents() {
-        val parent = parents.findExistingOrCreateNew("a").save()
-
+        val parent = newSavedParent()
         val unsaved = newUnsavedChild()
         val saved = unsaved.update {
             assignTo(parent)
@@ -108,7 +107,7 @@ class ChildPersistenceTest @Autowired constructor(
 
         val found = children.findExisting(saved.naturalId)!!
 
-        expect(found.parentNaturalId).toBe(parent.naturalId)
+        expect(found.parentNaturalId).toBe(parentNaturalId)
 
         val resaved = saved.update {
             unassignFromAny()
@@ -127,7 +126,7 @@ class ChildPersistenceTest @Autowired constructor(
             return found!!.version
         }
 
-        val parent = parents.findExistingOrCreateNew(parentNaturalId).save()
+        val parent = newSavedParent()
         expect(currentParentVersion()).toBe(1)
 
         val child = newUnsavedChild().update {
@@ -155,4 +154,7 @@ class ChildPersistenceTest @Autowired constructor(
 
     private fun newUnsavedChild() =
             children.findExistingOrCreateNew(naturalId)
+
+    private fun newSavedParent() =
+            parents.findExistingOrCreateNew(parentNaturalId).save()
 }
