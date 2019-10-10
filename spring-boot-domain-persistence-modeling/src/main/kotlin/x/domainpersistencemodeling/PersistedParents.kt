@@ -113,24 +113,15 @@ internal class PersistedParent internal constructor(
             "${super.toString()}{snapshot=$snapshot, record=$record}"
 }
 
-internal class PersistedMutableParent internal constructor(
-        private val record: ParentRecord)
+internal data class PersistedMutableParent(private val record: ParentRecord)
     : MutableParent,
-        MutableParentDetails by record {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-        other as PersistedMutableParent
-        return record == other.record
-    }
-
-    override fun hashCode() = Objects.hash(record)
-
-    override fun toString() = "${super.toString()}{record=$record}"
-}
+        MutableParentDetails by record
 
 interface ParentRepository : CrudRepository<ParentRecord, Long> {
-    @Query("SELECT * FROM parent WHERE natural_id = :naturalId")
+    @Query("""
+        SELECT * FROM parent
+        WHERE natural_id = :naturalId
+        """)
     fun findByNaturalId(@Param("naturalId") naturalId: String)
             : Optional<ParentRecord>
 }

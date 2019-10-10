@@ -123,8 +123,7 @@ internal class PersistedChild internal constructor(
             "${super.toString()}{snapshot=$snapshot, record=$record}"
 }
 
-internal class PersistedMutableChild internal constructor(
-        private val record: ChildRecord)
+internal data class PersistedMutableChild(private val record: ChildRecord)
     : MutableChild,
         MutableChildDetails by record {
     override var subchildren =
@@ -140,17 +139,6 @@ internal class PersistedMutableChild internal constructor(
         record.parentNaturalId = null
     }
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-        other as PersistedMutableChild
-        return record == other.record
-    }
-
-    override fun hashCode() = Objects.hash(record)
-
-    override fun toString() = "${super.toString()}{record=$record}"
-
     private fun resetSubchildrenToPreserveSorting(
             item: String, all: Set<String>) {
         record.subchildren.clear()
@@ -160,16 +148,15 @@ internal class PersistedMutableChild internal constructor(
 
 interface ChildRepository : CrudRepository<ChildRecord, Long> {
     @Query("""
-        SELECT * FROM child WHERE natural_id = :naturalId
+        SELECT * FROM child
+        WHERE natural_id = :naturalId
         """)
     fun findByNaturalId(@Param("naturalId") naturalId: String)
             : Optional<ChildRecord>
 
     @Query("""
         SELECT * FROM child
-        WHERE parent_id = (SELECT id 
-        FROM parent 
-        WHERE natural_id = :parentNaturalId)
+        WHERE parent_natural_id = :parentNaturalId
         """)
     fun findByParentNaturalId(
             @Param("parentNaturalId") parentNaturalId: String)

@@ -135,6 +135,7 @@ class ChildPersistenceTest @Autowired constructor(
         }.save()
 
         expect(child.version).toBe(1)
+        // TODO: Why is parent still version 1?
         expect(currentParentVersion()).toBe(2)
 
         child.update {
