@@ -1,3 +1,14 @@
+# FOR DEVELOPERS, PLEASE DO NOT REMOVE
+#logging:
+#  level:
+#    x: DEBUG
+#    root: WARN
+#    org.springframework.jdbc.core:
+#      JdbcTemplate: DEBUG
+#      StatementCreatorUtils: TRACE
+#    org.springframework.jdbc.datasource:
+#      DataSourceTransactionManager: TRACE
+
 logging:
   level:
     x: DEBUG
