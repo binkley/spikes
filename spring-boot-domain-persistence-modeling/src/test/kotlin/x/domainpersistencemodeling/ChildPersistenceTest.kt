@@ -52,21 +52,27 @@ class ChildPersistenceTest @Autowired constructor(
         unsaved.update {
             subchildren.addAll(listOf("MOAT", "BAT"))
         }
-        val saved = unsaved.save()
+        var saved = unsaved.save()
 
-        val found = children.findExisting(saved.naturalId)!!
-
+        var found = children.findExisting(saved.naturalId)!!
         expect(found.subchildren).containsExactly("BAT", "MOAT")
+
+        found.update {
+            subchildren.add("COW")
+        }
+        saved = found.save()
+
+        found = children.findExisting(saved.naturalId)!!
+        expect(found.subchildren).containsExactly("BAT", "COW", "MOAT")
 
         found.update {
             subchildren.clear()
             subchildren.add("NANCY")
         }
-        val resaved = found.save()
+        saved = found.save()
 
-        val refound = children.findExisting(resaved.naturalId)!!
-
-        expect(refound.subchildren).containsExactly("NANCY")
+        found = children.findExisting(saved.naturalId)!!
+        expect(found.subchildren).containsExactly("NANCY")
     }
 
     @Test
