@@ -12,10 +12,10 @@ CREATE TABLE parent
 CREATE TABLE child
 (
     id          SERIAL PRIMARY KEY,
-    natural_id  VARCHAR NOT NULL UNIQUE,
+    natural_id  VARCHAR   NOT NULL UNIQUE,
     parent_id   INT REFERENCES parent (id), -- Nullable
     value       VARCHAR,
-    subchildren VARCHAR[],
+    subchildren VARCHAR[] NOT NULL,
     -- DB controls Audit columns, not caller
     version     INT DEFAULT 0,
     created_at  TIMESTAMP,
