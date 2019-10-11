@@ -16,6 +16,9 @@ public class ChildRecord {
     private String naturalId;
     private String parentNaturalId;
     private String value;
+    @Builder.Default
+    @SuppressWarnings("UnusedAssignment")
+    private String subchildren = "[]";
     private Integer version;
 
     public ChildRecord updateWith(final ChildRecord upserted) {
@@ -23,6 +26,7 @@ public class ChildRecord {
         naturalId = upserted.naturalId;
         parentNaturalId = upserted.parentNaturalId;
         value = upserted.value;
+        subchildren = upserted.subchildren;
         version = upserted.version;
         return this;
     }

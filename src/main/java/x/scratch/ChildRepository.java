@@ -12,16 +12,18 @@ public interface ChildRepository extends CrudRepository<ChildRecord, Long> {
     @Query("SELECT * FROM child WHERE natural_id = :naturalId")
     Optional<ChildRecord> findByNaturalId(@Param("naturalId") String naturalId);
 
-    @Query("SELECT * FROM upsert_child(:naturalId, :parentNaturalId, :value, :version)")
+    @Query("SELECT * FROM upsert_child(:naturalId, :parentNaturalId,"
+            + " :value, :subchildren, :version)")
     ChildRecord upsert(
             @Param("naturalId") final String naturalId,
             @Param("parentNaturalId") final String parentNaturalId,
             @Param("value") final String value,
+            @Param("subchildren") final String subchildren,
             @Param("version") final Integer version);
 
     default ChildRecord upsert(final ChildRecord entity) {
         return entity.updateWith(upsert(
-                entity.getNaturalId(), entity.getParentNaturalId(), entity.getValue(),
-                entity.getVersion()));
+                entity.getNaturalId(), entity.getParentNaturalId(),
+                entity.getValue(), entity.getSubchildren(), entity.getVersion()));
     }
 }

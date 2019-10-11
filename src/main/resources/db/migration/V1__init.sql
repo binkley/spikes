@@ -14,7 +14,7 @@ CREATE TABLE child
     natural_id        VARCHAR NOT NULL UNIQUE,
     parent_natural_id VARCHAR REFERENCES parent (natural_id), -- Nullable
     value             VARCHAR,
-    subchildren       JSON    NOT NULL,
+    subchildren       VARCHAR NOT NULL, -- TODO: JSON or ARRAY
     version           INT,
     created_at        TIMESTAMP,
     updated_at        TIMESTAMP
