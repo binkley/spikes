@@ -20,7 +20,7 @@ class DatabaseTest {
         final var unsaved = ParentRecord.builder()
                 .naturalId("a")
                 .build();
-        final var saved = parents.save(unsaved);
+        final var saved = parents.upsert(unsaved);
 
         assertThat(saved).isEqualTo(unsaved);
         assertThat(saved.getVersion()).isEqualTo(1);

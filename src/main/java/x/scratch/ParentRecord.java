@@ -16,4 +16,12 @@ public class ParentRecord {
     private String naturalId;
     private String value;
     private Integer version;
+
+    public ParentRecord updateWith(final ParentRecord upserted) {
+        id = upserted.id;
+        naturalId = upserted.naturalId;
+        value = upserted.value;
+        version = upserted.version;
+        return this;
+    }
 }
