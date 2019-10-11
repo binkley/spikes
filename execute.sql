@@ -42,6 +42,9 @@ INSERT INTO child(natural_id, subchildren) -- unassigned
 VALUES
     ('p', '[]');
 
+SELECT upsert_child('q', NULL, NULL, '[]', NULL); -- Batch update
+
+
 UPDATE child -- assign
    SET parent_natural_id = 'a'
  WHERE natural_id = 'p';

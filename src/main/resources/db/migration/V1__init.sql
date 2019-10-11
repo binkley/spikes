@@ -43,6 +43,7 @@ $$;
 CREATE OR REPLACE FUNCTION upsert_child(_natural_id child.natural_id%TYPE,
                                         _parent_natural_id child.parent_natural_id%TYPE,
                                         _value child.value%TYPE,
+                                        _subchildren child.subchildren%TYPE,
                                         _version child.version%TYPE)
     RETURNS SETOF CHILD
     ROWS 1
@@ -51,12 +52,14 @@ AS
 $$
 BEGIN
     RETURN QUERY INSERT INTO child
-        (natural_id, parent_natural_id, value, version)
+        (natural_id, parent_natural_id, value, subchildren, version)
         VALUES
-            (_natural_id, _parent_natural_id, _value, _version)
+            (_natural_id, _parent_natural_id, _value, _subchildren, _version)
         ON CONFLICT (natural_id) DO UPDATE
-            SET (parent_natural_id, value, version)
-                = (excluded.parent_natural_id, excluded.value, excluded.version)
+            SET (parent_natural_id, value, subchildren,
+                 version)
+                = (excluded.parent_natural_id, excluded.value, excluded.subchildren,
+                   excluded.version)
         RETURNING *;
 END;
 $$;
