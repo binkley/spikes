@@ -133,7 +133,7 @@ class ChildPersistenceTest @Autowired constructor(
     fun shouldIncrementParentVersionWhenChildrenChange() {
         fun currentPersistedParentVersion(): Int {
             val found = parents.findExisting(parentNaturalId)
-            println("PARENT found = ${found}")
+            println("PARENT found = $found")
             return found!!.version
         }
 
@@ -148,8 +148,8 @@ class ChildPersistenceTest @Autowired constructor(
         expect(child.parentNaturalId).toBe(parentNaturalId)
         expect(child.version).toBe(1)
         expect(currentPersistedVersion()).toBe(1)
-        // At the level of the child, in-memory parent still version 1
         // TODO: This needs to be handled at domain level in parent
+        // At the level of the child, in-memory parent still version 1
         expect(currentPersistedParentVersion()).toBe(2)
 
         child.update {
