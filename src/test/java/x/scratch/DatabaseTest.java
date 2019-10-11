@@ -24,77 +24,6 @@ class DatabaseTest {
     private final ParentRepository parents;
     private final ChildRepository children;
 
-    @Test
-    void shouldRoundTripParent() {
-        final var unsaved = newUnsavedParent();
-        final var saved = parents.upsert(unsaved);
-
-        assertThat(saved).isEqualTo(unsaved);
-        assertThat(saved.getVersion()).isEqualTo(1);
-    }
-
-    @Test
-    void shouldNotBumpVersionOnParentWithoutChanges() {
-        final var saved = newSavedParent();
-        final var resaved = parents.upsert(saved);
-
-        assertThat(resaved.getVersion()).isEqualTo(1);
-    }
-
-    @Test
-    void shouldRoundTripChild() {
-        final var unsaved = newUnsavedChild();
-        final var saved = children.upsert(unsaved);
-
-        assertThat(saved).isEqualTo(unsaved);
-        assertThat(saved.getVersion()).isEqualTo(1);
-    }
-
-    @Test
-    void shouldNotBumpVersionOnChildWithoutChanges() {
-        final var saved = newSavedChild();
-        final var resaved = children.upsert(saved);
-
-        assertThat(resaved.getVersion()).isEqualTo(1);
-    }
-
-    @Test
-    void shouldAssignChildWhenCreating() {
-        newSavedParent();
-
-        final var savedChild = children.upsert(newUnsavedChild().toBuilder()
-                .parentNaturalId(parentNaturalId)
-                .build());
-
-        assertThat(savedChild.getVersion()).isEqualTo(1);
-        assertThat(findExistingParent().getVersion()).isEqualTo(2);
-    }
-
-    @Test
-    void shouldAssignChildWhenModifying() {
-        newSavedParent();
-
-        final var savedChild = children.upsert(newUnsavedChild());
-
-        savedChild.setParentNaturalId(parentNaturalId);
-        final var updatedChild = children.upsert(savedChild);
-
-        assertThat(updatedChild.getVersion()).isEqualTo(2);
-        assertThat(findExistingParent().getVersion()).isEqualTo(2);
-    }
-
-    private ParentRecord newSavedParent() {
-        return parents.upsert(newUnsavedParent());
-    }
-
-    private ChildRecord newSavedChild() {
-        return children.upsert(newUnsavedChild());
-    }
-
-    private ParentRecord findExistingParent() {
-        return parents.findByNaturalId(parentNaturalId).orElseThrow();
-    }
-
     private static ParentRecord newUnsavedParent() {
         return ParentRecord.builder()
                 .naturalId(parentNaturalId)
@@ -105,5 +34,80 @@ class DatabaseTest {
         return ChildRecord.builder()
                 .naturalId(childNaturalId)
                 .build();
+    }
+
+    @Test
+    void shouldRoundTripParent() {
+        final var unsaved = newUnsavedParent();
+        final var saved = parents.upsert(unsaved);
+
+        assertThat(saved.getRecord()).isEqualTo(unsaved);
+        assertThat(saved.getRecord().getVersion()).isEqualTo(1);
+        assertThat(saved.isChanged()).isTrue();
+    }
+
+    @Test
+    void shouldNotBumpVersionOnParentWithoutChanges() {
+        final var saved = newSavedParent();
+        final var resaved = parents.upsert(saved);
+
+        assertThat(resaved.getRecord().getVersion()).isEqualTo(1);
+        assertThat(resaved.isChanged()).isFalse();
+    }
+
+    @Test
+    void shouldRoundTripChild() {
+        final var unsaved = newUnsavedChild();
+        final var saved = children.upsert(unsaved);
+
+        assertThat(saved.getRecord()).isEqualTo(unsaved);
+        assertThat(saved.getRecord().getVersion()).isEqualTo(1);
+        assertThat(saved.isChanged()).isTrue();
+    }
+
+    @Test
+    void shouldNotBumpVersionOnChildWithoutChanges() {
+        final var saved = newSavedChild();
+        final var resaved = children.upsert(saved);
+
+        assertThat(resaved.getRecord().getVersion()).isEqualTo(1);
+        assertThat(resaved.isChanged()).isFalse();
+    }
+
+    @Test
+    void shouldAssignChildWhenCreating() {
+        newSavedParent();
+
+        final var savedChild = children.upsert(newUnsavedChild().toBuilder()
+                .parentNaturalId(parentNaturalId)
+                .build());
+
+        assertThat(savedChild.getRecord().getVersion()).isEqualTo(1);
+        assertThat(findExistingParent().getVersion()).isEqualTo(2);
+    }
+
+    @Test
+    void shouldAssignChildWhenModifying() {
+        newSavedParent();
+
+        final var savedChild = children.upsert(newUnsavedChild());
+
+        savedChild.getRecord().setParentNaturalId(parentNaturalId);
+        final var updatedChild = children.upsert(savedChild.getRecord());
+
+        assertThat(updatedChild.getRecord().getVersion()).isEqualTo(2);
+        assertThat(findExistingParent().getVersion()).isEqualTo(2);
+    }
+
+    private ParentRecord newSavedParent() {
+        return parents.upsert(newUnsavedParent()).getRecord();
+    }
+
+    private ChildRecord newSavedChild() {
+        return children.upsert(newUnsavedChild()).getRecord();
+    }
+
+    private ParentRecord findExistingParent() {
+        return parents.findByNaturalId(parentNaturalId).orElseThrow();
     }
 }

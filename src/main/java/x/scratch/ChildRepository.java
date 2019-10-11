@@ -21,11 +21,9 @@ public interface ChildRepository extends CrudRepository<ChildRecord, Long> {
             @Param("subchildren") final String subchildren,
             @Param("version") final Integer version);
 
-    default ChildRecord upsert(final ChildRecord entity) {
+    default UpsertResult<ChildRecord> upsert(final ChildRecord entity) {
         final var upserted = upsert(entity.getNaturalId(), entity.getParentNaturalId(),
                 entity.getValue(), entity.getSubchildren(), entity.getVersion());
-        return null == upserted // Null means no change
-                ? entity
-                : entity.updateWith(upserted);
+        return UpsertResult.of(entity, upserted);
     }
 }

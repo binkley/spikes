@@ -9,14 +9,14 @@ import org.springframework.data.relational.core.mapping.Table;
 @Builder(toBuilder = true)
 @Data
 @Table("parent")
-public class ParentRecord {
+public class ParentRecord implements UpsertableRecord<ParentRecord> {
     @Id
     private Long id;
-    @NonNull
-    private String naturalId;
+    private @NonNull String naturalId;
     private String value;
     private Integer version;
 
+    @Override
     public ParentRecord updateWith(final ParentRecord upserted) {
         id = upserted.id;
         naturalId = upserted.naturalId;
