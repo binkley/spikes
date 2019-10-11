@@ -160,7 +160,7 @@ AS
 $$
 BEGIN
     UPDATE parent
-       SET updated_at = now() -- Fire the UPDATE trigger of parent, to update audit/version
+       SET updated_at = now() + INTERVAL '1 millisecond'
      WHERE natural_id = new.parent_natural_id;
 
     RETURN new;
@@ -174,7 +174,7 @@ AS
 $$
 BEGIN
     UPDATE parent
-       SET updated_at = now() -- Fire the UPDATE trigger of parent, to update audit/version
+       SET updated_at = now() + INTERVAL '1 millisecond'
      WHERE natural_id IN (old.parent_natural_id, new.parent_natural_id);
 
     RETURN new;
@@ -188,7 +188,7 @@ AS
 $$
 BEGIN
     UPDATE parent
-       SET updated_at = now() -- Fire the UPDATE trigger of parent, to update audit/version
+       SET updated_at = now() + INTERVAL '1 millisecond'
      WHERE natural_id = old.parent_natural_id;
 
     RETURN old;
