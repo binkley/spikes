@@ -138,18 +138,22 @@ class ChildPersistenceTest @Autowired constructor(
         }
 
         val parent = newSavedParent()
+        val child = newUnsavedChild().save()
+
+        expect(child.parentNaturalId).toBe(null)
+        expect(child.version).toBe(1)
+        expect(currentPersistedVersion()).toBe(1)
         expect(parent.version).toBe(1)
         expect(currentPersistedParentVersion()).toBe(1)
 
-        val child = newUnsavedChild().update {
-            assignTo(parent)
+        parent.update {
+            assign(child)
         }.save()
 
         expect(child.parentNaturalId).toBe(parentNaturalId)
-        expect(child.version).toBe(1)
-        expect(currentPersistedVersion()).toBe(1)
-        // TODO: This needs to be handled at domain level in parent
-        // At the level of the child, in-memory parent still version 1
+        expect(child.version).toBe(2)
+        expect(currentPersistedVersion()).toBe(2)
+        // TODO: expect(parent.version).toBe(2)
         expect(currentPersistedParentVersion()).toBe(2)
 
         child.update {
@@ -159,15 +163,17 @@ class ChildPersistenceTest @Autowired constructor(
         expect(child.parentNaturalId).toBe(parentNaturalId)
         expect(child.version).toBe(2)
         expect(currentPersistedVersion()).toBe(2)
+        expect(parent.version).toBe(3) // TODO: should fail, for now
         expect(currentPersistedParentVersion()).toBe(3)
 
-        child.update {
-            unassignFromAny()
+        parent.update {
+            unassign(child)
         }.save()
 
         expect(child.parentNaturalId).toBe(null)
         expect(child.version).toBe(3)
         expect(currentPersistedVersion()).toBe(3)
+        expect(parent.version).toBe(4)
         expect(currentPersistedParentVersion()).toBe(4)
     }
 

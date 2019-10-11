@@ -24,7 +24,10 @@ interface MutableParentDetails
     override var value: String?
 }
 
-interface MutableParent : MutableParentDetails
+interface MutableParent : MutableParentDetails {
+    fun assign(child: Child)
+    fun unassign(child: Child)
+}
 
 interface Parent : ParentDetails,
         ScopedMutation<Parent, MutableParent>,

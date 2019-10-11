@@ -102,7 +102,21 @@ internal class PersistedParent(
 
 internal data class PersistedMutableParent(private val record: ParentRecord)
     : MutableParent,
-        MutableParentDetails by record
+        MutableParentDetails by record {
+    override fun assign(child: Child) {
+        // TODO: Keep collection of children; save children when saving parent
+        child.update {
+            assignTo(this@PersistedMutableParent)
+        }.save()
+    }
+
+    override fun unassign(child: Child) {
+        // TODO: Keep collection of children; save children when saving parent
+        child.update {
+            unassignFromAny()
+        }.save()
+    }
+}
 
 interface ParentRepository : CrudRepository<ParentRecord, Long> {
     @Query("""

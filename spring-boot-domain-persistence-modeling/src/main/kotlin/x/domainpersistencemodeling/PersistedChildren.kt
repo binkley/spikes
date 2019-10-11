@@ -128,7 +128,7 @@ internal data class PersistedMutableChild(private val record: ChildRecord)
                     ::resetSubchildrenToPreserveSorting,
                     ::resetSubchildrenToPreserveSorting)
 
-    override fun assignTo(parent: Parent) = run {
+    override fun assignTo(parent: ParentDetails) = run {
         record.parentNaturalId = parent.naturalId
     }
 

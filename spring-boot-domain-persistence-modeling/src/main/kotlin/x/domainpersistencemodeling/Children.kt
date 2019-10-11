@@ -32,7 +32,7 @@ interface MutableChildDetails
 }
 
 interface MutableChild : MutableChildDetails {
-    fun assignTo(parent: Parent)
+    fun assignTo(parent: ParentDetails)
     fun unassignFromAny()
 }
 
