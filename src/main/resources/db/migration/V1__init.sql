@@ -10,15 +10,14 @@ CREATE TABLE parent
 
 CREATE TABLE child
 (
-    id          SERIAL PRIMARY KEY,
-    natural_id  VARCHAR NOT NULL UNIQUE,
-    -- TODO: Better/shorter/simpler Java code if natural key, not surrogate key
-    parent_id   INT REFERENCES parent (id), -- Nullable
-    value       VARCHAR,
-    subchildren JSON    NOT NULL,
-    version     INT,
-    created_at  TIMESTAMP,
-    updated_at  TIMESTAMP
+    id                SERIAL PRIMARY KEY,
+    natural_id        VARCHAR NOT NULL UNIQUE,
+    parent_natural_id VARCHAR REFERENCES parent (natural_id), -- Nullable
+    value             VARCHAR,
+    subchildren       JSON    NOT NULL,
+    version           INT,
+    created_at        TIMESTAMP,
+    updated_at        TIMESTAMP
 );
 
 CREATE OR REPLACE FUNCTION upsert_parent(_natural_id parent.natural_id%TYPE,
@@ -30,9 +29,6 @@ CREATE OR REPLACE FUNCTION upsert_parent(_natural_id parent.natural_id%TYPE,
 AS
 $$
 BEGIN
-    RAISE NOTICE 'UPSERT PARENT -- natural_id: %; value: %; version: %',
-        _natural_id, _value, _version;
-
     RETURN QUERY INSERT INTO parent
         (natural_id, value, version)
         VALUES
@@ -40,6 +36,27 @@ BEGIN
         ON CONFLICT (natural_id) DO UPDATE
             SET (value, version)
                 = (excluded.value, excluded.version)
+        RETURNING *;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION upsert_child(_natural_id child.natural_id%TYPE,
+                                        _parent_natural_id child.parent_natural_id%TYPE,
+                                        _value child.value%TYPE,
+                                        _version child.version%TYPE)
+    RETURNS SETOF CHILD
+    ROWS 1
+    LANGUAGE plpgsql
+AS
+$$
+BEGIN
+    RETURN QUERY INSERT INTO child
+        (natural_id, parent_natural_id, value, version)
+        VALUES
+            (_natural_id, _parent_natural_id, _value, _version)
+        ON CONFLICT (natural_id) DO UPDATE
+            SET (parent_natural_id, value, version)
+                = (excluded.parent_natural_id, excluded.value, excluded.version)
         RETURNING *;
 END;
 $$;
@@ -65,8 +82,6 @@ $$
 DECLARE
     now TIMESTAMP DEFAULT now();
 BEGIN
-    RAISE NOTICE 'INSERT PARENT AUDIT -- NEW: %', new;
-
     -- While running upsert do on conflict, both insert and update triggers are fired
     -- Check for this case, and do not overwrite the existing audit columns
     -- When an existing row, the update trigger will handle everything
@@ -94,8 +109,6 @@ $$
 DECLARE
     now TIMESTAMP DEFAULT now();
 BEGIN
-    RAISE NOTICE 'INSERT CHILD AUDIT -- NEW: %', new;
-
     -- While running upsert do on conflict, both insert and update triggers are fired
     -- Check for this case, and do not overwrite the existing audit columns
     -- When an existing row, the update trigger will handle everything
@@ -120,8 +133,6 @@ DECLARE
     old_hash VARCHAR;
     new_hash VARCHAR;
 BEGIN
-    RAISE NOTICE 'UPDATE AUDIT -- NEW: %; OLD: %', new, old;
-
     old_hash := md5(CAST((old.*) AS TEXT));
     new_hash := md5(CAST((new.*) AS TEXT));
 
@@ -147,7 +158,7 @@ $$
 BEGIN
     UPDATE parent
        SET updated_at = now() -- Fire the UPDATE trigger of parent, to update audit/version
-     WHERE id = new.parent_id;
+     WHERE natural_id = new.parent_natural_id;
 
     RETURN new;
 END;
@@ -166,7 +177,7 @@ BEGIN
 
     UPDATE parent
        SET updated_at = now() -- Fire the UPDATE trigger of parent, to update audit/version
-     WHERE id IN (old.parent_id, new.parent_id);
+     WHERE natural_id IN (old.parent_natural_id, new.parent_natural_id);
 
     RETURN new;
 END;
@@ -180,7 +191,7 @@ $$
 BEGIN
     UPDATE parent
        SET updated_at = now() -- Fire the UPDATE trigger of parent, to update audit/version
-     WHERE id = old.parent_id;
+     WHERE natural_id = old.parent_natural_id;
 
     RETURN old;
 END;

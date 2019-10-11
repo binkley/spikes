@@ -36,16 +36,18 @@ UPDATE parent -- Should be ignored: No change; audit columns should remain the s
    SET value = 'FOO!'
  WHERE natural_id = 'a';
 
+----
+
 INSERT INTO child(natural_id, subchildren) -- unassigned
 VALUES
     ('p', '[]');
 
 UPDATE child -- assign
-   SET parent_id = (SELECT id FROM parent WHERE natural_id = 'a') -- ID is 1
+   SET parent_natural_id = 'a'
  WHERE natural_id = 'p';
 
 UPDATE child -- reassign
-   SET parent_id = (SELECT id FROM parent WHERE natural_id = 'b') -- ID is 2
+   SET parent_natural_id = 'b'
  WHERE natural_id = 'p';
 
 UPDATE child
