@@ -1,1 +1,1 @@
-src/main/resources/schema.sql
+src/main/resources/db/migration/V1__init.sql

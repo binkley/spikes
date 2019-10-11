@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.jdbc.DataJdbcTest;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
 @AutoConfigureTestDatabase(replace = NONE)
@@ -16,5 +17,12 @@ class DatabaseTest {
 
     @Test
     void shouldRoundTripParent() {
+        final var unsaved = ParentRecord.builder()
+                .naturalId("a")
+                .build();
+        final var saved = parents.save(unsaved);
+
+        assertThat(saved).isEqualTo(unsaved);
+        assertThat(saved.getVersion()).isEqualTo(1);
     }
 }
