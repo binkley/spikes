@@ -6,7 +6,7 @@ import lombok.NonNull;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
-@Builder
+@Builder(toBuilder = true)
 @Data
 @Table("child")
 public class ChildRecord {
