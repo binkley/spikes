@@ -7,8 +7,6 @@ import org.springframework.data.relational.core.mapping.Table
 import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Component
-import java.time.Instant
-import java.time.Instant.EPOCH
 import java.util.Objects
 import java.util.Optional
 import java.util.TreeSet
@@ -28,7 +26,7 @@ internal open class PersistedChildFactory(
             }
 
     override fun createNew(naturalId: String): Child =
-            PersistedChild(null, ChildRecord(naturalId, null), this)
+            PersistedChild(null, ChildRecord(naturalId, null, setOf()), this)
 
     override fun findExistingOrCreateNew(
             naturalId: String): Child =
@@ -169,11 +167,10 @@ data class ChildRecord(
         override var parentNaturalId: String?,
         override var value: String?,
         override val subchildren: MutableSet<String>,
-        override val version: Int,
-        val createdAt: Instant,
-        val updatedAt: Instant) :
+        override val version: Int) :
         MutableChildDetails {
-    internal constructor(naturalId: String, parentNaturalId: String?)
-            : this(null, naturalId, parentNaturalId, null, mutableSetOf(),
-            0, EPOCH, EPOCH)
+    internal constructor(naturalId: String, parentNaturalId: String?,
+            subchildren: Set<String>)
+            : this(null, naturalId, parentNaturalId, null,
+            subchildren.toMutableSet(), 0)
 }

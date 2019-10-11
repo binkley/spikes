@@ -48,31 +48,42 @@ class ChildPersistenceTest @Autowired constructor(
 
     @Test
     fun shouldRoundTripSubchildren() {
-        val unsaved = newUnsavedChild()
-        unsaved.update {
+        fun currentPersistedSubchildren() =
+                children.findExisting(naturalId)!!.subchildren
+
+        var saved = newUnsavedChild().update {
             subchildren.addAll(listOf("MOAT", "BAT"))
-        }
-        var saved = unsaved.save()
+        }.save()
 
-        var found = children.findExisting(saved.naturalId)!!
-        expect(found.subchildren).containsExactly("BAT", "MOAT")
+        expect(saved.version).toBe(1)
+        expect(currentPersistedVersion()).toBe(1)
+        expect(saved.subchildren).containsExactly("BAT", "MOAT")
+        expect(currentPersistedSubchildren()).containsExactly("BAT", "MOAT")
 
-        found.update {
+        saved = saved.save() // No change
+
+        expect(saved.version).toBe(1)
+        expect(currentPersistedVersion()).toBe(1)
+
+        saved = saved.update {
             subchildren.add("COW")
-        }
-        saved = found.save()
+        }.save()
 
-        found = children.findExisting(saved.naturalId)!!
-        expect(found.subchildren).containsExactly("BAT", "COW", "MOAT")
+        expect(saved.version).toBe(2)
+        expect(currentPersistedVersion()).toBe(2)
+        expect(saved.subchildren).containsExactly("BAT", "COW", "MOAT")
+        expect(currentPersistedSubchildren())
+                .containsExactly("BAT", "COW", "MOAT")
 
-        found.update {
+        saved = saved.update {
             subchildren.clear()
             subchildren.add("NANCY")
-        }
-        saved = found.save()
+        }.save()
 
-        found = children.findExisting(saved.naturalId)!!
-        expect(found.subchildren).containsExactly("NANCY")
+        expect(saved.version).toBe(3)
+        expect(currentPersistedVersion()).toBe(3)
+        expect(saved.subchildren).containsExactly("NANCY")
+        expect(currentPersistedSubchildren()).containsExactly("NANCY")
     }
 
     @Test
@@ -120,36 +131,44 @@ class ChildPersistenceTest @Autowired constructor(
 
     @Test
     fun shouldIncrementParentVersionWhenChildrenChange() {
-        fun currentParentVersion(): Int {
+        fun currentPersistedParentVersion(): Int {
             val found = parents.findExisting(parentNaturalId)
             println("PARENT found = ${found}")
             return found!!.version
         }
 
         val parent = newSavedParent()
-        expect(currentParentVersion()).toBe(1)
+        expect(parent.version).toBe(1)
+        expect(currentPersistedParentVersion()).toBe(1)
 
         val child = newUnsavedChild().update {
             assignTo(parent)
         }.save()
 
+        expect(child.parentNaturalId).toBe(parentNaturalId)
         expect(child.version).toBe(1)
-        // TODO: Why is parent still version 1?
-        expect(currentParentVersion()).toBe(2)
+        expect(currentPersistedVersion()).toBe(1)
+        // At the level of the child, in-memory parent still version 1
+        // TODO: This needs to be handled at domain level in parent
+        expect(currentPersistedParentVersion()).toBe(2)
 
         child.update {
             value = "Elephant"
         }.save()
 
+        expect(child.parentNaturalId).toBe(parentNaturalId)
         expect(child.version).toBe(2)
-        expect(currentParentVersion()).toBe(3)
+        expect(currentPersistedVersion()).toBe(2)
+        expect(currentPersistedParentVersion()).toBe(3)
 
         child.update {
             unassignFromAny()
         }.save()
 
+        expect(child.parentNaturalId).toBe(null)
         expect(child.version).toBe(3)
-        expect(currentParentVersion()).toBe(4)
+        expect(currentPersistedVersion()).toBe(3)
+        expect(currentPersistedParentVersion()).toBe(4)
     }
 
     private fun newUnsavedChild() =
@@ -157,4 +176,7 @@ class ChildPersistenceTest @Autowired constructor(
 
     private fun newSavedParent() =
             parents.findExistingOrCreateNew(parentNaturalId).save()
+
+    private fun currentPersistedVersion() =
+            children.findExisting(naturalId)!!.version
 }

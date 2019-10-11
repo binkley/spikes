@@ -7,8 +7,6 @@ import org.springframework.data.relational.core.mapping.Table
 import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Component
-import java.time.Instant
-import java.time.Instant.EPOCH
 import java.util.Objects
 import java.util.Optional
 
@@ -120,10 +118,8 @@ data class ParentRecord(
         @Id val id: Long?,
         override val naturalId: String,
         override var value: String?,
-        override val version: Int,
-        val createdAt: Instant,
-        val updatedAt: Instant)
+        override val version: Int)
     : MutableParentDetails {
     internal constructor(naturalId: String)
-            : this(null, naturalId, null, 0, EPOCH, EPOCH)
+            : this(null, naturalId, null, 0)
 }

@@ -7,7 +7,7 @@
 #      JdbcTemplate: DEBUG
 #      StatementCreatorUtils: TRACE
 #    org.springframework.jdbc.datasource:
-#      DataSourceTransactionManager: TRACE
+#      DataSourceTransactionManager: DEBUG
 
 logging:
   level:
