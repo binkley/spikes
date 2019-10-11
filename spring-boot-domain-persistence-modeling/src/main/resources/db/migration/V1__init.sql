@@ -231,19 +231,19 @@ CREATE TRIGGER b_update_child_audit_t
 EXECUTE PROCEDURE update_audit_f();
 
 CREATE TRIGGER c_insert_child_update_parent_t
-    AFTER INSERT
+    BEFORE INSERT
     ON child
     FOR EACH ROW
 EXECUTE PROCEDURE insert_child_update_parent_f();
 
 CREATE TRIGGER c_update_child_update_parent_t
-    AFTER UPDATE
+    BEFORE UPDATE
     ON child
     FOR EACH ROW
 EXECUTE PROCEDURE update_child_update_parent_f();
 
 CREATE TRIGGER c_delete_child_update_parent_t
-    AFTER DELETE
+    BEFORE DELETE
     ON child
     FOR EACH ROW
 EXECUTE PROCEDURE delete_child_update_parent_f();
