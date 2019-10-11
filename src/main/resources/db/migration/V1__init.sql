@@ -14,7 +14,7 @@ CREATE TABLE child
     natural_id        VARCHAR NOT NULL UNIQUE,
     parent_natural_id VARCHAR REFERENCES parent (natural_id), -- Nullable
     value             VARCHAR,
-    subchildren       VARCHAR NOT NULL, -- TODO: JSON or ARRAY
+    subchildren       VARCHAR NOT NULL,                       -- TODO: JSON or ARRAY
     version           INT,
     created_at        TIMESTAMP,
     updated_at        TIMESTAMP
@@ -140,7 +140,7 @@ BEGIN
     new_hash := md5(CAST((new.*) AS TEXT));
 
     IF (old_hash = new_hash) THEN
-        RETURN NEW; -- Skip bumping version number if no changes
+        RETURN NULL; -- Bail out of update if no changes
     END IF;
 
     IF (new.version <> old.version) THEN
@@ -173,11 +173,6 @@ CREATE OR REPLACE FUNCTION update_child_update_parent_f()
 AS
 $$
 BEGIN
-    -- No longer skip reset of triggers when no delta
-    IF new.version = old.version THEN
-        RETURN new;
-    END IF;
-
     UPDATE parent
        SET updated_at = now() -- Fire the UPDATE trigger of parent, to update audit/version
      WHERE natural_id IN (old.parent_natural_id, new.parent_natural_id);

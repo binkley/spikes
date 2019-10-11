@@ -28,6 +28,9 @@ class DatabaseTest {
 
         assertThat(saved).isEqualTo(unsaved);
         assertThat(saved.getVersion()).isEqualTo(1);
+
+        // No changes
+        assertThat(parents.upsert(saved).getVersion()).isEqualTo(1);
     }
 
     @Test
@@ -39,5 +42,32 @@ class DatabaseTest {
 
         assertThat(saved).isEqualTo(unsaved);
         assertThat(saved.getVersion()).isEqualTo(1);
+
+        // No changes
+        assertThat(children.upsert(saved).getVersion()).isEqualTo(1);
+    }
+
+    @Test
+    void shouldAssignChild() {
+        final var unsavedParent = ParentRecord.builder()
+                .naturalId("a")
+                .build();
+        final var savedParent = parents.upsert(unsavedParent);
+        final var unsavedChild = ChildRecord.builder()
+                .naturalId("p")
+                .build();
+        final var savedChild = children.upsert(unsavedChild);
+
+        assertThat(savedParent.getVersion()).isEqualTo(1);
+
+        savedChild.setParentNaturalId(savedParent.getNaturalId());
+        final var updatedChild = children.upsert(savedChild);
+
+        assertThat(updatedChild).isEqualTo(savedChild);
+        assertThat(updatedChild.getVersion()).isEqualTo(2);
+
+        final var foundParent = parents.findByNaturalId(savedParent.getNaturalId()).orElseThrow();
+
+        assertThat(foundParent.getVersion()).isEqualTo(2);
     }
 }
