@@ -16,6 +16,10 @@ public class ParentRecord implements UpsertableRecord<ParentRecord> {
     private String value;
     private Integer version;
 
+    static ParentRecord createRecordFor(final String naturalId) {
+        return new ParentRecord(null, naturalId, null, 0);
+    }
+
     @Override
     public ParentRecord updateWith(final ParentRecord upserted) {
         id = upserted.id;
