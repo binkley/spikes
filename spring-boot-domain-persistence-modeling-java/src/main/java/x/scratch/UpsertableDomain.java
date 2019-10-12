@@ -2,8 +2,11 @@ package x.scratch;
 
 import lombok.Value;
 
-public interface UpsertableDomain<Domain extends UpsertableDomain<Domain>>
-        extends Persisted {
+public interface UpsertableDomain<Domain extends UpsertableDomain<Domain>> {
+    boolean isExisting();
+
+    int getVersion();
+
     UpsertedDomainResult<Domain> save();
 
     void delete();

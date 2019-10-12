@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
-import x.scratch.UpsertableRecord;
+import x.scratch.UpsertableRecord.UpsertRecordResult;
 
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -45,9 +45,9 @@ public final class PersistedParentFactory implements ParentFactory {
         return null;
     }
 
-    UpsertableRecord.UpsertRecordResult<ParentRecord> save(final ParentRecord record) {
+    UpsertRecordResult<ParentRecord> save(final ParentRecord record) {
         final var upserted = repository.upsert(record);
-        return UpsertableRecord.UpsertRecordResult.of(record, upserted);
+        return UpsertRecordResult.of(record, upserted);
     }
 
     void delete(final ParentRecord record) {
