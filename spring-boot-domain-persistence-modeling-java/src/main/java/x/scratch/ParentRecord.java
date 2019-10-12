@@ -14,7 +14,7 @@ public class ParentRecord implements UpsertableRecord<ParentRecord> {
     private Long id;
     private @NonNull String naturalId;
     private String value;
-    private Integer version;
+    private int version;
 
     static ParentRecord createRecordFor(final String naturalId) {
         return new ParentRecord(null, naturalId, null, 0);

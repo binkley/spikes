@@ -16,9 +16,7 @@ public interface UpsertableRecord<Record extends UpsertableRecord<Record>> {
 
         public static <Record extends UpsertableRecord<Record>> UpsertRecordResult<Record> of(
                 final Record entity, final Record upserted) {
-            return null == upserted
-                    ? new UpsertRecordResult<>(entity, false)
-                    : new UpsertRecordResult<>(entity.updateWith(upserted), true);
+            return new UpsertRecordResult<>(entity, null != upserted);
         }
     }
 }

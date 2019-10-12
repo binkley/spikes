@@ -18,7 +18,7 @@ public class ChildRecord implements UpsertableRecord<ChildRecord> {
     @Builder.Default
     @SuppressWarnings("UnusedAssignment")
     private String subchildren = "[]";
-    private Integer version;
+    private int version;
 
     @Override
     public ChildRecord updateWith(final ChildRecord upserted) {
