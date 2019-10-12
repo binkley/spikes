@@ -47,4 +47,16 @@ class PersistedParentTest {
 
         assertThat(resaved).isEqualTo(UpsertedDomainResult.of(original, false));
     }
+
+    @Test
+    void shouldMutate() {
+        final var original = parents.createNew(naturalId).save().getDomain();
+
+        final var modified = original.update(it -> {
+            it.setValue("FOOBAR");
+        });
+
+        assertThat(modified).isEqualTo(original);
+        assertThat(original.getValue()).isEqualTo("FOOBAR");
+    }
 }
