@@ -7,17 +7,12 @@ import ch.tutteli.atrium.verbs.expect
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.data.jdbc.DataJdbcTest
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE
-import org.springframework.context.annotation.Import
+import org.springframework.boot.test.context.SpringBootTest
 
 @AutoConfigureTestDatabase(replace = NONE)
-@DataJdbcTest
-@Import(value = [
-    PersistedChildFactory::class,
-    PersistedParentFactory::class,
-    TestListener::class])
+@SpringBootTest
 class ChildPersistenceTest @Autowired constructor(
         private val children: ChildFactory,
         private val parents: ParentFactory,
@@ -36,6 +31,8 @@ class ChildPersistenceTest @Autowired constructor(
     fun shouldRoundTrip() {
         val unsaved = newUnsavedChild()
         val saved = unsaved.save()
+
+        expect(saved.version).toBe(1)
 
         val found = children.findExisting(saved.naturalId)
 
@@ -91,7 +88,11 @@ class ChildPersistenceTest @Autowired constructor(
         val unsaved = newUnsavedChild()
         val saved = unsaved.save()
 
+        expect(saved.version).toBe(1)
+
         saved.delete()
+
+        expect { saved.version }.toThrow<java.lang.NullPointerException> {}
 
         val found = children.findExisting(naturalId)
 

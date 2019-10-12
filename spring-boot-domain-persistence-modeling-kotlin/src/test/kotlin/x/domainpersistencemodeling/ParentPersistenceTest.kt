@@ -7,14 +7,12 @@ import ch.tutteli.atrium.verbs.expect
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.data.jdbc.DataJdbcTest
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE
-import org.springframework.context.annotation.Import
+import org.springframework.boot.test.context.SpringBootTest
 
 @AutoConfigureTestDatabase(replace = NONE)
-@DataJdbcTest
-@Import(value = [PersistedParentFactory::class, TestListener::class])
+@SpringBootTest
 internal class ParentPersistenceTest @Autowired constructor(
         private val parents: ParentFactory,
         private val testListener: TestListener<ParentChangedEvent>) {

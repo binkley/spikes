@@ -53,11 +53,13 @@ AS
 $$
 BEGIN
     RETURN QUERY INSERT INTO child
-        (natural_id, parent_natural_id, value, subchildren, version)
+        (natural_id, parent_natural_id, value, subchildren,
+         version)
         VALUES (_natural_id, _parent_natural_id, _value, _subchildren,
                 _version)
         ON CONFLICT (natural_id) DO UPDATE
-            SET (parent_natural_id, value, subchildren, version)
+            SET (parent_natural_id, value, subchildren,
+                 version)
                 = (excluded.parent_natural_id, excluded.value,
                    excluded.subchildren,
                    excluded.version)
@@ -93,6 +95,11 @@ BEGIN
     PERFORM * FROM parent WHERE natural_id = new.natural_id;
     IF FOUND THEN
         RETURN new;
+    END IF;
+
+    IF new.version IS NOT NULL THEN
+        RAISE 'New rows should not provide a version: %.%: NEW: %',
+            TG_TABLE_SCHEMA, TG_TABLE_NAME, new;
     END IF;
 
     new.version := 1;
@@ -134,16 +141,11 @@ DECLARE
     old_hash VARCHAR;
     new_hash VARCHAR;
 BEGIN
-    IF new.version IS NULL THEN
-        new.version = old.version;
-    END IF;
-
     old_hash := md5(CAST((old.*) AS TEXT));
     new_hash := md5(CAST((new.*) AS TEXT));
 
     IF (old_hash = new_hash) THEN
-        -- TODO: RETURN new?  Child update trigger skip if version unchanged
-        RETURN NULL; -- Ignore the update, stop processing triggers
+        RETURN NULL; -- Bail out of update if no changes
     END IF;
 
     IF (new.version <> old.version) THEN
@@ -165,6 +167,7 @@ BEGIN
     UPDATE parent
     SET updated_at = now() + INTERVAL '1 millisecond'
     WHERE natural_id = new.parent_natural_id;
+
     RETURN new;
 END;
 $$;
@@ -178,6 +181,7 @@ BEGIN
     UPDATE parent
     SET updated_at = now() + INTERVAL '1 millisecond'
     WHERE natural_id IN (old.parent_natural_id, new.parent_natural_id);
+
     RETURN new;
 END;
 $$;
@@ -191,6 +195,7 @@ BEGIN
     UPDATE parent
     SET updated_at = now() + INTERVAL '1 millisecond'
     WHERE natural_id = old.parent_natural_id;
+
     RETURN old;
 END;
 $$;
@@ -232,19 +237,19 @@ CREATE TRIGGER b_update_child_audit_t
 EXECUTE PROCEDURE update_audit_f();
 
 CREATE TRIGGER c_insert_child_update_parent_t
-    BEFORE INSERT
+    AFTER INSERT
     ON child
     FOR EACH ROW
 EXECUTE PROCEDURE insert_child_update_parent_f();
 
 CREATE TRIGGER c_update_child_update_parent_t
-    BEFORE UPDATE
+    AFTER UPDATE
     ON child
     FOR EACH ROW
 EXECUTE PROCEDURE update_child_update_parent_f();
 
 CREATE TRIGGER c_delete_child_update_parent_t
-    BEFORE DELETE
+    AFTER DELETE
     ON child
     FOR EACH ROW
 EXECUTE PROCEDURE delete_child_update_parent_f();
