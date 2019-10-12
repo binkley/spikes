@@ -31,7 +31,6 @@ internal open class PersistedParentFactory(
             naturalId: String): Parent =
             findExisting(naturalId) ?: createNew(naturalId)
 
-    // TODO: Refetch to see changes in audit columns
     internal fun save(record: ParentRecord) =
             repository.findById(repository.save(record).id!!).get()
 
@@ -80,7 +79,7 @@ internal class PersistedParent(
         val after = null
         factory.delete(record!!)
         record = null
-        snapshot = null
+        snapshot = after
         factory.notifyChanged(before, after)
     }
 
