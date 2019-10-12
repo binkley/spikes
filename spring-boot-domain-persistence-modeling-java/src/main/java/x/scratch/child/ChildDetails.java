@@ -1,10 +1,12 @@
-package x.scratch.parent;
+package x.scratch.child;
 
 import javax.annotation.Nonnull;
 
-public interface ParentDetails {
+public interface ChildDetails {
     @Nonnull
     String getNaturalId();
+
+    String getParentNaturalId();
 
     String getValue();
 

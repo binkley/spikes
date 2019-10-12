@@ -10,7 +10,8 @@ import x.scratch.UpsertableRecord;
 @Builder(toBuilder = true)
 @Data
 @Table("child")
-public class ChildRecord implements UpsertableRecord<ChildRecord> {
+public class ChildRecord implements ChildDetails,
+        UpsertableRecord<ChildRecord> {
     @Id
     private Long id;
     private @NonNull String naturalId;
@@ -20,6 +21,10 @@ public class ChildRecord implements UpsertableRecord<ChildRecord> {
     @SuppressWarnings("UnusedAssignment")
     private String subchildren = "[]";
     private int version;
+
+    static ChildRecord createRecordFor(final String naturalId) {
+        return new ChildRecord(null, naturalId, null, null, "[]", 0);
+    }
 
     @Override
     public ChildRecord updateWith(final ChildRecord upserted) {

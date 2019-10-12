@@ -1,4 +1,4 @@
-package x.scratch.parent;
+package x.scratch.child;
 
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
@@ -9,7 +9,7 @@ import lombok.experimental.Delegate;
 @EqualsAndHashCode
 @RequiredArgsConstructor
 @ToString
-public final class PersistedMutableParent implements MutableParent {
-    @Delegate(types = MutableParent.class)
-    private final @NonNull ParentRecord record;
+public final class PersistedMutableChild implements MutableChild {
+    @Delegate(types = MutableChild.class)
+    private final @NonNull ChildRecord record;
 }
