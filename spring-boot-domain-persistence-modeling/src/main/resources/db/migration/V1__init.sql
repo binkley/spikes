@@ -72,7 +72,8 @@ AS
 $$
 BEGIN
     IF (new.natural_id <> old.natural_id) THEN
-        RAISE 'Cannot change the natural key';
+        RAISE 'Cannot change the natural key: %.%: NEW: %; OLD: %',
+            TG_TABLE_SCHEMA, TG_TABLE_NAME, new, old;
     END IF;
     RETURN new;
 END;
@@ -146,7 +147,7 @@ BEGIN
     END IF;
 
     IF (new.version <> old.version) THEN
-        RAISE 'Outdated: NEW: %, OLD: %', new, old;
+        RAISE 'Outdated: %.%: NEW: %; OLD: %', TG_TABLE_SCHEMA, TG_TABLE_NAME, new, old;
     END IF;
 
     new.version := old.version + 1;
