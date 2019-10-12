@@ -1,4 +1,4 @@
-package x.scratch;
+package x.scratch.parent;
 
 import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.CrudRepository;

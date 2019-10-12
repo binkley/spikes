@@ -1,4 +1,4 @@
-package x.scratch;
+package x.scratch.parent;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;

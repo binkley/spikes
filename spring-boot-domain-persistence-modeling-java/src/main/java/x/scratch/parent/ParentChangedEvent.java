@@ -1,7 +1,8 @@
-package x.scratch;
+package x.scratch.parent;
 
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import x.scratch.DomainChangedEvent;
 
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)

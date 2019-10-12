@@ -1,4 +1,4 @@
-package x.scratch;
+package x.scratch.parent;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
+import x.scratch.TestListener;
 import x.scratch.UpsertableDomain.UpsertedDomainResult;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -1,4 +1,4 @@
-package x.scratch;
+package x.scratch.parent;
 
 import java.util.Optional;
 import java.util.stream.Stream;

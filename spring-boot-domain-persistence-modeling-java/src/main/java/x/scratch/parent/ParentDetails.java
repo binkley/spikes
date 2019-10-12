@@ -1,4 +1,4 @@
-package x.scratch;
+package x.scratch.parent;
 
 public interface ParentDetails {
     String getNaturalId();

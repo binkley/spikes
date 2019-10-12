@@ -1,16 +1,17 @@
-package x.scratch;
+package x.scratch.parent;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
+import x.scratch.UpsertableRecord;
 
 import java.util.Optional;
 import java.util.stream.Stream;
 
 import static java.util.stream.StreamSupport.stream;
 import static x.scratch.DomainChangedEvent.notifyIfChanged;
-import static x.scratch.ParentRecord.createRecordFor;
+import static x.scratch.parent.ParentRecord.createRecordFor;
 
 @Component
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
