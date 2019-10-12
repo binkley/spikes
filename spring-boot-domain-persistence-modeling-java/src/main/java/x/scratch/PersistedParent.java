@@ -43,13 +43,14 @@ public final class PersistedParent implements Parent {
     }
 
     @Override
-    public Parent save() {
+    public UpsertedDomainResult<Parent> save() {
         final var before = snapshot;
-        record = Optional.of(record).map(factory::save).orElseThrow().getRecord();
+        final var result = Optional.of(record).map(factory::save).orElseThrow();
+        record = result.getRecord();
         final var after = toResource();
         snapshot = after;
         factory.notifyChanged(before, after);
-        return this;
+        return UpsertedDomainResult.of(this, result.isChanged());
     }
 
     @Override

@@ -2,6 +2,6 @@ package x.scratch;
 
 public interface Parent extends ParentDetails,
         ScopedMutation<Parent, MutableParent>,
-        Persisted {
+        UpsertableDomain<Parent> {
     ParentResource toResource();
 }

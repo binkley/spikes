@@ -44,10 +44,10 @@ public final class PersistedParentFactory implements ParentFactory {
         return null;
     }
 
-    UpsertResult<ParentRecord> save(final ParentRecord record) {
+    UpsertableRecord.UpsertRecordResult<ParentRecord> save(final ParentRecord record) {
         final var saved = repository.upsert(record);
         final var found = repository.findById(saved.getRecord().getId()).orElseThrow();
-        return UpsertResult.of(record, found);
+        return UpsertableRecord.UpsertRecordResult.of(record, found);
     }
 
     void delete(final ParentRecord record) {

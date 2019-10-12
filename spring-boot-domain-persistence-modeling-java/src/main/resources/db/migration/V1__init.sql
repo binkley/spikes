@@ -98,11 +98,6 @@ BEGIN
         RETURN new;
     END IF;
 
-    IF new.version IS NOT NULL THEN
-        RAISE 'New rows should not provide a version: %.%: NEW: %',
-            TG_TABLE_SCHEMA, TG_TABLE_NAME, new;
-    END IF;
-
     new.version := 1;
     new.created_at := now;
     new.updated_at := now;
