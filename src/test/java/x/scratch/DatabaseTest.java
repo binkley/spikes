@@ -92,6 +92,8 @@ class DatabaseTest {
 
         final var savedChild = children.upsert(newUnsavedChild());
 
+        assertThat(savedChild.getRecord().getVersion()).isEqualTo(1);
+
         savedChild.getRecord().setParentNaturalId(parentNaturalId);
         final var updatedChild = children.upsert(savedChild.getRecord());
 

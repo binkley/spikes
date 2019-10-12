@@ -3,6 +3,7 @@ CREATE TABLE parent
     id         SERIAL PRIMARY KEY,
     natural_id VARCHAR NOT NULL UNIQUE,
     value      VARCHAR,
+    -- DB controls Audit columns, not caller
     version    INT,
     created_at TIMESTAMP,
     updated_at TIMESTAMP
@@ -15,6 +16,7 @@ CREATE TABLE child
     parent_natural_id VARCHAR REFERENCES parent (natural_id), -- Nullable
     value             VARCHAR,
     subchildren       VARCHAR NOT NULL,                       -- TODO: JSON or ARRAY
+    -- DB controls Audit columns, not caller
     version           INT,
     created_at        TIMESTAMP,
     updated_at        TIMESTAMP
@@ -52,9 +54,11 @@ AS
 $$
 BEGIN
     RETURN QUERY INSERT INTO child
-        (natural_id, parent_natural_id, value, subchildren, version)
+        (natural_id, parent_natural_id, value, subchildren,
+         version)
         VALUES
-            (_natural_id, _parent_natural_id, _value, _subchildren, _version)
+            (_natural_id, _parent_natural_id, _value, _subchildren,
+             _version)
         ON CONFLICT (natural_id) DO UPDATE
             SET (parent_natural_id, value, subchildren,
                  version)
@@ -71,7 +75,8 @@ AS
 $$
 BEGIN
     IF (new.natural_id <> old.natural_id) THEN
-        RAISE 'Cannot change the natural key: NEW: %, OLD: %', new, old;
+        RAISE 'Cannot change the natural key: %.%: NEW: %; OLD: %',
+            TG_TABLE_SCHEMA, TG_TABLE_NAME, new, old;
     END IF;
     RETURN new;
 END;
@@ -94,7 +99,8 @@ BEGIN
     END IF;
 
     IF new.version IS NOT NULL THEN
-        RAISE 'New rows should not provide a version: %', new;
+        RAISE 'New rows should not provide a version: %.%: NEW: %',
+            TG_TABLE_SCHEMA, TG_TABLE_NAME, new;
     END IF;
 
     new.version := 1;
@@ -144,7 +150,7 @@ BEGIN
     END IF;
 
     IF (new.version <> old.version) THEN
-        RAISE 'Outdated: NEW: %, OLD: %', new, old;
+        RAISE 'Outdated: %.%: NEW: %; OLD: %', TG_TABLE_SCHEMA, TG_TABLE_NAME, new, old;
     END IF;
 
     new.version := old.version + 1;
