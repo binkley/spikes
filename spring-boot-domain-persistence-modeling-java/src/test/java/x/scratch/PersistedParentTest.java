@@ -39,4 +39,12 @@ class PersistedParentTest {
 
         assertThat(found).isEqualTo(unsaved);
     }
+
+    @Test
+    void shouldDetectNoChanges() {
+        final var original = parents.createNew(naturalId).save().getDomain();
+        final var resaved = original.save();
+
+        assertThat(resaved).isEqualTo(UpsertedDomainResult.of(original, false));
+    }
 }

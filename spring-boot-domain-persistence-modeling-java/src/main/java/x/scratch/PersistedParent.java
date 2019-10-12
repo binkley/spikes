@@ -46,6 +46,7 @@ public final class PersistedParent implements Parent {
     public UpsertedDomainResult<Parent> save() {
         final var before = snapshot;
         final var result = Optional.of(record).map(factory::save).orElseThrow();
+        System.out.println("result = " + result);
         record = result.getRecord();
         final var after = toResource();
         snapshot = after;

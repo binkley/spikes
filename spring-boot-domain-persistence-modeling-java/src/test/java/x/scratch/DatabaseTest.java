@@ -41,18 +41,20 @@ class DatabaseTest {
         final var unsaved = newUnsavedParent();
         final var saved = parents.upsert(unsaved);
 
-        assertThat(saved.getRecord()).isEqualTo(unsaved);
-        assertThat(saved.getRecord().getVersion()).isEqualTo(1);
-        assertThat(saved.isChanged()).isTrue();
+        assertThat(saved).isEqualTo(unsaved);
+        assertThat(saved.getVersion()).isEqualTo(1);
     }
 
     @Test
-    void shouldNotBumpVersionOnParentWithoutChanges() {
+    void shouldDetectNoChanges() {
         final var saved = newSavedParent();
+
+        assertThat(saved.getVersion()).isEqualTo(1);
+
         final var resaved = parents.upsert(saved);
 
-        assertThat(resaved.getRecord().getVersion()).isEqualTo(1);
-        assertThat(resaved.isChanged()).isFalse();
+        assertThat(resaved).isNull();
+        assertThat(saved.getVersion()).isEqualTo(1);
     }
 
     @Test
@@ -102,7 +104,7 @@ class DatabaseTest {
     }
 
     private ParentRecord newSavedParent() {
-        return parents.upsert(newUnsavedParent()).getRecord();
+        return parents.upsert(newUnsavedParent());
     }
 
     private ChildRecord newSavedChild() {
