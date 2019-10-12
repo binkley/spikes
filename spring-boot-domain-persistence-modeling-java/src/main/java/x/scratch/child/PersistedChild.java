@@ -3,10 +3,12 @@ package x.scratch.child;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import lombok.experimental.Delegate;
-import x.scratch.child.PersistedMutableChild;
 
+import javax.annotation.Nonnull;
+import java.util.Set;
 import java.util.function.Consumer;
+
+import static java.util.Collections.unmodifiableSet;
 
 @AllArgsConstructor
 @EqualsAndHashCode(exclude = "factory")
@@ -14,8 +16,34 @@ import java.util.function.Consumer;
 public final class PersistedChild implements Child {
     private final PersistedChildFactory factory;
     private ChildResource snapshot;
-    @Delegate(types = ChildDetails.class)
     private ChildRecord record;
+
+    @Nonnull
+    @Override
+    public String getNaturalId() {
+        return record.getNaturalId();
+    }
+
+    @Override
+    public String getParentNaturalId() {
+        return record.getParentNaturalId();
+    }
+
+    @Override
+    public String getValue() {
+        return record.getValue();
+    }
+
+    @Nonnull
+    @Override
+    public Set<String> getSubchildren() {
+        return unmodifiableSet(record.getSubchildren());
+    }
+
+    @Override
+    public int getVersion() {
+        return record.getVersion();
+    }
 
     @Override
     public boolean isExisting() {

@@ -9,6 +9,7 @@ import x.scratch.UpsertableRecord.UpsertRecordResult;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import static java.util.Collections.unmodifiableSet;
 import static java.util.stream.StreamSupport.stream;
 import static x.scratch.DomainChangedEvent.notifyIfChanged;
 import static x.scratch.child.ChildRecord.createRecordFor;
@@ -21,7 +22,8 @@ public final class PersistedChildFactory implements ChildFactory {
 
     static ChildResource toResource(final ChildRecord record) {
         return new ChildResource(record.getNaturalId(), record.getParentNaturalId(),
-                record.getValue(), record.getVersion());
+                record.getValue(), unmodifiableSet(record.getSubchildren()),
+                record.getVersion());
     }
 
     @Override

@@ -12,10 +12,10 @@ CREATE TABLE parent
 CREATE TABLE child
 (
     id                SERIAL PRIMARY KEY,
-    natural_id        VARCHAR NOT NULL UNIQUE,
+    natural_id        VARCHAR       NOT NULL UNIQUE,
     parent_natural_id VARCHAR REFERENCES parent (natural_id), -- Nullable
     value             VARCHAR,
-    subchildren       VARCHAR NOT NULL,                       -- TODO: JSON or ARRAY
+    subchildren       VARCHAR ARRAY NOT NULL,
     -- DB controls Audit columns, not caller
     version           INT,
     created_at        TIMESTAMP,
@@ -42,10 +42,11 @@ BEGIN
 END;
 $$;
 
+-- Workaround issue in Spring Data with passing sets for ARRAY types in a procedure
 CREATE OR REPLACE FUNCTION upsert_child(_natural_id child.natural_id%TYPE,
                                         _parent_natural_id child.parent_natural_id%TYPE,
                                         _value child.value%TYPE,
-                                        _subchildren child.subchildren%TYPE,
+                                        _subchildren VARCHAR,
                                         _version child.version%TYPE)
     RETURNS SETOF CHILD
     ROWS 1
@@ -57,7 +58,7 @@ BEGIN
         (natural_id, parent_natural_id, value, subchildren,
          version)
         VALUES
-            (_natural_id, _parent_natural_id, _value, _subchildren,
+            (_natural_id, _parent_natural_id, _value, CAST(_subchildren AS VARCHAR ARRAY),
              _version)
         ON CONFLICT (natural_id) DO UPDATE
             SET (parent_natural_id, value, subchildren,

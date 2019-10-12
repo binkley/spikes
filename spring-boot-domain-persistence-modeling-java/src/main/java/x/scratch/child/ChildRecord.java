@@ -7,6 +7,9 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 import x.scratch.UpsertableRecord;
 
+import java.util.Set;
+import java.util.TreeSet;
+
 @Builder(toBuilder = true)
 @Data
 @Table("child")
@@ -19,11 +22,11 @@ public class ChildRecord implements ChildDetails,
     private String value;
     @Builder.Default
     @SuppressWarnings("UnusedAssignment")
-    private String subchildren = "[]";
+    private @NonNull Set<String> subchildren = new TreeSet<>();
     private int version;
 
     static ChildRecord createRecordFor(final String naturalId) {
-        return new ChildRecord(null, naturalId, null, null, "[]", 0);
+        return new ChildRecord(null, naturalId, null, null, new TreeSet<>(), 0);
     }
 
     @Override
@@ -32,7 +35,7 @@ public class ChildRecord implements ChildDetails,
         naturalId = upserted.naturalId;
         parentNaturalId = upserted.parentNaturalId;
         value = upserted.value;
-        subchildren = upserted.subchildren;
+        subchildren = new TreeSet<>(upserted.subchildren);
         version = upserted.version;
         return this;
     }

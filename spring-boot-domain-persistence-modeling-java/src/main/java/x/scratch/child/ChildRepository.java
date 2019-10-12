@@ -7,6 +7,8 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
+import static java.util.stream.Collectors.joining;
+
 @Repository
 public interface ChildRepository extends CrudRepository<ChildRecord, Long> {
     @Query("SELECT * FROM child WHERE natural_id = :naturalId")
@@ -22,8 +24,11 @@ public interface ChildRepository extends CrudRepository<ChildRecord, Long> {
             @Param("version") final Integer version);
 
     default ChildRecord upsert(final ChildRecord entity) {
+        // TODO: Workaround issue in Spring Data with passing sets for ARRAY types in a procedure
         final var upserted = upsert(entity.getNaturalId(), entity.getParentNaturalId(),
-                entity.getValue(), entity.getSubchildren(), entity.getVersion());
+                entity.getValue(),
+                entity.getSubchildren().stream().collect(joining(",", "{", "}")),
+                entity.getVersion());
         if (null != upserted) {
             entity.updateWith(upserted);
         }

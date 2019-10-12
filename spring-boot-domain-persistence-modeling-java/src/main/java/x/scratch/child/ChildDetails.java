@@ -1,6 +1,7 @@
 package x.scratch.child;
 
 import javax.annotation.Nonnull;
+import java.util.Set;
 
 public interface ChildDetails {
     @Nonnull
@@ -9,6 +10,9 @@ public interface ChildDetails {
     String getParentNaturalId();
 
     String getValue();
+
+    @Nonnull
+    Set<String> getSubchildren();
 
     int getVersion();
 }
