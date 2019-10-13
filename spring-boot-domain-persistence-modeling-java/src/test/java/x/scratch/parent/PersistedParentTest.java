@@ -37,6 +37,22 @@ class PersistedParentTest {
     private final TestListener<DomainChangedEvent<?>> testListener;
 
     @Test
+    void shouldCreateNew() {
+        final var found = parents.findExistingOrCreateNew(naturalId);
+
+        assertThat(found).isEqualTo(parents.createNew(naturalId));
+    }
+
+    @Test
+    void shouldFindExisting() {
+        final var saved = newSavedParent();
+
+        final var found = parents.findExistingOrCreateNew(naturalId);
+
+        assertThat(found).isEqualTo(saved);
+    }
+
+    @Test
     void shouldRoundTrip() {
         final var unsaved = parents.createNew(naturalId);
 
@@ -70,9 +86,9 @@ class PersistedParentTest {
         final var original = newSavedParent();
 
         final var value = "FOOBAR";
-        final var modified = original.update(it -> it.setValue(value));
+        final var updated = original.update(it -> it.setValue(value));
 
-        assertThat(modified).isEqualTo(original);
+        assertThat(updated).isEqualTo(original);
         assertThat(original.getValue()).isEqualTo(value);
         assertThat(events()).isEmpty();
 

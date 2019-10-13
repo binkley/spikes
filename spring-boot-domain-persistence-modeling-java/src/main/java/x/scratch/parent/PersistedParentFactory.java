@@ -44,7 +44,7 @@ public final class PersistedParentFactory
 
     @Override
     public Parent findExistingOrCreateNew(final String naturalId) {
-        return null;
+        return findExisting(naturalId).orElse(createNew(naturalId));
     }
 
     UpsertRecordResult<ParentRecord> save(final ParentRecord record) {

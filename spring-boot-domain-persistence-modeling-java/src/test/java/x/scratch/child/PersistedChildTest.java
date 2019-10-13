@@ -34,6 +34,22 @@ class PersistedChildTest {
     private final TestListener<ChildChangedEvent> testListener;
 
     @Test
+    void shouldCreateNew() {
+        final var found = children.findExistingOrCreateNew(naturalId);
+
+        assertThat(found).isEqualTo(children.createNew(naturalId));
+    }
+
+    @Test
+    void shouldFindExisting() {
+        final var saved = newSavedChild();
+
+        final var found = children.findExistingOrCreateNew(naturalId);
+
+        assertThat(found).isEqualTo(saved);
+    }
+
+    @Test
     void shouldRoundTrip() {
         final var unsaved = children.createNew(naturalId);
 
