@@ -24,6 +24,7 @@ public final class PersistedParent
     private ParentResource snapshot;
     @Delegate(types = ParentDetails.class)
     private ParentRecord record;
+    private Set<Child> snapshotChildren;
 
     PersistedParent(final PersistedParentFactory factory,
             final ParentResource snapshot,
@@ -32,7 +33,9 @@ public final class PersistedParent
         this.factory = factory;
         this.snapshot = snapshot;
         this.record = record;
-        children = assigned.collect(toCollection(TreeSet::new));
+        final var chidren = assigned.collect(toCollection(TreeSet::new));
+        children = chidren;
+        snapshotChildren = new TreeSet<>(chidren);
     }
 
     @Override
@@ -42,9 +45,19 @@ public final class PersistedParent
 
     @Override
     public UpsertedDomainResult<Parent> save() {
+        // Save ourselves first, so children have a valid parent
         final var before = snapshot;
         final var result = factory.save(record);
         record = result.getRecord();
+
+        assignedChildren().forEach(Child::save);
+        unassignedChildren().forEach(Child::save);
+        changedChildren().forEach(Child::save);
+        // Update our version
+        final var refreshed = factory.refresh(getNaturalId());
+        record.setVersion(refreshed.getVersion());
+
+        snapshotChildren = new TreeSet<>(children);
         final var after = toResource();
         snapshot = after;
         factory.notifyChanged(before, after);
@@ -53,6 +66,11 @@ public final class PersistedParent
 
     @Override
     public void delete() {
+        if (!getChildren().isEmpty())
+            throw new IllegalStateException();
+
+        snapshotChildren.forEach(Child::save);
+
         final var before = snapshot;
         final var after = (ParentResource) null;
         factory.delete(record);
@@ -61,32 +79,29 @@ public final class PersistedParent
         factory.notifyChanged(before, after);
     }
 
+    private Set<Child> assignedChildren() {
+        final var assigned = new TreeSet<>(children);
+        assigned.removeAll(snapshotChildren);
+        return assigned;
+    }
+
+    private Set<Child> unassignedChildren() {
+        final var unassigned = new TreeSet<>(snapshotChildren);
+        unassigned.removeAll(children);
+        return unassigned;
+    }
+
+    private Set<Child> changedChildren() {
+        // TODO: Optimization: Dirty checking in children
+        final var changed = new TreeSet<>(snapshotChildren);
+        changed.retainAll(children);
+        return changed;
+    }
+
     @Nonnull
     @Override
     public Set<Child> getChildren() {
         return unmodifiableSet(children);
-    }
-
-    @Override
-    public void assign(final Child child) {
-        // TODO: if child already assigned throw exception
-        final var before = snapshot;
-        child.update(it -> it.assignTo(this)).save();
-        record = factory.refresh(getNaturalId());
-        final var after = toResource();
-        snapshot = after;
-        factory.notifyChanged(before, after);
-    }
-
-    @Override
-    public void unassign(final Child child) {
-        // TODO: if child is not assigned throw exception
-        final var before = snapshot;
-        child.update(MutableChild::unassignFromAny).save();
-        record = factory.refresh(getNaturalId());
-        final var after = toResource();
-        snapshot = after;
-        factory.notifyChanged(before, after);
     }
 
     @Override
@@ -103,10 +118,12 @@ public final class PersistedParent
     }
 
     private void addChild(final Child child, final Set<Child> all) {
+        child.update(it -> it.assignTo(this));
         children.add(child);
     }
 
     private void removeChild(final Child child, final Set<Child> all) {
+        child.update(MutableChild::unassignFromAny);
         children.remove(child);
     }
 }

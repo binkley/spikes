@@ -14,17 +14,5 @@ public interface Parent
     @Nonnull
     Set<Child> getChildren(); // Immutable
 
-    /**
-     * @todo This moves to mutable child when parent tracks children, and can
-     * save child and update parent record in parent's save
-     */
-    void assign(Child child);
-
-    /**
-     * @todo This moves to mutable child when parent tracks children, and can
-     * save child and update parent record in parent's save
-     */
-    void unassign(Child child);
-
     ParentResource toResource();
 }

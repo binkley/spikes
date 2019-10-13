@@ -41,6 +41,7 @@ class PersistedParentTest {
         final var found = parents.findExistingOrCreateNew(naturalId);
 
         assertThat(found).isEqualTo(parents.createNew(naturalId));
+        assertThat(found.getChildren()).isEmpty();
     }
 
     @Test
@@ -50,6 +51,7 @@ class PersistedParentTest {
         final var found = parents.findExistingOrCreateNew(naturalId);
 
         assertThat(found).isEqualTo(saved);
+        assertThat(found.getChildren()).isEmpty();
     }
 
     @Test
@@ -114,14 +116,18 @@ class PersistedParentTest {
     }
 
     @Test
-    void shouldAssignChild() {
+    void shouldAssignAndUnassignChild() {
         final var parent = newSavedParent();
         final var child = newSavedChild();
 
-        parent.assign(child);
-        final var updated = parent.save().getDomain();
+        assertThat(parent.getChildren()).isEmpty();
 
-        assertThat(updated.getVersion()).isEqualTo(2);
+        final var childAssigned = parent
+                .update(it -> it.getChildren().add(child))
+                .save().getDomain();
+
+        assertThat(parent.getChildren()).containsExactly(child);
+        assertThat(childAssigned.getVersion()).isEqualTo(2);
         assertThat(currentPersistedChild().getParentNaturalId())
                 .isEqualTo(naturalId);
         assertThat(events()).containsExactly(
@@ -133,29 +139,22 @@ class PersistedParentTest {
                 new ParentChangedEvent(
                         new ParentResource(naturalId, null, 1),
                         new ParentResource(naturalId, null, 2)));
-    }
 
-    @Test
-    void shouldUnassignChild() {
-        final var parent = newSavedParent();
-        final var child = children.createNew(childNaturalId).update(it ->
-                it.assignTo(parent)).save().getDomain();
-        testListener.reset();
+        final var childUnassigned = parent
+                .update(it -> it.getChildren().remove(child))
+                .save().getDomain();
 
-        parent.unassign(child);
-        final var updated = parent.save().getDomain();
-
-        // Created, assigned by child, unassigned by child == version 3
-        assertThat(updated.getVersion()).isEqualTo(3);
+        assertThat(parent.getChildren()).isEmpty();
+        assertThat(childUnassigned.getVersion()).isEqualTo(3);
         assertThat(currentPersistedChild().getParentNaturalId()).isNull();
         assertThat(events()).containsExactly(
                 new ChildChangedEvent(
                         new ChildResource(childNaturalId, naturalId, null,
-                                emptySet(), 1),
+                                emptySet(), 2),
                         new ChildResource(childNaturalId, null, null,
-                                emptySet(), 2)),
+                                emptySet(), 3)),
                 new ParentChangedEvent(
-                        new ParentResource(naturalId, null, 1),
+                        new ParentResource(naturalId, null, 2),
                         new ParentResource(naturalId, null, 3)));
     }
 
