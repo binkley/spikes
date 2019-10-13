@@ -48,11 +48,6 @@ public final class PersistedChild
     }
 
     @Override
-    public boolean isExisting() {
-        return 0 < getVersion();
-    }
-
-    @Override
     public UpsertedDomainResult<Child> save() {
         final var before = snapshot;
         final var result = factory.save(record);

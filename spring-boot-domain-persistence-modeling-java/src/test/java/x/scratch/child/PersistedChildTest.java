@@ -38,6 +38,7 @@ class PersistedChildTest {
         final var found = children.findExistingOrCreateNew(naturalId);
 
         assertThat(found).isEqualTo(children.createNew(naturalId));
+        assertThat(found.isExisting()).isFalse();
     }
 
     @Test
@@ -47,6 +48,7 @@ class PersistedChildTest {
         final var found = children.findExistingOrCreateNew(naturalId);
 
         assertThat(found).isEqualTo(saved);
+        assertThat(found.isExisting()).isTrue();
     }
 
     @Test

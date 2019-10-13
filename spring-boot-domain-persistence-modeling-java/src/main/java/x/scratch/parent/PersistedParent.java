@@ -39,11 +39,6 @@ public final class PersistedParent
     }
 
     @Override
-    public boolean isExisting() {
-        return 0 < getVersion();
-    }
-
-    @Override
     public UpsertedDomainResult<Parent> save() {
         // Save ourselves first, so children have a valid parent
         final var before = snapshot;

@@ -3,9 +3,11 @@ package x.scratch;
 import lombok.Value;
 
 public interface UpsertableDomain<Domain extends UpsertableDomain<Domain>> {
-    boolean isExisting();
-
     int getVersion();
+
+    default boolean isExisting() {
+        return 0 < getVersion();
+    }
 
     UpsertedDomainResult<Domain> save();
 
