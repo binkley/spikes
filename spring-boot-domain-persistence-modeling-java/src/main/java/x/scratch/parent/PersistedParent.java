@@ -7,7 +7,12 @@ import lombok.experimental.Delegate;
 import x.scratch.child.Child;
 import x.scratch.child.MutableChild;
 
+import javax.annotation.Nonnull;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.function.Consumer;
+
+import static java.util.Collections.unmodifiableSet;
 
 @AllArgsConstructor
 @EqualsAndHashCode(exclude = "factory")
@@ -15,6 +20,7 @@ import java.util.function.Consumer;
 public final class PersistedParent
         implements Parent {
     private final PersistedParentFactory factory;
+    private final Set<Child> children = new TreeSet<>();
     private ParentResource snapshot;
     @Delegate(types = ParentDetails.class)
     private ParentRecord record;
@@ -43,6 +49,12 @@ public final class PersistedParent
         record = null;
         snapshot = after;
         factory.notifyChanged(before, after);
+    }
+
+    @Nonnull
+    @Override
+    public Set<Child> getChildren() {
+        return unmodifiableSet(children);
     }
 
     @Override
@@ -74,8 +86,17 @@ public final class PersistedParent
 
     @Override
     public Parent update(final Consumer<MutableParent> block) {
-        final var mutable = new PersistedMutableParent(record);
+        final var mutable = new PersistedMutableParent(
+                record, children, this::addChild, this::removeChild);
         block.accept(mutable);
         return this;
+    }
+
+    private void addChild(final Child child, final Set<Child> all) {
+        children.add(child);
+    }
+
+    private void removeChild(final Child child, final Set<Child> all) {
+        children.remove(child);
     }
 }

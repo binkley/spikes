@@ -3,7 +3,8 @@ package x.scratch.child;
 import javax.annotation.Nonnull;
 import java.util.Set;
 
-public interface ChildDetails {
+public interface ChildDetails
+        extends Comparable<Child> {
     @Nonnull
     String getNaturalId();
 
@@ -15,4 +16,9 @@ public interface ChildDetails {
     Set<String> getSubchildren();
 
     int getVersion();
+
+    @Override
+    default int compareTo(@Nonnull final Child that) {
+        return getNaturalId().compareTo(that.getNaturalId());
+    }
 }
