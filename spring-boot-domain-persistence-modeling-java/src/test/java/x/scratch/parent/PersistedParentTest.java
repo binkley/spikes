@@ -10,6 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 import x.scratch.TestListener;
 import x.scratch.UpsertableDomain.UpsertedDomainResult;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
@@ -31,12 +33,16 @@ class PersistedParentTest {
         final var unsaved = parents.createNew(naturalId);
 
         assertThat(unsaved.getVersion()).isEqualTo(0);
+        assertThat(events()).isEmpty();
 
         final var saved = unsaved.save();
 
         assertThat(parents.all()).hasSize(1);
         assertThat(unsaved.getVersion()).isEqualTo(1);
         assertThat(saved).isEqualTo(UpsertedDomainResult.of(unsaved, true));
+        assertThat(events()).containsExactly(new ParentChangedEvent(
+                null,
+                new ParentResource(naturalId, null, 1)));
 
         final var found = parents.findExisting(naturalId).orElseThrow();
 
@@ -50,6 +56,7 @@ class PersistedParentTest {
 
         assertThat(resaved)
                 .isEqualTo(UpsertedDomainResult.of(original, false));
+        assertThat(events()).isEmpty();
     }
 
     @Test
@@ -62,6 +69,7 @@ class PersistedParentTest {
 
         assertThat(modified).isEqualTo(original);
         assertThat(original.getValue()).isEqualTo("FOOBAR");
+        assertThat(events()).isEmpty();
     }
 
     @Test
@@ -73,9 +81,18 @@ class PersistedParentTest {
         assertThat(parents.all()).isEmpty();
         assertThatThrownBy(existing::getVersion)
                 .isInstanceOf(NullPointerException.class);
+        assertThat(events()).containsExactly(new ParentChangedEvent(
+                new ParentResource(naturalId, null, 1),
+                null));
     }
 
     private Parent newSavedParent() {
-        return parents.createNew(naturalId).save().getDomain();
+        final var parent = parents.createNew(naturalId).save().getDomain();
+        testListener.reset();
+        return parent;
+    }
+
+    private List<ParentChangedEvent> events() {
+        return testListener.events();
     }
 }

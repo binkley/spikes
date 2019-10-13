@@ -1,6 +1,8 @@
 package x.scratch;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.ToString;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 
@@ -9,6 +11,8 @@ import java.util.Optional;
 import java.util.function.BiFunction;
 
 @Getter
+@EqualsAndHashCode(callSuper = false)
+@ToString
 public abstract class DomainChangedEvent<Resource>
         extends ApplicationEvent {
     private final Resource before;
