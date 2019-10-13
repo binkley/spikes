@@ -15,12 +15,14 @@ import static x.scratch.parent.ParentRecord.createRecordFor;
 
 @Component
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public final class PersistedParentFactory implements ParentFactory {
+public final class PersistedParentFactory
+        implements ParentFactory {
     private final ParentRepository repository;
     private final ApplicationEventPublisher publisher;
 
     static ParentResource toResource(final ParentRecord record) {
-        return new ParentResource(record.getNaturalId(), record.getValue(), record.getVersion());
+        return new ParentResource(record.getNaturalId(), record.getValue(),
+                record.getVersion());
     }
 
     @Override
@@ -54,7 +56,8 @@ public final class PersistedParentFactory implements ParentFactory {
         repository.delete(record);
     }
 
-    void notifyChanged(final ParentResource before, final ParentResource after) {
+    void notifyChanged(final ParentResource before,
+            final ParentResource after) {
         notifyIfChanged(before, after, publisher, ParentChangedEvent::new);
     }
 

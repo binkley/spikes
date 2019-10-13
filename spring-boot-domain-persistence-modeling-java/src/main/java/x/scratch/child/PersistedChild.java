@@ -13,7 +13,8 @@ import static java.util.Collections.unmodifiableSet;
 @AllArgsConstructor
 @EqualsAndHashCode(exclude = "factory")
 @ToString(exclude = "factory")
-public final class PersistedChild implements Child {
+public final class PersistedChild
+        implements Child {
     private final PersistedChildFactory factory;
     private ChildResource snapshot;
     private ChildRecord record;

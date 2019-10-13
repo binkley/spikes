@@ -10,7 +10,8 @@ import java.util.function.Consumer;
 @AllArgsConstructor
 @EqualsAndHashCode(exclude = "factory")
 @ToString(exclude = "factory")
-public final class PersistedParent implements Parent {
+public final class PersistedParent
+        implements Parent {
     private final PersistedParentFactory factory;
     private ParentResource snapshot;
     @Delegate(types = ParentDetails.class)

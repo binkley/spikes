@@ -13,7 +13,8 @@ import java.util.TreeSet;
 @Builder(toBuilder = true)
 @Data
 @Table("child")
-public class ChildRecord implements ChildDetails,
+public class ChildRecord
+        implements ChildDetails,
         UpsertableRecord<ChildRecord> {
     @Id
     private Long id;
@@ -26,7 +27,8 @@ public class ChildRecord implements ChildDetails,
     private int version;
 
     static ChildRecord createRecordFor(final String naturalId) {
-        return new ChildRecord(null, naturalId, null, null, new TreeSet<>(), 0);
+        return new ChildRecord(null, naturalId, null, null, new TreeSet<>(),
+                0);
     }
 
     @Override

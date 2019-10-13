@@ -6,7 +6,7 @@ import static org.springframework.boot.SpringApplication.run;
 
 @SpringBootApplication
 public class ScratchApplication {
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         run(ScratchApplication.class, args);
     }
 }

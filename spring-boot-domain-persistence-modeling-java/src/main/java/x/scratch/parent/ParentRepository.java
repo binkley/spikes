@@ -8,9 +8,11 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface ParentRepository extends CrudRepository<ParentRecord, Long> {
+public interface ParentRepository
+        extends CrudRepository<ParentRecord, Long> {
     @Query("SELECT * FROM parent WHERE natural_id = :naturalId")
-    Optional<ParentRecord> findByNaturalId(@Param("naturalId") String naturalId);
+    Optional<ParentRecord> findByNaturalId(
+            @Param("naturalId") String naturalId);
 
     @Query("SELECT * FROM upsert_parent(:naturalId, :value, :version)")
     ParentRecord upsert(
@@ -19,7 +21,8 @@ public interface ParentRepository extends CrudRepository<ParentRecord, Long> {
             @Param("version") final Integer version);
 
     default ParentRecord upsert(final ParentRecord entity) {
-        final var upserted = upsert(entity.getNaturalId(), entity.getValue(), entity.getVersion());
+        final var upserted = upsert(entity.getNaturalId(), entity.getValue(),
+                entity.getVersion());
         return null == upserted
                 ? upserted
                 : entity.updateWith(upserted);

@@ -6,8 +6,10 @@ import x.scratch.DomainChangedEvent;
 
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public final class ChildChangedEvent extends DomainChangedEvent<ChildResource> {
-    public ChildChangedEvent(final ChildResource before, final ChildResource after) {
+public final class ChildChangedEvent
+        extends DomainChangedEvent<ChildResource> {
+    public ChildChangedEvent(final ChildResource before,
+            final ChildResource after) {
         super(before, after);
     }
 }

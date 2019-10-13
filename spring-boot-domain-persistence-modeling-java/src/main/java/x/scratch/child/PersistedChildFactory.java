@@ -16,12 +16,14 @@ import static x.scratch.child.ChildRecord.createRecordFor;
 
 @Component
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public final class PersistedChildFactory implements ChildFactory {
+public final class PersistedChildFactory
+        implements ChildFactory {
     private final ChildRepository repository;
     private final ApplicationEventPublisher publisher;
 
     static ChildResource toResource(final ChildRecord record) {
-        return new ChildResource(record.getNaturalId(), record.getParentNaturalId(),
+        return new ChildResource(record.getNaturalId(),
+                record.getParentNaturalId(),
                 record.getValue(), unmodifiableSet(record.getSubchildren()),
                 record.getVersion());
     }
@@ -57,7 +59,8 @@ public final class PersistedChildFactory implements ChildFactory {
         repository.delete(record);
     }
 
-    void notifyChanged(final ChildResource before, final ChildResource after) {
+    void notifyChanged(final ChildResource before,
+            final ChildResource after) {
         notifyIfChanged(before, after, publisher, ChildChangedEvent::new);
     }
 

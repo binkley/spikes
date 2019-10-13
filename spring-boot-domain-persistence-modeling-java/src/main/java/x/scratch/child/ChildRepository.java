@@ -10,9 +10,11 @@ import java.util.Optional;
 import static java.util.stream.Collectors.joining;
 
 @Repository
-public interface ChildRepository extends CrudRepository<ChildRecord, Long> {
+public interface ChildRepository
+        extends CrudRepository<ChildRecord, Long> {
     @Query("SELECT * FROM child WHERE natural_id = :naturalId")
-    Optional<ChildRecord> findByNaturalId(@Param("naturalId") String naturalId);
+    Optional<ChildRecord> findByNaturalId(
+            @Param("naturalId") String naturalId);
 
     @Query("SELECT * FROM upsert_child(:naturalId, :parentNaturalId,"
             + " :value, :subchildren, :version)")
@@ -24,10 +26,13 @@ public interface ChildRepository extends CrudRepository<ChildRecord, Long> {
             @Param("version") final Integer version);
 
     default ChildRecord upsert(final ChildRecord entity) {
-        // TODO: Workaround issue in Spring Data with passing sets for ARRAY types in a procedure
-        final var upserted = upsert(entity.getNaturalId(), entity.getParentNaturalId(),
+        // TODO: Workaround issue in Spring Data with passing sets for
+        //  ARRAY types in a procedure
+        final var upserted = upsert(entity.getNaturalId(),
+                entity.getParentNaturalId(),
                 entity.getValue(),
-                entity.getSubchildren().stream().collect(joining(",", "{", "}")),
+                entity.getSubchildren().stream()
+                        .collect(joining(",", "{", "}")),
                 entity.getVersion());
         if (null != upserted) {
             entity.updateWith(upserted);

@@ -7,7 +7,8 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.BiConsumer;
 
-public class TrackedSortedSet<T extends Comparable<T>> extends AbstractSet<T> {
+public class TrackedSortedSet<T extends Comparable<T>>
+        extends AbstractSet<T> {
     private final BiConsumer<T, Set<T>> added;
     private final BiConsumer<T, Set<T>> removed;
     private final Set<T> sorted;
@@ -54,9 +55,7 @@ public class TrackedSortedSet<T extends Comparable<T>> extends AbstractSet<T> {
     @Override
     public boolean add(final T t) {
         final var add = sorted.add(t);
-        if (add) {
-            added.accept(t, sorted);
-        }
+        if (add) added.accept(t, sorted);
         return add;
     }
 }

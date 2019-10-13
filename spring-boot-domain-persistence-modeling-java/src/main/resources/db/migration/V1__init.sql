@@ -33,8 +33,7 @@ $$
 BEGIN
     RETURN QUERY INSERT INTO parent
         (natural_id, value, version)
-        VALUES
-            (_natural_id, _value, _version)
+        VALUES (_natural_id, _value, _version)
         ON CONFLICT (natural_id) DO UPDATE
             SET (value, version)
                 = (excluded.value, excluded.version)
@@ -55,16 +54,16 @@ AS
 $$
 BEGIN
     RETURN QUERY INSERT INTO child
-        (natural_id, parent_natural_id, value, subchildren,
-         version)
-        VALUES
-            (_natural_id, _parent_natural_id, _value, CAST(_subchildren AS VARCHAR ARRAY),
-             _version)
+        (natural_id, parent_natural_id, value,
+         subchildren, version)
+        VALUES (_natural_id, _parent_natural_id, _value,
+                CAST(_subchildren AS VARCHAR ARRAY), _version)
         ON CONFLICT (natural_id) DO UPDATE
-            SET (parent_natural_id, value, subchildren,
+            SET (parent_natural_id, value,
+                 subchildren,
                  version)
-                = (excluded.parent_natural_id, excluded.value, excluded.subchildren,
-                   excluded.version)
+                = (excluded.parent_natural_id, excluded.value,
+                   excluded.subchildren, excluded.version)
         RETURNING *;
 END;
 $$;
@@ -162,8 +161,8 @@ AS
 $$
 BEGIN
     UPDATE parent
-       SET updated_at = now() + INTERVAL '1 millisecond'
-     WHERE natural_id = new.parent_natural_id;
+    SET updated_at = now() + INTERVAL '1 millisecond'
+    WHERE natural_id = new.parent_natural_id;
 
     RETURN new;
 END;
@@ -176,8 +175,8 @@ AS
 $$
 BEGIN
     UPDATE parent
-       SET updated_at = now() + INTERVAL '1 millisecond'
-     WHERE natural_id IN (old.parent_natural_id, new.parent_natural_id);
+    SET updated_at = now() + INTERVAL '1 millisecond'
+    WHERE natural_id IN (old.parent_natural_id, new.parent_natural_id);
 
     RETURN new;
 END;
@@ -190,8 +189,8 @@ AS
 $$
 BEGIN
     UPDATE parent
-       SET updated_at = now() + INTERVAL '1 millisecond'
-     WHERE natural_id = old.parent_natural_id;
+    SET updated_at = now() + INTERVAL '1 millisecond'
+    WHERE natural_id = old.parent_natural_id;
 
     RETURN old;
 END;

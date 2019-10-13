@@ -48,7 +48,8 @@ class PersistedParentTest {
         final var original = newSavedParent();
         final var resaved = original.save();
 
-        assertThat(resaved).isEqualTo(UpsertedDomainResult.of(original, false));
+        assertThat(resaved)
+                .isEqualTo(UpsertedDomainResult.of(original, false));
     }
 
     @Test
@@ -70,7 +71,8 @@ class PersistedParentTest {
         existing.delete();
 
         assertThat(parents.all()).isEmpty();
-        assertThatThrownBy(existing::getVersion).isInstanceOf(NullPointerException.class);
+        assertThatThrownBy(existing::getVersion)
+                .isInstanceOf(NullPointerException.class);
     }
 
     private Parent newSavedParent() {

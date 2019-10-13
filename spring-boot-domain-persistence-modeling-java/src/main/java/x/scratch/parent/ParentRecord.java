@@ -10,7 +10,8 @@ import x.scratch.UpsertableRecord;
 @Builder(toBuilder = true)
 @Data
 @Table("parent")
-public class ParentRecord implements ParentDetails,
+public class ParentRecord
+        implements ParentDetails,
         UpsertableRecord<ParentRecord> {
     @Id
     private Long id;

@@ -12,7 +12,8 @@ import java.util.Set;
 @EqualsAndHashCode
 @RequiredArgsConstructor
 @ToString
-public final class PersistedMutableChild implements MutableChild {
+public final class PersistedMutableChild
+        implements MutableChild {
     private final @NonNull ChildRecord record;
 
     @Nonnull
@@ -45,7 +46,8 @@ public final class PersistedMutableChild implements MutableChild {
     @Override
     public Set<String> getSubchildren() {
         return new TrackedSortedSet<>(record.getSubchildren(),
-                this::resetSubchildrenToPreserveSorting, this::resetSubchildrenToPreserveSorting);
+                this::resetSubchildrenToPreserveSorting,
+                this::resetSubchildrenToPreserveSorting);
     }
 
     @Override
