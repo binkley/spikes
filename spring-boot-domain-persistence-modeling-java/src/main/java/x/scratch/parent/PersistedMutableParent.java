@@ -11,6 +11,6 @@ import lombok.experimental.Delegate;
 @ToString
 public final class PersistedMutableParent
         implements MutableParent {
-    @Delegate(types = MutableParent.class)
+    @Delegate(types = MutableParentDetails.class)
     private final @NonNull ParentRecord record;
 }

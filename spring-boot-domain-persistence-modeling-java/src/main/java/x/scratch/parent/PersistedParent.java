@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.Delegate;
+import x.scratch.child.Child;
+import x.scratch.child.MutableChild;
 
 import java.util.function.Consumer;
 
@@ -44,14 +46,36 @@ public final class PersistedParent
     }
 
     @Override
-    public Parent update(final Consumer<MutableParent> block) {
-        final var mutable = new PersistedMutableParent(record);
-        block.accept(mutable);
-        return this;
+    public void assign(final Child child) {
+        // TODO: if child already assigned throw exception
+        final var before = snapshot;
+        child.update(it -> it.assignTo(this)).save();
+        record = factory.refresh(getNaturalId());
+        final var after = toResource();
+        snapshot = after;
+        factory.notifyChanged(before, after);
+    }
+
+    @Override
+    public void unassign(final Child child) {
+        // TODO: if child is not assigned throw exception
+        final var before = snapshot;
+        child.update(MutableChild::unassignFromAny).save();
+        record = factory.refresh(getNaturalId());
+        final var after = toResource();
+        snapshot = after;
+        factory.notifyChanged(before, after);
     }
 
     @Override
     public ParentResource toResource() {
         return PersistedParentFactory.toResource(record);
+    }
+
+    @Override
+    public Parent update(final Consumer<MutableParent> block) {
+        final var mutable = new PersistedMutableParent(record);
+        block.accept(mutable);
+        return this;
     }
 }

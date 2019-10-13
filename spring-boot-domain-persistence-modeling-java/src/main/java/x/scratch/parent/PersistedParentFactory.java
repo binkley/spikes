@@ -56,6 +56,10 @@ public final class PersistedParentFactory
         repository.delete(record);
     }
 
+    ParentRecord refresh(final String naturalId) {
+        return repository.findByNaturalId(naturalId).orElseThrow();
+    }
+
     void notifyChanged(final ParentResource before,
             final ParentResource after) {
         notifyIfChanged(before, after, publisher, ParentChangedEvent::new);
