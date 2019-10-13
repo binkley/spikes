@@ -1,4 +1,4 @@
-package x.scratch.parent;
+package x.scratch.child;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
@@ -9,9 +9,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import x.scratch.TestListener;
 import x.scratch.UpsertableDomain.UpsertedDomainResult;
+import x.scratch.parent.Parent;
+import x.scratch.parent.ParentFactory;
 
 import java.util.List;
 
+import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
@@ -22,36 +25,38 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
 @SpringBootTest
 @TestInstance(PER_CLASS)
 @Transactional
-class PersistedParentTest {
-    private static final String naturalId = "a";
+class PersistedChildTest {
+    private static final String naturalId = "p";
+    private static final String parentNaturalId = "a";
 
+    private final ChildFactory childs;
     private final ParentFactory parents;
-    private final TestListener<ParentChangedEvent> testListener;
+    private final TestListener<ChildChangedEvent> testListener;
 
     @Test
     void shouldRoundTrip() {
-        final var unsaved = parents.createNew(naturalId);
+        final var unsaved = childs.createNew(naturalId);
 
         assertThat(unsaved.getVersion()).isEqualTo(0);
         assertThat(events()).isEmpty();
 
         final var saved = unsaved.save();
 
-        assertThat(parents.all()).hasSize(1);
+        assertThat(childs.all()).hasSize(1);
         assertThat(unsaved.getVersion()).isEqualTo(1);
         assertThat(saved).isEqualTo(UpsertedDomainResult.of(unsaved, true));
-        assertThat(events()).containsExactly(new ParentChangedEvent(
+        assertThat(events()).containsExactly(new ChildChangedEvent(
                 null,
-                new ParentResource(naturalId, null, 1)));
+                new ChildResource(naturalId, null, null, emptySet(), 1)));
 
-        final var found = parents.findExisting(naturalId).orElseThrow();
+        final var found = childs.findExisting(naturalId).orElseThrow();
 
         assertThat(found).isEqualTo(unsaved);
     }
 
     @Test
     void shouldDetectNoChanges() {
-        final var original = newSavedParent();
+        final var original = newSavedChild();
         final var resaved = original.save();
 
         assertThat(resaved)
@@ -61,7 +66,7 @@ class PersistedParentTest {
 
     @Test
     void shouldMutate() {
-        final var original = newSavedParent();
+        final var original = newSavedChild();
 
         final var modified = original.update(it -> it.setValue("FOOBAR"));
 
@@ -72,25 +77,32 @@ class PersistedParentTest {
 
     @Test
     void shouldDelete() {
-        final var existing = newSavedParent();
+        final var existing = newSavedChild();
 
         existing.delete();
 
-        assertThat(parents.all()).isEmpty();
+        assertThat(childs.all()).isEmpty();
         assertThatThrownBy(existing::getVersion)
                 .isInstanceOf(NullPointerException.class);
-        assertThat(events()).containsExactly(new ParentChangedEvent(
-                new ParentResource(naturalId, null, 1),
+        assertThat(events()).containsExactly(new ChildChangedEvent(
+                new ChildResource(naturalId, null, null, emptySet(), 1),
                 null));
     }
 
+    private Child newSavedChild() {
+        final var child = childs.createNew(naturalId).save().getDomain();
+        testListener.reset();
+        return child;
+    }
+
     private Parent newSavedParent() {
-        final var parent = parents.createNew(naturalId).save().getDomain();
+        final var parent = parents.createNew(parentNaturalId).save()
+                .getDomain();
         testListener.reset();
         return parent;
     }
 
-    private List<ParentChangedEvent> events() {
+    private List<ChildChangedEvent> events() {
         return testListener.events();
     }
 }
