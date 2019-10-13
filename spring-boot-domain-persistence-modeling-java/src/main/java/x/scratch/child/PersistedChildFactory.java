@@ -16,7 +16,7 @@ import static x.scratch.child.ChildRecord.createRecordFor;
 
 @Component
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
-public final class PersistedChildFactory
+final class PersistedChildFactory
         implements ChildFactory {
     private final ChildRepository repository;
     private final ApplicationEventPublisher publisher;

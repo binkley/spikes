@@ -19,7 +19,7 @@ import static java.util.stream.Collectors.toCollection;
 
 @EqualsAndHashCode(exclude = "factory")
 @ToString(exclude = "factory")
-public final class PersistedParent
+final class PersistedParent
         implements Parent {
     private final PersistedParentFactory factory;
     private final Set<Child> children;

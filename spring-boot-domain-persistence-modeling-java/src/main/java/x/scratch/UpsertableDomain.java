@@ -1,6 +1,9 @@
 package x.scratch;
 
+import lombok.RequiredArgsConstructor;
 import lombok.Value;
+
+import static lombok.AccessLevel.PRIVATE;
 
 public interface UpsertableDomain<Domain extends UpsertableDomain<Domain>> {
     int getVersion();
@@ -20,6 +23,7 @@ public interface UpsertableDomain<Domain extends UpsertableDomain<Domain>> {
 
     void delete();
 
+    @RequiredArgsConstructor(access = PRIVATE)
     @Value
     class UpsertedDomainResult<Domain extends UpsertableDomain<Domain>> {
         private final Domain domain;

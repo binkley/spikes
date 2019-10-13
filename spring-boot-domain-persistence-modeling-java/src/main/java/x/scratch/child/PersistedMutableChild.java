@@ -15,7 +15,7 @@ import static lombok.AccessLevel.PACKAGE;
 @EqualsAndHashCode
 @RequiredArgsConstructor(access = PACKAGE)
 @ToString
-public final class PersistedMutableChild
+final class PersistedMutableChild
         implements MutableChild {
     private final @NonNull ChildRecord record;
 

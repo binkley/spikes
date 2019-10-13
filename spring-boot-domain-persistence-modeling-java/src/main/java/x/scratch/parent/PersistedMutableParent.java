@@ -13,7 +13,7 @@ import java.util.function.BiConsumer;
 
 @EqualsAndHashCode
 @ToString
-public final class PersistedMutableParent
+final class PersistedMutableParent
         implements MutableParent {
     @Delegate(types = MutableParentDetails.class)
     private final @NonNull ParentRecord record;

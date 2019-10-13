@@ -15,7 +15,7 @@ import static lombok.AccessLevel.PACKAGE;
 @AllArgsConstructor(access = PACKAGE)
 @EqualsAndHashCode(exclude = "factory")
 @ToString(exclude = "factory")
-public final class PersistedChild
+final class PersistedChild
         implements Child {
     private final PersistedChildFactory factory;
     private ChildResource snapshot;
