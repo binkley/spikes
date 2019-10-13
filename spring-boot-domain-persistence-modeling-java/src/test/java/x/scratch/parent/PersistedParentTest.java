@@ -87,18 +87,52 @@ class PersistedParentTest {
     void shouldMutate() {
         final var original = newSavedParent();
 
-        final var value = "FOOBAR";
-        final var updated = original.update(it -> it.setValue(value));
+        assertThat(original.isChanged()).isFalse();
 
-        assertThat(updated).isEqualTo(original);
+        final var value = "FOOBAR";
+        final var modified = original.update(it -> it.setValue(value));
+
+        assertThat(modified).isEqualTo(original);
+        assertThat(original.isChanged()).isTrue();
         assertThat(original.getValue()).isEqualTo(value);
         assertThat(events()).isEmpty();
 
         original.save();
 
+        assertThat(original.isChanged()).isFalse();
         assertThat(events()).containsExactly(new ParentChangedEvent(
                 new ParentResource(naturalId, null, 1),
                 new ParentResource(naturalId, value, 2)));
+    }
+
+    @Test
+    void shouldMutateChildren() {
+        final var parent = newSavedParent();
+        final var child = newSavedChild();
+
+        parent.update(it -> it.getChildren().add(child));
+        parent.save();
+        testListener.reset();
+
+        final var value = "FOOBAR";
+        // Silly example :)
+        parent.update(it ->
+                it.getChildren().forEach(itt ->
+                        itt.update(ittt ->
+                                ittt.setValue(value))));
+        parent.save();
+
+        assertThat(currentPersistedChild().getValue()).isEqualTo(value);
+
+        assertThat(events()).containsExactly(
+                new ChildChangedEvent(
+                        new ChildResource(childNaturalId, naturalId, null,
+                                emptySet(), 2),
+                        new ChildResource(childNaturalId, naturalId, value,
+                                emptySet(), 3)),
+                new ParentChangedEvent(
+                        new ParentResource(naturalId, null, 2),
+                        new ParentResource(naturalId, null, 3)));
     }
 
     @Test
@@ -113,6 +147,17 @@ class PersistedParentTest {
         assertThat(events()).containsExactly(new ParentChangedEvent(
                 new ParentResource(naturalId, null, 1),
                 null));
+    }
+
+    @Test
+    void shouldNotDelete() {
+        final var parent = newSavedParent();
+        final var child = newSavedChild();
+
+        parent.update(it -> it.getChildren().add(child));
+
+        assertThatThrownBy(parent::delete)
+                .isInstanceOf(IllegalStateException.class);
     }
 
     @Test

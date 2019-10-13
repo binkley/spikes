@@ -10,13 +10,13 @@ public interface UpsertableRecord<Record extends UpsertableRecord<Record>> {
 
     @RequiredArgsConstructor(access = PRIVATE)
     @Value
-    final class UpsertRecordResult<Record extends UpsertableRecord<Record>> {
+    final class UpsertedRecordResult<Record extends UpsertableRecord<Record>> {
         private final Record record;
         private final boolean changed;
 
-        public static <Record extends UpsertableRecord<Record>> UpsertRecordResult<Record> of(
+        public static <Record extends UpsertableRecord<Record>> UpsertedRecordResult<Record> of(
                 final Record entity, final Record upserted) {
-            return new UpsertRecordResult<>(entity, null != upserted);
+            return new UpsertedRecordResult<>(entity, null != upserted);
         }
     }
 }

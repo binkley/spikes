@@ -5,6 +5,7 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import javax.annotation.Nonnull;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -48,7 +49,14 @@ public final class PersistedChild
     }
 
     @Override
+    public boolean isChanged() {
+        return !Objects.equals(snapshot, toResource());
+    }
+
+    @Override
     public UpsertedDomainResult<Child> save() {
+        if (!isChanged()) return UpsertedDomainResult.of(this, false);
+
         final var before = snapshot;
         final var result = factory.save(record);
         record = result.getRecord();

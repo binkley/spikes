@@ -3,10 +3,12 @@ package x.scratch.parent;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.Delegate;
+import x.scratch.UpsertableRecord.UpsertedRecordResult;
 import x.scratch.child.Child;
 import x.scratch.child.MutableChild;
 
 import javax.annotation.Nonnull;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Consumer;
@@ -39,16 +41,23 @@ public final class PersistedParent
     }
 
     @Override
+    public boolean isChanged() {
+        return !Objects.equals(snapshot, toResource());
+    }
+
+    @Override
     public UpsertedDomainResult<Parent> save() {
         // Save ourselves first, so children have a valid parent
         final var before = snapshot;
-        final var result = factory.save(record);
+        final var result = isChanged()
+                ? factory.save(record)
+                : UpsertedRecordResult.of(record, null);
         record = result.getRecord();
 
         assignedChildren().forEach(Child::save);
         unassignedChildren().forEach(Child::save);
         changedChildren().forEach(Child::save);
-        // Update our version
+        // Update our version -- TODO: Optimize away if unneeded
         final var refreshed = factory.refresh(getNaturalId());
         record.setVersion(refreshed.getVersion());
 
@@ -87,10 +96,11 @@ public final class PersistedParent
     }
 
     private Set<Child> changedChildren() {
-        // TODO: Optimization: Dirty checking in children
         final var changed = new TreeSet<>(snapshotChildren);
         changed.retainAll(children);
-        return changed;
+        return changed.stream()
+                .filter(Child::isChanged)
+                .collect(toCollection(TreeSet::new));
     }
 
     @Nonnull
