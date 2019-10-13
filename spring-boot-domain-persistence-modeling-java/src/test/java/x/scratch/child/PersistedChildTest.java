@@ -29,27 +29,27 @@ class PersistedChildTest {
     private static final String naturalId = "p";
     private static final String parentNaturalId = "a";
 
-    private final ChildFactory childs;
+    private final ChildFactory children;
     private final ParentFactory parents;
     private final TestListener<ChildChangedEvent> testListener;
 
     @Test
     void shouldRoundTrip() {
-        final var unsaved = childs.createNew(naturalId);
+        final var unsaved = children.createNew(naturalId);
 
         assertThat(unsaved.getVersion()).isEqualTo(0);
         assertThat(events()).isEmpty();
 
         final var saved = unsaved.save();
 
-        assertThat(childs.all()).hasSize(1);
+        assertThat(children.all()).hasSize(1);
         assertThat(unsaved.getVersion()).isEqualTo(1);
         assertThat(saved).isEqualTo(UpsertedDomainResult.of(unsaved, true));
         assertThat(events()).containsExactly(new ChildChangedEvent(
                 null,
                 new ChildResource(naturalId, null, null, emptySet(), 1)));
 
-        final var found = childs.findExisting(naturalId).orElseThrow();
+        final var found = children.findExisting(naturalId).orElseThrow();
 
         assertThat(found).isEqualTo(unsaved);
     }
@@ -81,7 +81,7 @@ class PersistedChildTest {
 
         existing.delete();
 
-        assertThat(childs.all()).isEmpty();
+        assertThat(children.all()).isEmpty();
         assertThatThrownBy(existing::getVersion)
                 .isInstanceOf(NullPointerException.class);
         assertThat(events()).containsExactly(new ChildChangedEvent(
@@ -89,8 +89,29 @@ class PersistedChildTest {
                 null));
     }
 
+    @Test
+    void shouldAssignChildAtCreation() {
+        final var parent = newSavedParent();
+
+        assertThat(parent.getVersion()).isEqualTo(1);
+
+        final var unsaved = children.createNew(naturalId)
+                .update(it -> it.assignTo(parent));
+
+        assertThat(unsaved.getParentNaturalId()).isEqualTo(parentNaturalId);
+        assertThat(events()).isEmpty();
+
+        unsaved.save();
+
+        assertThat(unsaved.getVersion()).isEqualTo(1);
+        assertThat(children.findExisting(naturalId).orElseThrow()
+                .getParentNaturalId()).isEqualTo(parentNaturalId);
+        assertThat(parents.findExisting(parentNaturalId).orElseThrow()
+                .getVersion()).isEqualTo(2);
+    }
+
     private Child newSavedChild() {
-        final var child = childs.createNew(naturalId).save().getDomain();
+        final var child = children.createNew(naturalId).save().getDomain();
         testListener.reset();
         return child;
     }
