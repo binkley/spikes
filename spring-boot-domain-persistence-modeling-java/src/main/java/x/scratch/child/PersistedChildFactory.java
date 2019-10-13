@@ -50,6 +50,12 @@ public final class PersistedChildFactory
         return findExisting(naturalId).orElse(createNew(naturalId));
     }
 
+    @Override
+    public Stream<Child> byParentNaturalId(final String parentNaturalId) {
+        return repository.findByParentNaturalId(parentNaturalId)
+                .map(this::toChild);
+    }
+
     UpsertRecordResult<ChildRecord> save(final ChildRecord record) {
         final var upserted = repository.upsert(record);
         return UpsertRecordResult.of(record, upserted);

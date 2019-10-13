@@ -1,6 +1,5 @@
 package x.scratch.parent;
 
-import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.Delegate;
@@ -11,20 +10,30 @@ import javax.annotation.Nonnull;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import static java.util.Collections.unmodifiableSet;
-import static lombok.AccessLevel.PACKAGE;
+import static java.util.stream.Collectors.toCollection;
 
-@AllArgsConstructor(access = PACKAGE)
 @EqualsAndHashCode(exclude = "factory")
 @ToString(exclude = "factory")
 public final class PersistedParent
         implements Parent {
     private final PersistedParentFactory factory;
-    private final Set<Child> children = new TreeSet<>();
+    private final Set<Child> children;
     private ParentResource snapshot;
     @Delegate(types = ParentDetails.class)
     private ParentRecord record;
+
+    PersistedParent(final PersistedParentFactory factory,
+            final ParentResource snapshot,
+            final ParentRecord record,
+            final Stream<Child> assigned) {
+        this.factory = factory;
+        this.snapshot = snapshot;
+        this.record = record;
+        children = assigned.collect(toCollection(TreeSet::new));
+    }
 
     @Override
     public boolean isExisting() {

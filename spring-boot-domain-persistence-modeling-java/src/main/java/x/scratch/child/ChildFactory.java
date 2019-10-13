@@ -11,4 +11,6 @@ public interface ChildFactory {
     Child createNew(String naturalId);
 
     Child findExistingOrCreateNew(String naturalId);
+
+    Stream<Child> byParentNaturalId(String parentNaturalId);
 }

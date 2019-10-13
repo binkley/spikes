@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import x.scratch.UpsertableRecord.UpsertRecordResult;
+import x.scratch.child.ChildFactory;
 
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -18,6 +19,7 @@ import static x.scratch.parent.ParentRecord.createRecordFor;
 public final class PersistedParentFactory
         implements ParentFactory {
     private final ParentRepository repository;
+    private final ChildFactory children;
     private final ApplicationEventPublisher publisher;
 
     static ParentResource toResource(final ParentRecord record) {
@@ -39,7 +41,8 @@ public final class PersistedParentFactory
 
     @Override
     public Parent createNew(final String naturalId) {
-        return new PersistedParent(this, null, createRecordFor(naturalId));
+        return new PersistedParent(this, null, createRecordFor(naturalId),
+                Stream.empty());
     }
 
     @Override
@@ -66,6 +69,9 @@ public final class PersistedParentFactory
     }
 
     private PersistedParent toParent(final ParentRecord record) {
-        return new PersistedParent(this, toResource(record), record);
+        final var assigned = children.byParentNaturalId(
+                record.getNaturalId());
+        return new PersistedParent(this, toResource(record), record,
+                assigned);
     }
 }

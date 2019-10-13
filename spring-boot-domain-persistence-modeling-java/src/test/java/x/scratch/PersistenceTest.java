@@ -98,6 +98,8 @@ class PersistenceTest {
 
         assertThat(savedChild.getVersion()).isEqualTo(1);
         assertThat(findExistingParent().getVersion()).isEqualTo(2);
+        assertThat(children.findByParentNaturalId(parentNaturalId))
+                .containsExactly(savedChild);
     }
 
     @Test
@@ -113,6 +115,8 @@ class PersistenceTest {
 
         assertThat(updatedChild.getVersion()).isEqualTo(2);
         assertThat(findExistingParent().getVersion()).isEqualTo(2);
+        assertThat(children.findByParentNaturalId(parentNaturalId))
+                .containsExactly(savedChild);
     }
 
     private ParentRecord newSavedParent() {

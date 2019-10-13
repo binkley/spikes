@@ -6,6 +6,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.joining;
 
@@ -15,6 +16,10 @@ public interface ChildRepository
     @Query("SELECT * FROM child WHERE natural_id = :naturalId")
     Optional<ChildRecord> findByNaturalId(
             @Param("naturalId") String naturalId);
+
+    @Query("SELECT * FROM child WHERE parent_natural_id = :parentNaturalId")
+    Stream<ChildRecord> findByParentNaturalId(
+            @Param("parentNaturalId") String parentNaturalId);
 
     @Query("SELECT * FROM upsert_child(:naturalId, :parentNaturalId,"
             + " :value, :subchildren, :version)")
