@@ -5,6 +5,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import x.scratch.TrackedSortedSet;
+import x.scratch.parent.Parent;
 
 import javax.annotation.Nonnull;
 import java.util.Set;
@@ -28,11 +29,6 @@ public final class PersistedMutableChild
     }
 
     @Override
-    public void setParentNaturalId(final String parentNaturalId) {
-        record.setParentNaturalId(parentNaturalId);
-    }
-
-    @Override
     public String getValue() {
         return record.getValue();
     }
@@ -53,6 +49,16 @@ public final class PersistedMutableChild
     @Override
     public int getVersion() {
         return record.getVersion();
+    }
+
+    @Override
+    public void assignTo(final Parent parent) {
+        record.setParentNaturalId(parent.getNaturalId());
+    }
+
+    @Override
+    public void unassignFromAny() {
+        record.setParentNaturalId(null);
     }
 
     private void resetSubchildrenToPreserveSorting(
