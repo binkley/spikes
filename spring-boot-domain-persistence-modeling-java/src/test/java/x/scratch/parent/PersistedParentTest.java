@@ -54,8 +54,8 @@ class PersistedParentTest {
         final var original = newSavedParent();
         final var resaved = original.save();
 
-        assertThat(resaved)
-                .isEqualTo(UpsertedDomainResult.of(original, false));
+        assertThat(resaved).isEqualTo(
+                UpsertedDomainResult.of(original, false));
         assertThat(events()).isEmpty();
     }
 
@@ -63,11 +63,18 @@ class PersistedParentTest {
     void shouldMutate() {
         final var original = newSavedParent();
 
-        final var modified = original.update(it -> it.setValue("FOOBAR"));
+        final var value = "FOOBAR";
+        final var modified = original.update(it -> it.setValue(value));
 
         assertThat(modified).isEqualTo(original);
-        assertThat(original.getValue()).isEqualTo("FOOBAR");
+        assertThat(original.getValue()).isEqualTo(value);
         assertThat(events()).isEmpty();
+
+        original.save();
+
+        assertThat(events()).containsExactly(new ParentChangedEvent(
+                new ParentResource(naturalId, null, 1),
+                new ParentResource(naturalId, value, 2)));
     }
 
     @Test

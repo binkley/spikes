@@ -68,11 +68,18 @@ class PersistedChildTest {
     void shouldMutate() {
         final var original = newSavedChild();
 
-        final var modified = original.update(it -> it.setValue("FOOBAR"));
+        final var value = "FOOBAR";
+        final var modified = original.update(it -> it.setValue(value));
 
         assertThat(modified).isEqualTo(original);
-        assertThat(original.getValue()).isEqualTo("FOOBAR");
+        assertThat(original.getValue()).isEqualTo(value);
         assertThat(events()).isEmpty();
+
+        original.save();
+
+        assertThat(events()).containsExactly(new ChildChangedEvent(
+                new ChildResource(naturalId, null, null, emptySet(), 1),
+                new ChildResource(naturalId, null, value, emptySet(), 2)));
     }
 
     @Test
