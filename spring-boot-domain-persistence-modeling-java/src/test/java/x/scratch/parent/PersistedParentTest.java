@@ -44,9 +44,7 @@ class PersistedParentTest {
                 null,
                 new ParentResource(naturalId, null, 1)));
 
-        final var found = parents.findExisting(naturalId).orElseThrow();
-
-        assertThat(found).isEqualTo(unsaved);
+        assertThat(currentPersistedParent()).isEqualTo(unsaved);
     }
 
     @Test
@@ -95,6 +93,10 @@ class PersistedParentTest {
         final var parent = parents.createNew(naturalId).save().getDomain();
         testListener.reset();
         return parent;
+    }
+
+    private Parent currentPersistedParent() {
+        return parents.findExisting(naturalId).orElseThrow();
     }
 
     private List<ParentChangedEvent> events() {

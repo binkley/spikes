@@ -49,9 +49,7 @@ class PersistedChildTest {
                 null,
                 new ChildResource(naturalId, null, null, emptySet(), 1)));
 
-        final var found = children.findExisting(naturalId).orElseThrow();
-
-        assertThat(found).isEqualTo(unsaved);
+        assertThat(currentPersistedChild()).isEqualTo(unsaved);
     }
 
     @Test
@@ -106,15 +104,62 @@ class PersistedChildTest {
                 .update(it -> it.assignTo(parent));
 
         assertThat(unsaved.getParentNaturalId()).isEqualTo(parentNaturalId);
-        assertThat(events()).isEmpty();
 
         unsaved.save();
 
-        assertThat(unsaved.getVersion()).isEqualTo(1);
-        assertThat(children.findExisting(naturalId).orElseThrow()
-                .getParentNaturalId()).isEqualTo(parentNaturalId);
-        assertThat(parents.findExisting(parentNaturalId).orElseThrow()
-                .getVersion()).isEqualTo(2);
+        assertThat(currentPersistedChild().getParentNaturalId())
+                .isEqualTo(parentNaturalId);
+        assertThat(currentPersistedParent().getVersion()).isEqualTo(2);
+        assertThat(events()).containsExactly(new ChildChangedEvent(
+                null,
+                new ChildResource(naturalId, parentNaturalId, null,
+                        emptySet(), 1)));
+    }
+
+    @Test
+    void shouldAssignChildAtMutation() {
+        final var parent = newSavedParent();
+        final var child = newSavedChild();
+
+        assertThat(parent.getVersion()).isEqualTo(1);
+
+        final var assigned = child.update(it -> it.assignTo(parent));
+
+        assertThat(assigned.getParentNaturalId()).isEqualTo(parentNaturalId);
+        assertThat(events()).isEmpty();
+
+        assigned.save();
+
+        assertThat(assigned.getVersion()).isEqualTo(2);
+        assertThat(currentPersistedChild().getParentNaturalId())
+                .isEqualTo(parentNaturalId);
+        assertThat(currentPersistedParent().getVersion()).isEqualTo(2);
+        assertThat(events()).containsExactly(new ChildChangedEvent(
+                new ChildResource(naturalId, null, null, emptySet(), 1),
+                new ChildResource(naturalId, parentNaturalId, null,
+                        emptySet(), 2)));
+    }
+
+    @Test
+    void shouldUnassignChild() {
+        final var parent = newSavedParent();
+        final var child = children.createNew(naturalId)
+                .update(it -> it.assignTo(parent))
+                .save().getDomain();
+        testListener.reset();
+
+        assertThat(parent.getVersion()).isEqualTo(1);
+
+        child.update(MutableChild::unassignFromAny).save();
+
+        assertThat(child.getVersion()).isEqualTo(2);
+        assertThat(currentPersistedChild().getParentNaturalId()).isNull();
+        // Created, assigned by child, unassigned by child == version 3
+        assertThat(currentPersistedParent().getVersion()).isEqualTo(3);
+        assertThat(events()).containsExactly(new ChildChangedEvent(
+                new ChildResource(naturalId, parentNaturalId, null,
+                        emptySet(), 1),
+                new ChildResource(naturalId, null, null, emptySet(), 2)));
     }
 
     private Child newSavedChild() {
@@ -123,11 +168,19 @@ class PersistedChildTest {
         return child;
     }
 
+    private Child currentPersistedChild() {
+        return children.findExisting(naturalId).orElseThrow();
+    }
+
     private Parent newSavedParent() {
         final var parent = parents.createNew(parentNaturalId).save()
                 .getDomain();
         testListener.reset();
         return parent;
+    }
+
+    private Parent currentPersistedParent() {
+        return parents.findExisting(parentNaturalId).orElseThrow();
     }
 
     private List<ChildChangedEvent> events() {
