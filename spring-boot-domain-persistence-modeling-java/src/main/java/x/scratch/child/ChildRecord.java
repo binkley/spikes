@@ -1,5 +1,6 @@
 package x.scratch.child;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
@@ -10,6 +11,9 @@ import x.scratch.UpsertableRecord;
 import java.util.Set;
 import java.util.TreeSet;
 
+import static lombok.AccessLevel.PACKAGE;
+
+@AllArgsConstructor(access = PACKAGE)
 @Builder(toBuilder = true)
 @Data
 @Table("child")
@@ -22,7 +26,6 @@ public class ChildRecord
     private String parentNaturalId;
     private String value;
     @Builder.Default
-    @SuppressWarnings("UnusedAssignment")
     private @NonNull Set<String> subchildren = new TreeSet<>();
     private int version;
 

@@ -1,5 +1,6 @@
 package x.scratch.parent;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
@@ -7,6 +8,9 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 import x.scratch.UpsertableRecord;
 
+import static lombok.AccessLevel.PACKAGE;
+
+@AllArgsConstructor(access = PACKAGE)
 @Builder(toBuilder = true)
 @Data
 @Table("parent")

@@ -13,8 +13,9 @@ import java.util.TreeSet;
 import java.util.function.Consumer;
 
 import static java.util.Collections.unmodifiableSet;
+import static lombok.AccessLevel.PACKAGE;
 
-@AllArgsConstructor
+@AllArgsConstructor(access = PACKAGE)
 @EqualsAndHashCode(exclude = "factory")
 @ToString(exclude = "factory")
 public final class PersistedParent

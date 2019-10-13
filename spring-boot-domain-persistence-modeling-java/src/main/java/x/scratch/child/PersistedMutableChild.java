@@ -10,8 +10,10 @@ import x.scratch.parent.ParentDetails;
 import javax.annotation.Nonnull;
 import java.util.Set;
 
+import static lombok.AccessLevel.PACKAGE;
+
 @EqualsAndHashCode
-@RequiredArgsConstructor
+@RequiredArgsConstructor(access = PACKAGE)
 @ToString
 public final class PersistedMutableChild
         implements MutableChild {

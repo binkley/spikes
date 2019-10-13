@@ -21,7 +21,7 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
 @RequiredArgsConstructor(onConstructor = @__(@Autowired))
 @TestInstance(PER_CLASS)
 @Transactional
-class DatabaseTest {
+class PersistenceTest {
     private static final String parentNaturalId = "a";
     private static final String childNaturalId = "p";
 
