@@ -44,8 +44,8 @@ final class PersistedMutableChild
     @Override
     public Set<String> getSubchildren() {
         return new TrackedSortedSet<>(record.getSubchildren(),
-                this::resetSubchildrenToPreserveSorting,
-                this::resetSubchildrenToPreserveSorting);
+                (item, all) -> record.setSubchildren(all),
+                (item, all) -> record.setSubchildren(all));
     }
 
     @Override
@@ -61,11 +61,5 @@ final class PersistedMutableChild
     @Override
     public void unassignFromAny() {
         record.setParentNaturalId(null);
-    }
-
-    private void resetSubchildrenToPreserveSorting(
-            final String item, final Set<String> all) {
-        record.getSubchildren().clear();
-        record.getSubchildren().addAll(all);
     }
 }
