@@ -32,8 +32,8 @@ public abstract class DomainChangedEvent<Resource>
             publisher.publishEvent(event.apply(before, after));
     }
 
-    private static <Resource> Resource source(final Resource before,
-            final Resource after) {
+    private static <Resource> Resource source(
+            final Resource before, final Resource after) {
         return null == after
                 ? Optional.of(before).orElseThrow()
                 : after;

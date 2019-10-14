@@ -3,6 +3,7 @@ package x.scratch.parent;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import lombok.experimental.Delegate;
+import x.scratch.DomainException;
 import x.scratch.UpsertableRecord.UpsertedRecordResult;
 import x.scratch.child.Child;
 import x.scratch.child.MutableChild;
@@ -14,6 +15,7 @@ import java.util.TreeSet;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
+import static java.lang.String.format;
 import static java.util.Collections.unmodifiableSet;
 import static java.util.stream.Collectors.toCollection;
 
@@ -71,7 +73,8 @@ final class PersistedParent
     @Override
     public void delete() {
         if (!getChildren().isEmpty())
-            throw new IllegalStateException();
+            throw new DomainException(format(
+                    "Deleting parent with assigned children: %s", this));
 
         snapshotChildren.forEach(Child::save);
 

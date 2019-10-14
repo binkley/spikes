@@ -3,12 +3,14 @@ package x.scratch.child;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import x.scratch.DomainException;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import static java.lang.String.format;
 import static java.util.Collections.unmodifiableSet;
 import static lombok.AccessLevel.PACKAGE;
 
@@ -68,6 +70,10 @@ final class PersistedChild
 
     @Override
     public void delete() {
+        if (null != getParentNaturalId())
+            throw new DomainException(format(
+                    "Deleting child assigned to a parent: %s", this));
+
         final var before = snapshot;
         final var after = (ChildResource) null;
         factory.delete(record);
