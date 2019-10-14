@@ -16,9 +16,10 @@ internal open class PersistedChildFactory(
         private val repository: ChildRepository,
         private val publisher: ApplicationEventPublisher)
     : ChildFactory {
-    override fun all(): Sequence<Child> = repository.findAll().map {
-        toChild(it)
-    }.asSequence()
+    override fun all(): Sequence<Child> =
+            repository.findAll().map {
+                toChild(it)
+            }.asSequence()
 
     override fun findExisting(naturalId: String): Child? =
             repository.findByNaturalId(naturalId).orElse(null)?.let {
@@ -35,7 +36,7 @@ internal open class PersistedChildFactory(
     override fun findOwned(parentNaturalId: String) =
             repository.findByParentNaturalId(parentNaturalId).map {
                 toChild(it)
-            }
+            }.asSequence()
 
     // TODO: Refetch to see changes in audit columns
     internal fun save(record: ChildRecord) =

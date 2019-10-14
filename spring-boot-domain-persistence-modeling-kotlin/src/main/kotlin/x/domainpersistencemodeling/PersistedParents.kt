@@ -15,9 +15,10 @@ internal open class PersistedParentFactory(
         private val repository: ParentRepository,
         private val publisher: ApplicationEventPublisher)
     : ParentFactory {
-    override fun all(): Sequence<Parent> = repository.findAll().map {
-        toParent(it)
-    }.asSequence()
+    override fun all(): Sequence<Parent> =
+            repository.findAll().map {
+                toParent(it)
+            }.asSequence()
 
     override fun findExisting(naturalId: String): Parent? =
             repository.findByNaturalId(naturalId).orElse(null)?.let {

@@ -12,19 +12,23 @@ interface ChildFactory {
     fun findExisting(naturalId: String): Child?
     fun createNew(naturalId: String): Child
     fun findExistingOrCreateNew(naturalId: String): Child
-    fun findOwned(parentNaturalId: String): Iterable<Child>
+    fun findOwned(parentNaturalId: String): Sequence<Child>
 }
 
-interface ChildPersistedDetails {
+interface ChildDetails : Comparable<ChildDetails> {
     val naturalId: String
     val parentNaturalId: String?
     val value: String?
     val subchildren: Set<String>
     val version: Int
+
+    override operator fun compareTo(other: ChildDetails): Int {
+        return naturalId.compareTo(other.naturalId)
+    }
 }
 
 interface MutableChildDetails
-    : ChildPersistedDetails {
+    : ChildDetails {
     override val naturalId: String
     override var parentNaturalId: String?
     override var value: String?

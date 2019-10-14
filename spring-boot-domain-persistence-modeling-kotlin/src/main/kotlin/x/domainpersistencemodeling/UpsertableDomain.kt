@@ -3,7 +3,7 @@ package x.domainpersistencemodeling
 interface UpsertableDomain<Domain : UpsertableDomain<Domain>> {
     val version: Int
 
-    val isExisting: Boolean
+    val existing: Boolean
         get() = 0 < version
 
     /**

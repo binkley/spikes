@@ -1,4 +1,4 @@
-package x.domainpersistencemodeling.java
+package x.domainpersistencemodeling
 
 interface UpsertableRecord<Record : UpsertableRecord<Record>> {
     fun updateWith(upserted: Record): Record
@@ -9,7 +9,8 @@ interface UpsertableRecord<Record : UpsertableRecord<Record>> {
             fun <Record : UpsertableRecord<Record>> of(
                     entity: Record,
                     upserted: Record?): UpsertedRecordResult<Record> {
-                return UpsertedRecordResult(entity, null != upserted)
+                return UpsertedRecordResult(
+                        entity, null != upserted)
             }
         }
     }

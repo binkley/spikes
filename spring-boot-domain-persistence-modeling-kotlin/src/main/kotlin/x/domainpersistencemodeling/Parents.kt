@@ -12,10 +12,14 @@ interface ParentFactory {
     fun findExistingOrCreateNew(naturalId: String): Parent
 }
 
-interface ParentDetails {
+interface ParentDetails : Comparable<ParentDetails> {
     val naturalId: String
     val value: String?
     val version: Int
+
+    override fun compareTo(other: ParentDetails): Int {
+        return naturalId.compareTo(other.naturalId)
+    }
 }
 
 interface MutableParentDetails
