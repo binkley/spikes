@@ -1,7 +1,8 @@
-package x.domainpersistencemodeling.java
+package x.domainpersistencemodeling
 
 interface UpsertableDomain<Domain : UpsertableDomain<Domain>> {
     val version: Int
+
     val isExisting: Boolean
         get() = 0 < version
 

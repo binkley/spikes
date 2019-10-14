@@ -4,7 +4,7 @@ import javax.annotation.Nonnull;
 import java.util.Set;
 
 public interface ChildDetails
-        extends Comparable<Child> {
+        extends Comparable<ChildDetails> {
     @Nonnull
     String getNaturalId();
 
@@ -18,7 +18,7 @@ public interface ChildDetails
     int getVersion();
 
     @Override
-    default int compareTo(@Nonnull final Child that) {
+    default int compareTo(@Nonnull final ChildDetails that) {
         return getNaturalId().compareTo(that.getNaturalId());
     }
 }

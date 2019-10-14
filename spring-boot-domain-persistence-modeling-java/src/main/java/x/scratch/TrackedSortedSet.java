@@ -7,7 +7,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.BiConsumer;
 
-public class TrackedSortedSet<T extends Comparable<T>>
+public class TrackedSortedSet<T extends Comparable<? super T>>
         extends AbstractSet<T> {
     private final BiConsumer<T, Set<T>> added;
     private final BiConsumer<T, Set<T>> removed;
