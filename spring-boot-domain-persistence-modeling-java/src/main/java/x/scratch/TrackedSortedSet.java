@@ -9,16 +9,16 @@ import java.util.function.BiConsumer;
 
 public class TrackedSortedSet<T extends Comparable<? super T>>
         extends AbstractSet<T> {
+    private final Set<T> sorted;
     private final BiConsumer<T, Set<T>> added;
     private final BiConsumer<T, Set<T>> removed;
-    private final Set<T> sorted;
 
     public TrackedSortedSet(final Set<T> initial,
             final BiConsumer<T, Set<T>> added,
             final BiConsumer<T, Set<T>> removed) {
+        sorted = new TreeSet<>(initial);
         this.added = added;
         this.removed = removed;
-        sorted = new TreeSet<>(initial);
     }
 
     @Nonnull
