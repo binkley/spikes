@@ -19,7 +19,7 @@
     <properties>
         <java.version>11</java.version>
         <maven-test-plugins.version>2.22.2</maven-test-plugins.version>
-        <postgres.version>10.7</postgres.version>
+        <postgres.version>11</postgres.version>
         <test-containers.version>1.12.2</test-containers.version>
     </properties>
 

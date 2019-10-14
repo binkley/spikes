@@ -7,7 +7,7 @@ spring:
     name: spring-boot-domain-persistence-modeling
   datasource:
     driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
-    url: jdbc:tc:postgresql:10.7:///postgres
+    url: jdbc:tc:postgresql:11:///postgres
     username: postgres
   main:
     banner-mode: 'OFF'
