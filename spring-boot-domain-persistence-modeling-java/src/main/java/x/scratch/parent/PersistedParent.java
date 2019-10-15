@@ -34,12 +34,14 @@ final class PersistedParent
             final ParentResource snapshot,
             final ParentRecord record,
             final Stream<Child> assigned) {
-        this.factory = factory;
-        this.snapshot = snapshot;
-        this.record = record;
-        final var chidren = assigned.collect(toCollection(TreeSet::new));
-        children = chidren;
-        snapshotChildren = new TreeSet<>(chidren);
+        try (assigned) {
+            this.factory = factory;
+            this.snapshot = snapshot;
+            this.record = record;
+            final var chidren = assigned.collect(toCollection(TreeSet::new));
+            children = chidren;
+            snapshotChildren = new TreeSet<>(chidren);
+        }
     }
 
     @Override
