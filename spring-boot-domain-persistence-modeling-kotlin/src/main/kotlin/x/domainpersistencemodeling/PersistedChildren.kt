@@ -7,6 +7,7 @@ import org.springframework.data.relational.core.mapping.Table
 import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Component
+import org.springframework.stereotype.Repository
 import java.util.Objects
 import java.util.Optional
 import java.util.TreeSet
@@ -27,7 +28,7 @@ internal open class PersistedChildFactory(
             }
 
     override fun createNew(naturalId: String): Child =
-            PersistedChild(null, ChildRecord(naturalId, null, setOf()), this)
+            PersistedChild(null, ChildRecord(naturalId), this)
 
     override fun findExistingOrCreateNew(
             naturalId: String): Child =
@@ -144,6 +145,7 @@ internal data class PersistedMutableChild(private val record: ChildRecord)
     }
 }
 
+@Repository
 interface ChildRepository : CrudRepository<ChildRecord, Long> {
     @Query("""
         SELECT * FROM child
@@ -159,19 +161,54 @@ interface ChildRepository : CrudRepository<ChildRecord, Long> {
     fun findByParentNaturalId(
             @Param("parentNaturalId") parentNaturalId: String)
             : Iterable<ChildRecord>
+
+    @Query("""
+        SELECT *
+        FROM upsert_child(:naturalId, :parentNaturalId, :value, :subchildren, :version)
+        """)
+    fun upsert(
+            @Param("naturalId") naturalId: String,
+            @Param("parentNaturalId") parentNaturalId: String?,
+            @Param("value") value: String?,
+            @Param("subchildren") subchildren: String,
+            @Param("version") version: Int)
+            : ChildRecord?
+
+    fun upsert(entity: ChildRecord): ChildRecord? {
+        // TODO: Workaround issue in Spring Data with passing sets for
+        // ARRAY types in a procedure
+        val upserted = upsert(entity.naturalId,
+                entity.parentNaturalId,
+                entity.value,
+                entity.subchildren.joinToString(",", "{", "}"),
+                entity.version)
+        if (null != upserted) {
+            entity.updateWith(upserted)
+        }
+        return upserted
+    }
 }
 
 @Table("child")
 data class ChildRecord(
-        @Id val id: Long?,
-        override val naturalId: String,
+        @Id var id: Long?,
+        override var naturalId: String,
         override var parentNaturalId: String?,
         override var value: String?,
-        override val subchildren: MutableSet<String>,
-        override val version: Int) :
-        MutableChildDetails {
-    internal constructor(naturalId: String, parentNaturalId: String?,
-            subchildren: Set<String>)
-            : this(null, naturalId, parentNaturalId, null,
-            subchildren.toMutableSet(), 0)
+        override var subchildren: MutableSet<String>,
+        override var version: Int)
+    : MutableChildDetails,
+        UpsertableRecord<ChildRecord> {
+    internal constructor(naturalId: String)
+            : this(null, naturalId, null, null, mutableSetOf(), 0)
+
+    override fun updateWith(upserted: ChildRecord): ChildRecord {
+        id = upserted.id
+        naturalId = upserted.naturalId
+        parentNaturalId = upserted.parentNaturalId
+        value = upserted.value
+        subchildren = TreeSet(upserted.subchildren)
+        version = upserted.version
+        return this
+    }
 }

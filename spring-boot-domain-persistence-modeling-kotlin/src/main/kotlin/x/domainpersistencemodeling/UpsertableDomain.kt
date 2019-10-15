@@ -11,7 +11,7 @@ interface UpsertableDomain<Domain : UpsertableDomain<Domain>> {
      * be correct with or without this optimization: for example, a domain
      * object version number should have the same values.
      */
-    val isChanged: Boolean
+    val changed: Boolean
 
     fun save(): UpsertedDomainResult<Domain>
 

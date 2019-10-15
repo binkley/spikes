@@ -27,9 +27,7 @@ interface ChildDetails : Comparable<ChildDetails> {
     }
 }
 
-interface MutableChildDetails
-    : ChildDetails {
-    override val naturalId: String
+interface MutableChildDetails : ChildDetails {
     override var parentNaturalId: String?
     override var value: String?
     override val subchildren: MutableSet<String>
@@ -40,13 +38,10 @@ interface MutableChild : MutableChildDetails {
     fun unassignFromAny()
 }
 
-interface Child : ScopedMutation<Child, MutableChild>,
-        Comparable<Child>,
-        Persisted {
-    val naturalId: String
-    val parentNaturalId: String?
-    val value: String?
-    val subchildren: Set<String> // Sorted
+interface Child : ChildDetails,
+        ScopedMutable<Child, MutableChild>,
+        UpsertableDomain<Child> {
+    fun toResource(): ChildResource
 }
 
 data class ChildChangedEvent(

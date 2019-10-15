@@ -22,20 +22,30 @@ interface ParentDetails : Comparable<ParentDetails> {
     }
 }
 
-interface MutableParentDetails
-    : ParentDetails {
-    override val naturalId: String
+interface MutableParentDetails : ParentDetails {
     override var value: String?
 }
 
 interface MutableParent : MutableParentDetails {
-    fun assign(child: Child)
-    fun unassign(child: Child)
+    val children: MutableSet<Child>
+
+    fun assign(child: Child) {
+        if (!children.add(child))
+            throw DomainException("Already assigned: $child")
+    }
+
+    fun unassign(child: Child) {
+        if (!children.remove(child))
+            throw DomainException("Not assigned: $child")
+    }
 }
 
-interface Parent : ParentDetails,
-        ScopedMutation<Parent, MutableParent>,
-        Persisted {
+interface Parent
+    : ParentDetails,
+        ScopedMutable<Parent, MutableParent>,
+        UpsertableDomain<Parent> {
+    val children: Set<Child>
+
     fun toResource(): ParentResource
 }
 

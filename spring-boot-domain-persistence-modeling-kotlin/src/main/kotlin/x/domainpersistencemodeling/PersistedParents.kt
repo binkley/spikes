@@ -7,115 +7,188 @@ import org.springframework.data.relational.core.mapping.Table
 import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Component
+import x.domainpersistencemodeling.UpsertableDomain.UpsertedDomainResult
+import x.domainpersistencemodeling.UpsertableRecord.UpsertedRecordResult
 import java.util.Objects
 import java.util.Optional
+import java.util.TreeSet
+import java.util.stream.Collectors.toCollection
 
 @Component
 internal open class PersistedParentFactory(
         private val repository: ParentRepository,
+        private val children: ChildFactory,
         private val publisher: ApplicationEventPublisher)
     : ParentFactory {
-    override fun all(): Sequence<Parent> =
-            repository.findAll().map {
-                toParent(it)
-            }.asSequence()
+    companion object {
+        fun toResource(record: ParentRecord) =
+                ParentResource(record.naturalId, record.value,
+                        record.version)
+    }
 
-    override fun findExisting(naturalId: String): Parent? =
-            repository.findByNaturalId(naturalId).orElse(null)?.let {
-                toParent(it)
-            }
+    override fun all() = repository.findAll().map {
+        toParent(it)
+    }.asSequence()
 
-    override fun createNew(naturalId: String): Parent =
-            PersistedParent(null, ParentRecord(naturalId), this)
+    override fun findExisting(naturalId: String): Parent? {
+        return repository.findByNaturalId(naturalId).map {
+            toParent(it)
+        }.orElse(null)
+    }
 
-    override fun findExistingOrCreateNew(
-            naturalId: String): Parent =
+    override fun createNew(naturalId: String) =
+            PersistedParent(this, null, ParentRecord(naturalId),
+                    emptySequence())
+
+    override fun findExistingOrCreateNew(naturalId: String) =
             findExisting(naturalId) ?: createNew(naturalId)
 
-    internal fun save(record: ParentRecord) =
-            repository.findById(repository.save(record).id!!).get()
+    fun save(record: ParentRecord) =
+            UpsertedRecordResult.of(record, repository.upsert(record))
 
-    internal fun delete(record: ParentRecord) = repository.delete(record)
+    internal fun delete(record: ParentRecord) {
+        repository.delete(record)
+    }
+
+    internal fun refresh(naturalId: String) =
+            repository.findByNaturalId(naturalId).orElseThrow()
 
     internal fun notifyChanged(
-            before: ParentResource?, after: ParentResource?) =
-            notifyIfChanged(before, after, publisher, ::ParentChangedEvent)
+            before: ParentResource?, after: ParentResource?) {
+        notifyIfChanged(before, after, publisher, ::ParentChangedEvent)
+    }
 
-    internal fun toParent(record: ParentRecord) =
-            PersistedParent(toResource(record), record, this)
-
-    internal fun toResource(record: ParentRecord) =
-            ParentResource(record.naturalId, record.value, record.version)
+    private fun toParent(record: ParentRecord) =
+            PersistedParent(this, toResource(record), record,
+                    children.findOwned(record.naturalId))
 }
 
 internal class PersistedParent(
+        private val factory: PersistedParentFactory,
         private var snapshot: ParentResource?,
         private var record: ParentRecord?,
-        private val factory: PersistedParentFactory)
-    : Parent {
-    override val naturalId: String
-        get() = record!!.naturalId
-    override val value: String?
-        get() = record!!.value
-    override val version: Int
-        get() = record!!.version
-    override val existing: Boolean
-        get() = 0 < version
+        assigned: Sequence<Child>)
+    : Parent,
+        ParentDetails by record!! {
+    private var snapshotChildren: Set<Child>
+    private val _children: MutableSet<Child>
 
-    override fun update(block: MutableParent.() -> Unit) = apply {
-        val mutable = PersistedMutableParent(record!!)
-        mutable.block()
+    override val children: Set<Child>
+        get() = _children
+
+    init {
+        snapshotChildren = assigned.toSortedSet()
+        _children = TreeSet(snapshotChildren)
     }
 
-    override fun save() = apply {
+    override val changed
+        get() = snapshot != toResource()
+
+    override fun save(): UpsertedDomainResult<Parent> {
+        // Save ourselves first, so children have a valid parent
         val before = snapshot
-        record = factory.save(record!!)
+        val result =
+                if (changed) factory.save(record!!)
+                else UpsertedRecordResult.of(record!!, null)
+        record = result.record
+
+        assignedChildren().forEach(Child::save)
+        unassignedChildren().forEach(Child::save)
+        changedChildren().forEach(Child::save)
+        // Update our version -- TODO: Optimize away if unneeded
+        val refreshed = factory.refresh(naturalId)
+        record!!.version = refreshed.version
+
+        snapshotChildren = TreeSet(children)
         val after = toResource()
         snapshot = after
         factory.notifyChanged(before, after)
+        return UpsertedDomainResult(this, result.changed)
     }
 
     override fun delete() {
+        if (!children.isEmpty()) throw DomainException(
+                "Deleting parent with assigned children: $this")
+
+        snapshotChildren.forEach(Child::save)
+
         val before = snapshot
-        val after = null
+        val after = null as ParentResource?
         factory.delete(record!!)
         record = null
         snapshot = after
         factory.notifyChanged(before, after)
     }
 
-    override fun toResource() = factory.toResource(record!!)
+    private fun assignedChildren(): Set<Child> {
+        val assigned = TreeSet(children)
+        assigned.removeAll(snapshotChildren)
+        return assigned
+    }
+
+    private fun unassignedChildren(): Set<Child> {
+        val unassigned = TreeSet(snapshotChildren)
+        unassigned.removeAll(children)
+        return unassigned
+    }
+
+    private fun changedChildren(): Set<Child> {
+        val changed = TreeSet(snapshotChildren)
+        changed.retainAll(children)
+        return changed.stream()
+                .filter(Child::changed)
+                .collect(toCollection(::TreeSet))
+    }
+
+    override fun toResource() =
+            PersistedParentFactory.toResource(record!!)
+
+    override fun update(block: MutableParent.() -> Unit): Parent {
+        val mutable = PersistedMutableParent(
+                record!!, children, ::addChild, ::removeChild)
+        block(mutable)
+        return this
+    }
+
+    private fun addChild(child: Child, all: Set<Child>) {
+        child.update {
+            assignTo(this@PersistedParent)
+        }
+        _children.add(child)
+    }
+
+    private fun removeChild(child: Child, all: Set<Child>) {
+        child.update {
+            unassignFromAny()
+        }
+        _children.remove(child)
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
         other as PersistedParent
         return snapshot == other.snapshot
+                && snapshotChildren == other.snapshotChildren
                 && record == other.record
+                && children == other.children
     }
 
-    override fun hashCode() = Objects.hash(snapshot, record)
+    override fun hashCode() =
+            Objects.hash(snapshot, snapshotChildren, record, children)
 
     override fun toString() =
-            "${super.toString()}{snapshot=$snapshot, record=$record}"
+            "${super.toString()}{snapshot=$snapshot, snapshotChildren=$snapshotChildren, record=$record, children=$children}"
 }
 
-internal data class PersistedMutableParent(private val record: ParentRecord)
+internal data class PersistedMutableParent(
+        private val record: ParentRecord,
+        private val initial: Set<Child>,
+        private val added: (Child, Set<Child>) -> Unit,
+        private val removed: (Child, Set<Child>) -> Unit)
     : MutableParent,
         MutableParentDetails by record {
-    override fun assign(child: Child) {
-        // TODO: Keep collection of children; save children when saving parent
-        child.update {
-            assignTo(this@PersistedMutableParent)
-        }.save()
-    }
-
-    override fun unassign(child: Child) {
-        // TODO: Keep collection of children; save children when saving parent
-        child.update {
-            unassignFromAny()
-        }.save()
-    }
+    override val children = TrackedSortedSet(initial, added, removed)
 }
 
 interface ParentRepository : CrudRepository<ParentRecord, Long> {
@@ -125,15 +198,35 @@ interface ParentRepository : CrudRepository<ParentRecord, Long> {
         """)
     fun findByNaturalId(@Param("naturalId") naturalId: String)
             : Optional<ParentRecord>
+
+    @Query("SELECT * FROM upsert_parent(:naturalId, :value, :version)")
+    fun upsert(
+            @Param("naturalId") naturalId: String?,
+            @Param("value") value: String?,
+            @Param("version") version: Int?): ParentRecord?
+
+    fun upsert(entity: ParentRecord) =
+            upsert(entity.naturalId, entity.value, entity.version)?.let {
+                entity.updateWith(it)
+            }
 }
 
 @Table("parent")
 data class ParentRecord(
-        @Id val id: Long?,
-        override val naturalId: String,
+        @Id var id: Long?,
+        override var naturalId: String,
         override var value: String?,
-        override val version: Int)
-    : MutableParentDetails {
+        override var version: Int)
+    : MutableParentDetails,
+        UpsertableRecord<ParentRecord> {
     internal constructor(naturalId: String)
             : this(null, naturalId, null, 0)
+
+    override fun updateWith(upserted: ParentRecord): ParentRecord {
+        id = upserted.id
+        naturalId = upserted.naturalId
+        value = upserted.value
+        version = upserted.version
+        return this
+    }
 }
