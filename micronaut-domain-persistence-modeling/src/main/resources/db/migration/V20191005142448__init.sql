@@ -4,22 +4,22 @@ CREATE TABLE parent
     natural_id VARCHAR NOT NULL UNIQUE,
     value      VARCHAR,
     -- DB controls Audit columns, not caller
-    version    INT DEFAULT 0,
+    version    INT,
     created_at TIMESTAMP,
     updated_at TIMESTAMP
 );
 
 CREATE TABLE child
 (
-    id          SERIAL PRIMARY KEY,
-    natural_id  VARCHAR   NOT NULL UNIQUE,
-    parent_id   INT REFERENCES parent (id), -- Nullable
-    value       VARCHAR,
-    subchildren VARCHAR[] NOT NULL,
+    id                SERIAL PRIMARY KEY,
+    natural_id        VARCHAR       NOT NULL UNIQUE,
+    parent_natural_id VARCHAR REFERENCES parent (natural_id), -- Nullable
+    value             VARCHAR,
+    subchildren       VARCHAR ARRAY NOT NULL,
     -- DB controls Audit columns, not caller
-    version     INT DEFAULT 0,
-    created_at  TIMESTAMP,
-    updated_at  TIMESTAMP
+    version           INT,
+    created_at        TIMESTAMP,
+    updated_at        TIMESTAMP
 );
 
 CREATE OR REPLACE FUNCTION upsert_parent(_natural_id parent.natural_id%TYPE,
@@ -41,10 +41,11 @@ BEGIN
 END;
 $$;
 
+-- Workaround issue in Spring Data with passing sets for ARRAY types in a procedure
 CREATE OR REPLACE FUNCTION upsert_child(_natural_id child.natural_id%TYPE,
-                                        _parent_id child.parent_id%TYPE,
+                                        _parent_natural_id child.parent_natural_id%TYPE,
                                         _value child.value%TYPE,
-                                        _subchildren child.subchildren%TYPE,
+                                        _subchildren VARCHAR,
                                         _version child.version%TYPE)
     RETURNS SETOF CHILD
     ROWS 1
@@ -53,12 +54,16 @@ AS
 $$
 BEGIN
     RETURN QUERY INSERT INTO child
-        (natural_id, parent_id, value, subchildren, version)
-        VALUES (_natural_id, _parent_id, _value, _subchildren, _version)
+        (natural_id, parent_natural_id, value,
+         subchildren, version)
+        VALUES (_natural_id, _parent_natural_id, _value,
+                CAST(_subchildren AS VARCHAR ARRAY), _version)
         ON CONFLICT (natural_id) DO UPDATE
-            SET (parent_id, value, subchildren, version)
-                = (excluded.parent_id, excluded.value, excluded.subchildren,
-                   excluded.version)
+            SET (parent_natural_id, value,
+                 subchildren,
+                 version)
+                = (excluded.parent_natural_id, excluded.value,
+                   excluded.subchildren, excluded.version)
         RETURNING *;
 END;
 $$;
@@ -70,7 +75,8 @@ AS
 $$
 BEGIN
     IF (new.natural_id <> old.natural_id) THEN
-        RAISE 'Cannot change the natural key';
+        RAISE 'Cannot change the natural key: %.%: NEW: %; OLD: %',
+            TG_TABLE_SCHEMA, TG_TABLE_NAME, new, old;
     END IF;
     RETURN new;
 END;
@@ -131,19 +137,15 @@ DECLARE
     old_hash VARCHAR;
     new_hash VARCHAR;
 BEGIN
-    IF new.version IS NULL THEN
-        new.version = old.version;
-    end if;
-
     old_hash := md5(CAST((old.*) AS TEXT));
     new_hash := md5(CAST((new.*) AS TEXT));
 
     IF (old_hash = new_hash) THEN
-        RETURN NULL; -- Ignore the update, stop processing triggers
+        RETURN NULL; -- Bail out of update if no changes
     END IF;
 
     IF (new.version <> old.version) THEN
-        RAISE 'Outdated: NEW: %, OLD: %', new, old;
+        RAISE 'Outdated: %.%: NEW: %; OLD: %', TG_TABLE_SCHEMA, TG_TABLE_NAME, new, old;
     END IF;
 
     new.version := old.version + 1;
@@ -158,12 +160,10 @@ CREATE OR REPLACE FUNCTION insert_child_update_parent_f()
 AS
 $$
 BEGIN
-    -- Pick a column that:
-    -- 1) Really changes, so "ignore unchanged" does not kick in
-    -- 2) Is not user-data visible, so remains truly an "audit" field
     UPDATE parent
-    SET updated_at = now()
-    WHERE id = new.parent_id;
+    SET updated_at = now() + INTERVAL '1 millisecond'
+    WHERE natural_id = new.parent_natural_id;
+
     RETURN new;
 END;
 $$;
@@ -174,12 +174,10 @@ CREATE OR REPLACE FUNCTION update_child_update_parent_f()
 AS
 $$
 BEGIN
-    -- Pick a column that:
-    -- 1) Really changes, so "ignore unchanged" does not kick in
-    -- 2) Is not user-data visible, so remains truly an "audit" field
     UPDATE parent
-    SET updated_at = now()
-    WHERE id IN (old.parent_id, new.parent_id);
+    SET updated_at = now() + INTERVAL '1 millisecond'
+    WHERE natural_id IN (old.parent_natural_id, new.parent_natural_id);
+
     RETURN new;
 END;
 $$;
@@ -190,12 +188,10 @@ CREATE OR REPLACE FUNCTION delete_child_update_parent_f()
 AS
 $$
 BEGIN
-    -- Pick a column that:
-    -- 1) Really changes, so "ignore unchanged" does not kick in
-    -- 2) Is not user-data visible, so remains truly an "audit" field
     UPDATE parent
-    SET updated_at = now()
-    WHERE id = old.parent_id;
+    SET updated_at = now() + INTERVAL '1 millisecond'
+    WHERE natural_id = old.parent_natural_id;
+
     RETURN old;
 END;
 $$;

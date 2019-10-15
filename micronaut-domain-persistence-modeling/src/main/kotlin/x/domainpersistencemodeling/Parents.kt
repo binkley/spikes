@@ -12,23 +12,39 @@ interface ParentFactory {
     fun findExistingOrCreateNew(naturalId: String): Parent
 }
 
-interface ParentDetails {
+interface ParentDetails : Comparable<ParentDetails> {
     val naturalId: String
     val value: String?
     val version: Int
+
+    override fun compareTo(other: ParentDetails) =
+            naturalId.compareTo(other.naturalId)
 }
 
-interface MutableParentDetails
-    : ParentDetails {
-    override val naturalId: String
+interface MutableParentDetails : ParentDetails {
     override var value: String?
 }
 
-interface MutableParent : MutableParentDetails
+interface MutableParent : MutableParentDetails {
+    val children: MutableSet<Child>
 
-interface Parent : ParentDetails,
-        ScopedMutation<Parent, MutableParent>,
-        Persisted {
+    fun assign(child: Child) {
+        if (!children.add(child))
+            throw DomainException("Already assigned: $child")
+    }
+
+    fun unassign(child: Child) {
+        if (!children.remove(child))
+            throw DomainException("Not assigned: $child")
+    }
+}
+
+interface Parent
+    : ParentDetails,
+        ScopedMutable<Parent, MutableParent>,
+        UpsertableDomain<Parent> {
+    val children: Set<Child>
+
     fun toResource(): ParentResource
 }
 
