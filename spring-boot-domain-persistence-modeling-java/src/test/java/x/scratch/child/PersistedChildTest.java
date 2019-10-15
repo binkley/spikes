@@ -26,7 +26,7 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
 @TestInstance(PER_CLASS)
 @Transactional
 class PersistedChildTest {
-    private static final String naturalId = "p";
+    private static final String childNaturalId = "p";
     private static final String parentNaturalId = "a";
 
     private final ChildFactory children;
@@ -35,9 +35,9 @@ class PersistedChildTest {
 
     @Test
     void shouldCreateNew() {
-        final var found = children.findExistingOrCreateNew(naturalId);
+        final var found = children.findExistingOrCreateNew(childNaturalId);
 
-        assertThat(found).isEqualTo(children.createNew(naturalId));
+        assertThat(found).isEqualTo(children.createNew(childNaturalId));
         assertThat(found.isExisting()).isFalse();
     }
 
@@ -45,7 +45,7 @@ class PersistedChildTest {
     void shouldFindExisting() {
         final var saved = newSavedChild();
 
-        final var found = children.findExistingOrCreateNew(naturalId);
+        final var found = children.findExistingOrCreateNew(childNaturalId);
 
         assertThat(found).isEqualTo(saved);
         assertThat(found.isExisting()).isTrue();
@@ -53,7 +53,7 @@ class PersistedChildTest {
 
     @Test
     void shouldRoundTrip() {
-        final var unsaved = children.createNew(naturalId);
+        final var unsaved = children.createNew(childNaturalId);
 
         assertThat(unsaved.getVersion()).isEqualTo(0);
         assertThat(events()).isEmpty();
@@ -65,7 +65,8 @@ class PersistedChildTest {
         assertThat(saved).isEqualTo(UpsertedDomainResult.of(unsaved, true));
         assertThat(events()).containsExactly(new ChildChangedEvent(
                 null,
-                new ChildResource(naturalId, null, null, emptySet(), 1)));
+                new ChildResource(childNaturalId, null, null,
+                        emptySet(), 1)));
 
         assertThat(currentPersistedChild()).isEqualTo(unsaved);
     }
@@ -98,8 +99,10 @@ class PersistedChildTest {
 
         assertThat(original.isChanged()).isFalse();
         assertThat(events()).containsExactly(new ChildChangedEvent(
-                new ChildResource(naturalId, null, null, emptySet(), 1),
-                new ChildResource(naturalId, null, value, emptySet(), 2)));
+                new ChildResource(childNaturalId, null, null,
+                        emptySet(), 1),
+                new ChildResource(childNaturalId, null, value,
+                        emptySet(), 2)));
     }
 
     @Test
@@ -112,7 +115,8 @@ class PersistedChildTest {
         assertThatThrownBy(existing::getVersion)
                 .isInstanceOf(NullPointerException.class);
         assertThat(events()).containsExactly(new ChildChangedEvent(
-                new ChildResource(naturalId, null, null, emptySet(), 1),
+                new ChildResource(childNaturalId, null, null,
+                        emptySet(), 1),
                 null));
     }
 
@@ -122,7 +126,7 @@ class PersistedChildTest {
 
         assertThat(parent.getVersion()).isEqualTo(1);
 
-        final var unsaved = children.createNew(naturalId)
+        final var unsaved = children.createNew(childNaturalId)
                 .update(it -> it.assignTo(parent));
 
         assertThat(unsaved.getParentNaturalId()).isEqualTo(parentNaturalId);
@@ -134,7 +138,7 @@ class PersistedChildTest {
         assertThat(currentPersistedParent().getVersion()).isEqualTo(2);
         assertThat(events()).containsExactly(new ChildChangedEvent(
                 null,
-                new ChildResource(naturalId, parentNaturalId, null,
+                new ChildResource(childNaturalId, parentNaturalId, null,
                         emptySet(), 1)));
     }
 
@@ -157,15 +161,16 @@ class PersistedChildTest {
                 .isEqualTo(parentNaturalId);
         assertThat(currentPersistedParent().getVersion()).isEqualTo(2);
         assertThat(events()).containsExactly(new ChildChangedEvent(
-                new ChildResource(naturalId, null, null, emptySet(), 1),
-                new ChildResource(naturalId, parentNaturalId, null,
+                new ChildResource(childNaturalId, null, null,
+                        emptySet(), 1),
+                new ChildResource(childNaturalId, parentNaturalId, null,
                         emptySet(), 2)));
     }
 
     @Test
     void shouldUnassignChild() {
         final var parent = newSavedParent();
-        final var child = children.createNew(naturalId)
+        final var child = children.createNew(childNaturalId)
                 .update(it -> it.assignTo(parent))
                 .save().getDomain();
         testListener.reset();
@@ -179,24 +184,28 @@ class PersistedChildTest {
         // Created, assigned by child, unassigned by child == version 3
         assertThat(currentPersistedParent().getVersion()).isEqualTo(3);
         assertThat(events()).containsExactly(new ChildChangedEvent(
-                new ChildResource(naturalId, parentNaturalId, null,
+                new ChildResource(childNaturalId, parentNaturalId, null,
                         emptySet(), 1),
-                new ChildResource(naturalId, null, null, emptySet(), 2)));
+                new ChildResource(childNaturalId, null, null,
+                        emptySet(), 2)));
     }
 
     private Child newSavedChild() {
-        final var child = children.createNew(naturalId).save().getDomain();
+        final var saved = children.createNew(childNaturalId).save();
+        assertThat(saved.isChanged()).isTrue();
+        final var child = saved.getDomain();
         testListener.reset();
         return child;
     }
 
     private Child currentPersistedChild() {
-        return children.findExisting(naturalId).orElseThrow();
+        return children.findExisting(childNaturalId).orElseThrow();
     }
 
     private Parent newSavedParent() {
-        final var parent = parents.createNew(parentNaturalId).save()
-                .getDomain();
+        final var saved = parents.createNew(parentNaturalId).save();
+        assertThat(saved.isChanged()).isTrue();
+        final var parent = saved.getDomain();
         testListener.reset();
         return parent;
     }

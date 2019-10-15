@@ -51,7 +51,7 @@ final class PersistedChildFactory
     }
 
     @Override
-    public Stream<Child> byParentNaturalId(final String parentNaturalId) {
+    public Stream<Child> findOwned(final String parentNaturalId) {
         return repository.findByParentNaturalId(parentNaturalId)
                 .map(this::toChild);
     }

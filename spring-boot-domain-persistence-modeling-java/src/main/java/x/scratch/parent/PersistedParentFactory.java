@@ -69,7 +69,7 @@ final class PersistedParentFactory
     }
 
     private PersistedParent toParent(final ParentRecord record) {
-        final var assigned = children.byParentNaturalId(
+        final var assigned = children.findOwned(
                 record.getNaturalId());
         return new PersistedParent(this, toResource(record), record,
                 assigned);

@@ -216,26 +216,28 @@ class PersistedParentTest {
                         new ParentResource(parentNaturalId, null, 3)));
     }
 
-    private Parent newSavedParent() {
-        final var parent = parents.createNew(parentNaturalId).save()
-                .getDomain();
-        testListener.reset();
-        return parent;
-    }
-
-    private Parent currentPersistedParent() {
-        return parents.findExisting(parentNaturalId).orElseThrow();
-    }
-
     private Child newSavedChild() {
-        final var child = children.createNew(childNaturalId).save()
-                .getDomain();
+        final var saved = children.createNew(childNaturalId).save();
+        assertThat(saved.isChanged()).isTrue();
+        final var child = saved.getDomain();
         testListener.reset();
         return child;
     }
 
     private Child currentPersistedChild() {
         return children.findExisting(childNaturalId).orElseThrow();
+    }
+
+    private Parent newSavedParent() {
+        final var saved = parents.createNew(parentNaturalId).save();
+        assertThat(saved.isChanged()).isTrue();
+        final var parent = saved.getDomain();
+        testListener.reset();
+        return parent;
+    }
+
+    private Parent currentPersistedParent() {
+        return parents.findExisting(parentNaturalId).orElseThrow();
     }
 
     private List<DomainChangedEvent<?>> events() {

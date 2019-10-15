@@ -12,5 +12,5 @@ public interface ChildFactory {
 
     Child findExistingOrCreateNew(String naturalId);
 
-    Stream<Child> byParentNaturalId(String parentNaturalId);
+    Stream<Child> findOwned(String parentNaturalId);
 }
