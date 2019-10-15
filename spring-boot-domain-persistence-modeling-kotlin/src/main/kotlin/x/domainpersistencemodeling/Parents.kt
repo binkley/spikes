@@ -17,9 +17,8 @@ interface ParentDetails : Comparable<ParentDetails> {
     val value: String?
     val version: Int
 
-    override fun compareTo(other: ParentDetails): Int {
-        return naturalId.compareTo(other.naturalId)
-    }
+    override fun compareTo(other: ParentDetails) =
+            naturalId.compareTo(other.naturalId)
 }
 
 interface MutableParentDetails : ParentDetails {

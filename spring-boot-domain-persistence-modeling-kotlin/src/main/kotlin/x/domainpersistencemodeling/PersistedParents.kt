@@ -21,7 +21,7 @@ internal open class PersistedParentFactory(
         private val publisher: ApplicationEventPublisher)
     : ParentFactory {
     companion object {
-        fun toResource(record: ParentRecord) =
+        internal fun toResource(record: ParentRecord) =
                 ParentResource(record.naturalId, record.value,
                         record.version)
     }
@@ -71,7 +71,7 @@ internal class PersistedParent(
     : Parent,
         ParentDetails by record!! {
     private var snapshotChildren: Set<Child>
-    private val _children: MutableSet<Child>
+    private var _children: MutableSet<Child>
 
     override val children: Set<Child>
         get() = _children
@@ -92,9 +92,9 @@ internal class PersistedParent(
                 else UpsertedRecordResult.of(record!!, null)
         record = result.record
 
-        assignedChildren().forEach(Child::save)
-        unassignedChildren().forEach(Child::save)
-        changedChildren().forEach(Child::save)
+        assignedChildren().forEach { it.save() }
+        unassignedChildren().forEach { it.save() }
+        changedChildren().forEach { it.save() }
         // Update our version -- TODO: Optimize away if unneeded
         val refreshed = factory.refresh(naturalId)
         record!!.version = refreshed.version
@@ -107,10 +107,10 @@ internal class PersistedParent(
     }
 
     override fun delete() {
-        if (!children.isEmpty()) throw DomainException(
+        if (children.isNotEmpty()) throw DomainException(
                 "Deleting parent with assigned children: $this")
 
-        snapshotChildren.forEach(Child::save)
+        snapshotChildren.forEach { it.save() }
 
         val before = snapshot
         val after = null as ParentResource?
@@ -136,7 +136,7 @@ internal class PersistedParent(
         val changed = TreeSet(snapshotChildren)
         changed.retainAll(children)
         return changed.stream()
-                .filter(Child::changed)
+                .filter { it.changed }
                 .collect(toCollection(::TreeSet))
     }
 
@@ -150,18 +150,18 @@ internal class PersistedParent(
         return this
     }
 
-    private fun addChild(child: Child, all: Set<Child>) {
+    private fun addChild(child: Child, all: MutableSet<Child>) {
         child.update {
             assignTo(this@PersistedParent)
         }
-        _children.add(child)
+        _children = all
     }
 
-    private fun removeChild(child: Child, all: Set<Child>) {
+    private fun removeChild(child: Child, all: MutableSet<Child>) {
         child.update {
             unassignFromAny()
         }
-        _children.remove(child)
+        _children = all
     }
 
     override fun equals(other: Any?): Boolean {
@@ -184,8 +184,8 @@ internal class PersistedParent(
 internal data class PersistedMutableParent(
         private val record: ParentRecord,
         private val initial: Set<Child>,
-        private val added: (Child, Set<Child>) -> Unit,
-        private val removed: (Child, Set<Child>) -> Unit)
+        private val added: (Child, MutableSet<Child>) -> Unit,
+        private val removed: (Child, MutableSet<Child>) -> Unit)
     : MutableParent,
         MutableParentDetails by record {
     override val children = TrackedSortedSet(initial, added, removed)
@@ -193,13 +193,17 @@ internal data class PersistedMutableParent(
 
 interface ParentRepository : CrudRepository<ParentRecord, Long> {
     @Query("""
-        SELECT * FROM parent
+        SELECT *
+        FROM parent
         WHERE natural_id = :naturalId
         """)
     fun findByNaturalId(@Param("naturalId") naturalId: String)
             : Optional<ParentRecord>
 
-    @Query("SELECT * FROM upsert_parent(:naturalId, :value, :version)")
+    @Query("""
+        SELECT *
+        FROM upsert_parent(:naturalId, :value, :version)
+        """)
     fun upsert(
             @Param("naturalId") naturalId: String?,
             @Param("value") value: String?,

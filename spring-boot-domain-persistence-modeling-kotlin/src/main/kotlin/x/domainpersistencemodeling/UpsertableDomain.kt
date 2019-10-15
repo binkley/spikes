@@ -18,5 +18,5 @@ interface UpsertableDomain<Domain : UpsertableDomain<Domain>> {
     fun delete()
 
     data class UpsertedDomainResult<Domain : UpsertableDomain<Domain>>(
-            val domain: Domain, val change: Boolean)
+            val domain: Domain, val changed: Boolean)
 }
