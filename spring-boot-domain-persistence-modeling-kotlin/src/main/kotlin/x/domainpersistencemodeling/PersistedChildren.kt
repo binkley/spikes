@@ -182,6 +182,7 @@ interface ChildRepository : CrudRepository<ChildRecord, Long> {
             @Param("version") version: Int)
             : ChildRecord?
 
+    @JvmDefault
     fun upsert(entity: ChildRecord): ChildRecord? {
         // TODO: Workaround issue in Spring Data with passing sets for
         // ARRAY types in a procedure

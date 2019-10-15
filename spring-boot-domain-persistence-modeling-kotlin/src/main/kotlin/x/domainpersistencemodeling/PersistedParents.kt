@@ -209,6 +209,7 @@ interface ParentRepository : CrudRepository<ParentRecord, Long> {
             @Param("value") value: String?,
             @Param("version") version: Int?): ParentRecord?
 
+    @JvmDefault
     fun upsert(entity: ParentRecord) =
             upsert(entity.naturalId, entity.value, entity.version)?.let {
                 entity.updateWith(it)

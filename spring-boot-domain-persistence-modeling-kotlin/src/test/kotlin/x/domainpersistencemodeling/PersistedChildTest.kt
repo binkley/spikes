@@ -11,17 +11,19 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.transaction.annotation.Transactional
 import x.domainpersistencemodeling.UpsertableDomain.UpsertedDomainResult
 
 @AutoConfigureTestDatabase(replace = NONE)
 @SpringBootTest
-internal class PersistedChildTest @Autowired constructor(
+@Transactional
+internal open class PersistedChildTest @Autowired constructor(
         private val children: ChildFactory,
         private val parents: ParentFactory,
         private val testListener: TestListener<ChildChangedEvent>) {
     companion object {
-        const val childNaturalId = "p"
         const val parentNaturalId = "a"
+        const val childNaturalId = "p"
     }
 
     @Test
