@@ -54,9 +54,8 @@ internal open class PersistedParentFactory(
             repository.findByNaturalId(naturalId).orElseThrow()
 
     internal fun notifyChanged(
-            before: ParentResource?, after: ParentResource?) {
-        notifyIfChanged(before, after, publisher, ::ParentChangedEvent)
-    }
+            before: ParentResource?, after: ParentResource?) =
+            publisher.publishEvent(ParentChangedEvent(before, after))
 
     private fun toParent(record: ParentRecord) =
             PersistedParent(this, toResource(record), record,
@@ -68,8 +67,13 @@ internal class PersistedParent(
         private var snapshot: ParentResource?,
         private var record: ParentRecord?,
         assigned: Sequence<Child>)
-    : Parent,
-        ParentDetails by record!! {
+    : Parent {
+    override val naturalId: String
+        get() = record().naturalId
+    override val value: String?
+        get() = record().value
+    override val version: Int
+        get() = record().version
     private var snapshotChildren: Set<Child>
     private var _children: MutableSet<Child>
 
@@ -87,23 +91,38 @@ internal class PersistedParent(
     override fun save(): UpsertedDomainResult<Parent> {
         // Save ourselves first, so children have a valid parent
         val before = snapshot
-        val result =
-                if (changed) factory.save(record!!)
-                else UpsertedRecordResult.of(record!!, null)
+        var result =
+                if (changed) factory.save(record())
+                else UpsertedRecordResult.of(record(), null)
         record = result.record
 
-        assignedChildren().forEach { it.save() }
-        unassignedChildren().forEach { it.save() }
-        changedChildren().forEach { it.save() }
-        // Update our version -- TODO: Optimize away if unneeded
-        val refreshed = factory.refresh(naturalId)
-        record!!.version = refreshed.version
+        if (saveMutatedChildren()) {
+            val refreshed = factory.refresh(naturalId)
+            record!!.version = refreshed.version
+            result = UpsertedRecordResult.of(record(), refreshed)
+        }
 
         snapshotChildren = TreeSet(children)
         val after = toResource()
         snapshot = after
-        factory.notifyChanged(before, after)
+        if (result.changed) // Trust the database
+            factory.notifyChanged(before, after)
         return UpsertedDomainResult(this, result.changed)
+    }
+
+    private fun saveMutatedChildren(): Boolean {
+        // TODO: Gross function
+        var changed = false
+        val assignedChildren = assignedChildren()
+        if (!assignedChildren.isEmpty()) changed = true
+        assignedChildren.forEach { it.save() }
+        val unassignedChildren = unassignedChildren()
+        if (!unassignedChildren.isEmpty()) changed = true
+        unassignedChildren.forEach { it.save() }
+        val changedChildren = changedChildren()
+        if (!changedChildren.isEmpty()) changed = true
+        changedChildren.forEach { it.save() }
+        return changed
     }
 
     override fun delete() {
@@ -114,7 +133,7 @@ internal class PersistedParent(
 
         val before = snapshot
         val after = null as ParentResource?
-        factory.delete(record!!)
+        factory.delete(record())
         record = null
         snapshot = after
         factory.notifyChanged(before, after)
@@ -141,27 +160,13 @@ internal class PersistedParent(
     }
 
     override fun toResource() =
-            PersistedParentFactory.toResource(record!!)
+            PersistedParentFactory.toResource(record())
 
     override fun update(block: MutableParent.() -> Unit): Parent {
         val mutable = PersistedMutableParent(
-                record!!, children, ::addChild, ::removeChild)
+                record(), children, ::addChild, ::removeChild)
         block(mutable)
         return this
-    }
-
-    private fun addChild(child: Child, all: MutableSet<Child>) {
-        child.update {
-            assignTo(this@PersistedParent)
-        }
-        _children = all
-    }
-
-    private fun removeChild(child: Child, all: MutableSet<Child>) {
-        child.update {
-            unassignFromAny()
-        }
-        _children = all
     }
 
     override fun equals(other: Any?): Boolean {
@@ -179,6 +184,23 @@ internal class PersistedParent(
 
     override fun toString() =
             "${super.toString()}{snapshot=$snapshot, snapshotChildren=$snapshotChildren, record=$record, children=$children}"
+
+    private fun addChild(child: Child, all: MutableSet<Child>) {
+        child.update {
+            assignTo(this@PersistedParent)
+        }
+        _children = all
+    }
+
+    private fun removeChild(child: Child, all: MutableSet<Child>) {
+        child.update {
+            unassignFromAny()
+        }
+        _children = all
+    }
+
+    private fun record() =
+            record ?: throw DomainException("Deleted: $this")
 }
 
 internal data class PersistedMutableParent(

@@ -109,7 +109,7 @@ internal open class PersistedChildTest @Autowired constructor(
         expect(children.all().toList()).isEmpty()
         expect {
             existing.version
-        }.toThrow<NullPointerException> { }
+        }.toThrow<DomainException> { }
         testListener.expectNext.containsExactly(ChildChangedEvent(
                 ChildResource(childNaturalId, null, null,
                         emptySet(), 1),

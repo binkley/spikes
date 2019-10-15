@@ -139,7 +139,7 @@ internal open class PersistedParentTest @Autowired constructor(
         expect(parents.all().toList()).isEmpty()
         expect {
             existing.version
-        }.toThrow<NullPointerException> { }
+        }.toThrow<DomainException> { }
         testListener.expectNext.containsExactly(ParentChangedEvent(
                 ParentResource(parentNaturalId, null, 1),
                 null))
@@ -182,37 +182,35 @@ internal open class PersistedParentTest @Autowired constructor(
 
         expect(parent.children).isEmpty()
 
-        val childAssigned = parent
-                .update {
-                    assign(child)
-                }.save().domain
+        val parentAssignedWithChild = parent.update {
+            assign(child)
+        }.save().domain
 
         expect(parent.children).containsExactly(child)
-        expect(childAssigned.version).toBe(2)
+        expect(parentAssignedWithChild.version).toBe(2)
         expect(currentPersistedChild().parentNaturalId)
                 .toBe(parentNaturalId)
         testListener.expectNext.containsExactly(
                 ChildChangedEvent(
                         ChildResource(childNaturalId, null, null,
                                 emptySet(), 1),
-                        ChildResource(childNaturalId, parentNaturalId,
-                                null, emptySet(), 2)),
+                        ChildResource(childNaturalId, parentNaturalId, null,
+                                emptySet(), 2)),
                 ParentChangedEvent(
                         ParentResource(parentNaturalId, null, 1),
                         ParentResource(parentNaturalId, null, 2)))
 
-        val childUnassigned = parent
-                .update {
-                    unassign(child)
-                }.save().domain
+        val childUnassigned = parent.update {
+            unassign(child)
+        }.save().domain
 
         expect(parent.children).isEmpty()
         expect(childUnassigned.version).toBe(3)
         expect(currentPersistedChild().parentNaturalId).toBe(null)
         testListener.expectNext.containsExactly(
                 ChildChangedEvent(
-                        ChildResource(childNaturalId, parentNaturalId,
-                                null, emptySet(), 2),
+                        ChildResource(childNaturalId, parentNaturalId, null,
+                                emptySet(), 2),
                         ChildResource(childNaturalId, null, null,
                                 emptySet(), 3)),
                 ParentChangedEvent(

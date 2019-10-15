@@ -56,9 +56,8 @@ internal open class PersistedChildFactory(
             repository.delete(record)
 
     internal fun notifyChanged(
-            before: ChildResource?, after: ChildResource?) {
-        notifyIfChanged(before, after, publisher, ::ChildChangedEvent)
-    }
+            before: ChildResource?, after: ChildResource?) =
+            publisher.publishEvent(ChildChangedEvent(before, after))
 
     private fun toChild(record: ChildRecord) =
             PersistedChild(this, toResource(record), record)
@@ -68,10 +67,17 @@ internal class PersistedChild(
         private val factory: PersistedChildFactory,
         private var snapshot: ChildResource?,
         private var record: ChildRecord?)
-    : Child,
-        ChildDetails by record!! {
+    : Child {
+    override val naturalId: String
+        get() = record().naturalId
+    override val parentNaturalId: String?
+        get() = record().parentNaturalId
+    override val value: String?
+        get() = record().value
+    override val version: Int
+        get() = record().version
     override val subchildren: Set<String> // Sorted
-        get() = TreeSet(record!!.subchildren)
+        get() = TreeSet(record().subchildren)
 
     override val changed
         get() = snapshot != toResource()
@@ -80,11 +86,12 @@ internal class PersistedChild(
         if (!changed) return UpsertedDomainResult(this, false)
 
         val before = snapshot
-        val result = factory.save(record!!)
+        val result = factory.save(record())
         record = result.record
         val after = toResource()
         snapshot = after
-        factory.notifyChanged(before, after)
+        if (result.changed) // Trust the database
+            factory.notifyChanged(before, after)
         return UpsertedDomainResult(this, result.changed)
     }
 
@@ -94,19 +101,19 @@ internal class PersistedChild(
 
         val before = snapshot
         val after = (null as ChildResource?)
-        factory.delete(record!!)
+        factory.delete(record())
         record = null
         snapshot = after
         factory.notifyChanged(before, after)
     }
 
     override fun update(block: MutableChild.() -> Unit) = apply {
-        val mutable = PersistedMutableChild(record!!)
+        val mutable = PersistedMutableChild(record())
         mutable.block()
     }
 
     override fun toResource() =
-            PersistedChildFactory.toResource(record!!)
+            PersistedChildFactory.toResource(record())
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -120,6 +127,9 @@ internal class PersistedChild(
 
     override fun toString() =
             "${super.toString()}{snapshot=$snapshot, record=$record}"
+
+    private fun record() =
+            record ?: throw DomainException("Deleted: $this")
 }
 
 internal class PersistedMutableChild(private val record: ChildRecord)
