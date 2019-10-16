@@ -51,8 +51,7 @@ final class PersistedParentFactory
     }
 
     UpsertedRecordResult<ParentRecord> save(final ParentRecord record) {
-        final var upserted = repository.upsert(record);
-        return UpsertedRecordResult.of(record, upserted);
+        return UpsertedRecordResult.of(record, repository.upsert(record));
     }
 
     void delete(final ParentRecord record) {

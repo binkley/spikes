@@ -46,7 +46,7 @@ class PersistenceTest {
 
         assertThat(unsaved.getVersion()).isEqualTo(0);
 
-        final var saved = parents.upsert(unsaved);
+        final var saved = parents.upsert(unsaved).orElseThrow();
 
         assertThat(unsaved.getVersion()).isEqualTo(1);
         assertThat(saved).isEqualTo(unsaved);
@@ -60,7 +60,7 @@ class PersistenceTest {
 
         final var resaved = parents.upsert(saved);
 
-        assertThat(resaved).isNull();
+        assertThat(resaved).isEmpty();
         assertThat(saved.getVersion()).isEqualTo(1);
     }
 
@@ -70,7 +70,7 @@ class PersistenceTest {
 
         assertThat(unsaved.getVersion()).isEqualTo(0);
 
-        final var saved = children.upsert(unsaved);
+        final var saved = children.upsert(unsaved).orElseThrow();
 
         assertThat(unsaved.getVersion()).isEqualTo(1);
         assertThat(saved).isEqualTo(unsaved);
@@ -84,7 +84,7 @@ class PersistenceTest {
 
         final var resaved = children.upsert(saved);
 
-        assertThat(resaved).isNull();
+        assertThat(resaved).isEmpty();
         assertThat(saved.getVersion()).isEqualTo(1);
     }
 
@@ -94,7 +94,8 @@ class PersistenceTest {
 
         final var savedChild = children.upsert(newUnsavedChild().toBuilder()
                 .parentNaturalId(parentNaturalId)
-                .build());
+                .build())
+                .orElseThrow();
 
         assertThat(savedChild.getVersion()).isEqualTo(1);
         assertThat(findExistingParent().getVersion()).isEqualTo(2);
@@ -111,7 +112,8 @@ class PersistenceTest {
         assertThat(savedChild.getVersion()).isEqualTo(1);
 
         savedChild.setParentNaturalId(parentNaturalId);
-        final var updatedChild = children.upsert(savedChild);
+        final var updatedChild = children.upsert(savedChild)
+                .orElseThrow();
 
         assertThat(updatedChild.getVersion()).isEqualTo(2);
         assertThat(findExistingParent().getVersion()).isEqualTo(2);
@@ -120,11 +122,11 @@ class PersistenceTest {
     }
 
     private ParentRecord newSavedParent() {
-        return parents.upsert(newUnsavedParent());
+        return parents.upsert(newUnsavedParent()).orElseThrow();
     }
 
     private ChildRecord newSavedChild() {
-        return children.upsert(newUnsavedChild());
+        return children.upsert(newUnsavedChild()).orElseThrow();
     }
 
     private ParentRecord findExistingParent() {

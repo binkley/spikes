@@ -20,11 +20,11 @@ public interface ParentRepository
             @Param("value") final String value,
             @Param("version") final Integer version);
 
-    default ParentRecord upsert(final ParentRecord entity) {
+    default Optional<ParentRecord> upsert(final ParentRecord entity) {
         final var upserted = upsert(entity.getNaturalId(), entity.getValue(),
                 entity.getVersion());
-        return null == upserted
-                ? upserted
-                : entity.updateWith(upserted);
+        if (null == upserted) return Optional.empty();
+        entity.updateWith(upserted);
+        return Optional.of(upserted);
     }
 }

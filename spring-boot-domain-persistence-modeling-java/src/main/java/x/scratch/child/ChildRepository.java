@@ -30,7 +30,7 @@ public interface ChildRepository
             @Param("subchildren") final String subchildren,
             @Param("version") final Integer version);
 
-    default ChildRecord upsert(final ChildRecord entity) {
+    default Optional<ChildRecord> upsert(final ChildRecord entity) {
         // TODO: Workaround issue in Spring Data with passing sets for
         //  ARRAY types in a procedure
         final var upserted = upsert(entity.getNaturalId(),
@@ -39,8 +39,8 @@ public interface ChildRepository
                 entity.getSubchildren().stream()
                         .collect(joining(",", "{", "}")),
                 entity.getVersion());
-        return null == upserted
-                ? upserted
-                : entity.updateWith(upserted);
+        if (null == upserted) return Optional.empty();
+        entity.updateWith(upserted);
+        return Optional.of(entity);
     }
 }

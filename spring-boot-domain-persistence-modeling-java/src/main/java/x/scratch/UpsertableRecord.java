@@ -3,6 +3,8 @@ package x.scratch;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 
+import java.util.Optional;
+
 import static lombok.AccessLevel.PRIVATE;
 
 public interface UpsertableRecord<Record extends UpsertableRecord<Record>> {
@@ -15,8 +17,8 @@ public interface UpsertableRecord<Record extends UpsertableRecord<Record>> {
         private final boolean changed;
 
         public static <Record extends UpsertableRecord<Record>> UpsertedRecordResult<Record> of(
-                final Record entity, final Record upserted) {
-            return new UpsertedRecordResult<>(entity, null != upserted);
+                final Record entity, final Optional<Record> upserted) {
+            return new UpsertedRecordResult<>(entity, upserted.isPresent());
         }
     }
 }

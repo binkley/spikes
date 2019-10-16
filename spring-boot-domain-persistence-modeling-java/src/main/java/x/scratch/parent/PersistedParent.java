@@ -10,6 +10,7 @@ import x.scratch.child.MutableChild;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Consumer;
@@ -55,14 +56,14 @@ final class PersistedParent
         final var before = snapshot;
         var result = isChanged()
                 ? factory.save(record)
-                : UpsertedRecordResult.of(record, null);
+                : UpsertedRecordResult.of(record, Optional.empty());
         record = result.getRecord();
 
         if (saveMutatedChildren()) {
             snapshotChildren = new TreeSet<>(children);
             final var refreshed = factory.refresh(getNaturalId());
             record.setVersion(refreshed.getVersion());
-            result = UpsertedRecordResult.of(record, refreshed);
+            result = UpsertedRecordResult.of(record, Optional.of(refreshed));
         }
 
         final var after = toResource();
