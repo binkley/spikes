@@ -5,7 +5,8 @@ import lombok.Value;
 
 import static lombok.AccessLevel.PRIVATE;
 
-public interface UpsertableDomain<Domain extends UpsertableDomain<Domain>> {
+public interface PersistableDomain<Resource,
+        Domain extends PersistableDomain<Resource, Domain>> {
     int getVersion();
 
     default boolean isExisting() {
@@ -19,17 +20,22 @@ public interface UpsertableDomain<Domain extends UpsertableDomain<Domain>> {
      */
     boolean isChanged();
 
-    UpsertedDomainResult<Domain> save();
+    UpsertedDomainResult<Resource, Domain> save();
 
     void delete();
 
+    Resource toResource();
+
     @RequiredArgsConstructor(access = PRIVATE)
     @Value
-    class UpsertedDomainResult<Domain extends UpsertableDomain<Domain>> {
+    class UpsertedDomainResult<Resource,
+            Domain extends PersistableDomain<Resource, Domain>> {
         private final Domain domain;
         private final boolean changed;
 
-        public static <Domain extends UpsertableDomain<Domain>> UpsertedDomainResult<Domain> of(
+        public static <Resource,
+                Domain extends PersistableDomain<Resource, Domain>>
+        UpsertedDomainResult<Resource, Domain> of(
                 final Domain domain, final boolean changed) {
             return new UpsertedDomainResult<>(domain, changed);
         }

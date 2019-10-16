@@ -56,7 +56,7 @@ final class PersistedChild
     }
 
     @Override
-    public UpsertedDomainResult<Child> save() {
+    public UpsertedDomainResult<ChildResource, Child> save() {
         if (!isChanged()) return UpsertedDomainResult.of(this, false);
 
         final var before = snapshot;
@@ -83,14 +83,14 @@ final class PersistedChild
     }
 
     @Override
+    public ChildResource toResource() {
+        return PersistedChildFactory.toResource(record);
+    }
+
+    @Override
     public Child update(final Consumer<MutableChild> block) {
         final var mutable = new PersistedMutableChild(record);
         block.accept(mutable);
         return this;
-    }
-
-    @Override
-    public ChildResource toResource() {
-        return PersistedChildFactory.toResource(record);
     }
 }

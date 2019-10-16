@@ -50,7 +50,7 @@ final class PersistedParent
     }
 
     @Override
-    public UpsertedDomainResult<Parent> save() {
+    public UpsertedDomainResult<ParentResource, Parent> save() {
         // Save ourselves first, so children have a valid parent
         final var before = snapshot;
         final var result = isChanged()
@@ -88,6 +88,11 @@ final class PersistedParent
         factory.notifyChanged(before, after);
     }
 
+    @Override
+    public ParentResource toResource() {
+        return PersistedParentFactory.toResource(record);
+    }
+
     private Set<Child> assignedChildren() {
         final var assigned = new TreeSet<>(children);
         assigned.removeAll(snapshotChildren);
@@ -112,11 +117,6 @@ final class PersistedParent
     @Override
     public Set<Child> getChildren() {
         return unmodifiableSet(children);
-    }
-
-    @Override
-    public ParentResource toResource() {
-        return PersistedParentFactory.toResource(record);
     }
 
     @Override

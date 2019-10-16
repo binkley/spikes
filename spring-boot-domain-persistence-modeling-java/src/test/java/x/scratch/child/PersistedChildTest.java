@@ -7,8 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
+import x.scratch.PersistableDomain.UpsertedDomainResult;
 import x.scratch.TestListener;
-import x.scratch.UpsertableDomain.UpsertedDomainResult;
 import x.scratch.parent.Parent;
 import x.scratch.parent.ParentFactory;
 
