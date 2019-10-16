@@ -12,7 +12,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.transaction.annotation.Transactional
-import x.domainpersistencemodeling.UpsertableDomain.UpsertedDomainResult
+import x.domainpersistencemodeling.PersistableDomain.UpsertedDomainResult
 
 @AutoConfigureTestDatabase(replace = NONE)
 @SpringBootTest

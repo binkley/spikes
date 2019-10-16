@@ -42,10 +42,8 @@ interface MutableParent : MutableParentDetails {
 interface Parent
     : ParentDetails,
         ScopedMutable<Parent, MutableParent>,
-        UpsertableDomain<Parent> {
+        PersistableDomain<ParentResource, Parent> {
     val children: Set<Child>
-
-    fun toResource(): ParentResource
 }
 
 data class ParentChangedEvent(

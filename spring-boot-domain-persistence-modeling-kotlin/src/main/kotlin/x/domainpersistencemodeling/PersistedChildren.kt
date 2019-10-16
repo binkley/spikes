@@ -8,7 +8,7 @@ import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Repository
-import x.domainpersistencemodeling.UpsertableDomain.UpsertedDomainResult
+import x.domainpersistencemodeling.PersistableDomain.UpsertedDomainResult
 import x.domainpersistencemodeling.UpsertableRecord.UpsertedRecordResult
 import java.util.Objects
 import java.util.Optional
@@ -82,7 +82,7 @@ internal class PersistedChild(
     override val changed
         get() = snapshot != toResource()
 
-    override fun save(): UpsertedDomainResult<Child> {
+    override fun save(): UpsertedDomainResult<ChildResource, Child> {
         if (!changed) return UpsertedDomainResult(this, false)
 
         val before = snapshot
@@ -202,7 +202,7 @@ interface ChildRepository : CrudRepository<ChildRecord, Long> {
                 entity.subchildren.joinToString(",", "{", "}"),
                 entity.version)
         if (null != upserted) {
-            entity.updateWith(upserted)
+            entity.upsertedWith(upserted)
         }
         return upserted
     }
@@ -221,7 +221,7 @@ data class ChildRecord(
     internal constructor(naturalId: String)
             : this(null, naturalId, null, null, mutableSetOf(), 0)
 
-    override fun updateWith(upserted: ChildRecord): ChildRecord {
+    override fun upsertedWith(upserted: ChildRecord): ChildRecord {
         id = upserted.id
         naturalId = upserted.naturalId
         parentNaturalId = upserted.parentNaturalId

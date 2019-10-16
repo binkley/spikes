@@ -7,7 +7,7 @@ import org.springframework.data.relational.core.mapping.Table
 import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Component
-import x.domainpersistencemodeling.UpsertableDomain.UpsertedDomainResult
+import x.domainpersistencemodeling.PersistableDomain.UpsertedDomainResult
 import x.domainpersistencemodeling.UpsertableRecord.UpsertedRecordResult
 import java.util.Objects
 import java.util.Optional
@@ -88,7 +88,7 @@ internal class PersistedParent(
     override val changed
         get() = snapshot != toResource()
 
-    override fun save(): UpsertedDomainResult<Parent> {
+    override fun save(): UpsertedDomainResult<ParentResource, Parent> {
         // Save ourselves first, so children have a valid parent
         val before = snapshot
         var result =
@@ -110,25 +110,10 @@ internal class PersistedParent(
         return UpsertedDomainResult(this, result.changed)
     }
 
-    private fun saveMutatedChildren(): Boolean {
-        // TODO: Gross function
-        var changed = false
-        val assignedChildren = assignedChildren()
-        if (!assignedChildren.isEmpty()) changed = true
-        assignedChildren.forEach { it.save() }
-        val unassignedChildren = unassignedChildren()
-        if (!unassignedChildren.isEmpty()) changed = true
-        unassignedChildren.forEach { it.save() }
-        val changedChildren = changedChildren()
-        if (!changedChildren.isEmpty()) changed = true
-        changedChildren.forEach { it.save() }
-        return changed
-    }
-
     override fun delete() {
         if (children.isNotEmpty()) throw DomainException(
                 "Deleting parent with assigned children: $this")
-
+        // Removed from current object, but potentially not persisted
         snapshotChildren.forEach { it.save() }
 
         val before = snapshot
@@ -137,26 +122,6 @@ internal class PersistedParent(
         record = null
         snapshot = after
         factory.notifyChanged(before, after)
-    }
-
-    private fun assignedChildren(): Set<Child> {
-        val assigned = TreeSet(children)
-        assigned.removeAll(snapshotChildren)
-        return assigned
-    }
-
-    private fun unassignedChildren(): Set<Child> {
-        val unassigned = TreeSet(snapshotChildren)
-        unassigned.removeAll(children)
-        return unassigned
-    }
-
-    private fun changedChildren(): Set<Child> {
-        val changed = TreeSet(snapshotChildren)
-        changed.retainAll(children)
-        return changed.stream()
-                .filter { it.changed }
-                .collect(toCollection(::TreeSet))
     }
 
     override fun toResource() =
@@ -199,6 +164,41 @@ internal class PersistedParent(
         _children = all
     }
 
+    private fun assignedChildren(): Set<Child> {
+        val assigned = TreeSet(children)
+        assigned.removeAll(snapshotChildren)
+        return assigned
+    }
+
+    private fun unassignedChildren(): Set<Child> {
+        val unassigned = TreeSet(snapshotChildren)
+        unassigned.removeAll(children)
+        return unassigned
+    }
+
+    private fun changedChildren(): Set<Child> {
+        val changed = TreeSet(snapshotChildren)
+        changed.retainAll(children)
+        return changed.stream()
+                .filter { it.changed }
+                .collect(toCollection(::TreeSet))
+    }
+
+    private fun saveMutatedChildren(): Boolean {
+        // TODO: Gross function
+        var changed = false
+        val assignedChildren = assignedChildren()
+        if (!assignedChildren.isEmpty()) changed = true
+        assignedChildren.forEach { it.save() }
+        val unassignedChildren = unassignedChildren()
+        if (!unassignedChildren.isEmpty()) changed = true
+        unassignedChildren.forEach { it.save() }
+        val changedChildren = changedChildren()
+        if (!changedChildren.isEmpty()) changed = true
+        changedChildren.forEach { it.save() }
+        return changed
+    }
+
     private fun record() =
             record ?: throw DomainException("Deleted: $this")
 }
@@ -234,7 +234,7 @@ interface ParentRepository : CrudRepository<ParentRecord, Long> {
     @JvmDefault
     fun upsert(entity: ParentRecord) =
             upsert(entity.naturalId, entity.value, entity.version)?.let {
-                entity.updateWith(it)
+                entity.upsertedWith(it)
             }
 }
 
@@ -249,7 +249,7 @@ data class ParentRecord(
     internal constructor(naturalId: String)
             : this(null, naturalId, null, 0)
 
-    override fun updateWith(upserted: ParentRecord): ParentRecord {
+    override fun upsertedWith(upserted: ParentRecord): ParentRecord {
         id = upserted.id
         naturalId = upserted.naturalId
         value = upserted.value
