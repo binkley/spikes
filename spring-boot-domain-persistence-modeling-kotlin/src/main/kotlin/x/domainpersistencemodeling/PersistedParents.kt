@@ -247,7 +247,7 @@ interface ParentRepository : CrudRepository<ParentRecord, Long> {
         upserted.ifPresent {
             entity.upsertedWith(it)
         }
-        return upserted;
+        return upserted
     }
 }
 

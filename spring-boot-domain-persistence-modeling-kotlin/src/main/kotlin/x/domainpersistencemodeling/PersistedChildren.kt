@@ -202,7 +202,7 @@ interface ChildRepository : CrudRepository<ChildRecord, Long> {
         upserted.ifPresent {
             entity.upsertedWith(it)
         }
-        return upserted;
+        return upserted
     }
 
     companion object {
