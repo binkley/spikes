@@ -233,9 +233,9 @@ interface ParentRepository : CrudRepository<ParentRecord, Long> {
         FROM upsert_parent(:naturalId, :value, :version)
         """)
     fun upsert(
-            @Param("naturalId") naturalId: String?,
+            @Param("naturalId") naturalId: String,
             @Param("value") value: String?,
-            @Param("version") version: Int?)
+            @Param("version") version: Int)
             : Optional<ParentRecord>
 
     @JvmDefault
