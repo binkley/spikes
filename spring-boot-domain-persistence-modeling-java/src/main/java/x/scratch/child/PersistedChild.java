@@ -64,7 +64,8 @@ final class PersistedChild
         record = result.getRecord();
         final var after = toResource();
         snapshot = after;
-        factory.notifyChanged(before, after);
+        if (result.isChanged()) // Trust the database
+            factory.notifyChanged(before, after);
         return UpsertedDomainResult.of(this, result.isChanged());
     }
 

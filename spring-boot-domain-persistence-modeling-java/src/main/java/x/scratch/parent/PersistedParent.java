@@ -53,22 +53,22 @@ final class PersistedParent
     public UpsertedDomainResult<ParentResource, Parent> save() {
         // Save ourselves first, so children have a valid parent
         final var before = snapshot;
-        final var result = isChanged()
+        var result = isChanged()
                 ? factory.save(record)
                 : UpsertedRecordResult.of(record, null);
         record = result.getRecord();
 
-        assignedChildren().forEach(Child::save);
-        unassignedChildren().forEach(Child::save);
-        changedChildren().forEach(Child::save);
-        // Update our version -- TODO: Optimize away if unneeded
-        final var refreshed = factory.refresh(getNaturalId());
-        record.setVersion(refreshed.getVersion());
+        if (saveMutatedChildren()) {
+            snapshotChildren = new TreeSet<>(children);
+            final var refreshed = factory.refresh(getNaturalId());
+            record.setVersion(refreshed.getVersion());
+            result = UpsertedRecordResult.of(record, refreshed);
+        }
 
-        snapshotChildren = new TreeSet<>(children);
         final var after = toResource();
         snapshot = after;
-        factory.notifyChanged(before, after);
+        if (result.isChanged()) // Trust the database
+            factory.notifyChanged(before, after);
         return UpsertedDomainResult.of(this, result.isChanged());
     }
 
@@ -111,6 +111,27 @@ final class PersistedParent
         return changed.stream()
                 .filter(Child::isChanged)
                 .collect(toCollection(TreeSet::new));
+    }
+
+    private boolean saveMutatedChildren() {
+        // TODO: Gross function
+        var mutated = false;
+        final var assignedChildren = assignedChildren();
+        if (!assignedChildren.isEmpty()) {
+            assignedChildren.forEach(Child::save);
+            mutated = true;
+        }
+        final var unassignedChildren = unassignedChildren();
+        if (!unassignedChildren.isEmpty()) {
+            unassignedChildren.forEach(Child::save);
+            mutated = true;
+        }
+        final var changedChildren = changedChildren();
+        if (!changedChildren.isEmpty()) {
+            changedChildren.forEach(Child::save);
+            mutated = true;
+        }
+        return mutated;
     }
 
     @Nonnull
