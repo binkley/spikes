@@ -39,9 +39,8 @@ public interface ChildRepository
                 entity.getSubchildren().stream()
                         .collect(joining(",", "{", "}")),
                 entity.getVersion());
-        if (null != upserted) {
-            entity.updateWith(upserted);
-        }
-        return upserted;
+        return null == upserted
+                ? upserted
+                : entity.updateWith(upserted);
     }
 }
