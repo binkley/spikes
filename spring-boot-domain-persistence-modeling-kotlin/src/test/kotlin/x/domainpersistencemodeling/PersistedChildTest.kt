@@ -69,8 +69,7 @@ internal open class PersistedChildTest @Autowired constructor(
         val original = newSavedChild()
         val resaved = original.save()
 
-        expect(resaved)
-                .toBe(UpsertedDomainResult(original, false))
+        expect(resaved).toBe(UpsertedDomainResult(original, false))
         testListener.expectNext.isEmpty()
     }
 
