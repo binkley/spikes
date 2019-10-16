@@ -186,17 +186,23 @@ internal class PersistedParent(
 
     private fun saveMutatedChildren(): Boolean {
         // TODO: Gross function
-        var changed = false
+        var mutated = false
         val assignedChildren = assignedChildren()
-        if (!assignedChildren.isEmpty()) changed = true
-        assignedChildren.forEach { it.save() }
+        if (!assignedChildren.isEmpty()) {
+            assignedChildren.forEach { it.save() }
+            mutated = true
+        }
         val unassignedChildren = unassignedChildren()
-        if (!unassignedChildren.isEmpty()) changed = true
-        unassignedChildren.forEach { it.save() }
+        if (!unassignedChildren.isEmpty()) {
+            unassignedChildren.forEach { it.save() }
+            mutated = true
+        }
         val changedChildren = changedChildren()
-        if (!changedChildren.isEmpty()) changed = true
-        changedChildren.forEach { it.save() }
-        return changed
+        if (!changedChildren.isEmpty()) {
+            changedChildren.forEach { it.save() }
+            mutated = true
+        }
+        return mutated
     }
 
     private fun record() =
