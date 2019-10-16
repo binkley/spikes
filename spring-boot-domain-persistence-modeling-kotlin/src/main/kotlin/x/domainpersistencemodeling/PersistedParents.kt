@@ -93,14 +93,14 @@ internal class PersistedParent(
         val before = snapshot
         var result =
                 if (changed) factory.save(record())
-                else UpsertedRecordResult.of(record(), null)
+                else UpsertedRecordResult.of(record(), Optional.empty())
         record = result.record
 
         if (saveMutatedChildren()) {
             snapshotChildren = TreeSet(children)
             val refreshed = factory.refresh(naturalId)
             record!!.version = refreshed.version
-            result = UpsertedRecordResult.of(record(), refreshed)
+            result = UpsertedRecordResult.of(record(), Optional.of(refreshed))
         }
 
         val after = toResource()
@@ -238,10 +238,15 @@ interface ParentRepository : CrudRepository<ParentRecord, Long> {
             @Param("version") version: Int?): ParentRecord?
 
     @JvmDefault
-    fun upsert(entity: ParentRecord) =
-            upsert(entity.naturalId, entity.value, entity.version)?.let {
-                entity.upsertedWith(it)
-            }
+    fun upsert(entity: ParentRecord): Optional<ParentRecord> {
+        val upserted = upsert(
+                entity.naturalId,
+                entity.value,
+                entity.version)
+                ?: return Optional.empty()
+        entity.upsertedWith(upserted)
+        return Optional.of(upserted)
+    }
 }
 
 @Table("parent")

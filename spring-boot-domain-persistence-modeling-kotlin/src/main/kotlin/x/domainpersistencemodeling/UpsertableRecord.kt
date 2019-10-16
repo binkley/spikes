@@ -1,5 +1,7 @@
 package x.domainpersistencemodeling
 
+import java.util.Optional
+
 interface UpsertableRecord<Record : UpsertableRecord<Record>> {
     fun upsertedWith(upserted: Record): Record
 
@@ -7,8 +9,8 @@ interface UpsertableRecord<Record : UpsertableRecord<Record>> {
             val record: Record, val changed: Boolean) {
         companion object {
             fun <Record : UpsertableRecord<Record>> of(
-                    entity: Record, upserted: Record?) =
-                    UpsertedRecordResult(entity, null != upserted)
+                    entity: Record, upserted: Optional<Record>) =
+                    UpsertedRecordResult(entity, upserted.isPresent)
         }
     }
 }

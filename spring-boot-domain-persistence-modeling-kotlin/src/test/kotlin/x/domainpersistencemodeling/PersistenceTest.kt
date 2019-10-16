@@ -30,7 +30,7 @@ internal open class PersistenceTest @Autowired constructor(
 
         expect(unsaved.version).toBe(0)
 
-        val saved = parents.upsert(unsaved)
+        val saved = parents.upsert(unsaved).orElseThrow()
 
         expect(unsaved.version).toBe(1)
         expect(saved).toBe(unsaved)
@@ -44,7 +44,7 @@ internal open class PersistenceTest @Autowired constructor(
 
         val resaved = parents.upsert(saved)
 
-        expect(resaved).toBe(null)
+        expect(resaved.isEmpty).toBe(true)
         expect(saved.version).toBe(1)
     }
 
@@ -54,7 +54,7 @@ internal open class PersistenceTest @Autowired constructor(
 
         expect(unsaved.version).toBe(0)
 
-        val saved = children.upsert(unsaved)
+        val saved = children.upsert(unsaved).orElseThrow()
 
         expect(unsaved.version).toBe(1)
         expect(saved).toBe(unsaved)
@@ -68,7 +68,7 @@ internal open class PersistenceTest @Autowired constructor(
 
         val resaved = children.upsert(saved)
 
-        expect(resaved).toBe(null)
+        expect(resaved.isEmpty).toBe(true)
         expect(saved.version).toBe(1)
     }
 
@@ -78,7 +78,7 @@ internal open class PersistenceTest @Autowired constructor(
 
         val savedChild = children.upsert(newUnsavedChild().apply {
             this.parentNaturalId = PersistenceTest.parentNaturalId
-        })!!
+        }).orElseThrow()
 
         expect(savedChild.version).toBe(1)
         expect(findExistingParent().version).toBe(2)
@@ -95,7 +95,7 @@ internal open class PersistenceTest @Autowired constructor(
         expect(savedChild.version).toBe(1)
 
         savedChild.parentNaturalId = parentNaturalId
-        val updatedChild = children.upsert(savedChild)!!
+        val updatedChild = children.upsert(savedChild).orElseThrow()
 
         expect(updatedChild.version).toBe(2)
         expect(findExistingParent().version).toBe(2)
@@ -104,11 +104,11 @@ internal open class PersistenceTest @Autowired constructor(
     }
 
     private fun newSavedParent(): ParentRecord {
-        return parents.upsert(newUnsavedParent())!!
+        return parents.upsert(newUnsavedParent()).orElseThrow()
     }
 
     private fun newSavedChild(): ChildRecord {
-        return children.upsert(newUnsavedChild())!!
+        return children.upsert(newUnsavedChild()).orElseThrow()
     }
 
     private fun findExistingParent(): ParentRecord {
