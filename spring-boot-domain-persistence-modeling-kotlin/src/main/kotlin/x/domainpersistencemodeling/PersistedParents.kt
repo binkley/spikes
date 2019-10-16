@@ -97,12 +97,12 @@ internal class PersistedParent(
         record = result.record
 
         if (saveMutatedChildren()) {
+            snapshotChildren = TreeSet(children)
             val refreshed = factory.refresh(naturalId)
             record!!.version = refreshed.version
             result = UpsertedRecordResult.of(record(), refreshed)
         }
 
-        snapshotChildren = TreeSet(children)
         val after = toResource()
         snapshot = after
         if (result.changed) // Trust the database
