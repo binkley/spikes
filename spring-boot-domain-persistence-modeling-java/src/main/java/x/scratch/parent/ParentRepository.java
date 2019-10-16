@@ -21,7 +21,9 @@ public interface ParentRepository
             @Param("version") final Integer version);
 
     default Optional<ParentRecord> upsert(final ParentRecord entity) {
-        final var upserted = upsert(entity.getNaturalId(), entity.getValue(),
+        final var upserted = upsert(
+                entity.getNaturalId(),
+                entity.getValue(),
                 entity.getVersion());
         if (null == upserted) return Optional.empty();
         entity.updateWith(upserted);

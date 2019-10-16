@@ -194,16 +194,21 @@ interface ChildRepository : CrudRepository<ChildRecord, Long> {
 
     @JvmDefault
     fun upsert(entity: ChildRecord): Optional<ChildRecord> {
-        // TODO: Workaround issue in Spring Data with passing sets for
-        // ARRAY types in a procedure
         val upserted = upsert(entity.naturalId,
                 entity.parentNaturalId,
                 entity.value,
-                entity.subchildren.joinToString(",", "{", "}"),
+                entity.subchildren.workAroundArrayType(),
                 entity.version)
                 ?: return Optional.empty()
         entity.upsertedWith(upserted);
         return Optional.of(upserted);
+    }
+
+    companion object {
+        // TODO: Workaround issue in Spring Data with passing sets for
+        //  ARRAY types in a procedure
+        fun Collection<*>.workAroundArrayType() =
+                this.joinToString(",", "{", "}")
     }
 }
 
