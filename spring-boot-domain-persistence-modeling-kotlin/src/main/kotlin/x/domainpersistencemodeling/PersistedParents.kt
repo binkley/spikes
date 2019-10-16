@@ -235,7 +235,8 @@ interface ParentRepository : CrudRepository<ParentRecord, Long> {
     fun upsert(
             @Param("naturalId") naturalId: String?,
             @Param("value") value: String?,
-            @Param("version") version: Int?): ParentRecord?
+            @Param("version") version: Int?)
+            : Optional<ParentRecord>
 
     @JvmDefault
     fun upsert(entity: ParentRecord): Optional<ParentRecord> {
@@ -243,9 +244,10 @@ interface ParentRepository : CrudRepository<ParentRecord, Long> {
                 entity.naturalId,
                 entity.value,
                 entity.version)
-                ?: return Optional.empty()
-        entity.upsertedWith(upserted)
-        return Optional.of(upserted)
+        upserted.ifPresent {
+            entity.upsertedWith(it)
+        }
+        return upserted;
     }
 }
 

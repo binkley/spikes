@@ -190,7 +190,7 @@ interface ChildRepository : CrudRepository<ChildRecord, Long> {
             @Param("value") value: String?,
             @Param("subchildren") subchildren: String,
             @Param("version") version: Int)
-            : ChildRecord?
+            : Optional<ChildRecord>
 
     @JvmDefault
     fun upsert(entity: ChildRecord): Optional<ChildRecord> {
@@ -199,9 +199,10 @@ interface ChildRepository : CrudRepository<ChildRecord, Long> {
                 entity.value,
                 entity.subchildren.workAroundArrayType(),
                 entity.version)
-                ?: return Optional.empty()
-        entity.upsertedWith(upserted);
-        return Optional.of(upserted);
+        upserted.ifPresent {
+            entity.upsertedWith(it)
+        }
+        return upserted;
     }
 
     companion object {

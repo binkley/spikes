@@ -35,7 +35,7 @@ public class ChildRecord
     }
 
     @Override
-    public ChildRecord updateWith(final ChildRecord upserted) {
+    public ChildRecord upsertedWith(final ChildRecord upserted) {
         id = upserted.id;
         naturalId = upserted.naturalId;
         parentNaturalId = upserted.parentNaturalId;

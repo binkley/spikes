@@ -8,7 +8,7 @@ import java.util.Optional;
 import static lombok.AccessLevel.PRIVATE;
 
 public interface UpsertableRecord<Record extends UpsertableRecord<Record>> {
-    Record updateWith(Record upserted);
+    Record upsertedWith(Record upserted);
 
     @RequiredArgsConstructor(access = PRIVATE)
     @Value

@@ -33,7 +33,7 @@ public interface ChildRepository
 
     @Query("SELECT * FROM upsert_child(:naturalId, :parentNaturalId,"
             + " :value, :subchildren, :version)")
-    ChildRecord upsert(
+    Optional<ChildRecord> upsert(
             @Param("naturalId") final String naturalId,
             @Param("parentNaturalId") final String parentNaturalId,
             @Param("value") final String value,
@@ -46,8 +46,7 @@ public interface ChildRepository
                 entity.getValue(),
                 workAroundArrayType(entity.getSubchildren()),
                 entity.getVersion());
-        if (null == upserted) return Optional.empty();
-        entity.updateWith(upserted);
-        return Optional.of(entity);
+        upserted.ifPresent(entity::upsertedWith);
+        return upserted;
     }
 }

@@ -15,7 +15,7 @@ public interface ParentRepository
             @Param("naturalId") String naturalId);
 
     @Query("SELECT * FROM upsert_parent(:naturalId, :value, :version)")
-    ParentRecord upsert(
+    Optional<ParentRecord> upsert(
             @Param("naturalId") final String naturalId,
             @Param("value") final String value,
             @Param("version") final Integer version);
@@ -25,8 +25,7 @@ public interface ParentRepository
                 entity.getNaturalId(),
                 entity.getValue(),
                 entity.getVersion());
-        if (null == upserted) return Optional.empty();
-        entity.updateWith(upserted);
-        return Optional.of(upserted);
+        upserted.ifPresent(entity::upsertedWith);
+        return upserted;
     }
 }

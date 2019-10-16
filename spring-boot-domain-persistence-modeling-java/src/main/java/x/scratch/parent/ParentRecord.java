@@ -28,7 +28,7 @@ public class ParentRecord
     }
 
     @Override
-    public ParentRecord updateWith(final ParentRecord upserted) {
+    public ParentRecord upsertedWith(final ParentRecord upserted) {
         id = upserted.id;
         naturalId = upserted.naturalId;
         value = upserted.value;
