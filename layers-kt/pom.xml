@@ -44,7 +44,7 @@
         <generateBackupPoms>false</generateBackupPoms>
         <jacoco.haltOnFailure>true</jacoco.haltOnFailure>
         <jacoco.minimum>1.00</jacoco.minimum>
-        <jacoco.version>0.8.4</jacoco.version>
+        <jacoco.version>0.8.5</jacoco.version>
         <java.charset>UTF-8</java.charset>
         <java.version>11</java.version>
         <junit.jupiter.version>5.5.2</junit.jupiter.version>
@@ -54,8 +54,7 @@
         <maven-clean-plugin.version>3.1.0</maven-clean-plugin.version>
         <maven-dependency-plugin.version>3.1.1</maven-dependency-plugin.version>
         <maven-jar-plugin.version>3.1.2</maven-jar-plugin.version>
-        <maven-failsafe-plugin.version>${maven-surefire-plugin.version}</maven-failsafe-plugin.version>
-        <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
+        <maven-surefire-plugin.version>3.0.0-M3</maven-surefire-plugin.version>
         <metainf-services.version>1.8</metainf-services.version>
         <project.build.outputEncoding>${java.charset}</project.build.outputEncoding>
         <project.build.sourceEncoding>${java.charset}</project.build.sourceEncoding>
@@ -213,7 +212,8 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>${maven-failsafe-plugin.version}</version>
+                <!-- Apache keeps these two plugins in sync -->
+                <version>${maven-surefire-plugin.version}</version>
             </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
