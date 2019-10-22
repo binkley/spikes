@@ -12,66 +12,95 @@ class Layers(private val layers: MutableList<Layer> = mutableListOf()) {
             get() = applied().toSet()
     }
 
-    fun layer(): Layer {
+    fun commit(): Layer {
+        println("commit")
         val layer = Layer()
         layers.add(layer)
         return layer
     }
 
-    private fun applied() = layers.asReversed().asSequence().flatMap {
-        it.asMap().entries.asSequence()
+    private fun applied() = layers.asReversed().flatMap {
+        println("applied layer = $it")
+        it.asMap().entries
     }.filter {
+        println("entry #1 = $it")
         null != it.value.rule
     }.map {
-        SimpleEntry(it.key, it.value.rule!!.compute(it.key, layers))
+        println("entry #2 = $it")
+        val value = it.value.rule!!(it.key, layers)
+        println("value = $value")
+        SimpleEntry(it.key, value)
     }
+
+    override fun toString() = "${this::class}{layers=$layers}"
 }
 
-class Layer(
-        private val contents: MutableMap<String, Value> = mutableMapOf())
+class Layer(private val contents: MutableMap<String, Value> = mutableMapOf())
     : Map<String, Value> by contents {
     fun update(block: MutableLayer.() -> Unit) = apply {
-        val mutable = MutableLayer()
+        val mutable = MutableLayer(contents)
         mutable.block()
     }
 
-    fun asMap() = contents
+    fun asMap(): Map<String, Value> = contents
+
+    override fun toString() = "${this::class}{contents=$contents}"
 }
 
-class MutableLayer(
-        private val contents: MutableMap<String, Value> = mutableMapOf())
-    : MutableMap<String, Value> by contents {}
-
-interface Rule {
-    fun compute(key: String, layers: List<Map<String, Value>>): Any
+class MutableLayer(private val contents: MutableMap<String, Value>)
+    : MutableMap<String, Value> by contents {
+    override fun put(key: String, value: Value): Value? {
+        println("put $key -> $value")
+        return contents.put(key, value)
+    }
 }
 
-open class Value(val rule: Rule?, val context: Any?)
+typealias Rule = (key: String, layers: List<Map<String, Value>>) -> Any
+
+open class Value(val rule: Rule?, val context: Any?) {
+    override fun toString() =
+            "${this::class}{rule=${if (null == rule) null else "<rule>"}, context=$context}"
+}
+
 open class ValueValue(context: Any?) : Value(null, context)
 open class RuleValue(rule: Rule?) : Value(rule, null)
 
+val YRule: Rule = { key, layers -> 2 }
+
 fun main() {
-    val engine = ScriptEngineManager().getEngineByExtension("kts")!!
-
     val layers = Layers()
-    val layer = layers.layer()
 
-    layer.update {
-        with(ScriptEngineManager().getEngineByExtension("kts")!!) {
-            this.context = SimpleScriptContext().apply {
-                this.setBindings(createBindings().apply {
-                    this["layers"] = layers
-                    this["layer"] = this@update
-                }, ENGINE_SCOPE)
-            }
+    val engine = ScriptEngineManager().getEngineByExtension("kts")!!.apply {
+        context = SimpleScriptContext().apply {
+            setBindings(createBindings().apply {
+                this["layers"] = layers
+            }, ENGINE_SCOPE)
+        }
+    }
+
+    with(engine) {
+        layers.commit().update {
+            getBindings(ENGINE_SCOPE)["layer"] = this@update
 
             eval("""
-                import hm.binkley.layers.ValueValue
+                import hm.binkley.layers.*
+                
+                layer["a"] = RuleValue { key, layers ->
+                    2
+                }
+            """.trimIndent())
+        }
+        layers.commit().update {
+            getBindings(ENGINE_SCOPE)["layer"] = this@update
+
+            eval("""
+                import hm.binkley.layers.*
 
                 layer["a"] = ValueValue(3)
             """.trimIndent())
         }
     }
 
+    println(layers)
     println(layers.asMap())
 }
