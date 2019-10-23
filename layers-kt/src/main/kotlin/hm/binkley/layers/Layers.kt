@@ -16,19 +16,22 @@ class Layers(private val layers: MutableList<Layer> = mutableListOf()) {
         return layer
     }
 
-    fun valuesFor(key: String) = layers.map {
+    @Suppress("UNCHECKED_CAST")
+    fun <T> valuesFor(key: String) = layers.map {
         it[key]
     }.filterNotNull().map {
         it.value
-    }.filterNotNull()
+    }.filterNotNull() as List<T>
 
+    @Suppress("UNCHECKED_CAST")
     private fun applied() = layers.asReversed().flatMap {
         it.entries
     }.filter {
         null != it.value.rule
     }.map {
         val key = it.key
-        val value = it.value.rule!!(RuleContext(key, valuesFor(key), layers))
+        val value = (it.value.rule!! as Rule<Any>)(
+                RuleContext(key, valuesFor(key), layers))
         SimpleEntry(key, value)
     }
 
@@ -55,24 +58,24 @@ class MutableLayer(private val contents: MutableMap<String, Value>)
     }
 }
 
-data class RuleContext(val key: String, val values: List<Any>,
+data class RuleContext<T>(val key: String, val values: List<T>,
         val layers: List<Map<String, Value>>)
 
-interface Rule : (RuleContext) -> Any {
+interface Rule<T> : (RuleContext<T>) -> Any {
     override fun toString(): String
 }
 
-open class Value(val rule: Rule?, val value: Any?) {
+open class Value(val rule: Rule<*>?, val value: Any?) {
     override fun toString() =
             "${this::class.simpleName}{rule=$rule, value=$value}"
 }
 
 open class ValueValue(context: Any?) : Value(null, context)
-open class RuleValue(rule: Rule?) : Value(rule, null)
+open class RuleValue<T>(rule: Rule<T>?) : Value(rule, null)
 
-fun rule(name: String, rule: (RuleContext) -> Any): Value =
-        RuleValue(object : Rule {
-            override fun invoke(context: RuleContext) = rule(context)
+fun <T> rule(name: String, rule: (RuleContext<T>) -> Any): Value =
+        RuleValue(object : Rule<T> {
+            override fun invoke(context: RuleContext<T>) = rule(context)
             override fun toString() = "<rule: $name>"
         })
 
@@ -98,8 +101,8 @@ fun main() {
         }
 
         createLayer("""
-                layer["a"] = rule("I am a sum") { context ->
-                    (context.values as List<Int>).sum()
+                layer["a"] = rule<Int>("I am a sum") { context ->
+                    context.values.sum()
                 }
             """)
         createLayer("""
