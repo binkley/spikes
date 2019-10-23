@@ -24,14 +24,24 @@ class Layers(private val layers: MutableList<Layer> = mutableListOf()) {
     }.filterNotNull() as List<T>
 
     @Suppress("UNCHECKED_CAST")
+    internal fun <T> valueFor(key: String) = layers.asReversed().flatMap {
+        it.entries
+    }.filter {
+        it.key == key
+    }.filter {
+        null != it.value.rule
+    }.first().let {
+        (it.value.rule!! as Rule<T>)(RuleContext(key, this))
+    }
+
+    @Suppress("UNCHECKED_CAST")
     private fun applied() = layers.asReversed().flatMap {
         it.entries
     }.filter {
         null != it.value.rule
     }.map {
         val key = it.key
-        val value = (it.value.rule!! as Rule<Any>)(
-                RuleContext(key, valuesFor(key), layers))
+        val value = (it.value.rule!! as Rule<Any>)(RuleContext(key, this))
         SimpleEntry(key, value)
     }
 
@@ -58,10 +68,15 @@ class MutableLayer(private val contents: MutableMap<String, Value>)
     }
 }
 
-data class RuleContext<T>(val key: String, val values: List<T>,
-        val layers: List<Map<String, Value>>)
+class RuleContext<T>(val key: String, private val layers: Layers) {
+    val values: List<T>
+        get() = layers.valuesFor(key)
 
-interface Rule<T> : (RuleContext<T>) -> Any {
+    @Suppress("UNCHECKED_CAST")
+    operator fun <T> get(key: String) = layers.valueFor<T>(key)
+}
+
+interface Rule<T> : (RuleContext<T>) -> T {
     override fun toString(): String
 }
 
@@ -73,16 +88,27 @@ open class Value(val rule: Rule<*>?, val value: Any?) {
 open class ValueValue(context: Any?) : Value(null, context)
 open class RuleValue<T>(rule: Rule<T>?) : Value(rule, null)
 
-fun <T> rule(name: String, rule: (RuleContext<T>) -> Any): Value =
+fun <T> rule(name: String, rule: (RuleContext<T>) -> T) =
         RuleValue(object : Rule<T> {
             override fun invoke(context: RuleContext<T>) = rule(context)
             override fun toString() = "<rule: $name>"
         })
 
+fun <T> rule(name: String, default: T, rule: (RuleContext<T>) -> T) =
+        Value(object : Rule<T> {
+            override fun invoke(context: RuleContext<T>) = rule(context)
+            override fun toString() = "<rule: $name>"
+        }, default)
+
 fun value(context: Any): Value = ValueValue(context)
 
 fun main() {
     val layers = Layers()
+//    layers.commit().edit {
+//        this["Q"] = rule("*Anonymous", 0) { context ->
+//            if (context["b"]) context.values.sum() else -1
+//        }
+//    }
 
     val engine = ScriptEngineManager().getEngineByExtension("kts")!!
 
@@ -101,8 +127,16 @@ fun main() {
         }
 
         createLayer("""
-                layer["a"] = rule<Int>("I am a sum") { context ->
-                    context.values.sum()
+                layer["b"] = rule("I am a flag", false) { context ->
+                    context.values.last()
+                }
+            """)
+        createLayer("""
+                layer["b"] = true
+            """)
+        createLayer("""
+                layer["a"] = rule("I am a sum", 0) { context ->
+                    if (context["b"]) context.values.sum() else -1
                 }
             """)
         createLayer("""
