@@ -48,8 +48,9 @@ class Layers(private val layers: MutableList<Layer> = mutableListOf()) {
     override fun toString() = "${this::class.simpleName}$layers"
 }
 
-class Layer(private val contents: MutableMap<String, Value> = mutableMapOf())
-    : Map<String, Value> by contents {
+class Layer(
+        private val contents: MutableMap<String, Value<*>> = mutableMapOf())
+    : Map<String, Value<*>> by contents {
     fun edit(block: MutableLayer.() -> Unit) = apply {
         val mutable = MutableLayer(contents)
         mutable.block()
@@ -58,13 +59,14 @@ class Layer(private val contents: MutableMap<String, Value> = mutableMapOf())
     override fun toString() = "${this::class.simpleName}$contents"
 }
 
-class MutableLayer(private val contents: MutableMap<String, Value>)
-    : MutableMap<String, Value> by contents {
-    operator fun set(key: String, value: Any) {
-        if (value is Value)
-            contents[key] = value
+class MutableLayer(private val contents: MutableMap<String, Value<*>>)
+    : MutableMap<String, Value<*>> by contents {
+    @Suppress("UNCHECKED_CAST")
+    operator fun <T> set(key: String, value: T) {
+        if (value is Value<*>)
+            contents[key] = value as Value<T>
         else
-            contents[key] = value(value)
+            contents[key] = value<T>(value)
     }
 }
 
@@ -80,19 +82,13 @@ interface Rule<T> : (RuleContext<T>) -> T {
     override fun toString(): String
 }
 
-open class Value(val rule: Rule<*>?, val value: Any?) {
+open class Value<T>(val rule: Rule<T>?, val value: T?) {
     override fun toString() =
             "${this::class.simpleName}{rule=$rule, value=$value}"
 }
 
-open class ValueValue(context: Any?) : Value(null, context)
-open class RuleValue<T>(rule: Rule<T>?) : Value(rule, null)
-
-fun <T> rule(name: String, rule: (RuleContext<T>) -> T) =
-        RuleValue(object : Rule<T> {
-            override fun invoke(context: RuleContext<T>) = rule(context)
-            override fun toString() = "<rule: $name>"
-        })
+open class ValueValue<T>(context: T?) : Value<T>(null, context)
+open class RuleValue<T>(rule: Rule<T>?) : Value<T>(rule, null)
 
 fun <T> rule(name: String, default: T, rule: (RuleContext<T>) -> T) =
         Value(object : Rule<T> {
@@ -100,7 +96,7 @@ fun <T> rule(name: String, default: T, rule: (RuleContext<T>) -> T) =
             override fun toString() = "<rule: $name>"
         }, default)
 
-fun value(context: Any): Value = ValueValue(context)
+fun <T> value(context: T): Value<T> = ValueValue<T>(context)
 
 fun main() {
     val layers = Layers()
@@ -117,6 +113,7 @@ fun main() {
             layers.commit().edit {
                 eval("""
                     import hm.binkley.layers.*
+                    import hm.binkley.layers.rules.*
 
                     ${script.trimIndent()}
                 """.trimIndent(), createBindings().apply {
@@ -126,12 +123,10 @@ fun main() {
         }
 
         createLayer("""
-                layer["b"] = rule("I am a flag", false) { context ->
-                    context.myValues.last()
-                }
+                layer["b"] = last(default=true)
             """)
         createLayer("""
-                layer["b"] = true
+                layer["b"] = false
             """)
         createLayer("""
                 layer["a"] = rule("I am a sum", 0) { context ->
@@ -143,6 +138,15 @@ fun main() {
             """)
         createLayer("""
                 layer["a"] = 3
+            """)
+        createLayer("""
+                layer["c"] = sum(default=0)
+            """)
+        createLayer("""
+                layer["c"] = 2
+            """)
+        createLayer("""
+                layer["c"] = 3
             """)
     }
 
