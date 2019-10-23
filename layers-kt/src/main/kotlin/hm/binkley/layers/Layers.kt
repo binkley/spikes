@@ -13,59 +13,72 @@ class Layers(private val layers: MutableList<Layer> = mutableListOf()) {
     }
 
     fun commit(): Layer {
-        println("commit")
         val layer = Layer()
         layers.add(layer)
         return layer
     }
 
+    fun valuesFor(key: String) = layers.map {
+        it[key]
+    }.filterNotNull().map {
+        it.value
+    }.filterNotNull()
+
     private fun applied() = layers.asReversed().flatMap {
-        println("applied layer = $it")
-        it.asMap().entries
+        it.entries
     }.filter {
-        println("entry #1 = $it")
         null != it.value.rule
     }.map {
-        println("entry #2 = $it")
-        val value = it.value.rule!!(it.key, layers)
-        println("value = $value")
-        SimpleEntry(it.key, value)
+        val key = it.key
+        val value = it.value.rule!!(RuleContext(key, valuesFor(key), layers))
+        SimpleEntry(key, value)
     }
 
-    override fun toString() = "${this::class}{layers=$layers}"
+    override fun toString() = "${this::class.simpleName}$layers"
 }
 
 class Layer(private val contents: MutableMap<String, Value> = mutableMapOf())
     : Map<String, Value> by contents {
-    fun update(block: MutableLayer.() -> Unit) = apply {
+    fun edit(block: MutableLayer.() -> Unit) = apply {
         val mutable = MutableLayer(contents)
         mutable.block()
     }
 
-    fun asMap(): Map<String, Value> = contents
-
-    override fun toString() = "${this::class}{contents=$contents}"
+    override fun toString() = "${this::class.simpleName}$contents"
 }
 
 class MutableLayer(private val contents: MutableMap<String, Value>)
     : MutableMap<String, Value> by contents {
-    override fun put(key: String, value: Value): Value? {
-        println("put $key -> $value")
-        return contents.put(key, value)
+    operator fun set(key: String, value: Any) {
+        if (value is Value)
+            contents[key] = value
+        else
+            contents[key] = value(value)
     }
 }
 
-typealias Rule = (key: String, layers: List<Map<String, Value>>) -> Any
+data class RuleContext(val key: String, val values: List<Any>,
+        val layers: List<Map<String, Value>>)
 
-open class Value(val rule: Rule?, val context: Any?) {
+interface Rule : (RuleContext) -> Any {
+    override fun toString(): String
+}
+
+open class Value(val rule: Rule?, val value: Any?) {
     override fun toString() =
-            "${this::class}{rule=${if (null == rule) null else "<rule>"}, context=$context}"
+            "${this::class.simpleName}{rule=$rule, value=$value}"
 }
 
 open class ValueValue(context: Any?) : Value(null, context)
 open class RuleValue(rule: Rule?) : Value(rule, null)
 
-val YRule: Rule = { key, layers -> 2 }
+fun rule(name: String, rule: (RuleContext) -> Any): Value =
+        RuleValue(object : Rule {
+            override fun invoke(context: RuleContext) = rule(context)
+            override fun toString() = "<rule: $name>"
+        })
+
+fun value(context: Any): Value = ValueValue(context)
 
 fun main() {
     val layers = Layers()
@@ -79,24 +92,33 @@ fun main() {
     }
 
     with(engine) {
-        layers.commit().update {
-            getBindings(ENGINE_SCOPE)["layer"] = this@update
+        layers.commit().edit {
+            getBindings(ENGINE_SCOPE)["layer"] = this@edit
 
             eval("""
                 import hm.binkley.layers.*
                 
-                layer["a"] = RuleValue { key, layers ->
-                    2
+                layer["a"] = rule("I am a sum") { context ->
+                    (context.values as List<Int>).sum()
                 }
             """.trimIndent())
         }
-        layers.commit().update {
-            getBindings(ENGINE_SCOPE)["layer"] = this@update
+        layers.commit().edit {
+            getBindings(ENGINE_SCOPE)["layer"] = this@edit
 
             eval("""
                 import hm.binkley.layers.*
 
-                layer["a"] = ValueValue(3)
+                layer["a"] = 2
+            """.trimIndent())
+        }
+        layers.commit().edit {
+            getBindings(ENGINE_SCOPE)["layer"] = this@edit
+
+            eval("""
+                import hm.binkley.layers.*
+
+                layer["a"] = 3
             """.trimIndent())
         }
     }
