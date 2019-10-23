@@ -1,9 +1,7 @@
 package hm.binkley.layers
 
 import java.util.AbstractMap.SimpleEntry
-import javax.script.ScriptContext.ENGINE_SCOPE
 import javax.script.ScriptEngineManager
-import javax.script.SimpleScriptContext
 import kotlin.collections.Map.Entry
 
 class Layers(private val layers: MutableList<Layer> = mutableListOf()) {
@@ -83,44 +81,33 @@ fun value(context: Any): Value = ValueValue(context)
 fun main() {
     val layers = Layers()
 
-    val engine = ScriptEngineManager().getEngineByExtension("kts")!!.apply {
-        context = SimpleScriptContext().apply {
-            setBindings(createBindings().apply {
-                this["layers"] = layers
-            }, ENGINE_SCOPE)
-        }
-    }
+    val engine = ScriptEngineManager().getEngineByExtension("kts")!!
 
     with(engine) {
-        layers.commit().edit {
-            getBindings(ENGINE_SCOPE)["layer"] = this@edit
+        fun createLayer(script: String) {
+            layers.commit().edit {
+                eval("""
+                    import hm.binkley.layers.*
 
-            eval("""
-                import hm.binkley.layers.*
-                
+                    ${script.trimIndent()}
+                """.trimIndent(), createBindings().apply {
+                    this["layers"] = layers
+                    this["layer"] = this@edit
+                })
+            }
+        }
+
+        createLayer("""
                 layer["a"] = rule("I am a sum") { context ->
                     (context.values as List<Int>).sum()
                 }
-            """.trimIndent())
-        }
-        layers.commit().edit {
-            getBindings(ENGINE_SCOPE)["layer"] = this@edit
-
-            eval("""
-                import hm.binkley.layers.*
-
+            """)
+        createLayer("""
                 layer["a"] = 2
-            """.trimIndent())
-        }
-        layers.commit().edit {
-            getBindings(ENGINE_SCOPE)["layer"] = this@edit
-
-            eval("""
-                import hm.binkley.layers.*
-
+            """)
+        createLayer("""
                 layer["a"] = 3
-            """.trimIndent())
-        }
+            """)
     }
 
     println(layers)
