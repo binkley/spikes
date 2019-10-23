@@ -68,9 +68,9 @@ class MutableLayer(private val contents: MutableMap<String, Value>)
     }
 }
 
-class RuleContext<T>(val key: String, private val layers: Layers) {
-    val values: List<T>
-        get() = layers.valuesFor(key)
+class RuleContext<T>(val myKey: String, private val layers: Layers) {
+    val myValues: List<T>
+        get() = layers.valuesFor(myKey)
 
     @Suppress("UNCHECKED_CAST")
     operator fun <T> get(key: String) = layers.valueFor<T>(key)
@@ -106,7 +106,7 @@ fun main() {
     val layers = Layers()
 //    layers.commit().edit {
 //        this["Q"] = rule("*Anonymous", 0) { context ->
-//            if (context["b"]) context.values.sum() else -1
+//            if (context["b"]) context.myValues.sum() else -1
 //        }
 //    }
 
@@ -120,7 +120,6 @@ fun main() {
 
                     ${script.trimIndent()}
                 """.trimIndent(), createBindings().apply {
-                    this["layers"] = layers
                     this["layer"] = this@edit
                 })
             }
@@ -128,7 +127,7 @@ fun main() {
 
         createLayer("""
                 layer["b"] = rule("I am a flag", false) { context ->
-                    context.values.last()
+                    context.myValues.last()
                 }
             """)
         createLayer("""
@@ -136,7 +135,7 @@ fun main() {
             """)
         createLayer("""
                 layer["a"] = rule("I am a sum", 0) { context ->
-                    if (context["b"]) context.values.sum() else -1
+                    if (context["b"]) context.myValues.sum() else -1
                 }
             """)
         createLayer("""
