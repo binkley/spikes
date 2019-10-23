@@ -82,13 +82,7 @@ interface Rule<T> : (RuleContext<T>) -> T {
     override fun toString(): String
 }
 
-open class Value<T>(val rule: Rule<T>?, val value: T?) {
-    override fun toString() =
-            "${this::class.simpleName}{rule=$rule, value=$value}"
-}
-
-open class ValueValue<T>(context: T?) : Value<T>(null, context)
-open class RuleValue<T>(rule: Rule<T>?) : Value<T>(rule, null)
+data class Value<T>(val rule: Rule<T>?, val value: T?)
 
 fun <T> rule(name: String, default: T, rule: (RuleContext<T>) -> T) =
         Value(object : Rule<T> {
@@ -96,7 +90,7 @@ fun <T> rule(name: String, default: T, rule: (RuleContext<T>) -> T) =
             override fun toString() = "<rule: $name>"
         }, default)
 
-fun <T> value(context: T): Value<T> = ValueValue<T>(context)
+fun <T> value(context: T): Value<T> = Value(null, context)
 
 fun main() {
     val layers = Layers()
