@@ -4,8 +4,9 @@ import java.util.AbstractMap.SimpleEntry
 import javax.script.ScriptEngineManager
 import kotlin.collections.Map.Entry
 
-class Layers(private val layers: MutableList<Layer> = mutableListOf()) {
-    fun asMap() = object : AbstractMap<String, Any>() {
+class Layers(private val layers: MutableList<Layer> = mutableListOf())
+    : LayersForRuleContext {
+    fun asMap(): Map<String, Any> = object : AbstractMap<String, Any>() {
         override val entries: Set<Entry<String, Any>>
             get() = applied().toSet()
     }
@@ -17,22 +18,22 @@ class Layers(private val layers: MutableList<Layer> = mutableListOf()) {
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun <T> valuesFor(key: String) = layers.map {
-        it[key]
-    }.filterNotNull().map {
-        it.value
-    }.filterNotNull() as List<T>
-
-    @Suppress("UNCHECKED_CAST")
-    internal fun <T> valueFor(key: String) = layers.asReversed().flatMap {
+    override fun <T> valueFor(key: String) = layers.asReversed().flatMap {
         it.entries
     }.filter {
         it.key == key
-    }.filter {
+    }.first {
         null != it.value.rule
-    }.first().let {
+    }.let {
         (it.value.rule!! as Rule<T>)(RuleContext(key, this))
     }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun <T> valuesFor(key: String) = layers.mapNotNull {
+        it[key]
+    }.mapNotNull {
+        it.value
+    } as List<T>
 
     @Suppress("UNCHECKED_CAST")
     private fun applied() = layers.asReversed().flatMap {
@@ -66,11 +67,18 @@ class MutableLayer(private val contents: MutableMap<String, Value<*>>)
         if (value is Value<*>)
             contents[key] = value as Value<T>
         else
-            contents[key] = value<T>(value)
+            contents[key] = value(value)
     }
 }
 
-class RuleContext<T>(val myKey: String, private val layers: Layers) {
+interface LayersForRuleContext {
+    fun <T> valueFor(key: String): T
+
+    fun <T> valuesFor(key: String): List<T>
+}
+
+class RuleContext<T>(val myKey: String,
+        private val layers: LayersForRuleContext) {
     val myValues: List<T>
         get() = layers.valuesFor(myKey)
 
