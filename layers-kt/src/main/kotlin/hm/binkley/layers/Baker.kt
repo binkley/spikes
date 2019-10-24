@@ -1,7 +1,6 @@
 package hm.binkley.layers
 
 import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.lib.ProgressMonitor
 import java.io.File
 import java.io.IOException
 import java.nio.file.FileVisitResult
@@ -20,7 +19,6 @@ class Baker(val repository: String) {
     private val git = Git.cloneRepository()
             .setBranchesToClone(setOf("refs/head/master"))
             .setDirectory(scriptsDir.toFile())
-            .setProgressMonitor(SimpleProgressMonitor())
             .setURI(repository)
             .call()
     private val engine = ScriptEngineManager().getEngineByExtension("kts")!!
@@ -107,9 +105,7 @@ class Baker(val repository: String) {
     private fun recursivelyDeleteOnExit(dir: Path) {
         Runtime.getRuntime().addShutdownHook(Thread({
             try {
-                println("Deleting $dir...")
                 recursivelyDelete(dir)
-                println("Deleted $dir")
             } catch (e: IOException) {
                 throw RuntimeException("Did not fully delete $dir: $e", e)
             }
@@ -135,19 +131,5 @@ class Baker(val repository: String) {
                 } else throw e
             }
         })
-    }
-
-    private class SimpleProgressMonitor : ProgressMonitor {
-        override fun start(totalTasks: Int) =
-                println("Starting work on $totalTasks tasks")
-
-        override fun beginTask(title: String, totalWork: Int) =
-                println("Start $title: $totalWork")
-
-        override fun update(completed: Int) = print("$completed-")
-
-        override fun endTask() = println("Done")
-
-        override fun isCancelled() = false
     }
 }
