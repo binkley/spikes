@@ -1,13 +1,16 @@
 package hm.binkley.layers
 
 import java.util.AbstractMap.SimpleEntry
+import java.util.TreeMap
 import kotlin.collections.Map.Entry
 
 class Layers(private val layers: MutableList<Layer> = mutableListOf())
     : LayersForRuleContext {
     fun asMap(): Map<String, Any> = object : AbstractMap<String, Any>() {
         override val entries: Set<Entry<String, Any>>
-            get() = applied().toSet()
+            get() = applied().toSortedSet(compareBy {
+                it.key
+            })
     }
 
     fun commit(): Layer {
@@ -49,12 +52,17 @@ class Layers(private val layers: MutableList<Layer> = mutableListOf())
 }
 
 class Layer(val slot: Int,
-        private val contents: MutableMap<String, Value<*>> = mutableMapOf())
+        private val contents: MutableMap<String, Value<*>> = TreeMap())
     : Map<String, Value<*>> by contents {
     fun edit(block: MutableLayer.() -> Unit) = apply {
         val mutable = MutableLayer(contents)
         mutable.block()
     }
+
+    fun forDiff() = contents.entries.map {
+        val (key, value) = it
+        "$key: ${value.forDiff()}"
+    }.joinToString("\n")
 
     override fun toString() = "${this::class.simpleName}$contents"
 }
@@ -89,7 +97,9 @@ interface Rule<T> : (RuleContext<T>) -> T {
     override fun toString(): String
 }
 
-data class Value<T>(val rule: Rule<T>?, val value: T?)
+data class Value<T>(val rule: Rule<T>?, val value: T?) {
+    fun forDiff() = if (null == rule) "$value" else "$rule"
+}
 
 fun <T> rule(name: String, default: T, rule: (RuleContext<T>) -> T) =
         Value(object : Rule<T> {
