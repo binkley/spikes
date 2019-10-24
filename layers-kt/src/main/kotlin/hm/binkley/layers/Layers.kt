@@ -10,10 +10,10 @@ class Layers(private val layers: MutableList<Layer> = mutableListOf())
             get() = applied().toSet()
     }
 
-    fun commit(): Layer {
+    fun commit(): Pair<Layer, Int> {
         val layer = Layer()
         layers.add(layer)
-        return layer
+        return layer to layers.size
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -94,7 +94,7 @@ data class Value<T>(val rule: Rule<T>?, val value: T?)
 fun <T> rule(name: String, default: T, rule: (RuleContext<T>) -> T) =
         Value(object : Rule<T> {
             override fun invoke(context: RuleContext<T>) = rule(context)
-            override fun toString() = "<rule: $name>"
+            override fun toString() = "<rule: $name[=$default]>"
         }, default)
 
 fun <T> value(context: T): Value<T> = Value(null, context)
