@@ -4,7 +4,7 @@ import org.eclipse.jgit.api.Git
 import java.io.File
 import javax.script.ScriptEngineManager
 
-class LayerCake(
+class Baker(
         val layers: Layers = Layers(),
         val scriptsDirPath: String = "./scripts") {
     private val scriptsDir = File(scriptsDirPath)
