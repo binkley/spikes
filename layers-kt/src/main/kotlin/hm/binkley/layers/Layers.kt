@@ -64,7 +64,7 @@ class Layer(val slot: Int,
         "$key: ${value.forDiff()}"
     }.joinToString("\n")
 
-    override fun toString() = "${this::class.simpleName}$contents"
+    override fun toString() = "${this::class.simpleName}#$slot:$contents"
 }
 
 class MutableLayer(private val contents: MutableMap<String, Value<*>>)
