@@ -1,29 +1,42 @@
 package hm.binkley.layers
 
 import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.lib.ProgressMonitor
 import java.io.File
+import java.io.IOException
+import java.nio.file.FileVisitResult
+import java.nio.file.FileVisitResult.CONTINUE
+import java.nio.file.Files
+import java.nio.file.Files.walkFileTree
+import java.nio.file.Path
+import java.nio.file.SimpleFileVisitor
+import java.nio.file.attribute.BasicFileAttributes
 import javax.script.ScriptEngineManager
 
-class Baker(
-        val layers: Layers = Layers(),
-        val scriptsDirPath: String = "./scripts") {
-    private val scriptsDir = File(scriptsDirPath)
-    private val git =
-            if (scriptsDir.exists()) Git.open(scriptsDir)
-            else Git.init().setDirectory(scriptsDir).call()
+class Baker(val repository: String) {
+    val layers = Layers()
+
+    private val scriptsDir = Files.createTempDirectory("layers")
+    private val git = Git.cloneRepository()
+            .setDirectory(scriptsDir.toFile())
+            .setProgressMonitor(SimpleProgressMonitor())
+            .setURI(repository)
+            .call()
     private val engine = ScriptEngineManager().getEngineByExtension("kts")!!
 
     init {
+        recursivelyDeleteOnExit(scriptsDir)
         load()
     }
 
     private fun load() {
-        scriptsDir.list { dir, name ->
+        val scriptsDirFile = scriptsDir.toFile()
+        scriptsDirFile.list { dir, name ->
             name.endsWith(".kts")
         }!!.sortedBy {
             it.removeSuffix(".kts").toInt()
         }.map {
-            scriptsDir.resolve(it).readText()
+            scriptsDirFile.resolve(it).readText()
         }.forEach {
             layers.new(it)
         }
@@ -43,7 +56,7 @@ class Baker(
     }
 
     override fun toString() =
-            "${this::class.simpleName}{scriptsDir=$scriptsDirPath, layers=$layers}"
+            "${this::class.simpleName}{repository=$repository, scriptsDir=$scriptsDir, layers=$layers}"
 
     private fun Layers.new(script: String): Layer {
         with(engine) {
@@ -68,7 +81,8 @@ class Baker(
             trimmedScript: String, notes: String?) {
         fun Git.write(ext: String, contents: String) {
             val fileName = "$slot.$ext"
-            val scriptFile = File("$scriptsDirPath/$fileName")
+            val scriptsDirFile = scriptsDir.toFile()
+            val scriptFile = File("$scriptsDirFile/$fileName")
             scriptFile.writeText(contents)
             scriptFile.appendText("\n")
             add().addFilepattern(fileName).call()
@@ -84,6 +98,55 @@ class Baker(
             val commit = commit()
             commit.message = description.trimIndent().trim()
             commit.call()
+
+            git.push().call()
         }
+    }
+
+    private fun recursivelyDeleteOnExit(dir: Path) {
+        Runtime.getRuntime().addShutdownHook(Thread({
+            try {
+                println("Deleting $dir...")
+                recursivelyDelete(dir)
+                println("Deleted $dir")
+            } catch (e: IOException) {
+                throw RuntimeException("Did not fully delete $dir: $e", e)
+            }
+        }, "Deleting layers temp repository: $dir"))
+    }
+
+    private fun recursivelyDelete(dir: Path) {
+        walkFileTree(dir, object : SimpleFileVisitor<Path>() {
+            @Throws(IOException::class)
+            override fun visitFile(
+                    file: Path, attrs: BasicFileAttributes)
+                    : FileVisitResult {
+                Files.delete(file)
+                return CONTINUE
+            }
+
+            @Throws(IOException::class)
+            override fun postVisitDirectory(dir: Path,
+                    e: IOException?): FileVisitResult {
+                if (null == e) {
+                    Files.delete(dir)
+                    return CONTINUE
+                } else throw e
+            }
+        })
+    }
+
+    private class SimpleProgressMonitor : ProgressMonitor {
+        override fun start(totalTasks: Int) =
+                println("Starting work on $totalTasks tasks")
+
+        override fun beginTask(title: String, totalWork: Int) =
+                println("Start $title: $totalWork")
+
+        override fun update(completed: Int) = print("$completed-")
+
+        override fun endTask() = println("Done")
+
+        override fun isCancelled() = false
     }
 }

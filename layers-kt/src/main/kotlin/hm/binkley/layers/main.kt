@@ -1,7 +1,7 @@
 package hm.binkley.layers
 
 fun main() {
-    Baker().apply {
+    Baker("/Users/boxley/tmp/layers-rules").apply {
         createLayer("Base rule for 'b'", """
                 layer["b"] = last(default=true)
             """, """
