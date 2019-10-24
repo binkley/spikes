@@ -12,7 +12,7 @@ import java.nio.file.SimpleFileVisitor
 import java.nio.file.attribute.BasicFileAttributes
 import javax.script.ScriptEngineManager
 
-class Baker(val repository: String) {
+class Baker(private val repository: String) {
     val layers = Layers()
 
     private val scriptsDir = Files.createTempDirectory("layers")
@@ -24,21 +24,8 @@ class Baker(val repository: String) {
     private val engine = ScriptEngineManager().getEngineByExtension("kts")!!
 
     init {
-        recursivelyDeleteOnExit(scriptsDir)
-        load()
-    }
-
-    private fun load() {
-        val scriptsDirFile = scriptsDir.toFile()
-        scriptsDirFile.list { dir, name ->
-            name.endsWith(".kts")
-        }!!.sortedBy {
-            it.removeSuffix(".kts").toInt()
-        }.map {
-            scriptsDirFile.resolve(it).readText()
-        }.forEach {
-            layers.new(it)
-        }
+        scriptsDir.recursivelyDeleteOnExit()
+        scriptsDir.load()
     }
 
     fun close() = git.close()
@@ -76,6 +63,19 @@ class Baker(val repository: String) {
         }
     }
 
+    private fun Path.load() {
+        val scriptsDirFile = toFile()
+        scriptsDirFile.list { _, name ->
+            name.endsWith(".kts")
+        }!!.sortedBy {
+            it.removeSuffix(".kts").toInt()
+        }.map {
+            scriptsDirFile.resolve(it).readText()
+        }.forEach {
+            layers.new(it)
+        }
+    }
+
     private fun Layer.save(description: String,
             trimmedScript: String, notes: String?) {
         fun Git.write(ext: String, contents: String) {
@@ -101,35 +101,35 @@ class Baker(val repository: String) {
             git.push().call()
         }
     }
+}
 
-    private fun recursivelyDeleteOnExit(dir: Path) {
-        Runtime.getRuntime().addShutdownHook(Thread({
-            try {
-                recursivelyDelete(dir)
-            } catch (e: IOException) {
-                throw RuntimeException("Did not fully delete $dir: $e", e)
-            }
-        }, "Deleting layers temp repository: $dir"))
-    }
+private fun Path.recursivelyDelete() {
+    walkFileTree(this, object : SimpleFileVisitor<Path>() {
+        @Throws(IOException::class)
+        override fun visitFile(
+                file: Path, attrs: BasicFileAttributes)
+                : FileVisitResult {
+            Files.delete(file)
+            return CONTINUE
+        }
 
-    private fun recursivelyDelete(dir: Path) {
-        walkFileTree(dir, object : SimpleFileVisitor<Path>() {
-            @Throws(IOException::class)
-            override fun visitFile(
-                    file: Path, attrs: BasicFileAttributes)
-                    : FileVisitResult {
-                Files.delete(file)
+        @Throws(IOException::class)
+        override fun postVisitDirectory(dir: Path,
+                e: IOException?): FileVisitResult {
+            if (null == e) {
+                Files.delete(dir)
                 return CONTINUE
-            }
+            } else throw e
+        }
+    })
+}
 
-            @Throws(IOException::class)
-            override fun postVisitDirectory(dir: Path,
-                    e: IOException?): FileVisitResult {
-                if (null == e) {
-                    Files.delete(dir)
-                    return CONTINUE
-                } else throw e
-            }
-        })
-    }
+private fun Path.recursivelyDeleteOnExit() {
+    Runtime.getRuntime().addShutdownHook(Thread({
+        try {
+            recursivelyDelete()
+        } catch (e: IOException) {
+            throw RuntimeException("Did not fully delete $this: $e", e)
+        }
+    }, "Deleting layers temp repository: $this"))
 }
