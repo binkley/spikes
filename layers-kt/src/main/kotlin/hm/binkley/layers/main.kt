@@ -4,47 +4,70 @@ import org.eclipse.jgit.api.Git
 import java.io.File
 import javax.script.ScriptEngineManager
 
-fun main() {
-    val scriptsDir = File("./scripts")
-    val git = if (scriptsDir.exists())
-        Git.open(scriptsDir)
-    else {
-        val git = Git.init().setDirectory(scriptsDir).call()
-        val commit = git.commit()
-        commit.message = "Init"
-        commit.call()
-        git
+class LayerCake(
+        val layers: Layers = Layers(),
+        val scriptsDirPath: String = "./scripts") {
+    private val scriptsDir = File(scriptsDirPath)
+    private val git =
+            if (scriptsDir.exists()) Git.open(scriptsDir)
+            else Git.init().setDirectory(scriptsDir).call()
+    private val engine = ScriptEngineManager().getEngineByExtension("kts")!!
+
+    init {
+
     }
 
-    val layers = Layers()
-    val engine = ScriptEngineManager().getEngineByExtension("kts")!!
+    fun close() = git.close()
 
-    with(engine) {
-        fun createLayer(description: String, script: String) {
-            val trimmedScript = script.trimIndent()
-            val layer = layers.commit()
-            val slot = layer.slot
-            println("#$slot - $trimmedScript")
+    fun createLayer(description: String, script: String) {
+        val trimmedScript = script.trimIndent()
+
+        val layer = layers.new(trimmedScript)
+        println("#${layer.slot} - $trimmedScript")
+        println(layer)
+
+        layer.save(description, trimmedScript)
+    }
+
+    override fun toString() =
+            "${LayerCake::class.simpleName}{scriptsDir=$scriptsDirPath, layers=$layers}"
+
+    private fun Layers.new(script: String): Layer {
+        with(engine) {
+            val layer = commit()
+
             layer.edit {
                 eval("""
                     import hm.binkley.layers.*
                     import hm.binkley.layers.rules.*
 
-                    $trimmedScript
+                    $script
                 """, createBindings().apply {
                     this["layer"] = this@edit
                 })
             }
-            println(layer)
 
+            return layer
+        }
+    }
+
+    private fun Layer.save(description: String, trimmedScript: String) {
+        with(git) {
             val file = File("scripts/$slot.kts")
             file.writeText(trimmedScript)
-            git.add().addFilepattern("$slot.kts").call()
-            val commit = git.commit()
+            file.appendText("\n")
+
+            add().addFilepattern("$slot.kts").call()
+
+            val commit = commit()
             commit.message = description.trimIndent().trim()
             commit.call()
         }
+    }
+}
 
+fun main() {
+    LayerCake().apply {
         createLayer("Base rule for 'b'", """
                 layer["b"] = last(default=true)
             """)
@@ -71,10 +94,10 @@ fun main() {
         createLayer("Add 3 to 'c'", """
                 layer["c"] = 3
             """)
+
+        println(layers.asMap())
+        println(this)
+
+        close()
     }
-
-    println(layers)
-    println(layers.asMap())
-
-    git.close()
 }
