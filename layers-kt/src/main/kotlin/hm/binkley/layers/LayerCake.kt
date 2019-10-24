@@ -14,7 +14,19 @@ class LayerCake(
     private val engine = ScriptEngineManager().getEngineByExtension("kts")!!
 
     init {
+        load()
+    }
 
+    private fun load() {
+        scriptsDir.list { dir, name ->
+            name.endsWith(".kts")
+        }!!.sortedBy {
+            it.removeSuffix(".kts").toInt()
+        }.map {
+            scriptsDir.resolve(it).readText()
+        }.forEach {
+            layers.new(it)
+        }
     }
 
     fun close() = git.close()
