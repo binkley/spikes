@@ -4,7 +4,9 @@ fun main() {
     LayerCake().apply {
         createLayer("Base rule for 'b'", """
                 layer["b"] = last(default=true)
-            """)
+            """, """
+                Toggle for "a"
+            """.trimIndent())
         createLayer("Toggle 'b' off", """
                 layer["b"] = false
             """)
@@ -12,7 +14,9 @@ fun main() {
                 layer["a"] = rule("I am a sum", 0) { context ->
                     if (context["b"]) context.myValues.sum() else -1
                 }
-            """)
+            """, """
+                Toggle "a" on/off using "b"
+            """.trimIndent())
         createLayer("Add 2 to 'a'", """
                 layer["a"] = 2
             """)

@@ -31,14 +31,15 @@ class LayerCake(
 
     fun close() = git.close()
 
-    fun createLayer(description: String, script: String) {
+    fun createLayer(description: String, script: String,
+            notes: String? = null) {
         val trimmedScript = script.trimIndent()
 
         val layer = layers.new(trimmedScript)
         println("#${layer.slot} - $trimmedScript")
         println(layer.forDiff())
 
-        layer.save(description, trimmedScript)
+        layer.save(description, trimmedScript, notes)
     }
 
     override fun toString() =
@@ -63,17 +64,22 @@ class LayerCake(
         }
     }
 
-    private fun Layer.save(description: String, trimmedScript: String) {
-        with(git) {
-            val scriptFile = File("$scriptsDirPath/$slot.kts")
-            scriptFile.writeText(trimmedScript)
+    private fun Layer.save(description: String,
+            trimmedScript: String, notes: String?) {
+        fun Git.write(ext: String, contents: String) {
+            val fileName = "$slot.$ext"
+            val scriptFile = File("$scriptsDirPath/$fileName")
+            scriptFile.writeText(contents)
             scriptFile.appendText("\n")
-            val diffFile = File("$scriptsDirPath/$slot.txt")
-            diffFile.writeText(forDiff())
-            diffFile.appendText("\n")
+            add().addFilepattern(fileName).call()
+        }
 
-            add().addFilepattern("$slot.kts").call()
-            add().addFilepattern("$slot.txt").call()
+        with(git) {
+            write("kts", trimmedScript)
+            write("txt", forDiff())
+            notes?.also {
+                write("notes", it)
+            }
 
             val commit = commit()
             commit.message = description.trimIndent().trim()
