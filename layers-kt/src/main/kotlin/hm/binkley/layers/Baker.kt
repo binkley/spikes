@@ -17,7 +17,7 @@ class Baker(private val repository: String) {
 
     private val scriptsDir = Files.createTempDirectory("layers")
     private val git = Git.cloneRepository()
-            .setBranchesToClone(setOf("refs/head/master"))
+            .setCloneAllBranches(true)
             .setDirectory(scriptsDir.toFile())
             .setURI(repository)
             .call()
