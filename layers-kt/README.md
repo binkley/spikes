@@ -16,7 +16,8 @@ This software is in the Public Domain.  Please see [LICENSE.md](../LICENSE.md).
 * &#x2713; Rule-based engine
 * &#x2713; Text-based serialization, including rules, diffs, notes, etc
 * &#x2713; Git persistence
-  - History with do/undo/redo and branching via Git
+  - &#x2713; History with do/undo/redo
+  - &#x231B; Branching
 * &#x2713; Persistent operations
   - Automatic restore of cached state on restarts
 * &#x2713; Stateless but caching service

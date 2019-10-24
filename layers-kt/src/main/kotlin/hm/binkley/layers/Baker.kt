@@ -12,23 +12,25 @@ import java.nio.file.SimpleFileVisitor
 import java.nio.file.attribute.BasicFileAttributes
 import javax.script.ScriptEngineManager
 
-class Baker(private val repository: String) {
+class Baker(private val repository: String) : AutoCloseable {
     val layers = Layers()
 
     private val scriptsDir = Files.createTempDirectory("layers")
     private val git = Git.cloneRepository()
-            .setCloneAllBranches(true)
+            .setBranchesToClone(setOf("refs/head/master"))
             .setDirectory(scriptsDir.toFile())
             .setURI(repository)
             .call()
     private val engine = ScriptEngineManager().getEngineByExtension("kts")!!
 
     init {
-        scriptsDir.recursivelyDeleteOnExit()
         scriptsDir.load()
     }
 
-    fun close() = git.close()
+    override fun close() {
+        git.close()
+        scriptsDir.recursivelyDelete()
+    }
 
     fun createLayer(description: String, script: String,
             notes: String? = null) {
@@ -122,14 +124,4 @@ private fun Path.recursivelyDelete() {
             } else throw e
         }
     })
-}
-
-private fun Path.recursivelyDeleteOnExit() {
-    Runtime.getRuntime().addShutdownHook(Thread({
-        try {
-            recursivelyDelete()
-        } catch (e: IOException) {
-            throw RuntimeException("Did not fully delete $this: $e", e)
-        }
-    }, "Deleting layers temp repository: $this"))
 }
