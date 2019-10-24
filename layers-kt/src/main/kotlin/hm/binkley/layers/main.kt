@@ -20,54 +20,55 @@ fun main() {
     val engine = ScriptEngineManager().getEngineByExtension("kts")!!
 
     with(engine) {
-        fun createLayer(script: String) {
+        fun createLayer(description: String, script: String) {
             val trimmedScript = script.trimIndent()
-            val (layer, index) = layers.commit()
-            println("#$index - $trimmedScript")
+            val layer = layers.commit()
+            val slot = layer.slot
+            println("#$slot - $trimmedScript")
             layer.edit {
                 eval("""
                     import hm.binkley.layers.*
                     import hm.binkley.layers.rules.*
 
                     $trimmedScript
-                """.trimIndent(), createBindings().apply {
+                """, createBindings().apply {
                     this["layer"] = this@edit
                 })
             }
             println(layer)
 
-            val file = File("scripts/$index.kts")
+            val file = File("scripts/$slot.kts")
             file.writeText(trimmedScript)
-            git.add().addFilepattern("$index.kts").call()
+            git.add().addFilepattern("$slot.kts").call()
             val commit = git.commit()
-            commit.message = "???"
+            commit.message = description.trimIndent().trim()
             commit.call()
         }
 
-        createLayer("""
+        createLayer("Base rule for 'b'", """
                 layer["b"] = last(default=true)
             """)
-        createLayer("""
+        createLayer("Toggle 'b' off", """
                 layer["b"] = false
             """)
-        createLayer("""
+        createLayer("Base rule for 'a' (complex)", """
                 layer["a"] = rule("I am a sum", 0) { context ->
                     if (context["b"]) context.myValues.sum() else -1
                 }
             """)
-        createLayer("""
+        createLayer("Add 2 to 'a'", """
                 layer["a"] = 2
             """)
-        createLayer("""
+        createLayer("Add 3 to 'a'", """
                 layer["a"] = 3
             """)
-        createLayer("""
+        createLayer("Base rule for 'c' (simple)", """
                 layer["c"] = sum(default=0)
             """)
-        createLayer("""
+        createLayer("Add 2 to 'c'", """
                 layer["c"] = 2
             """)
-        createLayer("""
+        createLayer("Add 3 to 'c'", """
                 layer["c"] = 3
             """)
     }

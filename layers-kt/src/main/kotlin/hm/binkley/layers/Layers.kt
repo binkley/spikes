@@ -10,10 +10,10 @@ class Layers(private val layers: MutableList<Layer> = mutableListOf())
             get() = applied().toSet()
     }
 
-    fun commit(): Pair<Layer, Int> {
-        val layer = Layer()
+    fun commit(): Layer {
+        val layer = Layer(layers.size)
         layers.add(layer)
-        return layer to layers.size
+        return layer
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -48,7 +48,7 @@ class Layers(private val layers: MutableList<Layer> = mutableListOf())
     override fun toString() = "${this::class.simpleName}$layers"
 }
 
-class Layer(
+class Layer(val slot: Int,
         private val contents: MutableMap<String, Value<*>> = mutableMapOf())
     : Map<String, Value<*>> by contents {
     fun edit(block: MutableLayer.() -> Unit) = apply {
