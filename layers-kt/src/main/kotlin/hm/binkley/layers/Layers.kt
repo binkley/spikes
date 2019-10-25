@@ -1,6 +1,7 @@
 package hm.binkley.layers
 
 import java.util.AbstractMap.SimpleEntry
+import java.util.Objects
 import java.util.TreeMap
 import kotlin.collections.Map.Entry
 
@@ -37,6 +38,19 @@ class Layers(private val layers: MutableList<Layer> = mutableListOf())
         it.value
     } as List<T>
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Layers
+
+        return layers == other.layers
+    }
+
+    override fun hashCode() = Objects.hash(layers)
+
+    override fun toString() = "${this::class.simpleName}$layers"
+
     @Suppress("UNCHECKED_CAST")
     private fun applied() = layers.asReversed().flatMap {
         it.entries
@@ -47,8 +61,6 @@ class Layers(private val layers: MutableList<Layer> = mutableListOf())
         val value = (it.value.rule!! as Rule<Any>)(RuleContext(key, this))
         SimpleEntry(key, value)
     }
-
-    override fun toString() = "${this::class.simpleName}$layers"
 }
 
 class Layer(val slot: Int,
@@ -63,6 +75,18 @@ class Layer(val slot: Int,
         val (key, value) = it
         "$key: ${value.forDiff()}"
     }.joinToString("\n")
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Layer
+
+        return slot == other.slot
+                && contents == other.contents
+    }
+
+    override fun hashCode() = Objects.hash(slot, contents)
 
     override fun toString() = "${this::class.simpleName}#$slot:$contents"
 }
@@ -101,10 +125,12 @@ data class Value<T>(val rule: Rule<T>?, val value: T?) {
     fun forDiff() = if (null == rule) "$value" else "$rule"
 }
 
+data class RuleValue<T>(val name: String, val default: T,
+        val rule: (RuleContext<T>) -> T) {
+    override fun toString() = "<rule: $name[=$default]>"
+}
+
 fun <T> rule(name: String, default: T, rule: (RuleContext<T>) -> T) =
-        Value(object : Rule<T> {
-            override fun invoke(context: RuleContext<T>) = rule(context)
-            override fun toString() = "<rule: $name[=$default]>"
-        }, default)
+        RuleValue(name, default, rule)
 
 fun <T> value(context: T): Value<T> = Value(null, context)

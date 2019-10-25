@@ -10,6 +10,7 @@ import java.nio.file.Files.walkFileTree
 import java.nio.file.Path
 import java.nio.file.SimpleFileVisitor
 import java.nio.file.attribute.BasicFileAttributes
+import java.util.Objects
 import javax.script.ScriptEngineManager
 
 class Baker(private val repository: String) : AutoCloseable {
@@ -17,6 +18,7 @@ class Baker(private val repository: String) : AutoCloseable {
 
     private val scriptsDir = Files.createTempDirectory("layers")
     private val git = Git.cloneRepository()
+            .setBranch("master")
             .setBranchesToClone(setOf("refs/head/master"))
             .setDirectory(scriptsDir.toFile())
             .setURI(repository)
@@ -42,6 +44,18 @@ class Baker(private val repository: String) : AutoCloseable {
 
         layer.save(description, trimmedScript, notes)
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Baker
+
+        return repository == other.repository
+                && layers == other.layers
+    }
+
+    override fun hashCode() = Objects.hash(repository, layers)
 
     override fun toString() =
             "${this::class.simpleName}{repository=$repository, scriptsDir=$scriptsDir, layers=$layers}"
