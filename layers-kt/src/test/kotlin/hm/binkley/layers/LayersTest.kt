@@ -6,6 +6,13 @@ import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Path
 
 internal class LayersTest {
+    fun Baker.myCreateLayer(description: String, script: String,
+            notes: String? = null) {
+        val layer = createLayer(description, script, notes)
+        println("#${layer.slot} - ${layer.script}")
+        println(layer.forDiff())
+    }
+
     @Test
     fun `should persist`(@TempDir baseTempDir: Path) {
         val repoDir = baseTempDir.toFile().resolve("git")
@@ -25,7 +32,7 @@ internal class LayersTest {
         val aNote = """
                 Just a note
         """
-        baker.createLayer(description = aDescription,
+        baker.myCreateLayer(description = aDescription,
                 script = aRuleDefinition,
                 notes = aNote)
 

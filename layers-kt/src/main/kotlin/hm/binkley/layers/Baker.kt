@@ -35,14 +35,13 @@ class Baker(private val repository: String) : AutoCloseable {
     }
 
     fun createLayer(description: String, script: String,
-            notes: String? = null) {
+            notes: String? = null): Layer {
         val trimmedScript = script.trimIndent()
-
         val layer = layers.new(trimmedScript)
-        println("#${layer.slot} - $trimmedScript")
-        println(layer.forDiff())
 
-        layer.save(description, trimmedScript, notes)
+        layer.save(description, trimmedScript, notes?.trimIndent())
+
+        return layer
     }
 
     override fun equals(other: Any?): Boolean {
@@ -62,7 +61,7 @@ class Baker(private val repository: String) : AutoCloseable {
 
     private fun Layers.new(script: String): Layer {
         with(engine) {
-            val layer = commit()
+            val layer = commit(script)
 
             layer.edit {
                 eval("""
@@ -86,7 +85,7 @@ class Baker(private val repository: String) : AutoCloseable {
         }!!.sortedBy {
             it.removeSuffix(".kts").toInt()
         }.map {
-            scriptsDirFile.resolve(it).readText()
+            scriptsDirFile.resolve(it).readText().trim()
         }.forEach {
             layers.new(it)
         }

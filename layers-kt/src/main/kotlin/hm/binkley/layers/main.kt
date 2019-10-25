@@ -1,35 +1,42 @@
 package hm.binkley.layers
 
+fun Baker.myCreateLayer(description: String, script: String,
+        notes: String? = null) {
+    val layer = createLayer(description, script, notes)
+    println("#${layer.slot} - ${layer.script}")
+    println(layer.forDiff())
+}
+
 fun main(args: Array<String>) {
     Baker(args[0]).use {
-        it.createLayer("Base rule for 'b'", """
+        it.myCreateLayer("Base rule for 'b'", """
                 layer["b"] = last(default=true)
             """, """
                 Toggle for "a"
-            """.trimIndent())
-        it.createLayer("Toggle 'b' off", """
+            """)
+        it.myCreateLayer("Toggle 'b' off", """
                 layer["b"] = false
             """)
-        it.createLayer("Base rule for 'a' (complex)", """
+        it.myCreateLayer("Base rule for 'a' (complex)", """
                 layer["a"] = rule("I am a sum", 0) { context ->
                     if (context["b"]) context.myValues.sum() else -1
                 }
             """, """
                 Toggle "a" on/off using "b"
-            """.trimIndent())
-        it.createLayer("Add 2 to 'a'", """
+            """)
+        it.myCreateLayer("Add 2 to 'a'", """
                 layer["a"] = 2
             """)
-        it.createLayer("Add 3 to 'a'", """
+        it.myCreateLayer("Add 3 to 'a'", """
                 layer["a"] = 3
             """)
-        it.createLayer("Base rule for 'c' (simple)", """
+        it.myCreateLayer("Base rule for 'c' (simple)", """
                 layer["c"] = sum(default=0)
             """)
-        it.createLayer("Add 2 to 'c'", """
+        it.myCreateLayer("Add 2 to 'c'", """
                 layer["c"] = 2
             """)
-        it.createLayer("Add 3 to 'c'", """
+        it.myCreateLayer("Add 3 to 'c'", """
                 layer["c"] = 3
             """)
 
