@@ -9,7 +9,7 @@ Spikes are not to be considered stable.
 * [Exploring Kotlin async](kotlin-async/)
 * [Google's Flogger](googles-flogger/)
 * [Gradle pre-push](gradle-pre-push/)
-* [Layers](layers/)
+* [Layers in Kotlin](layers-kt/)
 * [Micronaut domain persistence modeling](micronaut-domain-persistence-modeling)
 * [Micronaut hello world](micronaut-hello-world/)
 * [Spring Boot Etag support](spring-boot-etag-support/)
