@@ -50,11 +50,14 @@
         <jgit.version>5.1.10.201908230655-r</jgit.version>
         <junit.jupiter.version>5.5.2</junit.jupiter.version>
         <kotlin.compiler.jvmTarget>${java.version}</kotlin.compiler.jvmTarget>
+        <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
         <kotlin.version>1.3.50</kotlin.version>
+        <main.class>hm.binkley.layers.MainKt</main.class>
         <maven-clean-plugin.version>3.1.0</maven-clean-plugin.version>
         <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
         <maven-dependency-plugin.version>3.1.1</maven-dependency-plugin.version>
         <maven-jar-plugin.version>3.1.2</maven-jar-plugin.version>
+        <maven-shade-plugin.version>3.2.1</maven-shade-plugin.version>
         <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
         <metainf-services.version>1.8</metainf-services.version>
         <project.build.outputEncoding>${java.charset}</project.build.outputEncoding>
@@ -203,6 +206,7 @@
                     <args>
                         <arg>-Xjsr305=strict</arg>
                     </args>
+                    <experimentalCoroutines>enable</experimentalCoroutines>
                 </configuration>
                 <executions>
                     <execution>
@@ -281,13 +285,48 @@
                 <version>${maven-jar-plugin.version}</version>
                 <executions>
                     <execution>
+                        <id>jar</id>
                         <configuration>
+                            <archive>
+                                <manifest>
+                                    <mainClass>${main.class}</mainClass>
+                                </manifest>
+                            </archive>
                             <skipIfEmpty>true</skipIfEmpty>
                         </configuration>
                         <goals>
                             <goal>jar</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>test-jar</id>
+                        <configuration>
+                            <skipIfEmpty>true</skipIfEmpty>
+                        </configuration>
+                        <goals>
                             <goal>test-jar</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>${maven-shade-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <transformers>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>${main.class}</mainClass>
+                                </transformer>
+                            </transformers>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

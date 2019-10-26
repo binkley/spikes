@@ -6,15 +6,8 @@ import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Path
 
 internal class LayersTest {
-    fun Baker.myCreateLayer(description: String, script: String,
-            notes: String? = null) {
-        val layer = createLayer(description, script, notes)
-        println("#${layer.slot} - ${layer.script}")
-        println(layer.forDiff())
-    }
-
     @Test
-    fun `should persist`(@TempDir baseTempDir: Path) {
+    internal fun `should persist`(@TempDir baseTempDir: Path) {
         val repoDir = baseTempDir.toFile().resolve("git")
         val cloneDir = baseTempDir.toFile().resolve("clone")
         val repoGit = Git.init()
@@ -32,9 +25,11 @@ internal class LayersTest {
         val aNote = """
                 Just a note
         """
-        baker.myCreateLayer(description = aDescription,
+        baker.noisyCreateLayer(description = aDescription,
                 script = aRuleDefinition,
                 notes = aNote)
+
+        assert(baker.layers.asMap()["a"] == true)
 
         baker.close()
 
@@ -51,6 +46,7 @@ internal class LayersTest {
 
         val nextBaker = Baker(repoDir.absolutePath)
 
+        assert(nextBaker.layers.asMap()["a"] == true)
         assert(nextBaker == baker)
 
         nextBaker.close()
