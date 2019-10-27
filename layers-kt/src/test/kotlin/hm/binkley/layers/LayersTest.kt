@@ -63,7 +63,8 @@ internal class LayersTest {
                 .call()
         val cloneBaker = PersistedLayers(cloneDir.absolutePath)
 
-        assert(cloneBaker.layers == baker.layers)
+        assert(cloneBaker.asList() == baker.asList())
+        assert(cloneBaker.asMap() == baker.asMap())
 
         assert(cloneDir.resolve("0.kts").exists())
         assert(cloneDir.resolve("0.txt").exists())

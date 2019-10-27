@@ -16,8 +16,7 @@ import javax.script.ScriptEngineManager
 class PersistedLayers(private val repository: String)
     : Layers,
         AutoCloseable {
-    val layers = MutableLayers()
-
+    private val layers = MutableLayers()
     private val scriptsDir = Files.createTempDirectory("layers")
     private val git = Git.cloneRepository()
             .setBranch("master")
