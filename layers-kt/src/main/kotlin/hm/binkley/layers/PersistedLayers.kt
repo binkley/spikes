@@ -25,7 +25,7 @@ class PersistedLayers(private val repository: String)
     private val engine = ScriptEngineManager().getEngineByExtension("kts")!!
 
     init {
-        scriptsDir.load()
+        refresh()
     }
 
     override fun asList() = layers.asList()
@@ -36,6 +36,8 @@ class PersistedLayers(private val repository: String)
         git.close()
         scriptsDir.recursivelyDelete()
     }
+
+    fun refresh() = scriptsDir.load()
 
     fun createLayer(description: String, script: String,
             notes: String? = null): Layer {
@@ -82,12 +84,14 @@ class PersistedLayers(private val repository: String)
     }
 
     private fun Path.load() {
+        val startAt = asList().size
         val scriptsDirFile = toFile()
-        scriptsDirFile.list { _, name ->
+        val scripts = scriptsDirFile.list { _, name ->
             name.endsWith(".kts")
-        }!!.sortedBy {
+        }!!
+        scripts.sortedBy {
             it.removeSuffix(".kts").toInt()
-        }.map {
+        }.subList(startAt, scripts.size).map {
             scriptsDirFile.resolve(it).readText().trim()
         }.forEach {
             layers.new(it)

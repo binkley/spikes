@@ -15,8 +15,21 @@ internal class LayersTest {
         val repoDir = baseTempDir.toFile().resolve("git")
         val repoGit = Git.init()
                 .setDirectory(repoDir)
-                .setBare(true)
                 .call()
+        with(repoDir.resolve("README.md")) {
+            writeText("""
+                # Working directory for Layers
+            """.trimIndent())
+            appendText("\n")
+        }
+        repoGit.add()
+                .addFilepattern(".")
+                .call()
+        repoGit.commit()
+                .setAllowEmpty(true)
+                .setMessage("Init")
+                .call()
+
         repoGit.close()
 
         val baker = PersistedLayers(repoDir.absolutePath)
@@ -51,6 +64,9 @@ internal class LayersTest {
         assertThat(baker.asMap()).hasSize(2)
         assertThat(baker.asMap()).containsEntry("a", true)
         assertThat(baker.asMap()).containsEntry("b", 1)
+
+        baker.refresh() // Should do nothing
+        assertThat(baker.asList()).hasSize(3)
 
         baker.close()
 

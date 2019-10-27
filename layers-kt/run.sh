@@ -10,5 +10,9 @@ git clone layers.git
 
 cd layers
 
-git commit --allow-empty -m Init
+cat >README.md <<EOM
+# Working directory for Layers
+EOM
+git add .
+git commit -m Init
 git push -u origin master
