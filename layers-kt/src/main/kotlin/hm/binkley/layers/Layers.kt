@@ -32,7 +32,7 @@ class Layers(private val layers: MutableList<Layer> = mutableListOf())
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T> valuesFor(key: String) = layers.mapNotNull {
+    override fun <T> allValuesFor(key: String) = layers.mapNotNull {
         it[key]
     }.mapNotNull {
         it.value
@@ -58,7 +58,8 @@ class Layers(private val layers: MutableList<Layer> = mutableListOf())
         null != it.value.rule
     }.map {
         val key = it.key
-        val value = (it.value.rule!! as Rule<Any>)(RuleContext(key, this))
+        val value =
+                (it.value.rule!! as Rule<Any>)(RuleContext(key, this))
         SimpleEntry(key, value)
     }
 }
@@ -107,32 +108,45 @@ class MutableLayer(private val contents: MutableMap<String, Value<*>>)
 interface LayersForRuleContext {
     fun <T> valueFor(key: String): T
 
-    fun <T> valuesFor(key: String): List<T>
+    fun <T> allValuesFor(key: String): List<T>
 }
 
 class RuleContext<T>(val myKey: String,
         private val layers: LayersForRuleContext) {
     val myValues: List<T>
-        get() = layers.valuesFor(myKey)
+        get() = layers.allValuesFor(myKey)
 
     @Suppress("UNCHECKED_CAST")
     operator fun <T> get(key: String) = layers.valueFor<T>(key)
 }
 
-interface Rule<T> : (RuleContext<T>) -> T {
-    override fun toString(): String
-}
+typealias Rule<T> = (RuleContext<T>) -> T
 
-data class Value<T>(val rule: Rule<T>?, val value: T?) {
-    fun forDiff() = if (null == rule) "$value" else "$rule"
+open class Value<T>(open val rule: Rule<T>?, val value: T?) {
+    fun forDiff() = if (null == rule) "$value" else "$this"
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Value<*>
+
+        return rule == other.rule
+                && value == other.value
+    }
+
+    override fun hashCode() = Objects.hash(rule, value)
+
+    override fun toString() =
+            "${this::class.simpleName}{rule=$rule, value=$value}"
 }
 
 data class RuleValue<T>(val name: String, val default: T,
-        val rule: (RuleContext<T>) -> T) {
+        override val rule: Rule<T>) : Value<T>(rule, default) {
     override fun toString() = "<rule: $name[=$default]>"
 }
 
-fun <T> rule(name: String, default: T, rule: (RuleContext<T>) -> T) =
+fun <T> rule(name: String, default: T, rule: Rule<T>) =
         RuleValue(name, default, rule)
 
 fun <T> value(context: T): Value<T> = Value(null, context)

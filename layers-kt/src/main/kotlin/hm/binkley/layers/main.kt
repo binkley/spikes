@@ -11,7 +11,7 @@ fun Baker.noisyCreateLayer(description: String, script: String,
 
 fun main(args: Array<String>) {
     val repository = if (false) args[0]
-    else "C:/Users/binkl/AppData/Local/Temp/foo"
+    else "/Users/boxley/tmp/layers.git"
     Baker(repository).use {
         it.noisyCreateLayer("Base rule for 'b'", """
                 layer["b"] = last(default=true)
