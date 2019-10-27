@@ -16,6 +16,7 @@ interface XLayer
         Diffable {
     val slot: Int
     val script: String
+    val enabled: Boolean
     val meta: Map<String, String>
 }
 

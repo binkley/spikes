@@ -32,7 +32,7 @@ class MutableLayers(private val layers: MutableList<Layer> = mutableListOf())
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T> valueFor(key: String) = layers.asReversed().flatMap {
+    override fun <T> valueFor(key: String) = enabledLayers.flatMap {
         it.entries
     }.filter {
         it.key == key
@@ -42,8 +42,9 @@ class MutableLayers(private val layers: MutableList<Layer> = mutableListOf())
         (it.value.rule!! as Rule<T>)(RuleContext(key, this))
     }
 
+    /** All values for [key] from newest to oldest. */
     @Suppress("UNCHECKED_CAST")
-    override fun <T> allValuesFor(key: String) = layers.mapNotNull {
+    override fun <T> allValuesFor(key: String) = enabledLayers.mapNotNull {
         it[key]
     }.mapNotNull {
         it.value
@@ -63,7 +64,7 @@ class MutableLayers(private val layers: MutableList<Layer> = mutableListOf())
     override fun toString() = "${this::class.simpleName}$layers"
 
     @Suppress("UNCHECKED_CAST")
-    private fun applied() = layers.asReversed().flatMap {
+    private fun applied() = enabledLayers.flatMap {
         it.entries
     }.filter {
         null != it.value.rule
@@ -73,6 +74,11 @@ class MutableLayers(private val layers: MutableList<Layer> = mutableListOf())
                 (it.value.rule!! as Rule<Any>)(RuleContext(key, this))
         SimpleEntry(key, value)
     }
+
+    private val enabledLayers: List<Layer>
+        get() = layers.filter {
+            it.enabled
+        }.asReversed()
 }
 
 class Layer(override val slot: Int,
@@ -81,15 +87,17 @@ class Layer(override val slot: Int,
         private val contents: MutableMap<String, Value<*>> = TreeMap())
     : Map<String, Value<*>> by contents,
         XLayer {
-    fun edit(block: MutableLayer.() -> Unit) = apply {
-        val mutable = MutableLayer(contents)
-        mutable.block()
-    }
+    override val enabled = true
 
     override fun toDiff() = contents.entries.map {
         val (key, value) = it
         "$key: ${value.toDiff()}"
     }.joinToString("\n")
+
+    fun edit(block: MutableLayer.() -> Unit) = apply {
+        val mutable = MutableLayer(contents)
+        mutable.block()
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
