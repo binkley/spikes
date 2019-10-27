@@ -43,7 +43,11 @@ internal class LayersTest {
         baker.createLayer(description = bDescription,
                 script = bRuleDefinition)
 
-        assertThat(baker.asList()).hasSize(2)
+        baker.createLayer(description = "Empty", script = "", notes = """
+            An example of marker notes
+        """.trimIndent())
+
+        assertThat(baker.asList()).hasSize(3)
         assertThat(baker.asMap()).hasSize(2)
         assert(baker.asMap()["a"] == true)
         assert(baker.asMap()["b"] == 1)
@@ -66,12 +70,16 @@ internal class LayersTest {
         assert(cloneBaker.asList() == baker.asList())
         assert(cloneBaker.asMap() == baker.asMap())
 
-        assert(cloneDir.resolve("0.kts").exists())
-        assert(cloneDir.resolve("0.txt").exists())
-        assert(cloneDir.resolve("0.notes").exists())
-        assert(cloneDir.resolve("1.kts").exists())
-        assert(cloneDir.resolve("1.txt").exists())
-        assert(!cloneDir.resolve("1.notes").exists())
+        assertThat(cloneDir.resolve("0.kts")).exists()
+        assertThat(cloneDir.resolve("0.txt")).exists()
+        assertThat(cloneDir.resolve("0.notes")).exists()
+        assertThat(cloneDir.resolve("1.kts")).exists()
+        assertThat(cloneDir.resolve("1.txt")).exists()
+        assertThat(cloneDir.resolve("1.notes")).doesNotExist()
+        assertThat(cloneDir.resolve("2.kts")).exists()
+        assertThat(cloneDir.resolve("2.kts")).hasContent("")
+        assertThat(cloneDir.resolve("2.txt")).hasContent("")
+        assertThat(cloneDir.resolve("2.notes")).exists()
 
         cloneBaker.close()
         cloneGit.close()

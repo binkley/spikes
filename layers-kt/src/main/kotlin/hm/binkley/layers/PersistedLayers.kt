@@ -103,7 +103,8 @@ class PersistedLayers(private val repository: String)
             val scriptsDirFile = scriptsDir.toFile()
             val scriptFile = File("$scriptsDirFile/$fileName")
             scriptFile.writeText(contents)
-            scriptFile.appendText("\n")
+            if (contents.isNotEmpty())
+                scriptFile.appendText("\n")
             add().addFilepattern(fileName).call()
         }
 
