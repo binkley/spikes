@@ -38,7 +38,7 @@ internal class LayersTest {
                 $bCommitMessage
             """
             val bRuleDefinition = """
-                layer["b"] = 1
+                layer["b"] = 11
             """
             val bLayer = it.createLayer(description = bDescription,
                     script = bRuleDefinition)
@@ -50,18 +50,33 @@ internal class LayersTest {
                 An example of marker notes
             """)
 
-            assertThat(it.asList()).hasSize(3)
-            assertThat(it.asMap()).hasSize(2)
+            it.createLayer(description = "We are each other", script = """
+                layer["b-bonus"] = bonus(otherKey="b", default=0)
+            """, notes = """
+                A complex rule dependent on another calculation
+            """)
+
+            it.createLayer(description = "Even better!", script = """
+                layer["b-bonus"] = 1
+            """, notes = """
+                Bump the 'b' bonus
+            """)
+
+            assertThat(it.asList()).hasSize(5)
+            assertThat(it.asMap()).hasSize(3)
             assertThat(it.asMap()).containsEntry("a", true)
-            assertThat(it.asMap()).containsEntry("b", 1)
+            assertThat(it.asMap()).containsEntry("b", 11)
+            assertThat(it.asMap()).containsEntry("b-bonus", 1)
 
             it.refresh() // Should do nothing
-            assertThat(it.asList()).hasSize(3)
+            assertThat(it.asList()).hasSize(5)
 
             it
         }
 
         PersistedLayers(repoDir.absolutePath).use {
+            assertThat(it.asList()).isEqualTo(baker.asList())
+            assertThat(it.asMap()).isEqualTo(baker.asMap())
             assertThat(it).isEqualTo(baker)
         }
 
@@ -76,7 +91,6 @@ internal class LayersTest {
             assertThat(cloneDir.resolve("1.kts")).exists()
             assertThat(cloneDir.resolve("1.txt")).exists()
             assertThat(cloneDir.resolve("1.notes")).doesNotExist()
-            assertThat(cloneDir.resolve("2.kts")).exists()
             assertThat(cloneDir.resolve("2.kts")).hasContent("")
             assertThat(cloneDir.resolve("2.txt")).doesNotExist()
             assertThat(cloneDir.resolve("2.notes")).exists()

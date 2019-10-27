@@ -15,13 +15,13 @@ interface XLayer
     : Map<String, Value<*>>,
         Diffable {
     val slot: Int
-    val script: String?
+    val script: String
     val meta: Map<String, String>
 }
 
 typealias Rule<T> = (RuleContext<T>) -> T
 
-open class Value<T>(open val rule: Rule<T>?, val value: T?)
+open class Value<T>(val rule: Rule<T>?, val value: T?)
     : Diffable {
     // TODO: Print "3 : Int" rather than just "3"
     //  Expression in a class literal has a nullable type 'T', use !! to make
@@ -45,8 +45,7 @@ open class Value<T>(open val rule: Rule<T>?, val value: T?)
             "${this::class.simpleName}{rule=$rule, value=$value}"
 }
 
-class RuleValue<T>(
-        val name: String, val default: T, override val rule: Rule<T>)
+open class RuleValue<T>(val name: String, val default: T, rule: Rule<T>)
     : Value<T>(rule, default) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

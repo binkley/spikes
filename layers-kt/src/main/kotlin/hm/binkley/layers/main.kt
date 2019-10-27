@@ -3,8 +3,11 @@ package hm.binkley.layers
 fun PersistedLayers.noisyCreateLayer(description: String, script: String,
         notes: String? = null) {
     val layer = createLayer(description, script, notes)
-    println("#${layer.slot}:\n${layer.script}")
-    println(layer.toDiff())
+    val showScript =
+            if (layer.script.isEmpty()) "<no script>" else layer.script
+    println("#${layer.slot}:\n$showScript")
+    val diff = layer.toDiff()
+    if (diff.isEmpty()) println("<no diff>") else println(diff)
     println(layer)
 }
 
@@ -43,6 +46,9 @@ fun main(args: Array<String>) {
             """)
         it.noisyCreateLayer("Add 3 to 'c'", """
                 layer["c"] = 3
+            """)
+        it.noisyCreateLayer("Base rule for 'c-bonus'", """
+                layer["c-bonus"] = bonus(otherKey="c")
             """)
 
         println(it.asList())

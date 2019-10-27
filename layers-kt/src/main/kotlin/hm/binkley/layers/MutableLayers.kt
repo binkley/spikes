@@ -25,7 +25,7 @@ class MutableLayers(private val layers: MutableList<Layer> = mutableListOf())
                     })
             }
 
-    fun commit(script: String? = null): Layer {
+    fun commit(script: String = ""): Layer {
         val layer = Layer(layers.size, script)
         layers.add(layer)
         return layer
@@ -76,7 +76,7 @@ class MutableLayers(private val layers: MutableList<Layer> = mutableListOf())
 }
 
 class Layer(override val slot: Int,
-        override val script: String?,
+        override val script: String,
         override val meta: MutableMap<String, String> = mutableMapOf(),
         private val contents: MutableMap<String, Value<*>> = TreeMap())
     : Map<String, Value<*>> by contents,
