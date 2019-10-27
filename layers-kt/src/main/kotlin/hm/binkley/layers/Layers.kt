@@ -2,8 +2,8 @@ package hm.binkley.layers
 
 import java.util.Objects
 
-interface WithDiff {
-    fun forDiff(): String
+interface Diffable {
+    fun toDiff(): String
 }
 
 interface Layers {
@@ -13,7 +13,7 @@ interface Layers {
 
 interface XLayer
     : Map<String, Value<*>>,
-        WithDiff {
+        Diffable {
     val slot: Int
     val script: String?
     val meta: Map<String, String>
@@ -22,11 +22,11 @@ interface XLayer
 typealias Rule<T> = (RuleContext<T>) -> T
 
 open class Value<T>(open val rule: Rule<T>?, val value: T?)
-    : WithDiff {
+    : Diffable {
     // TODO: Print "3 : Int" rather than just "3"
     //  Expression in a class literal has a nullable type 'T', use !! to make
     //  the type non-nullable
-    override fun forDiff() = if (null == rule) "$value" else "$this"
+    override fun toDiff() = if (null == rule) "$value" else "$this"
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

@@ -4,7 +4,7 @@ fun PersistedLayers.noisyCreateLayer(description: String, script: String,
         notes: String? = null) {
     val layer = createLayer(description, script, notes)
     println("#${layer.slot}:\n${layer.script}")
-    println(layer.forDiff())
+    println(layer.toDiff())
     println(layer)
 }
 

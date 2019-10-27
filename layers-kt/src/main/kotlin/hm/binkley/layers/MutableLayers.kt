@@ -86,9 +86,9 @@ class Layer(override val slot: Int,
         mutable.block()
     }
 
-    override fun forDiff() = contents.entries.map {
+    override fun toDiff() = contents.entries.map {
         val (key, value) = it
-        "$key: ${value.forDiff()}"
+        "$key: ${value.toDiff()}"
     }.joinToString("\n")
 
     override fun equals(other: Any?): Boolean {
