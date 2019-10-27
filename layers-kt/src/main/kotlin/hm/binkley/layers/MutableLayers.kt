@@ -75,17 +75,18 @@ class MutableLayers(private val layers: MutableList<Layer> = mutableListOf())
     }
 }
 
-class Layer(val slot: Int,
-        val script: String?,
-        val meta: MutableMap<String, String> = mutableMapOf(),
+class Layer(override val slot: Int,
+        override val script: String?,
+        override val meta: MutableMap<String, String> = mutableMapOf(),
         private val contents: MutableMap<String, Value<*>> = TreeMap())
-    : Map<String, Value<*>> by contents {
+    : Map<String, Value<*>> by contents,
+        XLayer {
     fun edit(block: MutableLayer.() -> Unit) = apply {
         val mutable = MutableLayer(contents)
         mutable.block()
     }
 
-    fun forDiff() = contents.entries.map {
+    override fun forDiff() = contents.entries.map {
         val (key, value) = it
         "$key: ${value.forDiff()}"
     }.joinToString("\n")

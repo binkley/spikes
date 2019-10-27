@@ -43,20 +43,15 @@ class PersistedLayers(private val repository: String)
     fun refresh() = scriptsDir.load()
 
     fun createLayer(description: String, script: String,
-            notes: String? = null): Layer {
-        val trimmedScript = script.trimIndent()
-        val layer = layers.new(trimmedScript)
+            notes: String? = null): XLayer {
+        val cleanDescription = description.clean()
+        val cleanScript = script.clean()
+        val layer = layers.new(cleanScript)
 
         val scriptFile = layer.save(
-                description, trimmedScript, notes?.trimIndent())
-        with(git) {
-            log().addPath(scriptFile).call().forEach {
-                layer.meta["commit-time"] = isoDateTime(it.commitTime)
-                layer.meta["full-message"] = it.fullMessage
-            }
-        }
+                cleanDescription, cleanScript, notes?.trimIndent())
 
-        return layer
+        return layer.addMetaFor(scriptFile)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -94,14 +89,14 @@ class PersistedLayers(private val repository: String)
     }
 
     private fun Path.load() {
-        val startAt = asList().size
         val scriptsDirFile = toFile()
         val scripts = scriptsDirFile.list { _, name ->
             name.endsWith(".kts")
-        }!!
-        scripts.sortedBy {
+        }!!.sortedBy {
             it.removeSuffix(".kts").toInt()
-        }.subList(startAt, scripts.size).map {
+        }
+
+        scripts.subList(asList().size, scripts.size).map {
             scriptsDirFile.resolve(it).readText().trim()
         }.forEach {
             layers.new(it)
@@ -138,11 +133,17 @@ class PersistedLayers(private val repository: String)
             return "$slot.kts"
         }
     }
+
+    private fun Layer.addMetaFor(scriptFile: String) = apply {
+        git.log().addPath(scriptFile).call().first().also {
+            meta["commit-time"] = it.commitTime.toIsoDateTime()
+            meta["full-message"] = it.fullMessage
+        }
+    }
 }
 
-private fun isoDateTime(seconds: Int) =
-        ISO_DATE_TIME.withZone(UTC).format(
-                Instant.ofEpochMilli(seconds * 1000L))
+private fun Int.toIsoDateTime() = ISO_DATE_TIME.withZone(UTC).format(
+        Instant.ofEpochMilli(this * 1000L))
 
 private fun Path.recursivelyDelete() {
     walkFileTree(this, object : SimpleFileVisitor<Path>() {
@@ -164,3 +165,5 @@ private fun Path.recursivelyDelete() {
         }
     })
 }
+
+private fun String.clean() = this.trimIndent().trim()

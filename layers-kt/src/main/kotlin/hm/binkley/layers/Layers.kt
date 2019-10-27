@@ -2,17 +2,31 @@ package hm.binkley.layers
 
 import java.util.Objects
 
+interface WithDiff {
+    fun forDiff(): String
+}
+
 interface Layers {
     fun asList(): List<Map<String, Any>>
     fun asMap(): Map<String, Any>
 }
+
+interface XLayer
+    : Map<String, Value<*>>,
+        WithDiff {
+    val slot: Int
+    val script: String?
+    val meta: Map<String, String>
+}
+
 typealias Rule<T> = (RuleContext<T>) -> T
 
-open class Value<T>(open val rule: Rule<T>?, val value: T?) {
+open class Value<T>(open val rule: Rule<T>?, val value: T?)
+    : WithDiff {
     // TODO: Print "3 : Int" rather than just "3"
     //  Expression in a class literal has a nullable type 'T', use !! to make
     //  the type non-nullable
-    fun forDiff() = if (null == rule) "$value" else "$this"
+    override fun forDiff() = if (null == rule) "$value" else "$this"
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

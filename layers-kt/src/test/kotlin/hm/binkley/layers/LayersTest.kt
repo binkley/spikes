@@ -16,9 +16,9 @@ internal class LayersTest {
         val repoDir = setupRepository(baseTempDir)
 
         val baker = PersistedLayers(repoDir.absolutePath).use {
-            val aDescription = """
-                I am me
-            """
+            val aCommitMessage = "I am me"
+            val aDescription =
+                    " $aCommitMessage   " // Too much whitespace on purpose
             val aRuleDefinition = """
                 layer["a"] = last(default=true)
                 layer["b"] = sum(default=0)
@@ -26,9 +26,13 @@ internal class LayersTest {
             val aNote = """
                 Just a note
             """
-            it.createLayer(description = aDescription,
+            val aLayer = it.createLayer(description = aDescription,
                     script = aRuleDefinition,
                     notes = aNote)
+
+            assertThat(aLayer.meta["full-message"])
+                    .isEqualTo(aCommitMessage)
+
             val bDescription = """
                 You are you
             """
