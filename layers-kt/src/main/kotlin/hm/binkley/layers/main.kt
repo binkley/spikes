@@ -37,6 +37,8 @@ fun main(args: Array<String>) {
                 layer["a"] = 3
             """)
         it.noisyCreateLayer("Do nothing", """
+            """, """
+                Empty marker notes
             """)
         it.noisyCreateLayer("Add 3 to 'c'", """
                 layer["c"] = 3

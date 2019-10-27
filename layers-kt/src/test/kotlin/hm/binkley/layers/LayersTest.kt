@@ -1,8 +1,8 @@
 package hm.binkley.layers
 
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.fail
 import org.eclipse.jgit.api.Git
-import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Path
@@ -10,7 +10,7 @@ import java.nio.file.Path
 internal class LayersTest {
     @Test
     internal fun `should persist`(@TempDir baseTempDir: Path) {
-        if (false) Assertions.fail<Nothing>("PROVE TESTS RUN")
+        if (false) fail<Nothing>("PROVE TESTS RUN")
 
         val repoDir = baseTempDir.toFile().resolve("git")
         val repoGit = Git.init()
@@ -45,17 +45,17 @@ internal class LayersTest {
 
         baker.createLayer(description = "Empty", script = "", notes = """
             An example of marker notes
-        """.trimIndent())
+        """)
 
         assertThat(baker.asList()).hasSize(3)
         assertThat(baker.asMap()).hasSize(2)
-        assert(baker.asMap()["a"] == true)
-        assert(baker.asMap()["b"] == 1)
+        assertThat(baker.asMap()).containsEntry("a", true)
+        assertThat(baker.asMap()).containsEntry("b", 1)
 
         baker.close()
 
         val nextBaker = PersistedLayers(repoDir.absolutePath)
-        assert(nextBaker == baker)
+        assertThat(nextBaker).isEqualTo(baker)
         nextBaker.close()
 
         val cloneDir = baseTempDir.toFile().resolve("clone")
@@ -67,8 +67,8 @@ internal class LayersTest {
                 .call()
         val cloneBaker = PersistedLayers(cloneDir.absolutePath)
 
-        assert(cloneBaker.asList() == baker.asList())
-        assert(cloneBaker.asMap() == baker.asMap())
+        assertThat(cloneBaker.asList()).isEqualTo(baker.asList())
+        assertThat(cloneBaker.asMap()).isEqualTo(baker.asMap())
 
         assertThat(cloneDir.resolve("0.kts")).exists()
         assertThat(cloneDir.resolve("0.txt")).exists()
