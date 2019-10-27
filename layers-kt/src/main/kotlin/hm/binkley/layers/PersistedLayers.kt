@@ -12,12 +12,11 @@ import java.nio.file.SimpleFileVisitor
 import java.nio.file.attribute.BasicFileAttributes
 import java.util.Objects
 import javax.script.ScriptEngineManager
-import kotlin.collections.Map.Entry
 
-class Baker(private val repository: String)
-    : AutoCloseable,
-        AbstractMap<String, Any>() {
-    val layers = Layers()
+class PersistedLayers(private val repository: String)
+    : Layers,
+        AutoCloseable {
+    val layers = MutableLayers()
 
     private val scriptsDir = Files.createTempDirectory("layers")
     private val git = Git.cloneRepository()
@@ -32,8 +31,9 @@ class Baker(private val repository: String)
         scriptsDir.load()
     }
 
-    override val entries: Set<Entry<String, Any>>
-        get() = layers.entries
+    override fun asList() = layers.asList()
+
+    override fun asMap() = layers.asMap()
 
     override fun close() {
         git.close()
@@ -54,7 +54,7 @@ class Baker(private val repository: String)
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as Baker
+        other as PersistedLayers
 
         return repository == other.repository
                 && layers == other.layers
@@ -65,7 +65,7 @@ class Baker(private val repository: String)
     override fun toString() =
             "${this::class.simpleName}{repository=$repository, scriptsDir=$scriptsDir, layers=$layers}"
 
-    private fun Layers.new(script: String): Layer {
+    private fun MutableLayers.new(script: String): Layer {
         with(engine) {
             val layer = commit(script)
 

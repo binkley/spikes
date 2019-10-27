@@ -1,5 +1,6 @@
 package hm.binkley.layers
 
+import org.assertj.core.api.Assertions.assertThat
 import org.eclipse.jgit.api.Git
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
@@ -18,7 +19,7 @@ internal class LayersTest {
                 .call()
         repoGit.close()
 
-        val baker = Baker(repoDir.absolutePath)
+        val baker = PersistedLayers(repoDir.absolutePath)
 
         val aDescription = """
                 I am me
@@ -42,12 +43,14 @@ internal class LayersTest {
         baker.createLayer(description = bDescription,
                 script = bRuleDefinition)
 
-        assert(baker["a"] == true)
-        assert(baker["b"] == 1)
+        assertThat(baker.asList()).hasSize(2)
+        assertThat(baker.asMap()).hasSize(2)
+        assert(baker.asMap()["a"] == true)
+        assert(baker.asMap()["b"] == 1)
 
         baker.close()
 
-        val nextBaker = Baker(repoDir.absolutePath)
+        val nextBaker = PersistedLayers(repoDir.absolutePath)
         assert(nextBaker == baker)
         nextBaker.close()
 
@@ -58,7 +61,7 @@ internal class LayersTest {
                 .setDirectory(cloneDir)
                 .setURI(repoDir.absolutePath)
                 .call()
-        val cloneBaker = Baker(cloneDir.absolutePath)
+        val cloneBaker = PersistedLayers(cloneDir.absolutePath)
 
         assert(cloneBaker.layers == baker.layers)
 
