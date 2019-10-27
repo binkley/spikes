@@ -77,6 +77,7 @@ class MutableLayers(private val layers: MutableList<Layer> = mutableListOf())
 
 class Layer(val slot: Int,
         val script: String?,
+        val meta: MutableMap<String, String> = mutableMapOf(),
         private val contents: MutableMap<String, Value<*>> = TreeMap())
     : Map<String, Value<*>> by contents {
     fun edit(block: MutableLayer.() -> Unit) = apply {
@@ -102,7 +103,8 @@ class Layer(val slot: Int,
 
     override fun hashCode() = Objects.hash(slot, script, contents)
 
-    override fun toString() = "${this::class.simpleName}#$slot:$contents"
+    override fun toString() =
+            "${this::class.simpleName}#$slot:$contents\\$meta"
 }
 
 class MutableLayer(private val contents: MutableMap<String, Value<*>>)

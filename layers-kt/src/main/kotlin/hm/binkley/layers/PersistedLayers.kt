@@ -10,6 +10,9 @@ import java.nio.file.Files.walkFileTree
 import java.nio.file.Path
 import java.nio.file.SimpleFileVisitor
 import java.nio.file.attribute.BasicFileAttributes
+import java.time.Instant
+import java.time.ZoneOffset.UTC
+import java.time.format.DateTimeFormatter.ISO_DATE_TIME
 import java.util.Objects
 import javax.script.ScriptEngineManager
 
@@ -44,7 +47,14 @@ class PersistedLayers(private val repository: String)
         val trimmedScript = script.trimIndent()
         val layer = layers.new(trimmedScript)
 
-        layer.save(description, trimmedScript, notes?.trimIndent())
+        val scriptFile = layer.save(
+                description, trimmedScript, notes?.trimIndent())
+        with(git) {
+            log().addPath(scriptFile).call().forEach {
+                layer.meta["commit-time"] = isoDateTime(it.commitTime)
+                layer.meta["full-message"] = it.fullMessage
+            }
+        }
 
         return layer
     }
@@ -99,7 +109,7 @@ class PersistedLayers(private val repository: String)
     }
 
     private fun Layer.save(description: String,
-            trimmedScript: String, notes: String?) {
+            trimmedScript: String, notes: String?): String {
         fun Git.write(ext: String, contents: String) {
             val fileName = "$slot.$ext"
             val scriptsDirFile = scriptsDir.toFile()
@@ -124,9 +134,15 @@ class PersistedLayers(private val repository: String)
             commit.call()
 
             git.push().call()
+
+            return "$slot.kts"
         }
     }
 }
+
+private fun isoDateTime(seconds: Int) =
+        ISO_DATE_TIME.withZone(UTC).format(
+                Instant.ofEpochMilli(seconds * 1000L))
 
 private fun Path.recursivelyDelete() {
     walkFileTree(this, object : SimpleFileVisitor<Path>() {

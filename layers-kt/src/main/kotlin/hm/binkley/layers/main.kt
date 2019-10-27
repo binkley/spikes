@@ -5,6 +5,7 @@ fun PersistedLayers.noisyCreateLayer(description: String, script: String,
     val layer = createLayer(description, script, notes)
     println("#${layer.slot}:\n${layer.script}")
     println(layer.forDiff())
+    println(layer)
 }
 
 fun main(args: Array<String>) {
