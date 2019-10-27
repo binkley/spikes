@@ -6,8 +6,8 @@ import java.util.TreeMap
 import kotlin.collections.Map.Entry
 
 class MutableLayers(private val layers: MutableList<Layer> = mutableListOf())
-    : LayersForRuleContext,
-        Layers {
+    : Layers,
+        LayersForRuleContext {
     override fun asList(): List<Map<String, Any>> =
             object : AbstractList<Map<String, Any>>() {
                 override val size: Int
