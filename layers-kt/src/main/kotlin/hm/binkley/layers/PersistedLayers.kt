@@ -110,7 +110,9 @@ class PersistedLayers(private val repository: String)
 
         with(git) {
             write("kts", trimmedScript)
-            write("txt", forDiff())
+            val diff = forDiff()
+            if (diff.isNotEmpty())
+                write("txt", diff)
             notes?.also {
                 write("notes", it)
             }

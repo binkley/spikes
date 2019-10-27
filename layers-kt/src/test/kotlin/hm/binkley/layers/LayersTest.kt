@@ -78,7 +78,7 @@ internal class LayersTest {
         assertThat(cloneDir.resolve("1.notes")).doesNotExist()
         assertThat(cloneDir.resolve("2.kts")).exists()
         assertThat(cloneDir.resolve("2.kts")).hasContent("")
-        assertThat(cloneDir.resolve("2.txt")).hasContent("")
+        assertThat(cloneDir.resolve("2.txt")).doesNotExist()
         assertThat(cloneDir.resolve("2.notes")).exists()
 
         cloneBaker.close()
