@@ -33,14 +33,18 @@ internal class LayersTest {
             assertThat(aLayer.meta["full-message"])
                     .isEqualTo(aCommitMessage)
 
+            val bCommitMessage = """You are you"""
             val bDescription = """
-                You are you
+                $bCommitMessage
             """
             val bRuleDefinition = """
                 layer["b"] = 1
             """
-            it.createLayer(description = bDescription,
+            val bLayer = it.createLayer(description = bDescription,
                     script = bRuleDefinition)
+
+            assertThat(bLayer.meta["full-message"])
+                    .isEqualTo(bCommitMessage)
 
             it.createLayer(description = "Empty", script = "", notes = """
                 An example of marker notes
