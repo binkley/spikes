@@ -21,6 +21,7 @@ internal class LayersTest {
         """
         val aRuleDefinition = """
                 layer["a"] = last(default=true)
+                layer["b"] = sum(default=0)
         """
         val aNote = """
                 Just a note
@@ -28,6 +29,19 @@ internal class LayersTest {
         baker.noisyCreateLayer(description = aDescription,
                 script = aRuleDefinition,
                 notes = aNote)
+        val bDescription = """
+                You are you
+        """
+        val bRuleDefinition = """
+                layer["b"] = 1
+        """
+        baker.myCreateLayer(description = bDescription,
+                script = bRuleDefinition)
+
+        println(baker.layers.asMap())
+
+        assert(baker.layers.asMap()["a"] == true)
+        assert(baker.layers.asMap()["b"] == 1)
 
         assert(baker.layers.asMap()["a"] == true)
 
@@ -43,6 +57,9 @@ internal class LayersTest {
         assert(cloneDir.resolve("0.kts").exists())
         assert(cloneDir.resolve("0.txt").exists())
         assert(cloneDir.resolve("0.notes").exists())
+        assert(cloneDir.resolve("1.kts").exists())
+        assert(cloneDir.resolve("1.txt").exists())
+        assert(!cloneDir.resolve("1.notes").exists())
 
         val nextBaker = Baker(repoDir.absolutePath)
 
