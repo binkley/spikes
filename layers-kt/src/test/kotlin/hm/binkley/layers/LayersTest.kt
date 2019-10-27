@@ -12,11 +12,12 @@ internal class LayersTest {
         if (false) Assertions.fail<Nothing>("PROVE TESTS RUN")
 
         val repoDir = baseTempDir.toFile().resolve("git")
-        val cloneDir = baseTempDir.toFile().resolve("clone")
         val repoGit = Git.init()
                 .setDirectory(repoDir)
                 .setBare(true)
                 .call()
+        repoGit.close()
+
         val baker = Baker(repoDir.absolutePath)
 
         val aDescription = """
@@ -46,16 +47,22 @@ internal class LayersTest {
         assert(bakerMap["a"] == true)
         assert(bakerMap["b"] == 1)
 
-        assert(bakerMap["a"] == true)
-
         baker.close()
 
+        val nextBaker = Baker(repoDir.absolutePath)
+        assert(nextBaker == baker)
+        nextBaker.close()
+
+        val cloneDir = baseTempDir.toFile().resolve("clone")
         val cloneGit = Git.cloneRepository()
                 .setBranch("master")
                 .setBranchesToClone(setOf("refs/head/master"))
                 .setDirectory(cloneDir)
                 .setURI(repoDir.absolutePath)
                 .call()
+        val cloneBaker = Baker(cloneDir.absolutePath)
+
+        assert(cloneBaker.layers.asMap() == baker.layers.asMap())
 
         assert(cloneDir.resolve("0.kts").exists())
         assert(cloneDir.resolve("0.txt").exists())
@@ -64,15 +71,7 @@ internal class LayersTest {
         assert(cloneDir.resolve("1.txt").exists())
         assert(!cloneDir.resolve("1.notes").exists())
 
-        val nextBaker = Baker(repoDir.absolutePath)
-
-        val nextBakerMap = nextBaker.layers.asMap()
-
-        assert(nextBakerMap["a"] == true)
-        assert(nextBaker == baker)
-
-        nextBaker.close()
+        cloneBaker.close()
         cloneGit.close()
-        repoGit.close()
     }
 }
