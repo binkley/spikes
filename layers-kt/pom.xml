@@ -40,14 +40,14 @@
 
     <properties>
         <!-- @formatter:off -->
-        <assertj.version>3.13.2</assertj.version>
+        <assertj.version>3.14.0</assertj.version>
         <generateBackupPoms>false</generateBackupPoms>
         <jacoco.haltOnFailure>true</jacoco.haltOnFailure>
         <jacoco.minimum>1.00</jacoco.minimum>
         <jacoco.version>0.8.5</jacoco.version>
         <java.charset>UTF-8</java.charset>
         <java.version>11</java.version>
-        <jgit.version>5.1.10.201908230655-r</jgit.version>
+        <jgit.version>5.1.12.201910011832-r</jgit.version>
         <junit.jupiter.version>5.5.2</junit.jupiter.version>
         <kotlin.compiler.jvmTarget>${java.version}</kotlin.compiler.jvmTarget>
         <kotlin.compiler.languageVersion>1.3</kotlin.compiler.languageVersion>
