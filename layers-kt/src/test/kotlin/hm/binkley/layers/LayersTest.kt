@@ -1,6 +1,7 @@
 package hm.binkley.layers
 
 import org.eclipse.jgit.api.Git
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.nio.file.Path
@@ -8,6 +9,8 @@ import java.nio.file.Path
 internal class LayersTest {
     @Test
     internal fun `should persist`(@TempDir baseTempDir: Path) {
+        if (false) Assertions.fail<Nothing>("PROVE TESTS RUN")
+
         val repoDir = baseTempDir.toFile().resolve("git")
         val cloneDir = baseTempDir.toFile().resolve("clone")
         val repoGit = Git.init()
