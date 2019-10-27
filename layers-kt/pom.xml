@@ -206,7 +206,6 @@
                     <args>
                         <arg>-Xjsr305=strict</arg>
                     </args>
-                    <experimentalCoroutines>enable</experimentalCoroutines>
                 </configuration>
                 <executions>
                     <execution>
