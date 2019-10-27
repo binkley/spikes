@@ -1,5 +1,3 @@
-@file:JvmName("main")
-
 package hm.binkley.layers
 
 fun Baker.noisyCreateLayer(description: String, script: String,
