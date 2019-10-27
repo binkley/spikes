@@ -29,7 +29,7 @@ internal class LayersTest {
         val aNote = """
                 Just a note
         """
-        baker.noisyCreateLayer(description = aDescription,
+        baker.createLayer(description = aDescription,
                 script = aRuleDefinition,
                 notes = aNote)
         val bDescription = """
@@ -38,11 +38,10 @@ internal class LayersTest {
         val bRuleDefinition = """
                 layer["b"] = 1
         """
-        baker.noisyCreateLayer(description = bDescription,
+        baker.createLayer(description = bDescription,
                 script = bRuleDefinition)
 
         val bakerMap = baker.layers.asMap()
-        println(bakerMap)
 
         assert(bakerMap["a"] == true)
         assert(bakerMap["b"] == 1)
@@ -68,7 +67,6 @@ internal class LayersTest {
         val nextBaker = Baker(repoDir.absolutePath)
 
         val nextBakerMap = nextBaker.layers.asMap()
-        println(nextBakerMap)
 
         assert(nextBakerMap["a"] == true)
         assert(nextBaker == baker)
