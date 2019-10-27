@@ -17,8 +17,8 @@ internal class LayersTest {
 
         val baker = PersistedLayers(repoDir.absolutePath).use {
             val aCommitMessage = "I am me"
-            val aDescription =
-                    " $aCommitMessage   " // Too much whitespace on purpose
+            // Too much whitespace on purpose
+            val aDescription = " $aCommitMessage   "
             val aRuleDefinition = """
                 layer["a"] = last(default=true)
                 layer["b"] = sum(default=0)
@@ -83,22 +83,21 @@ internal class LayersTest {
         }
     }
 
-    private fun setupRepository(baseTempDir: Path): File {
-        val repoDir = baseTempDir.toFile().resolve("git")
-        return Git.init()
-                .setDirectory(repoDir)
-                .call().use {
-                    createReadme(repoDir)
-                    it.add()
-                            .addFilepattern(".")
-                            .call()
-                    it.commit()
-                            .setAllowEmpty(true)
-                            .setMessage("Init")
-                            .call()
-                    return repoDir
-                }
-    }
+    private fun setupRepository(baseTempDir: Path) =
+            baseTempDir.toFile().resolve("git").also { repoDir ->
+                Git.init()
+                        .setDirectory(repoDir)
+                        .call().use {
+                            createReadme(repoDir)
+                            it.add()
+                                    .addFilepattern(".")
+                                    .call()
+                            it.commit()
+                                    .setAllowEmpty(true)
+                                    .setMessage("Init")
+                                    .call()
+                        }
+            }
 
     private fun createReadme(repoDir: File) {
         with(repoDir.resolve("README.md")) {
@@ -106,14 +105,12 @@ internal class LayersTest {
         }
     }
 
-    private fun setupClone(baseTempDir: Path,
-            repoDir: File): File {
-        val cloneDir = baseTempDir.toFile().resolve("clone")
-        return Git.cloneRepository()
-                .setDirectory(cloneDir)
-                .setURI(repoDir.absolutePath)
-                .call().use {
-                    return cloneDir
-                }
-    }
+    private fun setupClone(baseTempDir: Path, repoDir: File) =
+            baseTempDir.toFile().resolve("clone").also { cloneDir ->
+                Git.cloneRepository()
+                        .setDirectory(cloneDir)
+                        .setURI(repoDir.absolutePath)
+                        .call()
+                        .close()
+            }
 }
