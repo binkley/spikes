@@ -60,8 +60,6 @@ internal class LayersTest {
 
         val cloneDir = baseTempDir.toFile().resolve("clone")
         val cloneGit = Git.cloneRepository()
-                .setBranch("master")
-                .setBranchesToClone(setOf("refs/head/master"))
                 .setDirectory(cloneDir)
                 .setURI(repoDir.absolutePath)
                 .call()
