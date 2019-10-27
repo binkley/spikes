@@ -123,6 +123,9 @@ class RuleContext<T>(val myKey: String,
 typealias Rule<T> = (RuleContext<T>) -> T
 
 open class Value<T>(open val rule: Rule<T>?, val value: T?) {
+    // TODO: Print "3 : Int" rather than just "3"
+    //  Expression in a class literal has a nullable type 'T', use !! to make
+    //  the type non-nullable
     fun forDiff() = if (null == rule) "$value" else "$this"
 
     override fun equals(other: Any?): Boolean {
