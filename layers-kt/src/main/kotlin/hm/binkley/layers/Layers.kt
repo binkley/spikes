@@ -6,13 +6,12 @@ import java.util.TreeMap
 import kotlin.collections.Map.Entry
 
 class Layers(private val layers: MutableList<Layer> = mutableListOf())
-    : LayersForRuleContext {
-    fun asMap(): Map<String, Any> = object : AbstractMap<String, Any>() {
-        override val entries: Set<Entry<String, Any>>
-            get() = applied().toSortedSet(compareBy {
-                it.key
-            })
-    }
+    : LayersForRuleContext,
+        AbstractMap<String, Any>() {
+    override val entries: Set<Entry<String, Any>>
+        get() = applied().toSortedSet(compareBy {
+            it.key
+        })
 
     fun commit(script: String? = null): Layer {
         val layer = Layer(layers.size, script)

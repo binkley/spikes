@@ -42,7 +42,7 @@ fun main(args: Array<String>) {
                 layer["c"] = 3
             """)
 
-        println(it.layers.asMap())
+        println(it.layers)
         println(it)
     }
 }

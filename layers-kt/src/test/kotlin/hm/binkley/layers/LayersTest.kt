@@ -42,10 +42,8 @@ internal class LayersTest {
         baker.createLayer(description = bDescription,
                 script = bRuleDefinition)
 
-        val bakerMap = baker.layers.asMap()
-
-        assert(bakerMap["a"] == true)
-        assert(bakerMap["b"] == 1)
+        assert(baker["a"] == true)
+        assert(baker["b"] == 1)
 
         baker.close()
 
@@ -62,7 +60,7 @@ internal class LayersTest {
                 .call()
         val cloneBaker = Baker(cloneDir.absolutePath)
 
-        assert(cloneBaker.layers.asMap() == baker.layers.asMap())
+        assert(cloneBaker.layers == baker.layers)
 
         assert(cloneDir.resolve("0.kts").exists())
         assert(cloneDir.resolve("0.txt").exists())

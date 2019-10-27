@@ -12,8 +12,11 @@ import java.nio.file.SimpleFileVisitor
 import java.nio.file.attribute.BasicFileAttributes
 import java.util.Objects
 import javax.script.ScriptEngineManager
+import kotlin.collections.Map.Entry
 
-class Baker(private val repository: String) : AutoCloseable {
+class Baker(private val repository: String)
+    : AutoCloseable,
+        AbstractMap<String, Any>() {
     val layers = Layers()
 
     private val scriptsDir = Files.createTempDirectory("layers")
@@ -28,6 +31,9 @@ class Baker(private val repository: String) : AutoCloseable {
     init {
         scriptsDir.load()
     }
+
+    override val entries: Set<Entry<String, Any>>
+        get() = layers.entries
 
     override fun close() {
         git.close()
