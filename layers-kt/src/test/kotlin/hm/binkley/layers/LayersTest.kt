@@ -5,6 +5,7 @@ import org.assertj.core.api.Assertions.fail
 import org.eclipse.jgit.api.Git
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
+import java.io.File
 import java.nio.file.Path
 
 internal class LayersTest {
@@ -12,90 +13,99 @@ internal class LayersTest {
     internal fun `should persist`(@TempDir baseTempDir: Path) {
         if (false) fail<Nothing>("PROVE TESTS RUN")
 
-        val repoDir = baseTempDir.toFile().resolve("git")
-        val repoGit = Git.init()
-                .setDirectory(repoDir)
-                .call()
-        with(repoDir.resolve("README.md")) {
-            writeText("""
-                # Working directory for Layers
-            """.trimIndent())
-            appendText("\n")
-        }
-        repoGit.add()
-                .addFilepattern(".")
-                .call()
-        repoGit.commit()
-                .setAllowEmpty(true)
-                .setMessage("Init")
-                .call()
+        val repoDir = setupRepository(baseTempDir)
 
-        repoGit.close()
-
-        val baker = PersistedLayers(repoDir.absolutePath)
-
-        val aDescription = """
+        val baker = PersistedLayers(repoDir.absolutePath).use {
+            val aDescription = """
                 I am me
-        """
-        val aRuleDefinition = """
+            """
+            val aRuleDefinition = """
                 layer["a"] = last(default=true)
                 layer["b"] = sum(default=0)
-        """
-        val aNote = """
+            """
+            val aNote = """
                 Just a note
-        """
-        baker.createLayer(description = aDescription,
-                script = aRuleDefinition,
-                notes = aNote)
-        val bDescription = """
+            """
+            it.createLayer(description = aDescription,
+                    script = aRuleDefinition,
+                    notes = aNote)
+            val bDescription = """
                 You are you
-        """
-        val bRuleDefinition = """
+            """
+            val bRuleDefinition = """
                 layer["b"] = 1
-        """
-        baker.createLayer(description = bDescription,
-                script = bRuleDefinition)
+            """
+            it.createLayer(description = bDescription,
+                    script = bRuleDefinition)
 
-        baker.createLayer(description = "Empty", script = "", notes = """
-            An example of marker notes
-        """)
+            it.createLayer(description = "Empty", script = "", notes = """
+                An example of marker notes
+            """)
 
-        assertThat(baker.asList()).hasSize(3)
-        assertThat(baker.asMap()).hasSize(2)
-        assertThat(baker.asMap()).containsEntry("a", true)
-        assertThat(baker.asMap()).containsEntry("b", 1)
+            assertThat(it.asList()).hasSize(3)
+            assertThat(it.asMap()).hasSize(2)
+            assertThat(it.asMap()).containsEntry("a", true)
+            assertThat(it.asMap()).containsEntry("b", 1)
 
-        baker.refresh() // Should do nothing
-        assertThat(baker.asList()).hasSize(3)
+            it.refresh() // Should do nothing
+            assertThat(it.asList()).hasSize(3)
 
-        baker.close()
+            it
+        }
 
-        val nextBaker = PersistedLayers(repoDir.absolutePath)
-        assertThat(nextBaker).isEqualTo(baker)
-        nextBaker.close()
+        PersistedLayers(repoDir.absolutePath).use {
+            assertThat(it).isEqualTo(baker)
+        }
 
+        val cloneDir = setupClone(baseTempDir, repoDir)
+        PersistedLayers(cloneDir.absolutePath).use {
+            assertThat(it.asList()).isEqualTo(baker.asList())
+            assertThat(it.asMap()).isEqualTo(baker.asMap())
+
+            assertThat(cloneDir.resolve("0.kts")).exists()
+            assertThat(cloneDir.resolve("0.txt")).exists()
+            assertThat(cloneDir.resolve("0.notes")).exists()
+            assertThat(cloneDir.resolve("1.kts")).exists()
+            assertThat(cloneDir.resolve("1.txt")).exists()
+            assertThat(cloneDir.resolve("1.notes")).doesNotExist()
+            assertThat(cloneDir.resolve("2.kts")).exists()
+            assertThat(cloneDir.resolve("2.kts")).hasContent("")
+            assertThat(cloneDir.resolve("2.txt")).doesNotExist()
+            assertThat(cloneDir.resolve("2.notes")).exists()
+        }
+    }
+
+    private fun setupRepository(baseTempDir: Path): File {
+        val repoDir = baseTempDir.toFile().resolve("git")
+        return Git.init()
+                .setDirectory(repoDir)
+                .call().use {
+                    createReadme(repoDir)
+                    it.add()
+                            .addFilepattern(".")
+                            .call()
+                    it.commit()
+                            .setAllowEmpty(true)
+                            .setMessage("Init")
+                            .call()
+                    return repoDir
+                }
+    }
+
+    private fun createReadme(repoDir: File) {
+        with(repoDir.resolve("README.md")) {
+            writeText("# Working directory for Layers\n")
+        }
+    }
+
+    private fun setupClone(baseTempDir: Path,
+            repoDir: File): File {
         val cloneDir = baseTempDir.toFile().resolve("clone")
-        val cloneGit = Git.cloneRepository()
+        return Git.cloneRepository()
                 .setDirectory(cloneDir)
                 .setURI(repoDir.absolutePath)
-                .call()
-        val cloneBaker = PersistedLayers(cloneDir.absolutePath)
-
-        assertThat(cloneBaker.asList()).isEqualTo(baker.asList())
-        assertThat(cloneBaker.asMap()).isEqualTo(baker.asMap())
-
-        assertThat(cloneDir.resolve("0.kts")).exists()
-        assertThat(cloneDir.resolve("0.txt")).exists()
-        assertThat(cloneDir.resolve("0.notes")).exists()
-        assertThat(cloneDir.resolve("1.kts")).exists()
-        assertThat(cloneDir.resolve("1.txt")).exists()
-        assertThat(cloneDir.resolve("1.notes")).doesNotExist()
-        assertThat(cloneDir.resolve("2.kts")).exists()
-        assertThat(cloneDir.resolve("2.kts")).hasContent("")
-        assertThat(cloneDir.resolve("2.txt")).doesNotExist()
-        assertThat(cloneDir.resolve("2.notes")).exists()
-
-        cloneBaker.close()
-        cloneGit.close()
+                .call().use {
+                    return cloneDir
+                }
     }
 }
