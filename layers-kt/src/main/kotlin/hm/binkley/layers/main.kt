@@ -16,7 +16,7 @@ fun main(args: Array<String>) {
     else "/Users/boxley/tmp/layers.git"
     PersistedLayers(repository).use {
         it.noisyCreateLayer("Base rule for 'b'", """
-                layer["b"] = last(default=true)
+                layer["b"] = current(default=true)
             """, """
                 Toggle for "a"
             """)
@@ -31,7 +31,7 @@ fun main(args: Array<String>) {
                 Toggle "a" on/off using "b"
             """)
         it.noisyCreateLayer("Base rule for 'c' (simple)", """
-                layer["c"] = sum(default=0)
+                layer["c"] = total(default=0)
             """)
         it.noisyCreateLayer("Add 2 to both 'a' and 'c'", """
                 layer["a"] = 2
@@ -48,7 +48,7 @@ fun main(args: Array<String>) {
                 layer["c"] = 3
             """)
         it.noisyCreateLayer("Base rule for 'c-bonus'", """
-                layer["c-bonus"] = bonus(otherKey="c")
+                layer["c-bonus"] = bonus(otherKey="c", default=0)
             """)
 
         println(it.asList())

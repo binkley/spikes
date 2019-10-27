@@ -20,8 +20,8 @@ internal class LayersTest {
             // Too much whitespace on purpose
             val aDescription = " $aCommitMessage   "
             val aRuleDefinition = """
-                layer["a"] = last(default=true)
-                layer["b"] = sum(default=0)
+                layer["b-enabled"] = current(default=true)
+                layer["b"] = total(default=0)
             """
             val aNote = """
                 Just a note
@@ -64,7 +64,7 @@ internal class LayersTest {
 
             assertThat(it.asList()).hasSize(5)
             assertThat(it.asMap()).hasSize(3)
-            assertThat(it.asMap()).containsEntry("a", true)
+            assertThat(it.asMap()).containsEntry("b-enabled", true)
             assertThat(it.asMap()).containsEntry("b", 11)
             assertThat(it.asMap()).containsEntry("b-bonus", 1)
 

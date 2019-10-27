@@ -1,12 +1,12 @@
 package hm.binkley.layers.rules
 
-import hm.binkley.layers.RuleContext
+import hm.binkley.layers.Rule
 import hm.binkley.layers.RuleValue
 import java.util.Objects
 
 /** Bonus of [otherKey] plus any bonuses from this key. */
 class BonusRuleValue(val otherKey: String, default: Int)
-    : RuleValue<Int>("*name", default, compute(otherKey)) {
+    : RuleValue<Int>("*bonus", default, bonusRule(otherKey)) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -29,7 +29,7 @@ fun Int.toBonus() = this / 2 - 5
 fun bonus(otherKey: String, default: Int = 0) =
         BonusRuleValue(otherKey, default)
 
-private fun compute(otherKey: String) = { it: RuleContext<Int> ->
+fun bonusRule(otherKey: String): Rule<Int> = {
     val otherValue: Int = it[otherKey]
     otherValue.toBonus() + it.myValues.sum()
 }
