@@ -7,5 +7,5 @@ import org.springframework.boot.runApplication
 class ScratchApplication
 
 fun main(args: Array<String>) {
-	runApplication<ScratchApplication>(*args)
+    runApplication<ScratchApplication>(*args)
 }
