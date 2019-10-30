@@ -10,8 +10,8 @@ import org.springframework.core.task.TaskExecutor;
 import x.scratch.ScratchApplication.Bob;
 import x.scratch.ScratchApplication.Sally;
 
-import static java.lang.System.out;
 import static java.lang.Thread.currentThread;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
@@ -26,11 +26,12 @@ public class ScratchApplicationTests {
     private Sally sally;
 
     @Test
-    public void shouldWaitOnBob() {
+    public void shouldWaitOnBob()
+            throws InterruptedException {
         sally.runIt();
 
         try {
-            verify(bob, timeout(2_000L)).runItEventually();
+            verify(bob, timeout(SECONDS.toMillis(2L))).runItEventually();
         } catch (final AssertionError e) {
             if (!executorRan)
                 throw new AssertionError("Did not even run the executor");
@@ -45,19 +46,16 @@ public class ScratchApplicationTests {
         @Bean
         public TaskExecutor slowExecutor() {
             return task -> {
-                out.println("MyTestConfiguration.slowExecutor -- executor");
                 executorRan = true;
                 new Thread(() -> {
                     try {
-                        out.println(
-                                "MyTestConfiguration.slowExecutor -- task");
-                        Thread.sleep(1_000L);
-                        task.run();
+                        SECONDS.sleep(1L);
                         taskRan = true;
+                        task.run();
                     } catch (final InterruptedException e) {
                         currentThread().interrupt();
                     }
-                });
+                }).start();
             };
         }
     }

@@ -9,6 +9,7 @@ import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.boot.test.mock.mockito.SpyBean
 import org.springframework.context.annotation.Bean
 import org.springframework.core.task.TaskExecutor
+import java.util.concurrent.TimeUnit.SECONDS
 
 @SpringBootTest
 class ScratchApplicationTests {
@@ -27,7 +28,7 @@ class ScratchApplicationTests {
         sally.runIt()
 
         try {
-            verify(bob, timeout(2_000L)).runItEventually()
+            verify(bob, timeout(SECONDS.toMillis(2L))).runItEventually()
         } catch (e: AssertionError) {
             if (!executorRan)
                 throw AssertionError("Did not even run the executor")
@@ -43,10 +44,10 @@ class ScratchApplicationTests {
         fun slowExecutor() = TaskExecutor { task ->
             executorRan = true
             Thread {
-                Thread.sleep(1_000L)
-                task.run()
+                SECONDS.sleep(1L)
                 taskRan = true
-            }.run()
+                task.run()
+            }.start()
         }
     }
 }
