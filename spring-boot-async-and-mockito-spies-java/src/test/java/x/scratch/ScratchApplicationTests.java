@@ -14,6 +14,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.lang.Thread.currentThread;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mockingDetails;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
@@ -29,6 +31,9 @@ public class ScratchApplicationTests {
 
     @Test
     public void shouldWaitOnBob() {
+        assertThat(mockingDetails(bob).isSpy()).as("Should be a spy")
+                .isTrue();
+
         sally.runIt();
 
         try {
