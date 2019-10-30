@@ -10,12 +10,13 @@ import org.springframework.boot.test.mock.mockito.SpyBean
 import org.springframework.context.annotation.Bean
 import org.springframework.core.task.TaskExecutor
 import java.util.concurrent.TimeUnit.SECONDS
+import java.util.concurrent.atomic.AtomicBoolean
 
 @SpringBootTest
 class ScratchApplicationTests {
     companion object {
-        var executorRan: Boolean = false
-        var taskRan: Boolean = false
+        private val executorRan = AtomicBoolean(false)
+        private val taskRan = AtomicBoolean(false)
     }
 
     @SpyBean
@@ -30,9 +31,9 @@ class ScratchApplicationTests {
         try {
             verify(bob, timeout(SECONDS.toMillis(2L))).runItEventually()
         } catch (e: AssertionError) {
-            if (!executorRan)
+            if (!executorRan.get())
                 throw AssertionError("Did not even run the executor")
-            if (!taskRan)
+            if (!taskRan.get())
                 throw AssertionError("Did not even run the task")
             throw e
         }
@@ -42,10 +43,10 @@ class ScratchApplicationTests {
     class MyTestConfiguration {
         @Bean
         fun slowExecutor() = TaskExecutor { task ->
-            executorRan = true
+            executorRan.set(true)
             Thread {
                 SECONDS.sleep(1L)
-                taskRan = true
+                taskRan.set(true)
                 task.run()
             }.start()
         }

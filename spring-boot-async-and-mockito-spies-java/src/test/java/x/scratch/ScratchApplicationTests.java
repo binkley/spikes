@@ -10,6 +10,8 @@ import org.springframework.core.task.TaskExecutor;
 import x.scratch.ScratchApplication.Bob;
 import x.scratch.ScratchApplication.Sally;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import static java.lang.Thread.currentThread;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.mockito.Mockito.timeout;
@@ -17,8 +19,8 @@ import static org.mockito.Mockito.verify;
 
 @SpringBootTest
 public class ScratchApplicationTests {
-    private static boolean executorRan = false;
-    private static boolean taskRan = false;
+    private static final AtomicBoolean executorRan = new AtomicBoolean(false);
+    private static final AtomicBoolean taskRan = new AtomicBoolean(false);
 
     @SpyBean
     private Bob bob;
@@ -26,16 +28,15 @@ public class ScratchApplicationTests {
     private Sally sally;
 
     @Test
-    public void shouldWaitOnBob()
-            throws InterruptedException {
+    public void shouldWaitOnBob() {
         sally.runIt();
 
         try {
             verify(bob, timeout(SECONDS.toMillis(2L))).runItEventually();
         } catch (final AssertionError e) {
-            if (!executorRan)
+            if (!executorRan.get())
                 throw new AssertionError("Did not even run the executor");
-            if (!taskRan)
+            if (!taskRan.get())
                 throw new AssertionError("Did not even run the task");
             throw e;
         }
@@ -46,11 +47,11 @@ public class ScratchApplicationTests {
         @Bean
         public TaskExecutor slowExecutor() {
             return task -> {
-                executorRan = true;
+                executorRan.set(true);
                 new Thread(() -> {
                     try {
                         SECONDS.sleep(1L);
-                        taskRan = true;
+                        taskRan.set(true);
                         task.run();
                     } catch (final InterruptedException e) {
                         currentThread().interrupt();
