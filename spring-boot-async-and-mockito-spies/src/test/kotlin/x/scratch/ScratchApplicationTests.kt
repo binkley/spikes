@@ -40,11 +40,11 @@ class ScratchApplicationTests {
     @TestConfiguration
     class MyTestConfiguration {
         @Bean
-        fun slowExecutor() = TaskExecutor {
+        fun slowExecutor() = TaskExecutor { task ->
             executorRan = true
             Thread {
                 Thread.sleep(1_000L)
-                it.run()
+                task.run()
                 taskRan = true
             }.run()
         }
