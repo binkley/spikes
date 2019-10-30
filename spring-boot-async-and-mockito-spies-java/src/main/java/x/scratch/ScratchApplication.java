@@ -5,10 +5,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Component;
 
-@EnableAsync
+import static x.scratch.AsyncConfiguration.SLOW_EXECUTOR_BEAN_NAME;
+
 @SpringBootApplication
 public class ScratchApplication {
     public static void main(final String[] args) {
@@ -20,14 +20,21 @@ public class ScratchApplication {
     public static class Sally {
         private final Bob bob;
 
-        public void runIt() {
-            bob.runItEventually();
+        public void runItEventuallyButQuickly() {
+            bob.runItEventuallyButQuickly();
+        }
+
+        public void runItEventuallyButSlowly() {
+            bob.runItEventuallyButSlowly();
         }
     }
 
     @Component
     public static class Bob {
         @Async
-        public void runItEventually() {}
+        public void runItEventuallyButQuickly() {}
+
+        @Async(SLOW_EXECUTOR_BEAN_NAME)
+        public void runItEventuallyButSlowly() {}
     }
 }
