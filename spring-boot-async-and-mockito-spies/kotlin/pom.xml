@@ -11,7 +11,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>x</groupId>
-    <artifactId>scratch</artifactId>
+    <artifactId>kotlin-spring-boot-async-and-mockito-spies</artifactId>
     <version>0-SNAPSHOT</version>
     <name>scratch</name>
     <description>Spring Boot Async and Mockito Spies</description>
