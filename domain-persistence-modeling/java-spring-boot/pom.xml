@@ -11,7 +11,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>x</groupId>
-    <artifactId>scratch</artifactId>
+    <artifactId>java-spring-boot-domain-persistence-modeling</artifactId>
     <version>0-SNAPSHOT</version>
     <name>scratch</name>
     <description>Demo project for Spring Boot</description>

@@ -12,7 +12,7 @@
     </parent>
 
     <groupId>x</groupId>
-    <artifactId>spring-boot-domain-persistence-modeling</artifactId>
+    <artifactId>kotlin-spring-boot-domain-persistence-modeling</artifactId>
     <version>0-SNAPSHOT</version>
     <name>Spring Boot Persistence Modeling</name>
     <description>Demo project for Spring Boot Data</description>

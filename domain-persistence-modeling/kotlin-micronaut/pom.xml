@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>x</groupId>
-    <artifactId>micronaut-domain-persistence-modeling</artifactId>
+    <artifactId>kotlin-micronaut-domain-persistence-modeling</artifactId>
     <version>0-SNAPSHOT</version>
 
     <properties>
