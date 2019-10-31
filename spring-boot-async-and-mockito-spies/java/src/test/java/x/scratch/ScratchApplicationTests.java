@@ -41,8 +41,9 @@ class ScratchApplicationTests {
             throws InterruptedException {
         sally.runItEventuallyButQuickly();
 
-        assertThat(testingExecutor.awaitExecutorCalled(1L, SECONDS)
-                .toString()).startsWith("default");
+        final var executor = testingExecutor
+                .awaitExecutorCalled(1L, SECONDS);
+        assertThat(executor.getName()).isEqualTo("default");
         testingExecutor.awaitTaskRan(1L, SECONDS);
 
         verify(bob).runItEventuallyButQuickly();
@@ -53,8 +54,9 @@ class ScratchApplicationTests {
             throws InterruptedException {
         sally.runItEventuallyButSlowly();
 
-        assertThat(specialTestingExecutor.awaitExecutorCalled(1L, SECONDS)
-                .toString()).startsWith("special");
+        final var executor = specialTestingExecutor
+                .awaitExecutorCalled(1L, SECONDS);
+        assertThat(executor.getName()).isEqualTo(SLOW_EXECUTOR_BEAN_NAME);
         specialTestingExecutor.awaitTaskRan(1L, SECONDS);
 
         verify(bob).runItEventuallyButSlowly();

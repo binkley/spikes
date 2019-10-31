@@ -35,8 +35,9 @@ class ScratchApplicationTests {
     fun shouldWaitOnBobButNotTooMuch() {
         sally.runItEventuallyButQuickly()
 
-        assertThat(testingExecutor.awaitExecutorCalled(1L, SECONDS)
-                .toString()).startsWith("default");
+        val executor = testingExecutor
+                .awaitExecutorCalled(1L, SECONDS)
+        assertThat(executor.name).isEqualTo("default")
         testingExecutor.awaitTaskRan(1L, SECONDS)
 
         verify(bob).runItEventuallyButQuickly()
@@ -46,8 +47,9 @@ class ScratchApplicationTests {
     fun shouldGiveUpOnWaitingOnBob() {
         sally.runItEventuallyButSlowly()
 
-        assertThat(specialTestingExecutor.awaitExecutorCalled(1L, SECONDS)
-                .toString()).startsWith("special")
+        val executor = specialTestingExecutor
+                .awaitExecutorCalled(1L, SECONDS)
+        assertThat(executor.name).isEqualTo("special")
         specialTestingExecutor.awaitTaskRan(1L, SECONDS)
 
         verify(bob).runItEventuallyButSlowly()

@@ -1,6 +1,8 @@
 package x.scratch;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
@@ -12,7 +14,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
-import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static x.scratch.AsyncConfiguration.SLOW_EXECUTOR_BEAN_NAME;
 
@@ -27,17 +28,19 @@ public class TestAsyncConfiguration {
 
     @Bean(SLOW_EXECUTOR_BEAN_NAME)
     public TestingExecutor alsoTestingExecutor() {
-        return new TestingExecutor("special");
+        return new TestingExecutor(SLOW_EXECUTOR_BEAN_NAME);
     }
 
     @RequiredArgsConstructor
+    @ToString
     public static class TestingExecutor
             implements Executor, TaskExecutor {
-        private final BlockingQueue<Executor> executorsCalled
+        private final BlockingQueue<TestingExecutor> executorsCalled
                 = new ArrayBlockingQueue<>(10);
         private final BlockingQueue<Runnable> tasksRan
                 = new ArrayBlockingQueue<>(10);
 
+        @Getter
         private final String name;
 
         @Override
@@ -53,12 +56,7 @@ public class TestAsyncConfiguration {
             }).start();
         }
 
-        @Override
-        public String toString() {
-            return format("%s:%s", name, super.toString());
-        }
-
-        public Executor awaitExecutorCalled(
+        public TestingExecutor awaitExecutorCalled(
                 final long timeout, final TimeUnit unit)
                 throws InterruptedException {
             final var executor = executorsCalled.poll(timeout, unit);

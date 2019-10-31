@@ -21,10 +21,10 @@ class TestAsyncConfiguration {
     fun alsoTestingExecutor() = TestingExecutor("special")
 }
 
-class TestingExecutor(private val name: String)
+class TestingExecutor(val name: String)
     : Executor,
         TaskExecutor {
-    val executorsCalled = ArrayBlockingQueue<Executor>(10)
+    val executorsCalled = ArrayBlockingQueue<TestingExecutor>(10)
     val tasksRan = ArrayBlockingQueue<Runnable>(10)
 
     override fun execute(command: Runnable) {
@@ -39,7 +39,7 @@ class TestingExecutor(private val name: String)
         }.start()
     }
 
-    fun awaitExecutorCalled(timeout: Long, unit: TimeUnit): Executor {
+    fun awaitExecutorCalled(timeout: Long, unit: TimeUnit): TestingExecutor {
         val executor = executorsCalled.poll(timeout, unit)
         assertThat(executor)
                 .`as`("No executor called in time")

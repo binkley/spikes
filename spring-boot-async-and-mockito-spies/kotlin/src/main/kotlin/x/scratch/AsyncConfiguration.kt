@@ -26,4 +26,3 @@ open class AsyncConfiguration {
         command.run()
     }
 }
-
