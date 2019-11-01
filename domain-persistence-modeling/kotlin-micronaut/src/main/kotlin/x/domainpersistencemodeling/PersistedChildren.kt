@@ -184,21 +184,20 @@ interface ChildRepository : CrudRepository<ChildRecord, Long> {
     fun upsert(naturalId: String, parentNaturalId: String?, value: String?,
             subchildren: String, version: Int)
             : ChildRecord?
+}
 
-    @JvmDefault
-    fun upsert(entity: ChildRecord): ChildRecord? {
-        // TODO: Workaround issue in Spring Data with passing sets for
-        // ARRAY types in a procedure
-        val upserted = upsert(entity.naturalId,
-                entity.parentNaturalId,
-                entity.value,
-                entity.subchildren.joinToString(",", "{", "}"),
-                entity.version)
-        if (null != upserted) {
-            entity.updateWith(upserted)
-        }
-        return upserted
+fun ChildRepository.upsert(entity: ChildRecord): ChildRecord? {
+    // TODO: Workaround issue in Spring Data with passing sets for
+    //  ARRAY types in a procedure -- What does Micronaut do?
+    val upserted = upsert(entity.naturalId,
+            entity.parentNaturalId,
+            entity.value,
+            entity.subchildren.joinToString(",", "{", "}"),
+            entity.version)
+    if (null != upserted) {
+        entity.updateWith(upserted)
     }
+    return upserted
 }
 
 @Introspected
