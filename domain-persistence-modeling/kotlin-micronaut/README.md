@@ -1,5 +1,8 @@
 # Micronaut Domain Persistence Modeling
 
+**THIS PROJECT IS PRESENTLY BROKEN** pending support from Micronaut Data for
+SQL arrays.
+
 * [Concepts](#concepts)
   * [Scoped mutation](#scoped-mutation)
 
