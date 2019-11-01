@@ -21,7 +21,7 @@ internal class LayersTest {
             val aDescription = " $aCommitMessage   "
             val aRuleDefinition = """
                 layer["b-enabled"] = current(default=true)
-                layer["b"] = total(default=0)
+                layer["b"] = current(default=0) // Rule replaced later
             """
             val aNote = """
                 Just a note
@@ -51,6 +51,7 @@ internal class LayersTest {
             """)
 
             it.createLayer(description = "We are each other", script = """
+                layer["b"] = total(default=0) // Rule replaced
                 layer["b-bonus"] = bonus(otherKey="b", default=0)
             """, notes = """
                 A complex rule dependent on another calculation
