@@ -32,7 +32,7 @@ class MutableLayers(private val layers: MutableList<Layer> = mutableListOf())
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T> valueFor(key: String) = enabledLayers.flatMap {
+    override fun <T> appliedValueFor(key: String) = topDownLayers.flatMap {
         it.entries
     }.filter {
         it.key == key
@@ -44,7 +44,7 @@ class MutableLayers(private val layers: MutableList<Layer> = mutableListOf())
 
     /** All values for [key] from newest to oldest. */
     @Suppress("UNCHECKED_CAST")
-    override fun <T> allValuesFor(key: String) = enabledLayers.mapNotNull {
+    override fun <T> allValuesFor(key: String) = topDownLayers.mapNotNull {
         it[key]
     }.mapNotNull {
         it.value
@@ -64,7 +64,7 @@ class MutableLayers(private val layers: MutableList<Layer> = mutableListOf())
     override fun toString() = "${this::class.simpleName}$layers"
 
     @Suppress("UNCHECKED_CAST")
-    private fun applied() = enabledLayers.flatMap {
+    private fun applied() = topDownLayers.flatMap {
         it.entries
     }.filter {
         null != it.value.rule
@@ -75,7 +75,7 @@ class MutableLayers(private val layers: MutableList<Layer> = mutableListOf())
         SimpleEntry(key, value)
     }
 
-    private val enabledLayers: List<Layer>
+    private val topDownLayers: List<Layer>
         get() = layers.filter {
             it.enabled
         }.asReversed()
@@ -108,12 +108,13 @@ class Layer(override val slot: Int,
         return slot == other.slot
                 && script == other.script
                 && contents == other.contents
+                && enabled == other.enabled
     }
 
-    override fun hashCode() = Objects.hash(slot, script, contents)
+    override fun hashCode() = Objects.hash(slot, script, contents, enabled)
 
     override fun toString() =
-            "${this::class.simpleName}#$slot:$contents\\$meta"
+            "${this::class.simpleName}#$slot:$contents\\$meta[${if (enabled) "enabled" else "disabled"}]"
 }
 
 class MutableLayer(private val contents: MutableMap<String, Value<*>>)
@@ -128,7 +129,7 @@ class MutableLayer(private val contents: MutableMap<String, Value<*>>)
 }
 
 interface LayersForRuleContext {
-    fun <T> valueFor(key: String): T
+    fun <T> appliedValueFor(key: String): T
 
     fun <T> allValuesFor(key: String): List<T>
 }
@@ -139,5 +140,5 @@ class RuleContext<T>(val myKey: String,
         get() = layers.allValuesFor(myKey)
 
     @Suppress("UNCHECKED_CAST")
-    operator fun <T> get(key: String) = layers.valueFor<T>(key)
+    operator fun <T> get(key: String) = layers.appliedValueFor<T>(key)
 }
