@@ -8,6 +8,7 @@ import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Repository
+import org.springframework.transaction.annotation.Transactional
 import x.domainpersistencemodeling.PersistableDomain.UpsertedDomainResult
 import x.domainpersistencemodeling.UpsertableRecord.UpsertedRecordResult
 import java.util.Objects
@@ -63,7 +64,7 @@ internal open class PersistedChildFactory(
             PersistedChild(this, toResource(record), record)
 }
 
-internal class PersistedChild(
+internal open class PersistedChild(
         private val factory: PersistedChildFactory,
         private var snapshot: ChildResource?,
         private var record: ChildRecord?)
@@ -78,6 +79,20 @@ internal class PersistedChild(
         get() = record().version
     override val subchildren: Set<String> // Sorted
         get() = TreeSet(record().subchildren)
+
+    @Transactional
+    override fun assignTo(parent: Parent) = apply {
+        update {
+            assignTo(parent)
+        }.save()
+    }
+
+    @Transactional
+    override fun unassignFromAny() = apply {
+        update {
+            unassignFromAny()
+        }.save()
+    }
 
     override val changed
         get() = snapshot != toResource()

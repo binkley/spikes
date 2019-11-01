@@ -44,6 +44,18 @@ interface Parent
         ScopedMutable<Parent, MutableParent>,
         PersistableDomain<ParentResource, Parent> {
     val children: Set<Child>
+
+    /**
+     * Assigns [child] to this parent, a mutable operation, and [save]s
+     * parent and child.
+     */
+    fun assign(child: Child): Parent
+
+    /**
+     * Unassigns [child] from this parent, a mutable operation, and [save]s
+     * parent and child.
+     */
+    fun unassign(child: Child): Parent
 }
 
 data class ParentChangedEvent(

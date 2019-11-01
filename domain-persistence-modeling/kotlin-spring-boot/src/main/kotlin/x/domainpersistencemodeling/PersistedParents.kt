@@ -7,6 +7,7 @@ import org.springframework.data.relational.core.mapping.Table
 import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
 import x.domainpersistencemodeling.PersistableDomain.UpsertedDomainResult
 import x.domainpersistencemodeling.UpsertableRecord.UpsertedRecordResult
 import java.util.Objects
@@ -62,7 +63,7 @@ internal open class PersistedParentFactory(
                     children.findOwned(record.naturalId))
 }
 
-internal class PersistedParent(
+internal open class PersistedParent(
         private val factory: PersistedParentFactory,
         private var snapshot: ParentResource?,
         private var record: ParentRecord?,
@@ -83,6 +84,28 @@ internal class PersistedParent(
     init {
         snapshotChildren = assigned.toSortedSet()
         _children = TreeSet(snapshotChildren)
+    }
+
+    @Transactional
+    override fun assign(child: Child) = apply {
+        child.update {
+            assignTo(this@apply)
+        }.save()
+
+        update {
+            assign(child)
+        }.save()
+    }
+
+    @Transactional
+    override fun unassign(child: Child) = apply {
+        update {
+            unassign(child)
+        }.save()
+
+        child.update {
+            unassignFromAny()
+        }.save()
     }
 
     override val changed

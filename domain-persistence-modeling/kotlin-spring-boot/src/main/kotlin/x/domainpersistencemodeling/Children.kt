@@ -39,7 +39,16 @@ interface MutableChild : MutableChildDetails {
 
 interface Child : ChildDetails,
         ScopedMutable<Child, MutableChild>,
-        PersistableDomain<ChildResource, Child>
+        PersistableDomain<ChildResource, Child> {
+    /** Assigns this child to [parent], a mutable operation, and [save]s. */
+    fun assignTo(parent: Parent): Child
+
+    /**
+     * Unassigns this child from any parent, a mutable operation,
+     * and [save]s.  It is not an error for this child already be unassigned.
+     */
+    fun unassignFromAny(): Child
+}
 
 data class ChildChangedEvent(
         val before: ChildResource?,
