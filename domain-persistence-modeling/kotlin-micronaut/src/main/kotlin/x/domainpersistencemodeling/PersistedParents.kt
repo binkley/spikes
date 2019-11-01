@@ -3,6 +3,8 @@ package x.domainpersistencemodeling
 import io.micronaut.context.event.ApplicationEventPublisher
 import io.micronaut.core.annotation.Introspected
 import io.micronaut.data.annotation.Query
+import io.micronaut.data.jdbc.annotation.JdbcRepository
+import io.micronaut.data.model.query.builder.sql.Dialect.POSTGRES
 import io.micronaut.data.repository.CrudRepository
 import x.domainpersistencemodeling.UpsertableDomain.UpsertedDomainResult
 import x.domainpersistencemodeling.UpsertableRecord.UpsertedRecordResult
@@ -11,6 +13,7 @@ import java.util.Optional
 import java.util.TreeSet
 import java.util.stream.Collectors.toCollection
 import javax.inject.Singleton
+import javax.persistence.Entity
 import javax.persistence.Id
 import javax.persistence.Table
 
@@ -213,6 +216,7 @@ internal data class PersistedMutableParent(
     override val children = TrackedSortedSet(initial, added, removed)
 }
 
+@JdbcRepository(dialect = POSTGRES)
 interface ParentRepository : CrudRepository<ParentRecord, Long> {
     @Query("""
         SELECT *
@@ -234,6 +238,7 @@ fun ParentRepository.upsert(entity: ParentRecord) =
             entity.updateWith(it)
         }
 
+@Entity
 @Introspected
 @Table(name = "parent")
 data class ParentRecord(
