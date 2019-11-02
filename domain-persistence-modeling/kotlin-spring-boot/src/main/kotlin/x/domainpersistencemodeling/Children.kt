@@ -22,6 +22,9 @@ interface ChildDetails : Comparable<ChildDetails> {
     val subchildren: Set<String>
     val version: Int
 
+    val assigned: Boolean
+        get() = null != parentNaturalId
+
     override operator fun compareTo(other: ChildDetails) =
             naturalId.compareTo(other.naturalId)
 }
