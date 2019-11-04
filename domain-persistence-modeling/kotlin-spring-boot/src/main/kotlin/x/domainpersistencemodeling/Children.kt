@@ -10,9 +10,9 @@ data class ChildResource(
 interface ChildFactory {
     fun all(): Sequence<Child>
     fun findExisting(naturalId: String): Child?
-    fun createNew(naturalId: String): Child
+    fun createNew(naturalId: String): UnassignedChild
     fun findExistingOrCreateNew(naturalId: String): Child
-    fun findOwned(parentNaturalId: String): Sequence<Child>
+    fun findOwned(parentNaturalId: String): Sequence<AssignedChild>
 }
 
 interface ChildDetails : Comparable<ChildDetails> {
@@ -42,15 +42,19 @@ interface MutableChild : MutableChildDetails {
 
 interface Child : ChildDetails,
         ScopedMutable<Child, MutableChild>,
-        PersistableDomain<ChildResource, Child> {
-    /** Assigns this child to [parent], a mutable operation, and [save]s. */
-    fun assignTo(parent: Parent): Child
+        PersistableDomain<ChildResource, Child>
 
+interface UnassignedChild : Child {
+    /** Assigns this child to [parent], a mutable operation, and [save]s. */
+    fun assignTo(parent: Parent): AssignedChild
+}
+
+interface AssignedChild : Child {
     /**
      * Unassigns this child from any parent, a mutable operation,
      * and [save]s.  It is not an error for this child already be unassigned.
      */
-    fun unassignFromAny(): Child
+    fun unassignFromAny(): UnassignedChild
 }
 
 data class ChildChangedEvent(

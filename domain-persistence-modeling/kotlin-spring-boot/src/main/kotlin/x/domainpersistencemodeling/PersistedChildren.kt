@@ -39,13 +39,13 @@ internal open class PersistedChildFactory(
                 toChild(it)
             }
 
-    override fun createNew(naturalId: String): Child =
+    override fun createNew(naturalId: String): UnassignedChild =
             PersistedChild(this, null, ChildRecord(naturalId))
 
     override fun findExistingOrCreateNew(naturalId: String) =
             findExisting(naturalId) ?: createNew(naturalId)
 
-    override fun findOwned(parentNaturalId: String) =
+    override fun findOwned(parentNaturalId: String): Sequence<AssignedChild> =
             repository.findByParentNaturalId(parentNaturalId).map {
                 toChild(it)
             }.asSequence()
@@ -68,7 +68,9 @@ internal open class PersistedChild(
         private val factory: PersistedChildFactory,
         private var snapshot: ChildResource?,
         private var record: ChildRecord?)
-    : Child {
+    : Child,
+        UnassignedChild,
+        AssignedChild {
     override val naturalId: String
         get() = record().naturalId
     override val parentNaturalId: String?
