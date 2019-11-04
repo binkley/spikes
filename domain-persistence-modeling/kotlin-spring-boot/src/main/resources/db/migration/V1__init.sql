@@ -12,15 +12,16 @@ CREATE TABLE parent
 
 CREATE TABLE child
 (
-    id                SERIAL PRIMARY KEY,
-    natural_id        VARCHAR       NOT NULL UNIQUE,
-    parent_natural_id VARCHAR REFERENCES parent (natural_id), -- Nullable
-    value             VARCHAR,
-    side_values       VARCHAR ARRAY NOT NULL,
+    id                  SERIAL PRIMARY KEY,
+    natural_id          VARCHAR       NOT NULL UNIQUE,
+    parent_natural_id   VARCHAR REFERENCES parent (natural_id), -- Nullable
+    value               VARCHAR,
+    default_side_values VARCHAR ARRAY NOT NULL,
+    side_values         VARCHAR ARRAY NOT NULL,
     -- DB controls Audit columns, not caller
-    version           INT,
-    created_at        TIMESTAMP,
-    updated_at        TIMESTAMP
+    version             INT,
+    created_at          TIMESTAMP,
+    updated_at          TIMESTAMP
 );
 
 -- Workaround issue in Spring Data with passing sets for ARRAY types in a procedure
@@ -52,6 +53,7 @@ $$;
 CREATE OR REPLACE FUNCTION upsert_child(_natural_id child.natural_id%TYPE,
                                         _parent_natural_id child.parent_natural_id%TYPE,
                                         _value child.value%TYPE,
+                                        _default_side_values VARCHAR,
                                         _side_values VARCHAR,
                                         _version child.version%TYPE)
     RETURNS SETOF CHILD
@@ -62,14 +64,18 @@ $$
 BEGIN
     RETURN QUERY INSERT INTO child
         (natural_id, parent_natural_id, value,
-         side_values, version)
+         side_values,
+         default_side_values,
+         version)
         VALUES (_natural_id, _parent_natural_id, _value,
-                CAST(_side_values AS VARCHAR ARRAY), _version)
+                CAST(_side_values AS VARCHAR ARRAY),
+                CAST(_default_side_values AS VARCHAR ARRAY), _version)
         ON CONFLICT (natural_id) DO UPDATE
             SET (parent_natural_id, value,
-                 side_values, version)
+                 side_values, default_side_values, version)
                 = (excluded.parent_natural_id, excluded.value,
-                   excluded.side_values, excluded.version)
+                   excluded.side_values,
+                   excluded.default_side_values, excluded.version)
         RETURNING *;
 END;
 $$;

@@ -197,13 +197,15 @@ interface ChildRepository : CrudRepository<ChildRecord, Long> {
 
     @Query("""
         SELECT *
-        FROM upsert_child(:naturalId, :parentNaturalId, :value, :sideValues, :version)
+        FROM upsert_child(:naturalId, :parentNaturalId, :value, 
+        :sideValues, :defaultSideValues, :version)
         """)
     fun upsert(
             @Param("naturalId") naturalId: String,
             @Param("parentNaturalId") parentNaturalId: String?,
             @Param("value") value: String?,
             @Param("sideValues") sideValues: String,
+            @Param("defaultSideValues") defaultSideValues: String,
             @Param("version") version: Int)
             : Optional<ChildRecord>
 
@@ -213,6 +215,7 @@ interface ChildRepository : CrudRepository<ChildRecord, Long> {
                 entity.parentNaturalId,
                 entity.value,
                 entity.sideValues.workAroundArrayTypeForPostgres(),
+                entity.defaultSideValues.workAroundArrayTypeForPostgres(),
                 entity.version)
         upserted.ifPresent {
             entity.upsertedWith(it)
@@ -228,11 +231,13 @@ data class ChildRecord(
         override var parentNaturalId: String?,
         override var value: String?,
         override var sideValues: MutableSet<String>,
+        var defaultSideValues: MutableSet<String>,
         override var version: Int)
     : MutableChildDetails,
         UpsertableRecord<ChildRecord> {
     internal constructor(naturalId: String)
-            : this(null, naturalId, null, null, mutableSetOf(), 0)
+            : this(null, naturalId, null, null,
+            mutableSetOf(), mutableSetOf(), 0)
 
     override fun upsertedWith(upserted: ChildRecord): ChildRecord {
         id = upserted.id
@@ -240,6 +245,7 @@ data class ChildRecord(
         parentNaturalId = upserted.parentNaturalId
         value = upserted.value
         sideValues = TreeSet(upserted.sideValues)
+        defaultSideValues = TreeSet(upserted.defaultSideValues)
         version = upserted.version
         return this
     }
