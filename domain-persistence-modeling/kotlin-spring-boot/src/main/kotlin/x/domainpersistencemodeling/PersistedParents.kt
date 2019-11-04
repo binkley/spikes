@@ -204,17 +204,17 @@ internal open class PersistedParent(
         // TODO: Gross function
         var mutated = false
         val assignedChildren = assignedChildren()
-        if (!assignedChildren.isEmpty()) {
+        if (assignedChildren.isNotEmpty()) {
             assignedChildren.forEach { it.save() }
             mutated = true
         }
         val unassignedChildren = unassignedChildren()
-        if (!unassignedChildren.isEmpty()) {
+        if (unassignedChildren.isNotEmpty()) {
             unassignedChildren.forEach { it.save() }
             mutated = true
         }
         val changedChildren = changedChildren()
-        if (!changedChildren.isEmpty()) {
+        if (changedChildren.isNotEmpty()) {
             changedChildren.forEach { it.save() }
             mutated = true
         }
