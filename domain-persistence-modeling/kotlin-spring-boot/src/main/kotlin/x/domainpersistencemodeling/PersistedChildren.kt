@@ -83,19 +83,17 @@ internal open class PersistedChild(
         get() = TreeSet(record().subchildren)
 
     @Transactional
-    override fun assignTo(parent: Parent) = apply {
+    override fun assignTo(parent: Parent): AssignedChild = apply {
         update {
             assignTo(parent)
         }
-        save()
     }
 
     @Transactional
-    override fun unassignFromAny() = apply {
+    override fun unassignFromAny(): UnassignedChild = apply {
         update {
             unassignFromAny()
         }
-        save()
     }
 
     override val changed

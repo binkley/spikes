@@ -45,15 +45,12 @@ interface Child : ChildDetails,
         PersistableDomain<ChildResource, Child>
 
 interface UnassignedChild : Child {
-    /** Assigns this child to [parent], a mutable operation, and [save]s. */
+    /** Assigns this child to [parent], a mutable operation. */
     fun assignTo(parent: Parent): AssignedChild
 }
 
 interface AssignedChild : Child {
-    /**
-     * Unassigns this child from any parent, a mutable operation,
-     * and [save]s.  It is not an error for this child already be unassigned.
-     */
+    /** Unassigns this child from any parent, a mutable operation. */
     fun unassignFromAny(): UnassignedChild
 }
 
