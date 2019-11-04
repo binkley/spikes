@@ -67,7 +67,7 @@ internal open class PersistedParent(
         private val factory: PersistedParentFactory,
         private var snapshot: ParentResource?,
         private var record: ParentRecord?,
-        assigned: Sequence<Child>)
+        assigned: Sequence<AssignedChild>)
     : Parent {
     override val naturalId: String
         get() = record().naturalId
@@ -75,10 +75,10 @@ internal open class PersistedParent(
         get() = record().value
     override val version: Int
         get() = record().version
-    private var snapshotChildren: Set<Child>
-    private var _children: MutableSet<Child>
+    private var snapshotChildren: Set<AssignedChild>
+    private var _children: MutableSet<AssignedChild>
 
-    override val children: Set<Child>
+    override val children: Set<AssignedChild>
         get() = _children
 
     init {
@@ -87,19 +87,19 @@ internal open class PersistedParent(
     }
 
     @Transactional
-    override fun assign(child: Child) = let {
+    override fun assign(child: UnassignedChild) = let {
         update {
-            children += child
+            children += child as AssignedChild
         }
-        child
+        child as AssignedChild
     }
 
     @Transactional
-    override fun unassign(child: Child) = let {
+    override fun unassign(child: AssignedChild) = let {
         update {
             children -= child
         }
-        child
+        child as UnassignedChild
     }
 
     override val changed
@@ -164,14 +164,16 @@ internal open class PersistedParent(
     override fun toString() =
             "${super.toString()}{snapshot=$snapshot, snapshotChildren=$snapshotChildren, record=$record, children=$children}"
 
-    private fun addChild(child: Child, all: MutableSet<Child>) {
+    private fun addChild(child: AssignedChild,
+            all: MutableSet<AssignedChild>) {
         child.update {
             assignTo(this@PersistedParent)
         }
         _children = all
     }
 
-    private fun removeChild(child: Child, all: MutableSet<Child>) {
+    private fun removeChild(child: AssignedChild,
+            all: MutableSet<AssignedChild>) {
         child.update {
             unassignFromAny()
         }
@@ -225,9 +227,9 @@ internal open class PersistedParent(
 
 internal data class PersistedMutableParent(
         private val record: ParentRecord,
-        private val initial: Set<Child>,
-        private val added: (Child, MutableSet<Child>) -> Unit,
-        private val removed: (Child, MutableSet<Child>) -> Unit)
+        private val initial: Set<AssignedChild>,
+        private val added: (AssignedChild, MutableSet<AssignedChild>) -> Unit,
+        private val removed: (AssignedChild, MutableSet<AssignedChild>) -> Unit)
     : MutableParent,
         MutableParentDetails by record {
     override val children = TrackedSortedSet(initial, added, removed)

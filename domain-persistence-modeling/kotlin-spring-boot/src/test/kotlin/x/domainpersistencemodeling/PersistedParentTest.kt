@@ -98,7 +98,7 @@ internal open class PersistedParentTest @Autowired constructor(
     @Test
     fun shouldMutateChildren() {
         val parent = newSavedParent()
-        val child = newSavedChild()
+        val child = newSavedUnassignedChild()
 
         parent.assign(child)
 
@@ -143,7 +143,7 @@ internal open class PersistedParentTest @Autowired constructor(
     @Test
     fun shouldNotDelete() {
         val parent = newSavedParent()
-        val child = newSavedChild()
+        val child = newSavedUnassignedChild()
 
         parent.assign(child)
 
@@ -155,7 +155,7 @@ internal open class PersistedParentTest @Autowired constructor(
     @Test
     fun shouldNotAssignAlreadyAssignedChild() {
         val parent = newSavedParent()
-        val child = newSavedChild()
+        val child = newSavedUnassignedChild()
 
         parent.assign(child)
 
@@ -167,11 +167,11 @@ internal open class PersistedParentTest @Autowired constructor(
     @Test
     fun shouldAssignAndUnassignChild() {
         val parent = newSavedParent()
-        val child = newSavedChild()
+        val child = newSavedUnassignedChild()
 
         expect(parent.children).isEmpty()
 
-        parent.assign(child)
+        val assignedChild = parent.assign(child)
         val parentAssignedWithChild = parent.save().domain
 
         expect(parent.children).containsExactly(child)
@@ -188,7 +188,7 @@ internal open class PersistedParentTest @Autowired constructor(
                         ParentResource(parentNaturalId, null, 1),
                         ParentResource(parentNaturalId, null, 2)))
 
-        parent.unassign(child)
+        parent.unassign(assignedChild)
         val childUnassigned = parent.save().domain
 
         expect(parent.children).isEmpty()
@@ -205,12 +205,12 @@ internal open class PersistedParentTest @Autowired constructor(
                         ParentResource(parentNaturalId, null, 3)))
     }
 
-    private fun newSavedChild(): Child {
+    private fun newSavedUnassignedChild(): UnassignedChild {
         val saved = children.createNew(childNaturalId).save()
         expect(saved.changed).toBe(true)
         val child = saved.domain
         testListener.reset()
-        return child
+        return child as UnassignedChild
     }
 
     private fun currentPersistedChild() =

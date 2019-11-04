@@ -26,20 +26,20 @@ interface MutableParentDetails : ParentDetails {
 }
 
 interface MutableParent : MutableParentDetails {
-    val children: MutableSet<Child>
+    val children: MutableSet<AssignedChild>
 }
 
 interface Parent
     : ParentDetails,
         ScopedMutable<Parent, MutableParent>,
         PersistableDomain<ParentResource, Parent> {
-    val children: Set<Child>
+    val children: Set<AssignedChild>
 
     /** Assigns [child] to this parent, a mutable operation. */
-    fun assign(child: Child): Child
+    fun assign(child: UnassignedChild): AssignedChild
 
     /** Unassigns [child] from this parent, a mutable operation. */
-    fun unassign(child: Child): Child
+    fun unassign(child: AssignedChild): UnassignedChild
 }
 
 data class ParentChangedEvent(
