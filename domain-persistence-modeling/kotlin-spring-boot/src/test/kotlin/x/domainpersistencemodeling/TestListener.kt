@@ -5,6 +5,7 @@ import ch.tutteli.atrium.verbs.expect
 import org.springframework.context.ApplicationListener
 import org.springframework.stereotype.Component
 
+/** @todo Do not listen for all domain changed events, just [Event] ones */
 @Component
 class TestListener<Event : DomainChangedEvent<*>>
     : ApplicationListener<Event> {

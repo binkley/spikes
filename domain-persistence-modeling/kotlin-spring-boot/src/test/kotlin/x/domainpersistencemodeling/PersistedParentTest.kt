@@ -18,27 +18,20 @@ import x.domainpersistencemodeling.PersistableDomain.UpsertedDomainResult
 @SpringBootTest
 @Transactional
 internal open class PersistedParentTest @Autowired constructor(
-        private val parents: ParentFactory,
-        private val children: ChildFactory,
-        private val testListener: TestListener<ParentChangedEvent>) {
-    companion object {
-        private const val parentNaturalId = "a"
-        private const val childNaturalId = "p"
-    }
-
+        private val testing: Testing) {
     @Test
     fun shouldCreateNew() {
-        val found = parents.findExistingOrCreateNew(parentNaturalId)
+        val found = testing.findExistingOrCreateNewParent()
 
-        expect(found).toBe(parents.createNew(parentNaturalId))
+        expect(found).toBe(testing.createNewParent())
         expect(found.children).isEmpty()
     }
 
     @Test
     fun shouldFindExisting() {
-        val saved = newSavedParent()
+        val saved = testing.newSavedParent()
 
-        val found = parents.findExistingOrCreateNew(parentNaturalId)
+        val found = testing.findExistingOrCreateNewParent()
 
         expect(found).toBe(saved)
         expect(found.children).isEmpty()
@@ -46,35 +39,36 @@ internal open class PersistedParentTest @Autowired constructor(
 
     @Test
     fun shouldRoundTrip() {
-        val unsaved = parents.createNew(parentNaturalId)
+        val unsaved = testing.createNewParent()
 
         expect(unsaved.version).toBe(0)
-        testListener.expectNext.isEmpty()
+        testing.expectDomainChangedEvents().isEmpty()
 
         val saved = unsaved.save()
 
-        expect(parents.all().toList()).hasSize(1)
+        expect(testing.allParents().toList()).hasSize(1)
         expect(unsaved.version).toBe(1)
         expect(saved).toBe(UpsertedDomainResult(unsaved, true))
-        testListener.expectNext.containsExactly(ParentChangedEvent(
-                null,
-                ParentSnapshot(parentNaturalId, null, setOf(), 1)))
+        testing.expectDomainChangedEvents().containsExactly(
+                ParentChangedEvent(
+                        null,
+                        ParentSnapshot(parentNaturalId, null, setOf(), 1)))
 
-        expect(currentPersistedParent()).toBe(unsaved)
+        expect(testing.currentPersistedParent()).toBe(unsaved)
     }
 
     @Test
     fun shouldDetectNoChanges() {
-        val original = newSavedParent()
+        val original = testing.newSavedParent()
         val resaved = original.save()
 
         expect(resaved).toBe(UpsertedDomainResult(original, false))
-        testListener.expectNext.isEmpty()
+        testing.expectDomainChangedEvents().isEmpty()
     }
 
     @Test
     fun shouldMutate() {
-        val original = newSavedParent()
+        val original = testing.newSavedParent()
 
         expect(original.changed).toBe(false)
 
@@ -85,20 +79,21 @@ internal open class PersistedParentTest @Autowired constructor(
 
         expect(original.changed).toBe(true)
         expect(original.value).toBe(value)
-        testListener.expectNext.isEmpty()
+        testing.expectDomainChangedEvents().isEmpty()
 
         original.save()
 
         expect(original.changed).toBe(false)
-        testListener.expectNext.containsExactly(ParentChangedEvent(
-                ParentSnapshot(parentNaturalId, null, setOf(), 1),
-                ParentSnapshot(parentNaturalId, value, setOf(), 2)))
+        testing.expectDomainChangedEvents()
+                .containsExactly(ParentChangedEvent(
+                        ParentSnapshot(parentNaturalId, null, setOf(), 1),
+                        ParentSnapshot(parentNaturalId, value, setOf(), 2)))
     }
 
     @Test
     fun shouldMutateChildren() {
-        val parent = newSavedParent()
-        val child = newSavedUnassignedChild()
+        val parent = testing.newSavedParent()
+        val child = testing.newSavedUnassignedChild()
 
         parent.assign(child)
 
@@ -112,9 +107,9 @@ internal open class PersistedParentTest @Autowired constructor(
         }
         parent.save()
 
-        expect(currentPersistedChild().value).toBe(value)
+        expect(testing.currentPersistedChild().value).toBe(value)
 
-        testListener.expectNext.containsExactly(
+        testing.expectDomainChangedEvents().containsExactly(
                 ChildChangedEvent(
                         ChildSnapshot(childNaturalId, null,
                                 null, emptySet(), 1),
@@ -127,23 +122,24 @@ internal open class PersistedParentTest @Autowired constructor(
 
     @Test
     fun shouldDelete() {
-        val existing = newSavedParent()
+        val existing = testing.newSavedParent()
 
         existing.delete()
 
-        expect(parents.all().toList()).isEmpty()
+        expect(testing.allParents().toList()).isEmpty()
         expect {
             existing.version
         }.toThrow<DomainException> { }
-        testListener.expectNext.containsExactly(ParentChangedEvent(
-                ParentSnapshot(parentNaturalId, null, setOf(), 1),
-                null))
+        testing.expectDomainChangedEvents()
+                .containsExactly(ParentChangedEvent(
+                        ParentSnapshot(parentNaturalId, null, setOf(), 1),
+                        null))
     }
 
     @Test
     fun shouldNotDelete() {
-        val parent = newSavedParent()
-        val child = newSavedUnassignedChild()
+        val parent = testing.newSavedParent()
+        val child = testing.newSavedUnassignedChild()
 
         parent.assign(child)
 
@@ -154,8 +150,8 @@ internal open class PersistedParentTest @Autowired constructor(
 
     @Test
     fun shouldNotAssignAlreadyAssignedChild() {
-        val parent = newSavedParent()
-        val child = newSavedUnassignedChild()
+        val parent = testing.newSavedParent()
+        val child = testing.newSavedUnassignedChild()
 
         parent.assign(child)
 
@@ -166,8 +162,8 @@ internal open class PersistedParentTest @Autowired constructor(
 
     @Test
     fun shouldAssignAndUnassignChild() {
-        val parent = newSavedParent()
-        val child = newSavedUnassignedChild()
+        val parent = testing.newSavedParent()
+        val child = testing.newSavedUnassignedChild()
 
         expect(parent.children).isEmpty()
 
@@ -176,9 +172,9 @@ internal open class PersistedParentTest @Autowired constructor(
 
         expect(parent.children).containsExactly(child)
         expect(parentAssignedWithChild.version).toBe(2)
-        expect(currentPersistedChild().parentNaturalId)
+        expect(testing.currentPersistedChild().parentNaturalId)
                 .toBe(parentNaturalId)
-        testListener.expectNext.containsExactly(
+        testing.expectDomainChangedEvents().containsExactly(
                 ChildChangedEvent(
                         ChildSnapshot(childNaturalId, null, null,
                                 emptySet(), 1),
@@ -193,8 +189,8 @@ internal open class PersistedParentTest @Autowired constructor(
 
         expect(parent.children).isEmpty()
         expect(childUnassigned.version).toBe(3)
-        expect(currentPersistedChild().parentNaturalId).toBe(null)
-        testListener.expectNext.containsExactly(
+        expect(testing.currentPersistedChild().parentNaturalId).toBe(null)
+        testing.expectDomainChangedEvents().containsExactly(
                 ChildChangedEvent(
                         ChildSnapshot(childNaturalId, parentNaturalId, null,
                                 emptySet(), 2),
@@ -204,26 +200,4 @@ internal open class PersistedParentTest @Autowired constructor(
                         ParentSnapshot(parentNaturalId, null, setOf(), 2),
                         ParentSnapshot(parentNaturalId, null, setOf(), 3)))
     }
-
-    private fun newSavedUnassignedChild(): UnassignedChild {
-        val saved = children.createNewUnassigned(childNaturalId).save()
-        expect(saved.changed).toBe(true)
-        val child = saved.domain
-        testListener.reset()
-        return child as UnassignedChild
-    }
-
-    private fun currentPersistedChild() =
-            children.findExisting(childNaturalId)!!
-
-    private fun newSavedParent(): Parent {
-        val saved = parents.createNew(parentNaturalId).save()
-        expect(saved.changed).toBe(true)
-        val parent = saved.domain
-        testListener.reset()
-        return parent
-    }
-
-    private fun currentPersistedParent() =
-            parents.findExisting(parentNaturalId)!!
 }
