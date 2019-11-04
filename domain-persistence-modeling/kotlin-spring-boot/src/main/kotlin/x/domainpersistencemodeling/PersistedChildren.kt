@@ -25,7 +25,7 @@ internal open class PersistedChildFactory(
                 ChildResource(record.naturalId,
                         record.parentNaturalId,
                         record.value,
-                        record.subchildren,
+                        record.sideValues,
                         record.version)
     }
 
@@ -79,8 +79,8 @@ internal open class PersistedChild(
         get() = record().value
     override val version: Int
         get() = record().version
-    override val subchildren: Set<String> // Sorted
-        get() = TreeSet(record().subchildren)
+    override val sideValues: Set<String> // Sorted
+        get() = TreeSet(record().sideValues)
 
     @Transactional
     override fun assignTo(parent: Parent): AssignedChild = apply {
@@ -150,10 +150,10 @@ internal open class PersistedChild(
 internal class PersistedMutableChild(private val record: ChildRecord)
     : MutableChild,
         MutableChildDetails by record {
-    override val subchildren: MutableSet<String>
-        get() = TrackedSortedSet(record.subchildren,
-                { _, all -> record.subchildren = all },
-                { _, all -> record.subchildren = all })
+    override val sideValues: MutableSet<String>
+        get() = TrackedSortedSet(record.sideValues,
+                { _, all -> record.sideValues = all },
+                { _, all -> record.sideValues = all })
 
     override fun assignTo(parent: ParentDetails) {
         record.parentNaturalId = parent.naturalId
@@ -197,13 +197,13 @@ interface ChildRepository : CrudRepository<ChildRecord, Long> {
 
     @Query("""
         SELECT *
-        FROM upsert_child(:naturalId, :parentNaturalId, :value, :subchildren, :version)
+        FROM upsert_child(:naturalId, :parentNaturalId, :value, :sideValues, :version)
         """)
     fun upsert(
             @Param("naturalId") naturalId: String,
             @Param("parentNaturalId") parentNaturalId: String?,
             @Param("value") value: String?,
-            @Param("subchildren") subchildren: String,
+            @Param("sideValues") sideValues: String,
             @Param("version") version: Int)
             : Optional<ChildRecord>
 
@@ -212,7 +212,7 @@ interface ChildRepository : CrudRepository<ChildRecord, Long> {
         val upserted = upsert(entity.naturalId,
                 entity.parentNaturalId,
                 entity.value,
-                entity.subchildren.workAroundArrayType(),
+                entity.sideValues.workAroundArrayType(),
                 entity.version)
         upserted.ifPresent {
             entity.upsertedWith(it)
@@ -234,7 +234,7 @@ data class ChildRecord(
         override var naturalId: String,
         override var parentNaturalId: String?,
         override var value: String?,
-        override var subchildren: MutableSet<String>,
+        override var sideValues: MutableSet<String>,
         override var version: Int)
     : MutableChildDetails,
         UpsertableRecord<ChildRecord> {
@@ -246,7 +246,7 @@ data class ChildRecord(
         naturalId = upserted.naturalId
         parentNaturalId = upserted.parentNaturalId
         value = upserted.value
-        subchildren = TreeSet(upserted.subchildren)
+        sideValues = TreeSet(upserted.sideValues)
         version = upserted.version
         return this
     }

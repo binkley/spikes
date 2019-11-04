@@ -15,7 +15,7 @@ CREATE TABLE child
     natural_id        VARCHAR       NOT NULL UNIQUE,
     parent_natural_id VARCHAR REFERENCES parent (natural_id), -- Nullable
     value             VARCHAR,
-    subchildren       VARCHAR ARRAY NOT NULL,
+    side_values       VARCHAR ARRAY NOT NULL,
     -- DB controls Audit columns, not caller
     version           INT,
     created_at        TIMESTAMP,
@@ -45,7 +45,7 @@ $$;
 CREATE OR REPLACE FUNCTION upsert_child(_natural_id child.natural_id%TYPE,
                                         _parent_natural_id child.parent_natural_id%TYPE,
                                         _value child.value%TYPE,
-                                        _subchildren VARCHAR,
+                                        _side_values VARCHAR,
                                         _version child.version%TYPE)
     RETURNS SETOF CHILD
     ROWS 1
@@ -55,15 +55,15 @@ $$
 BEGIN
     RETURN QUERY INSERT INTO child
         (natural_id, parent_natural_id, value,
-         subchildren, version)
+         side_values, version)
         VALUES (_natural_id, _parent_natural_id, _value,
-                CAST(_subchildren AS VARCHAR ARRAY), _version)
+                CAST(_side_values AS VARCHAR ARRAY), _version)
         ON CONFLICT (natural_id) DO UPDATE
             SET (parent_natural_id, value,
-                 subchildren,
+                 side_values,
                  version)
                 = (excluded.parent_natural_id, excluded.value,
-                   excluded.subchildren, excluded.version)
+                   excluded.side_values, excluded.version)
         RETURNING *;
 END;
 $$;
