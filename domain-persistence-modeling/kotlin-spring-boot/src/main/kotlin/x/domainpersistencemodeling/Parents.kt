@@ -3,6 +3,7 @@ package x.domainpersistencemodeling
 data class ParentResource(
         val naturalId: String,
         val value: String?,
+        val sideValues: Set<String>, // Sorted
         val version: Int)
 
 interface ParentFactory {
@@ -15,6 +16,7 @@ interface ParentFactory {
 interface ParentDetails : Comparable<ParentDetails> {
     val naturalId: String
     val value: String?
+    val sideValues: Set<String> // Sorted
     val version: Int
 
     override fun compareTo(other: ParentDetails) =
@@ -23,6 +25,7 @@ interface ParentDetails : Comparable<ParentDetails> {
 
 interface MutableParentDetails : ParentDetails {
     override var value: String?
+    override val sideValues: MutableSet<String> // Sorted
 }
 
 interface MutableParent : MutableParentDetails {

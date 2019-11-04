@@ -77,10 +77,10 @@ internal open class PersistedChild(
         get() = record().parentNaturalId
     override val value: String?
         get() = record().value
-    override val version: Int
-        get() = record().version
     override val sideValues: Set<String> // Sorted
         get() = TreeSet(record().sideValues)
+    override val version: Int
+        get() = record().version
 
     @Transactional
     override fun assignTo(parent: Parent): AssignedChild = apply {
@@ -212,19 +212,12 @@ interface ChildRepository : CrudRepository<ChildRecord, Long> {
         val upserted = upsert(entity.naturalId,
                 entity.parentNaturalId,
                 entity.value,
-                entity.sideValues.workAroundArrayType(),
+                entity.sideValues.workAroundArrayTypeForPostgres(),
                 entity.version)
         upserted.ifPresent {
             entity.upsertedWith(it)
         }
         return upserted
-    }
-
-    companion object {
-        // TODO: Workaround issue in Spring Data with passing sets for
-        //  ARRAY types in a procedure
-        fun Collection<*>.workAroundArrayType() =
-                this.joinToString(",", "{", "}")
     }
 }
 

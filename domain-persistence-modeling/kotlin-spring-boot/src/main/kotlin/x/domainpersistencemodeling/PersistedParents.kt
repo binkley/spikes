@@ -24,7 +24,7 @@ internal open class PersistedParentFactory(
     companion object {
         internal fun toResource(record: ParentRecord) =
                 ParentResource(record.naturalId, record.value,
-                        record.version)
+                        record.sideValues, record.version)
     }
 
     override fun all() = repository.findAll().map {
@@ -73,6 +73,8 @@ internal open class PersistedParent(
         get() = record().naturalId
     override val value: String?
         get() = record().value
+    override val sideValues: Set<String> // Sorted
+        get() = TreeSet(record().sideValues)
     override val version: Int
         get() = record().version
     private var snapshotChildren: Set<AssignedChild>
@@ -232,6 +234,10 @@ internal data class PersistedMutableParent(
         private val removed: (AssignedChild, MutableSet<AssignedChild>) -> Unit)
     : MutableParent,
         MutableParentDetails by record {
+    override val sideValues: MutableSet<String>
+        get() = TrackedSortedSet(record.sideValues,
+                { _, all -> record.sideValues = all },
+                { _, all -> record.sideValues = all })
     override val children = TrackedSortedSet(initial, added, removed)
 }
 
@@ -246,11 +252,12 @@ interface ParentRepository : CrudRepository<ParentRecord, Long> {
 
     @Query("""
         SELECT *
-        FROM upsert_parent(:naturalId, :value, :version)
+        FROM upsert_parent(:naturalId, :value, :sideValues, :version)
         """)
     fun upsert(
             @Param("naturalId") naturalId: String,
             @Param("value") value: String?,
+            @Param("sideValues") sideValues: String,
             @Param("version") version: Int)
             : Optional<ParentRecord>
 
@@ -259,6 +266,7 @@ interface ParentRepository : CrudRepository<ParentRecord, Long> {
         val upserted = upsert(
                 entity.naturalId,
                 entity.value,
+                entity.sideValues.workAroundArrayTypeForPostgres(),
                 entity.version)
         upserted.ifPresent {
             entity.upsertedWith(it)
@@ -272,16 +280,18 @@ data class ParentRecord(
         @Id var id: Long?,
         override var naturalId: String,
         override var value: String?,
+        override var sideValues: MutableSet<String>,
         override var version: Int)
     : MutableParentDetails,
         UpsertableRecord<ParentRecord> {
     internal constructor(naturalId: String)
-            : this(null, naturalId, null, 0)
+            : this(null, naturalId, null, mutableSetOf(), 0)
 
     override fun upsertedWith(upserted: ParentRecord): ParentRecord {
         id = upserted.id
         naturalId = upserted.naturalId
         value = upserted.value
+        sideValues = TreeSet(upserted.sideValues)
         version = upserted.version
         return this
     }

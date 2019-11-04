@@ -19,7 +19,7 @@ interface ChildDetails : Comparable<ChildDetails> {
     val naturalId: String
     val parentNaturalId: String?
     val value: String?
-    val sideValues: Set<String>
+    val sideValues: Set<String> // Sorted
     val version: Int
 
     val assigned: Boolean
@@ -32,7 +32,7 @@ interface ChildDetails : Comparable<ChildDetails> {
 interface MutableChildDetails : ChildDetails {
     override var parentNaturalId: String?
     override var value: String?
-    override val sideValues: MutableSet<String>
+    override val sideValues: MutableSet<String> // Sorted
 }
 
 interface MutableChild : MutableChildDetails {
