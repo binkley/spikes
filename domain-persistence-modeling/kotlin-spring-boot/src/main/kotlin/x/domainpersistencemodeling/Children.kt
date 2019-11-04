@@ -10,9 +10,9 @@ data class ChildSnapshot(
 interface ChildFactory {
     fun all(): Sequence<Child>
     fun findExisting(naturalId: String): Child?
-    fun createNew(naturalId: String): UnassignedChild
-    fun findExistingOrCreateNew(naturalId: String): Child
-    fun findOwned(parentNaturalId: String): Sequence<AssignedChild>
+    fun createNewUnassigned(naturalId: String): UnassignedChild
+    fun findExistingOrCreateNewUnassigned(naturalId: String): Child
+    fun findAssignedFor(parentNaturalId: String): Sequence<AssignedChild>
 }
 
 interface ChildDetails
@@ -37,6 +37,11 @@ interface MutableChildDetails : ChildDetails {
     override val sideValues: MutableSet<String> // Sorted
 }
 
+/**
+ * Lacks a way to restrict access to [assignTo] and [unassignFromAny] so that
+ * only [Parent] implementations can use them.  Neither Java nor Kotlin have
+ * something like C++'s `friend` access specifier.
+ */
 interface MutableChild : MutableChildDetails {
     fun assignTo(parent: ParentDetails)
     fun unassignFromAny()

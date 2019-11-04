@@ -28,9 +28,9 @@ internal open class PersistedChildTest @Autowired constructor(
 
     @Test
     fun shouldCreateNew() {
-        val found = children.findExistingOrCreateNew(childNaturalId)
+        val found = children.findExistingOrCreateNewUnassigned(childNaturalId)
 
-        expect(found).toBe(children.createNew(childNaturalId))
+        expect(found).toBe(children.createNewUnassigned(childNaturalId))
         expect(found.existing).toBe(false)
     }
 
@@ -38,7 +38,7 @@ internal open class PersistedChildTest @Autowired constructor(
     fun shouldFindExisting() {
         val saved = newSavedChild()
 
-        val found = children.findExistingOrCreateNew(childNaturalId)
+        val found = children.findExistingOrCreateNewUnassigned(childNaturalId)
 
         expect(found).toBe(saved)
         expect(found.existing).toBe(true)
@@ -46,7 +46,7 @@ internal open class PersistedChildTest @Autowired constructor(
 
     @Test
     fun shouldRoundTrip() {
-        val unsaved = children.createNew(childNaturalId)
+        val unsaved = children.createNewUnassigned(childNaturalId)
 
         expect(unsaved.version).toBe(0)
         testListener.expectNext.isEmpty()
@@ -120,7 +120,7 @@ internal open class PersistedChildTest @Autowired constructor(
 
         expect(parent.version).toBe(1)
 
-        val unsaved = children.createNew(childNaturalId)
+        val unsaved = children.createNewUnassigned(childNaturalId)
         unsaved.update {
             assignTo(parent)
         }
@@ -169,7 +169,7 @@ internal open class PersistedChildTest @Autowired constructor(
     @Test
     fun shouldUnassignChild() {
         val parent = newSavedParent()
-        val child = children.createNew(childNaturalId)
+        val child = children.createNewUnassigned(childNaturalId)
         child.update {
             assignTo(parent)
         }
@@ -193,7 +193,7 @@ internal open class PersistedChildTest @Autowired constructor(
     }
 
     private fun newSavedChild(): Child {
-        val saved = children.createNew(childNaturalId).save()
+        val saved = children.createNewUnassigned(childNaturalId).save()
         expect(saved.changed).toBe(true)
         val child = saved.domain
         testListener.reset()

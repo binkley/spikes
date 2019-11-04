@@ -57,7 +57,7 @@ internal open class PersistedParentFactory(
 
     private fun toParent(record: ParentRecord) =
             PersistedParent(this, record.toSnapshot(), record,
-                    children.findOwned(record.naturalId))
+                    children.findAssignedFor(record.naturalId))
 }
 
 internal open class PersistedParent(

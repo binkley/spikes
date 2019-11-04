@@ -206,7 +206,7 @@ internal open class PersistedParentTest @Autowired constructor(
     }
 
     private fun newSavedUnassignedChild(): UnassignedChild {
-        val saved = children.createNew(childNaturalId).save()
+        val saved = children.createNewUnassigned(childNaturalId).save()
         expect(saved.changed).toBe(true)
         val child = saved.domain
         testListener.reset()
