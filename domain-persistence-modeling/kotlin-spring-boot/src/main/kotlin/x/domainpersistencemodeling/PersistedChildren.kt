@@ -15,20 +15,14 @@ import java.util.Objects
 import java.util.Optional
 import java.util.TreeSet
 
+internal fun ChildRecord.toSnapshot() = ChildSnapshot(
+        naturalId, parentNaturalId, value, sideValues, version)
+
 @Component
 internal open class PersistedChildFactory(
         private val repository: ChildRepository,
         private val publisher: ApplicationEventPublisher)
     : ChildFactory {
-    companion object {
-        internal fun toSnapshot(record: ChildRecord) =
-                ChildSnapshot(record.naturalId,
-                        record.parentNaturalId,
-                        record.value,
-                        record.sideValues,
-                        record.version)
-    }
-
     override fun all(): Sequence<Child> =
             repository.findAll().map {
                 toChild(it)
@@ -61,7 +55,7 @@ internal open class PersistedChildFactory(
             publisher.publishEvent(ChildChangedEvent(before, after))
 
     private fun toChild(record: ChildRecord) =
-            PersistedChild(this, toSnapshot(record), record)
+            PersistedChild(this, record.toSnapshot(), record)
 }
 
 internal open class PersistedChild(
@@ -129,9 +123,6 @@ internal open class PersistedChild(
     override fun <R> update(block: MutableChild.() -> R): R =
             PersistedMutableChild(record()).let(block)
 
-    override fun toSnapshot() =
-            PersistedChildFactory.toSnapshot(record())
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -147,6 +138,8 @@ internal open class PersistedChild(
 
     private fun record() =
             record ?: throw DomainException("Deleted: $this")
+
+    private fun toSnapshot() = record().toSnapshot()
 }
 
 internal class PersistedMutableChild(private val record: ChildRecord)

@@ -18,8 +18,6 @@ interface PersistableDomain<Snapshot,
 
     fun delete()
 
-    fun toSnapshot(): Snapshot
-
     data class UpsertedDomainResult<Snapshot,
             Domain : PersistableDomain<Snapshot, Domain>>(
             val domain: Domain, val changed: Boolean)

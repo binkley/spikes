@@ -15,18 +15,15 @@ import java.util.Optional
 import java.util.TreeSet
 import java.util.stream.Collectors.toCollection
 
+internal fun ParentRecord.toSnapshot() = ParentSnapshot(
+        naturalId, value, sideValues, version)
+
 @Component
 internal open class PersistedParentFactory(
         private val repository: ParentRepository,
         private val children: ChildFactory,
         private val publisher: ApplicationEventPublisher)
     : ParentFactory {
-    companion object {
-        internal fun toSnapshot(record: ParentRecord) =
-                ParentSnapshot(record.naturalId, record.value,
-                        record.sideValues, record.version)
-    }
-
     override fun all() = repository.findAll().map {
         toParent(it)
     }.asSequence()
@@ -59,7 +56,7 @@ internal open class PersistedParentFactory(
             publisher.publishEvent(ParentChangedEvent(before, after))
 
     private fun toParent(record: ParentRecord) =
-            PersistedParent(this, toSnapshot(record), record,
+            PersistedParent(this, record.toSnapshot(), record,
                     children.findOwned(record.naturalId))
 }
 
@@ -105,7 +102,7 @@ internal open class PersistedParent(
     }
 
     override val changed
-        get() = snapshot != toSnapshot()
+        get() = snapshot != record().toSnapshot()
 
     override fun save(): UpsertedDomainResult<ParentSnapshot, Parent> {
         // Save ourselves first, so children have a valid parent
@@ -122,7 +119,7 @@ internal open class PersistedParent(
             result = UpsertedRecordResult.of(record(), Optional.of(refreshed))
         }
 
-        val after = toSnapshot()
+        val after = record().toSnapshot()
         snapshot = after
         if (result.changed) // Trust the database
             factory.notifyChanged(before, after)
@@ -142,9 +139,6 @@ internal open class PersistedParent(
         snapshot = after
         factory.notifyChanged(before, after)
     }
-
-    override fun toSnapshot() =
-            PersistedParentFactory.toSnapshot(record())
 
     override fun <R> update(block: MutableParent.() -> R): R =
             PersistedMutableParent(
