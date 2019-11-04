@@ -87,29 +87,19 @@ internal open class PersistedParent(
     }
 
     @Transactional
-    override fun assign(child: Child) = apply {
-        child.update {
-            assignTo(this@apply)
-        }
-        save()
-
+    override fun assign(child: Child) = let {
         update {
-            assign(child)
+            children += child
         }
-        save()
+        child
     }
 
     @Transactional
-    override fun unassign(child: Child) = apply {
+    override fun unassign(child: Child) = let {
         update {
-            unassign(child)
+            children -= child
         }
-        save()
-
-        child.update {
-            unassignFromAny()
-        }
-        save()
+        child
     }
 
     override val changed

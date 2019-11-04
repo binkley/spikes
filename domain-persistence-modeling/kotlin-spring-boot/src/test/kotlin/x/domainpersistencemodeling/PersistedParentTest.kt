@@ -100,14 +100,9 @@ internal open class PersistedParentTest @Autowired constructor(
         val parent = newSavedParent()
         val child = newSavedChild()
 
-        parent.update {
-            assign(child)
-        }
-        parent.save()
-        testListener.reset()
+        parent.assign(child)
 
         val value = "FOOBAR"
-        // Silly example :)
         parent.update {
             children.forEach {
                 it.update {
@@ -121,13 +116,13 @@ internal open class PersistedParentTest @Autowired constructor(
 
         testListener.expectNext.containsExactly(
                 ChildChangedEvent(
+                        ChildResource(childNaturalId, null,
+                                null, emptySet(), 1),
                         ChildResource(childNaturalId, parentNaturalId,
-                                null, emptySet(), 2),
-                        ChildResource(childNaturalId, parentNaturalId,
-                                value, emptySet(), 3)),
+                                value, emptySet(), 2)),
                 ParentChangedEvent(
-                        ParentResource(parentNaturalId, null, 2),
-                        ParentResource(parentNaturalId, null, 3)))
+                        ParentResource(parentNaturalId, null, 1),
+                        ParentResource(parentNaturalId, null, 2)))
     }
 
     @Test
@@ -150,9 +145,7 @@ internal open class PersistedParentTest @Autowired constructor(
         val parent = newSavedParent()
         val child = newSavedChild()
 
-        parent.update {
-            assign(child)
-        }
+        parent.assign(child)
 
         expect {
             parent.delete()
@@ -164,16 +157,10 @@ internal open class PersistedParentTest @Autowired constructor(
         val parent = newSavedParent()
         val child = newSavedChild()
 
-        parent.update {
-            assign(child)
-        }
-        parent.save()
+        parent.assign(child)
 
         expect {
-            parent.update {
-                assign(child)
-            }
-            parent.save()
+            parent.assign(child)
         }.toThrow<DomainException> { }
     }
 
@@ -184,9 +171,7 @@ internal open class PersistedParentTest @Autowired constructor(
 
         expect(parent.children).isEmpty()
 
-        parent.update {
-            assign(child)
-        }
+        parent.assign(child)
         val parentAssignedWithChild = parent.save().domain
 
         expect(parent.children).containsExactly(child)
@@ -203,9 +188,7 @@ internal open class PersistedParentTest @Autowired constructor(
                         ParentResource(parentNaturalId, null, 1),
                         ParentResource(parentNaturalId, null, 2)))
 
-        parent.update {
-            unassign(child)
-        }
+        parent.unassign(child)
         val childUnassigned = parent.save().domain
 
         expect(parent.children).isEmpty()

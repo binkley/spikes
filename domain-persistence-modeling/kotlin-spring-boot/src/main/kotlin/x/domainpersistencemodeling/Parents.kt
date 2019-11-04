@@ -27,16 +27,6 @@ interface MutableParentDetails : ParentDetails {
 
 interface MutableParent : MutableParentDetails {
     val children: MutableSet<Child>
-
-    fun assign(child: Child) {
-        if (!children.add(child))
-            throw DomainException("Already assigned: $child")
-    }
-
-    fun unassign(child: Child) {
-        if (!children.remove(child))
-            throw DomainException("Not assigned: $child")
-    }
 }
 
 interface Parent
@@ -45,17 +35,11 @@ interface Parent
         PersistableDomain<ParentResource, Parent> {
     val children: Set<Child>
 
-    /**
-     * Assigns [child] to this parent, a mutable operation, and [save]s
-     * parent and child.
-     */
-    fun assign(child: Child): Parent
+    /** Assigns [child] to this parent, a mutable operation. */
+    fun assign(child: Child): Child
 
-    /**
-     * Unassigns [child] from this parent, a mutable operation, and [save]s
-     * parent and child.
-     */
-    fun unassign(child: Child): Parent
+    /** Unassigns [child] from this parent, a mutable operation. */
+    fun unassign(child: Child): Child
 }
 
 data class ParentChangedEvent(
