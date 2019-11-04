@@ -1,7 +1,7 @@
 package x.domainpersistencemodeling
 
-interface PersistableDomain<Resource,
-        Domain : PersistableDomain<Resource, Domain>> {
+interface PersistableDomain<Snapshot,
+        Domain : PersistableDomain<Snapshot, Domain>> {
     val version: Int
 
     val existing: Boolean
@@ -14,13 +14,13 @@ interface PersistableDomain<Resource,
      */
     val changed: Boolean
 
-    fun save(): UpsertedDomainResult<Resource, Domain>
+    fun save(): UpsertedDomainResult<Snapshot, Domain>
 
     fun delete()
 
-    fun toResource(): Resource
+    fun toSnapshot(): Snapshot
 
-    data class UpsertedDomainResult<Resource,
-            Domain : PersistableDomain<Resource, Domain>>(
+    data class UpsertedDomainResult<Snapshot,
+            Domain : PersistableDomain<Snapshot, Domain>>(
             val domain: Domain, val changed: Boolean)
 }

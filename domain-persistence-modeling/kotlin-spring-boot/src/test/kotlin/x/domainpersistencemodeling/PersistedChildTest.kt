@@ -58,7 +58,7 @@ internal open class PersistedChildTest @Autowired constructor(
         expect(saved).toBe(UpsertedDomainResult(unsaved, true))
         testListener.expectNext.containsExactly(ChildChangedEvent(
                 null,
-                ChildResource(childNaturalId, null, null,
+                ChildSnapshot(childNaturalId, null, null,
                         emptySet(), 1)))
 
         expect(currentPersistedChild()).toBe(unsaved)
@@ -92,9 +92,9 @@ internal open class PersistedChildTest @Autowired constructor(
 
         expect(original.changed).toBe(false)
         testListener.expectNext.containsExactly(ChildChangedEvent(
-                ChildResource(childNaturalId, null, null,
+                ChildSnapshot(childNaturalId, null, null,
                         emptySet(), 1),
-                ChildResource(childNaturalId, null, value,
+                ChildSnapshot(childNaturalId, null, value,
                         emptySet(), 2)))
     }
 
@@ -109,7 +109,7 @@ internal open class PersistedChildTest @Autowired constructor(
             existing.version
         }.toThrow<DomainException> { }
         testListener.expectNext.containsExactly(ChildChangedEvent(
-                ChildResource(childNaturalId, null, null,
+                ChildSnapshot(childNaturalId, null, null,
                         emptySet(), 1),
                 null))
     }
@@ -134,7 +134,7 @@ internal open class PersistedChildTest @Autowired constructor(
         expect(currentPersistedParent().version).toBe(2)
         testListener.expectNext.containsExactly(ChildChangedEvent(
                 null,
-                ChildResource(childNaturalId, parentNaturalId, null,
+                ChildSnapshot(childNaturalId, parentNaturalId, null,
                         emptySet(), 1)))
     }
 
@@ -160,9 +160,9 @@ internal open class PersistedChildTest @Autowired constructor(
                 .toBe(parentNaturalId)
         expect(currentPersistedParent().version).toBe(2)
         testListener.expectNext.containsExactly(ChildChangedEvent(
-                ChildResource(childNaturalId, null, null,
+                ChildSnapshot(childNaturalId, null, null,
                         emptySet(), 1),
-                ChildResource(childNaturalId, parentNaturalId, null,
+                ChildSnapshot(childNaturalId, parentNaturalId, null,
                         emptySet(), 2)))
     }
 
@@ -186,9 +186,9 @@ internal open class PersistedChildTest @Autowired constructor(
         // Created, assigned by child, unassigned by child == version 3
         expect(currentPersistedParent().version).toBe(3)
         testListener.expectNext.containsExactly(ChildChangedEvent(
-                ChildResource(childNaturalId, parentNaturalId, null,
+                ChildSnapshot(childNaturalId, parentNaturalId, null,
                         emptySet(), 1),
-                ChildResource(childNaturalId, null, null,
+                ChildSnapshot(childNaturalId, null, null,
                         emptySet(), 2)))
     }
 

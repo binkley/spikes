@@ -21,8 +21,8 @@ internal open class PersistedChildFactory(
         private val publisher: ApplicationEventPublisher)
     : ChildFactory {
     companion object {
-        internal fun toResource(record: ChildRecord) =
-                ChildResource(record.naturalId,
+        internal fun toSnapshot(record: ChildRecord) =
+                ChildSnapshot(record.naturalId,
                         record.parentNaturalId,
                         record.value,
                         record.sideValues,
@@ -57,16 +57,16 @@ internal open class PersistedChildFactory(
             repository.delete(record)
 
     internal fun notifyChanged(
-            before: ChildResource?, after: ChildResource?) =
+            before: ChildSnapshot?, after: ChildSnapshot?) =
             publisher.publishEvent(ChildChangedEvent(before, after))
 
     private fun toChild(record: ChildRecord) =
-            PersistedChild(this, toResource(record), record)
+            PersistedChild(this, toSnapshot(record), record)
 }
 
 internal open class PersistedChild(
         private val factory: PersistedChildFactory,
-        private var snapshot: ChildResource?,
+        private var snapshot: ChildSnapshot?,
         private var record: ChildRecord?)
     : Child,
         UnassignedChild,
@@ -99,15 +99,15 @@ internal open class PersistedChild(
     }
 
     override val changed
-        get() = snapshot != toResource()
+        get() = snapshot != toSnapshot()
 
-    override fun save(): UpsertedDomainResult<ChildResource, Child> {
+    override fun save(): UpsertedDomainResult<ChildSnapshot, Child> {
         if (!changed) return UpsertedDomainResult(this, false)
 
         val before = snapshot
         val result = factory.save(record())
         record = result.record
-        val after = toResource()
+        val after = toSnapshot()
         snapshot = after
         if (result.changed) // Trust the database
             factory.notifyChanged(before, after)
@@ -119,7 +119,7 @@ internal open class PersistedChild(
                 "Deleting child assigned to a parent: $this")
 
         val before = snapshot
-        val after = (null as ChildResource?)
+        val after = (null as ChildSnapshot?)
         factory.delete(record())
         record = null
         snapshot = after
@@ -129,8 +129,8 @@ internal open class PersistedChild(
     override fun <R> update(block: MutableChild.() -> R): R =
             PersistedMutableChild(record()).let(block)
 
-    override fun toResource() =
-            PersistedChildFactory.toResource(record())
+    override fun toSnapshot() =
+            PersistedChildFactory.toSnapshot(record())
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

@@ -1,6 +1,6 @@
 package x.domainpersistencemodeling
 
-data class ChildResource(
+data class ChildSnapshot(
         val naturalId: String,
         val parentNaturalId: String?,
         val value: String?,
@@ -44,7 +44,7 @@ interface MutableChild : MutableChildDetails {
 
 interface Child : ChildDetails,
         ScopedMutable<Child, MutableChild>,
-        PersistableDomain<ChildResource, Child>
+        PersistableDomain<ChildSnapshot, Child>
 
 interface UnassignedChild : Child {
     /** Assigns this child to [parent], a mutable operation. */
@@ -57,6 +57,6 @@ interface AssignedChild : Child {
 }
 
 data class ChildChangedEvent(
-        val before: ChildResource?,
-        val after: ChildResource?)
-    : DomainChangedEvent<ChildResource>(before, after)
+        val before: ChildSnapshot?,
+        val after: ChildSnapshot?)
+    : DomainChangedEvent<ChildSnapshot>(before, after)

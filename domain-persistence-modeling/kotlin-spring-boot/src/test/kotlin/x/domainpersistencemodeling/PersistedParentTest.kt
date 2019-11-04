@@ -58,7 +58,7 @@ internal open class PersistedParentTest @Autowired constructor(
         expect(saved).toBe(UpsertedDomainResult(unsaved, true))
         testListener.expectNext.containsExactly(ParentChangedEvent(
                 null,
-                ParentResource(parentNaturalId, null, setOf(), 1)))
+                ParentSnapshot(parentNaturalId, null, setOf(), 1)))
 
         expect(currentPersistedParent()).toBe(unsaved)
     }
@@ -91,8 +91,8 @@ internal open class PersistedParentTest @Autowired constructor(
 
         expect(original.changed).toBe(false)
         testListener.expectNext.containsExactly(ParentChangedEvent(
-                ParentResource(parentNaturalId, null, setOf(), 1),
-                ParentResource(parentNaturalId, value, setOf(), 2)))
+                ParentSnapshot(parentNaturalId, null, setOf(), 1),
+                ParentSnapshot(parentNaturalId, value, setOf(), 2)))
     }
 
     @Test
@@ -116,13 +116,13 @@ internal open class PersistedParentTest @Autowired constructor(
 
         testListener.expectNext.containsExactly(
                 ChildChangedEvent(
-                        ChildResource(childNaturalId, null,
+                        ChildSnapshot(childNaturalId, null,
                                 null, emptySet(), 1),
-                        ChildResource(childNaturalId, parentNaturalId,
+                        ChildSnapshot(childNaturalId, parentNaturalId,
                                 value, emptySet(), 2)),
                 ParentChangedEvent(
-                        ParentResource(parentNaturalId, null, setOf(), 1),
-                        ParentResource(parentNaturalId, null, setOf(), 2)))
+                        ParentSnapshot(parentNaturalId, null, setOf(), 1),
+                        ParentSnapshot(parentNaturalId, null, setOf(), 2)))
     }
 
     @Test
@@ -136,7 +136,7 @@ internal open class PersistedParentTest @Autowired constructor(
             existing.version
         }.toThrow<DomainException> { }
         testListener.expectNext.containsExactly(ParentChangedEvent(
-                ParentResource(parentNaturalId, null, setOf(), 1),
+                ParentSnapshot(parentNaturalId, null, setOf(), 1),
                 null))
     }
 
@@ -180,13 +180,13 @@ internal open class PersistedParentTest @Autowired constructor(
                 .toBe(parentNaturalId)
         testListener.expectNext.containsExactly(
                 ChildChangedEvent(
-                        ChildResource(childNaturalId, null, null,
+                        ChildSnapshot(childNaturalId, null, null,
                                 emptySet(), 1),
-                        ChildResource(childNaturalId, parentNaturalId, null,
+                        ChildSnapshot(childNaturalId, parentNaturalId, null,
                                 emptySet(), 2)),
                 ParentChangedEvent(
-                        ParentResource(parentNaturalId, null, setOf(), 1),
-                        ParentResource(parentNaturalId, null, setOf(), 2)))
+                        ParentSnapshot(parentNaturalId, null, setOf(), 1),
+                        ParentSnapshot(parentNaturalId, null, setOf(), 2)))
 
         parent.unassign(assignedChild)
         val childUnassigned = parent.save().domain
@@ -196,13 +196,13 @@ internal open class PersistedParentTest @Autowired constructor(
         expect(currentPersistedChild().parentNaturalId).toBe(null)
         testListener.expectNext.containsExactly(
                 ChildChangedEvent(
-                        ChildResource(childNaturalId, parentNaturalId, null,
+                        ChildSnapshot(childNaturalId, parentNaturalId, null,
                                 emptySet(), 2),
-                        ChildResource(childNaturalId, null, null,
+                        ChildSnapshot(childNaturalId, null, null,
                                 emptySet(), 3)),
                 ParentChangedEvent(
-                        ParentResource(parentNaturalId, null, setOf(), 2),
-                        ParentResource(parentNaturalId, null, setOf(), 3)))
+                        ParentSnapshot(parentNaturalId, null, setOf(), 2),
+                        ParentSnapshot(parentNaturalId, null, setOf(), 3)))
     }
 
     private fun newSavedUnassignedChild(): UnassignedChild {

@@ -22,8 +22,8 @@ internal open class PersistedParentFactory(
         private val publisher: ApplicationEventPublisher)
     : ParentFactory {
     companion object {
-        internal fun toResource(record: ParentRecord) =
-                ParentResource(record.naturalId, record.value,
+        internal fun toSnapshot(record: ParentRecord) =
+                ParentSnapshot(record.naturalId, record.value,
                         record.sideValues, record.version)
     }
 
@@ -55,17 +55,17 @@ internal open class PersistedParentFactory(
             repository.findByNaturalId(naturalId).orElseThrow()
 
     internal fun notifyChanged(
-            before: ParentResource?, after: ParentResource?) =
+            before: ParentSnapshot?, after: ParentSnapshot?) =
             publisher.publishEvent(ParentChangedEvent(before, after))
 
     private fun toParent(record: ParentRecord) =
-            PersistedParent(this, toResource(record), record,
+            PersistedParent(this, toSnapshot(record), record,
                     children.findOwned(record.naturalId))
 }
 
 internal open class PersistedParent(
         private val factory: PersistedParentFactory,
-        private var snapshot: ParentResource?,
+        private var snapshot: ParentSnapshot?,
         private var record: ParentRecord?,
         assigned: Sequence<AssignedChild>)
     : Parent {
@@ -105,9 +105,9 @@ internal open class PersistedParent(
     }
 
     override val changed
-        get() = snapshot != toResource()
+        get() = snapshot != toSnapshot()
 
-    override fun save(): UpsertedDomainResult<ParentResource, Parent> {
+    override fun save(): UpsertedDomainResult<ParentSnapshot, Parent> {
         // Save ourselves first, so children have a valid parent
         val before = snapshot
         var result =
@@ -122,7 +122,7 @@ internal open class PersistedParent(
             result = UpsertedRecordResult.of(record(), Optional.of(refreshed))
         }
 
-        val after = toResource()
+        val after = toSnapshot()
         snapshot = after
         if (result.changed) // Trust the database
             factory.notifyChanged(before, after)
@@ -136,15 +136,15 @@ internal open class PersistedParent(
         snapshotChildren.forEach { it.save() }
 
         val before = snapshot
-        val after = null as ParentResource?
+        val after = null as ParentSnapshot?
         factory.delete(record())
         record = null
         snapshot = after
         factory.notifyChanged(before, after)
     }
 
-    override fun toResource() =
-            PersistedParentFactory.toResource(record())
+    override fun toSnapshot() =
+            PersistedParentFactory.toSnapshot(record())
 
     override fun <R> update(block: MutableParent.() -> R): R =
             PersistedMutableParent(
