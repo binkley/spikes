@@ -4,7 +4,7 @@ data class ChildResource(
         val naturalId: String,
         val parentNaturalId: String?,
         val value: String?,
-        val sideValues: Set<String>, // Sorted
+        override val sideValues: Set<String>, // Sorted
         val version: Int)
     : SideValued
 
@@ -22,7 +22,8 @@ interface ChildDetails
     val naturalId: String
     val parentNaturalId: String?
     val value: String?
-    val sideValues: Set<String> // Sorted
+    override val sideValues: Set<String> // Sorted
+    val defaultSideValues: Set<String> // Sorted
     val version: Int
 
     val assigned: Boolean

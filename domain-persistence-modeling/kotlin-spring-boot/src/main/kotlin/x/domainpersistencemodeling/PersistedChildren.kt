@@ -79,6 +79,8 @@ internal open class PersistedChild(
         get() = record().value
     override val sideValues: Set<String> // Sorted
         get() = TreeSet(record().sideValues)
+    override val defaultSideValues: Set<String> // Sorted
+        get() = TreeSet(record().defaultSideValues)
     override val version: Int
         get() = record().version
 
@@ -231,7 +233,7 @@ data class ChildRecord(
         override var parentNaturalId: String?,
         override var value: String?,
         override var sideValues: MutableSet<String>,
-        var defaultSideValues: MutableSet<String>,
+        override var defaultSideValues: MutableSet<String>,
         override var version: Int)
     : MutableChildDetails,
         UpsertableRecord<ChildRecord> {
