@@ -80,11 +80,10 @@ internal open class PersistedChildTest @Autowired constructor(
         expect(original.changed).toBe(false)
 
         val value = "FOOBAR"
-        val modified = original.update {
+        original.update {
             this.value = value
         }
 
-        expect(modified).toBe(original)
         expect(original.changed).toBe(true)
         expect(original.value).toBe(value)
         testListener.expectNext.isEmpty()
@@ -121,7 +120,8 @@ internal open class PersistedChildTest @Autowired constructor(
 
         expect(parent.version).toBe(1)
 
-        val unsaved = children.createNew(childNaturalId).update {
+        val unsaved = children.createNew(childNaturalId)
+        unsaved.update {
             assignTo(parent)
         }
 
@@ -145,7 +145,8 @@ internal open class PersistedChildTest @Autowired constructor(
 
         expect(parent.version).toBe(1)
 
-        val assigned = child.update {
+        val assigned = child
+        assigned.update {
             assignTo(parent)
         }
 
@@ -168,14 +169,17 @@ internal open class PersistedChildTest @Autowired constructor(
     @Test
     fun shouldUnassignChild() {
         val parent = newSavedParent()
-        val child = children.createNew(childNaturalId).update {
+        val child = children.createNew(childNaturalId)
+        child.update {
             assignTo(parent)
-        }.save().domain
+        }
+        child.save().domain
         testListener.reset()
 
         expect(parent.version).toBe(1)
 
-        child.update(MutableChild::unassignFromAny).save()
+        child.update(MutableChild::unassignFromAny)
+        child.save()
 
         expect(child.version).toBe(2)
         expect(currentPersistedChild().parentNaturalId).toBe(null)

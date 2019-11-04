@@ -79,11 +79,10 @@ internal open class PersistedParentTest @Autowired constructor(
         expect(original.changed).toBe(false)
 
         val value = "FOOBAR"
-        val modified = original.update {
+        original.update {
             this.value = value
         }
 
-        expect(modified).toBe(original)
         expect(original.changed).toBe(true)
         expect(original.value).toBe(value)
         testListener.expectNext.isEmpty()
@@ -103,7 +102,8 @@ internal open class PersistedParentTest @Autowired constructor(
 
         parent.update {
             assign(child)
-        }.save()
+        }
+        parent.save()
         testListener.reset()
 
         val value = "FOOBAR"
@@ -114,7 +114,8 @@ internal open class PersistedParentTest @Autowired constructor(
                     this.value = value
                 }
             }
-        }.save()
+        }
+        parent.save()
 
         expect(currentPersistedChild().value).toBe(value)
 
@@ -165,12 +166,14 @@ internal open class PersistedParentTest @Autowired constructor(
 
         parent.update {
             assign(child)
-        }.save()
+        }
+        parent.save()
 
         expect {
             parent.update {
                 assign(child)
-            }.save()
+            }
+            parent.save()
         }.toThrow<DomainException> { }
     }
 
@@ -181,9 +184,10 @@ internal open class PersistedParentTest @Autowired constructor(
 
         expect(parent.children).isEmpty()
 
-        val parentAssignedWithChild = parent.update {
+        parent.update {
             assign(child)
-        }.save().domain
+        }
+        val parentAssignedWithChild = parent.save().domain
 
         expect(parent.children).containsExactly(child)
         expect(parentAssignedWithChild.version).toBe(2)
@@ -199,9 +203,10 @@ internal open class PersistedParentTest @Autowired constructor(
                         ParentResource(parentNaturalId, null, 1),
                         ParentResource(parentNaturalId, null, 2)))
 
-        val childUnassigned = parent.update {
+        parent.update {
             unassign(child)
-        }.save().domain
+        }
+        val childUnassigned = parent.save().domain
 
         expect(parent.children).isEmpty()
         expect(childUnassigned.version).toBe(3)

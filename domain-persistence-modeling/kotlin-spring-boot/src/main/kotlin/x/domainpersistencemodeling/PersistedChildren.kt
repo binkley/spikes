@@ -84,14 +84,16 @@ internal open class PersistedChild(
     override fun assignTo(parent: Parent) = apply {
         update {
             assignTo(parent)
-        }.save()
+        }
+        save()
     }
 
     @Transactional
     override fun unassignFromAny() = apply {
         update {
             unassignFromAny()
-        }.save()
+        }
+        save()
     }
 
     override val changed
@@ -122,10 +124,8 @@ internal open class PersistedChild(
         factory.notifyChanged(before, after)
     }
 
-    override fun update(block: MutableChild.() -> Unit) = apply {
-        val mutable = PersistedMutableChild(record())
-        mutable.block()
-    }
+    override fun <R> update(block: MutableChild.() -> R): R =
+            PersistedMutableChild(record()).let(block)
 
     override fun toResource() =
             PersistedChildFactory.toResource(record())

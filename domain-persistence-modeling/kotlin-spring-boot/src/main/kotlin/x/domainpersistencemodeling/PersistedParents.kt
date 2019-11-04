@@ -90,22 +90,26 @@ internal open class PersistedParent(
     override fun assign(child: Child) = apply {
         child.update {
             assignTo(this@apply)
-        }.save()
+        }
+        save()
 
         update {
             assign(child)
-        }.save()
+        }
+        save()
     }
 
     @Transactional
     override fun unassign(child: Child) = apply {
         update {
             unassign(child)
-        }.save()
+        }
+        save()
 
         child.update {
             unassignFromAny()
-        }.save()
+        }
+        save()
     }
 
     override val changed
@@ -150,12 +154,9 @@ internal open class PersistedParent(
     override fun toResource() =
             PersistedParentFactory.toResource(record())
 
-    override fun update(block: MutableParent.() -> Unit): Parent {
-        val mutable = PersistedMutableParent(
-                record(), children, ::addChild, ::removeChild)
-        block(mutable)
-        return this
-    }
+    override fun <R> update(block: MutableParent.() -> R): R =
+            PersistedMutableParent(
+                    record(), children, ::addChild, ::removeChild).let(block)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

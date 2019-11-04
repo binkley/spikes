@@ -8,5 +8,5 @@ interface ScopedMutable<Domain, Mutable> {
      *
      * @return an updated domain object with changes unsaved
      */
-    fun update(block: Mutable.() -> Unit): Domain
+    fun <R> update(block: Mutable.() -> R): R
 }
