@@ -5,6 +5,7 @@ data class ParentResource(
         val value: String?,
         val sideValues: Set<String>, // Sorted
         val version: Int)
+    : SideValued
 
 interface ParentFactory {
     fun all(): Sequence<Parent>
@@ -13,7 +14,9 @@ interface ParentFactory {
     fun findExistingOrCreateNew(naturalId: String): Parent
 }
 
-interface ParentDetails : Comparable<ParentDetails> {
+interface ParentDetails
+    : SideValued,
+        Comparable<ParentDetails> {
     val naturalId: String
     val value: String?
     val sideValues: Set<String> // Sorted
