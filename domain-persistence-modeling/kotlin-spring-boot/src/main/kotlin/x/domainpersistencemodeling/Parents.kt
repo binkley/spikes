@@ -3,9 +3,8 @@ package x.domainpersistencemodeling
 data class ParentResource(
         val naturalId: String,
         val value: String?,
-        override val sideValues: Set<String>, // Sorted
+        val sideValues: Set<String>, // Sorted
         val version: Int)
-    : SideValued
 
 interface ParentFactory {
     fun all(): Sequence<Parent>
@@ -15,11 +14,10 @@ interface ParentFactory {
 }
 
 interface ParentDetails
-    : SideValued,
-        Comparable<ParentDetails> {
+    : Comparable<ParentDetails> {
     val naturalId: String
     val value: String?
-    override val sideValues: Set<String> // Sorted
+    val sideValues: Set<String> // Sorted
     val version: Int
 
     override fun compareTo(other: ParentDetails) =
