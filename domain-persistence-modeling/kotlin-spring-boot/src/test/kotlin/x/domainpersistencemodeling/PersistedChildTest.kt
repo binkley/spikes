@@ -12,6 +12,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.transaction.annotation.Transactional
+import x.domainpersistencemodeling.KnownState.ENABLED
 import x.domainpersistencemodeling.PersistableDomain.UpsertedDomainResult
 
 @AutoConfigureTestDatabase(replace = NONE)
@@ -51,8 +52,8 @@ internal open class PersistedChildTest @Autowired constructor(
         expect(saved).toBe(UpsertedDomainResult(unsaved, true))
         testing.expectDomainChangedEvents().containsExactly(ChildChangedEvent(
                 null,
-                ChildSnapshot(childNaturalId, null, null,
-                        emptySet(), 1)))
+                ChildSnapshot(childNaturalId, null, ENABLED.name,
+                        null, emptySet(), 1)))
 
         expect(testing.currentPersistedChild()).toBe(unsaved)
     }
@@ -85,10 +86,10 @@ internal open class PersistedChildTest @Autowired constructor(
 
         expect(original.changed).toBe(false)
         testing.expectDomainChangedEvents().containsExactly(ChildChangedEvent(
-                ChildSnapshot(childNaturalId, null, null,
-                        emptySet(), 1),
-                ChildSnapshot(childNaturalId, null, value,
-                        emptySet(), 2)))
+                ChildSnapshot(childNaturalId, null, ENABLED.name,
+                        null, emptySet(), 1),
+                ChildSnapshot(childNaturalId, null, ENABLED.name,
+                        value, emptySet(), 2)))
     }
 
     @Test
@@ -102,8 +103,8 @@ internal open class PersistedChildTest @Autowired constructor(
             existing.version
         }.toThrow<DomainException> { }
         testing.expectDomainChangedEvents().containsExactly(ChildChangedEvent(
-                ChildSnapshot(childNaturalId, null, null,
-                        emptySet(), 1),
+                ChildSnapshot(childNaturalId, null, ENABLED.name,
+                        null, emptySet(), 1),
                 null))
     }
 
@@ -127,8 +128,8 @@ internal open class PersistedChildTest @Autowired constructor(
         expect(testing.currentPersistedParent().version).toBe(2)
         testing.expectDomainChangedEvents().containsExactly(ChildChangedEvent(
                 null,
-                ChildSnapshot(childNaturalId, parentNaturalId, null,
-                        emptySet(), 1)))
+                ChildSnapshot(childNaturalId, parentNaturalId, ENABLED.name,
+                        null, emptySet(), 1)))
     }
 
     @Test
@@ -153,10 +154,10 @@ internal open class PersistedChildTest @Autowired constructor(
                 .toBe(parentNaturalId)
         expect(testing.currentPersistedParent().version).toBe(2)
         testing.expectDomainChangedEvents().containsExactly(ChildChangedEvent(
-                ChildSnapshot(childNaturalId, null, null,
-                        emptySet(), 1),
-                ChildSnapshot(childNaturalId, parentNaturalId, null,
-                        emptySet(), 2)))
+                ChildSnapshot(childNaturalId, null, ENABLED.name,
+                        null, emptySet(), 1),
+                ChildSnapshot(childNaturalId, parentNaturalId, ENABLED.name,
+                        null, emptySet(), 2)))
     }
 
     @Test
@@ -179,9 +180,9 @@ internal open class PersistedChildTest @Autowired constructor(
         // Created, assigned by child, unassigned by child == version 3
         expect(testing.currentPersistedParent().version).toBe(3)
         testing.expectDomainChangedEvents().containsExactly(ChildChangedEvent(
-                ChildSnapshot(childNaturalId, parentNaturalId, null,
-                        emptySet(), 1),
-                ChildSnapshot(childNaturalId, null, null,
-                        emptySet(), 2)))
+                ChildSnapshot(childNaturalId, parentNaturalId, ENABLED.name,
+                        null, emptySet(), 1),
+                ChildSnapshot(childNaturalId, null, ENABLED.name,
+                        null, emptySet(), 2)))
     }
 }

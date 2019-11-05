@@ -27,6 +27,7 @@ interface ParentDetails
 }
 
 interface MutableParentDetails : ParentDetails {
+    override var state: String
     override var value: String?
     override val sideValues: MutableSet<String> // Sorted
 }

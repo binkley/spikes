@@ -116,9 +116,9 @@ internal open class PersistedParentTest @Autowired constructor(
         testing.expectDomainChangedEvents().containsExactly(
                 ChildChangedEvent(
                         ChildSnapshot(childNaturalId, null,
-                                null, emptySet(), 1),
+                                ENABLED.name, null, emptySet(), 1),
                         ChildSnapshot(childNaturalId, parentNaturalId,
-                                value, emptySet(), 2)),
+                                ENABLED.name, value, emptySet(), 2)),
                 ParentChangedEvent(
                         ParentSnapshot(parentNaturalId, ENABLED.name, null,
                                 setOf(), 1),
@@ -183,10 +183,10 @@ internal open class PersistedParentTest @Autowired constructor(
                 .toBe(parentNaturalId)
         testing.expectDomainChangedEvents().containsExactly(
                 ChildChangedEvent(
-                        ChildSnapshot(childNaturalId, null, null,
-                                emptySet(), 1),
-                        ChildSnapshot(childNaturalId, parentNaturalId, null,
-                                emptySet(), 2)),
+                        ChildSnapshot(childNaturalId, null,
+                                ENABLED.name, null, emptySet(), 1),
+                        ChildSnapshot(childNaturalId, parentNaturalId,
+                                ENABLED.name, null, emptySet(), 2)),
                 ParentChangedEvent(
                         ParentSnapshot(parentNaturalId, ENABLED.name, null,
                                 setOf(), 1),
@@ -201,10 +201,10 @@ internal open class PersistedParentTest @Autowired constructor(
         expect(testing.currentPersistedChild().parentNaturalId).toBe(null)
         testing.expectDomainChangedEvents().containsExactly(
                 ChildChangedEvent(
-                        ChildSnapshot(childNaturalId, parentNaturalId, null,
-                                emptySet(), 2),
-                        ChildSnapshot(childNaturalId, null, null,
-                                emptySet(), 3)),
+                        ChildSnapshot(childNaturalId, parentNaturalId,
+                                ENABLED.name, null, emptySet(), 2),
+                        ChildSnapshot(childNaturalId, null,
+                                ENABLED.name, null, emptySet(), 3)),
                 ParentChangedEvent(
                         ParentSnapshot(parentNaturalId, ENABLED.name, null,
                                 setOf(), 2),
