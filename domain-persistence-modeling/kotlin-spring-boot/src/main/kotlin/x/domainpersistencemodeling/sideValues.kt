@@ -1,13 +1,17 @@
 package x.domainpersistencemodeling
 
-fun Parent.currentSideValues() =
+val Parent.currentSideValues: Set<String>
+    get() =
         if (sideValues.isNotEmpty()) sideValues
         else children.map {
-            it.currentSideValues()
+            it.currentSideValues
         }.filter {
             !it.isEmpty()
-        }.flatten().toSortedSet()
+        }.reduce { left, right ->
+            left.intersect(right)
+        }.toSortedSet()
 
-fun Child.currentSideValues() =
+val Child.currentSideValues: Set<String>
+    get() =
         if (sideValues.isNotEmpty()) sideValues
         else defaultSideValues

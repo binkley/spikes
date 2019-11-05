@@ -18,11 +18,12 @@ internal open class Testing @Autowired constructor(
 
     internal fun allParents() = parents.all()
 
-    internal fun createNewParent() =
-            parents.createNew(parentNaturalId)
+    internal fun createNewParent(naturalId: String = parentNaturalId) =
+            parents.createNew(naturalId)
 
-    internal fun findExistingOrCreateNewParent() =
-            parents.findExistingOrCreateNew(parentNaturalId)
+    internal fun findExistingOrCreateNewParent(
+            naturalId: String = parentNaturalId) =
+            parents.findExistingOrCreateNew(naturalId)
 
     internal fun newSavedParent(): Parent {
         val saved = createNewParent().save()
@@ -32,8 +33,9 @@ internal open class Testing @Autowired constructor(
         return parent
     }
 
-    internal fun currentPersistedParent(): Parent {
-        return parents.findExisting(parentNaturalId)!!
+    internal fun currentPersistedParent(
+            naturalId: String = parentNaturalId): Parent {
+        return parents.findExisting(naturalId)!!
     }
 
     internal fun allChildren() = children.all()
@@ -46,13 +48,16 @@ internal open class Testing @Autowired constructor(
         return child as UnassignedChild
     }
 
-    internal fun currentPersistedChild(): Child {
-        return children.findExisting(childNaturalId)!!
+    internal fun currentPersistedChild(
+            naturalId: String = childNaturalId): Child {
+        return children.findExisting(naturalId)!!
     }
 
-    internal fun createNewUnassignedChild() =
-            children.createNewUnassigned(childNaturalId)
+    internal fun createNewUnassignedChild(
+            naturalId: String = childNaturalId) =
+            children.createNewUnassigned(naturalId)
 
-    internal fun findExistingOrCreateNewUnassignedChild() =
-            children.findExistingOrCreateNewUnassigned(childNaturalId)
+    internal fun findExistingOrCreateNewUnassignedChild(
+            naturalId: String = childNaturalId) =
+            children.findExistingOrCreateNewUnassigned(naturalId)
 }

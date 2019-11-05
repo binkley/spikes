@@ -35,6 +35,7 @@ interface MutableChildDetails : ChildDetails {
     override var parentNaturalId: String?
     override var value: String?
     override val sideValues: MutableSet<String> // Sorted
+    override val defaultSideValues: MutableSet<String> // Sorted
 }
 
 /**
