@@ -8,6 +8,7 @@ import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Component
 import org.springframework.transaction.annotation.Transactional
+import x.domainpersistencemodeling.KnownState.ENABLED
 import x.domainpersistencemodeling.PersistableDomain.UpsertedDomainResult
 import x.domainpersistencemodeling.UpsertableRecord.UpsertedRecordResult
 import java.util.Objects
@@ -16,7 +17,7 @@ import java.util.TreeSet
 import java.util.stream.Collectors.toCollection
 
 internal fun ParentRecord.toSnapshot() = ParentSnapshot(
-        naturalId, value, sideValues, version)
+        naturalId, state, value, sideValues, version)
 
 @Component
 internal open class PersistedParentFactory(
@@ -68,6 +69,8 @@ internal open class PersistedParent(
     : Parent {
     override val naturalId: String
         get() = record().naturalId
+    override val state: String
+        get() = record().state
     override val value: String?
         get() = record().value
     override val sideValues: Set<String> // Sorted
@@ -246,10 +249,11 @@ interface ParentRepository : CrudRepository<ParentRecord, Long> {
 
     @Query("""
         SELECT *
-        FROM upsert_parent(:naturalId, :value, :sideValues, :version)
+        FROM upsert_parent(:naturalId, :state, :value, :sideValues, :version)
         """)
     fun upsert(
             @Param("naturalId") naturalId: String,
+            @Param("state") state: String,
             @Param("value") value: String?,
             @Param("sideValues") sideValues: String,
             @Param("version") version: Int)
@@ -259,6 +263,7 @@ interface ParentRepository : CrudRepository<ParentRecord, Long> {
     fun upsert(entity: ParentRecord): Optional<ParentRecord> {
         val upserted = upsert(
                 entity.naturalId,
+                entity.state,
                 entity.value,
                 entity.sideValues.workAroundArrayTypeForPostgres(),
                 entity.version)
@@ -273,17 +278,19 @@ interface ParentRepository : CrudRepository<ParentRecord, Long> {
 data class ParentRecord(
         @Id var id: Long?,
         override var naturalId: String,
+        override var state: String,
         override var value: String?,
         override var sideValues: MutableSet<String>,
         override var version: Int)
     : MutableParentDetails,
         UpsertableRecord<ParentRecord> {
     internal constructor(naturalId: String)
-            : this(null, naturalId, null, mutableSetOf(), 0)
+            : this(null, naturalId, ENABLED.name, null, mutableSetOf(), 0)
 
     override fun upsertedWith(upserted: ParentRecord): ParentRecord {
         id = upserted.id
         naturalId = upserted.naturalId
+        state = upserted.state
         value = upserted.value
         sideValues = TreeSet(upserted.sideValues)
         version = upserted.version

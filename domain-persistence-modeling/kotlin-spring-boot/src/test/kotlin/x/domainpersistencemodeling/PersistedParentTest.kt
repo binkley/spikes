@@ -12,6 +12,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.transaction.annotation.Transactional
+import x.domainpersistencemodeling.KnownState.ENABLED
 import x.domainpersistencemodeling.PersistableDomain.UpsertedDomainResult
 
 @AutoConfigureTestDatabase(replace = NONE)
@@ -52,7 +53,8 @@ internal open class PersistedParentTest @Autowired constructor(
         testing.expectDomainChangedEvents().containsExactly(
                 ParentChangedEvent(
                         null,
-                        ParentSnapshot(parentNaturalId, null, setOf(), 1)))
+                        ParentSnapshot(parentNaturalId, ENABLED.name, null,
+                                setOf(), 1)))
 
         expect(testing.currentPersistedParent()).toBe(unsaved)
     }
@@ -86,8 +88,10 @@ internal open class PersistedParentTest @Autowired constructor(
         expect(original.changed).toBe(false)
         testing.expectDomainChangedEvents()
                 .containsExactly(ParentChangedEvent(
-                        ParentSnapshot(parentNaturalId, null, setOf(), 1),
-                        ParentSnapshot(parentNaturalId, value, setOf(), 2)))
+                        ParentSnapshot(parentNaturalId, ENABLED.name, null,
+                                setOf(), 1),
+                        ParentSnapshot(parentNaturalId, ENABLED.name, value,
+                                setOf(), 2)))
     }
 
     @Test
@@ -116,8 +120,10 @@ internal open class PersistedParentTest @Autowired constructor(
                         ChildSnapshot(childNaturalId, parentNaturalId,
                                 value, emptySet(), 2)),
                 ParentChangedEvent(
-                        ParentSnapshot(parentNaturalId, null, setOf(), 1),
-                        ParentSnapshot(parentNaturalId, null, setOf(), 2)))
+                        ParentSnapshot(parentNaturalId, ENABLED.name, null,
+                                setOf(), 1),
+                        ParentSnapshot(parentNaturalId, ENABLED.name, null,
+                                setOf(), 2)))
     }
 
     @Test
@@ -132,7 +138,8 @@ internal open class PersistedParentTest @Autowired constructor(
         }.toThrow<DomainException> { }
         testing.expectDomainChangedEvents()
                 .containsExactly(ParentChangedEvent(
-                        ParentSnapshot(parentNaturalId, null, setOf(), 1),
+                        ParentSnapshot(parentNaturalId, ENABLED.name, null,
+                                setOf(), 1),
                         null))
     }
 
@@ -181,8 +188,10 @@ internal open class PersistedParentTest @Autowired constructor(
                         ChildSnapshot(childNaturalId, parentNaturalId, null,
                                 emptySet(), 2)),
                 ParentChangedEvent(
-                        ParentSnapshot(parentNaturalId, null, setOf(), 1),
-                        ParentSnapshot(parentNaturalId, null, setOf(), 2)))
+                        ParentSnapshot(parentNaturalId, ENABLED.name, null,
+                                setOf(), 1),
+                        ParentSnapshot(parentNaturalId, ENABLED.name, null,
+                                setOf(), 2)))
 
         parent.unassign(assignedChild)
         val childUnassigned = parent.save().domain
@@ -197,7 +206,9 @@ internal open class PersistedParentTest @Autowired constructor(
                         ChildSnapshot(childNaturalId, null, null,
                                 emptySet(), 3)),
                 ParentChangedEvent(
-                        ParentSnapshot(parentNaturalId, null, setOf(), 2),
-                        ParentSnapshot(parentNaturalId, null, setOf(), 3)))
+                        ParentSnapshot(parentNaturalId, ENABLED.name, null,
+                                setOf(), 2),
+                        ParentSnapshot(parentNaturalId, ENABLED.name, null,
+                                setOf(), 3)))
     }
 }

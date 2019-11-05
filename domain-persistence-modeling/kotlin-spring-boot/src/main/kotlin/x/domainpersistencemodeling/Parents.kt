@@ -2,6 +2,7 @@ package x.domainpersistencemodeling
 
 data class ParentSnapshot(
         val naturalId: String,
+        val state: String,
         val value: String?,
         val sideValues: Set<String>, // Sorted
         val version: Int)
@@ -16,6 +17,7 @@ interface ParentFactory {
 interface ParentDetails
     : Comparable<ParentDetails> {
     val naturalId: String
+    val state: String
     val value: String?
     val sideValues: Set<String> // Sorted
     val version: Int

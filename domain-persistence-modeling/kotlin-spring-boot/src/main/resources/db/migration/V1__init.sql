@@ -2,6 +2,7 @@ CREATE TABLE parent
 (
     id          SERIAL PRIMARY KEY,
     natural_id  VARCHAR       NOT NULL UNIQUE,
+    state       VARCHAR       NOT NULL,
     value       VARCHAR,
     side_values VARCHAR ARRAY NOT NULL,
     -- DB controls Audit columns, not caller
@@ -26,6 +27,7 @@ CREATE TABLE child
 
 -- Workaround issue in Spring Data with passing sets for ARRAY types in a procedure
 CREATE OR REPLACE FUNCTION upsert_parent(_natural_id parent.natural_id%TYPE,
+                                         _state parent.state%TYPE,
                                          _value parent.value%TYPE,
                                          _side_values VARCHAR,
                                          _version parent.version%TYPE)
@@ -36,15 +38,15 @@ AS
 $$
 BEGIN
     RETURN QUERY INSERT INTO parent
-        (natural_id, value,
+        (natural_id, state, value,
          side_values, version)
-        VALUES (_natural_id, _value, CAST(_side_values AS VARCHAR ARRAY),
-                _version)
+        VALUES (_natural_id, _state, _value,
+                CAST(_side_values AS VARCHAR ARRAY), _version)
         ON CONFLICT (natural_id) DO UPDATE
-            SET (value, side_values,
-                 version)
-                = (excluded.value, excluded.side_values,
-                   excluded.version)
+            SET (state, value,
+                 side_values, version)
+                = (excluded.state, excluded.value,
+                   excluded.side_values, excluded.version)
         RETURNING *;
 END;
 $$;
