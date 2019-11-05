@@ -18,7 +18,7 @@ import x.domainpersistencemodeling.PersistableDomain.UpsertedDomainResult
 @AutoConfigureTestDatabase(replace = NONE)
 @SpringBootTest
 @Transactional
-internal open class PersistedParentTest @Autowired constructor(
+internal open class PersistedParentsTest @Autowired constructor(
         private val testing: Testing) {
     @Test
     fun shouldCreateNew() {
