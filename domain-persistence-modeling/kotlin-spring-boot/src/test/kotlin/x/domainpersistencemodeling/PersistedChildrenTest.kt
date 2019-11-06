@@ -45,7 +45,7 @@ internal class PersistedChildrenTest
         expectDomainChangedEvents().containsExactly(ChildChangedEvent(
                 null,
                 ChildSnapshot(childNaturalId, null, ENABLED.name,
-                        null, emptySet(), 1)))
+                        atZero, null, emptySet(), 1)))
 
         expect(currentPersistedChild()).toBe(unsaved)
     }
@@ -79,9 +79,9 @@ internal class PersistedChildrenTest
         expect(original.changed).toBe(false)
         expectDomainChangedEvents().containsExactly(ChildChangedEvent(
                 ChildSnapshot(childNaturalId, null, ENABLED.name,
-                        null, emptySet(), 1),
+                        atZero, null, emptySet(), 1),
                 ChildSnapshot(childNaturalId, null, ENABLED.name,
-                        value, emptySet(), 2)))
+                        atZero, value, emptySet(), 2)))
     }
 
     @Test
@@ -96,7 +96,7 @@ internal class PersistedChildrenTest
         }.toThrow<DomainException> { }
         expectDomainChangedEvents().containsExactly(ChildChangedEvent(
                 ChildSnapshot(childNaturalId, null, ENABLED.name,
-                        null, emptySet(), 1),
+                        atZero, null, emptySet(), 1),
                 null))
     }
 
@@ -121,7 +121,7 @@ internal class PersistedChildrenTest
         expectDomainChangedEvents().containsExactly(ChildChangedEvent(
                 null,
                 ChildSnapshot(childNaturalId, parentNaturalId, ENABLED.name,
-                        null, emptySet(), 1)))
+                        atZero, null, emptySet(), 1)))
     }
 
     @Test
@@ -147,9 +147,9 @@ internal class PersistedChildrenTest
         expect(currentPersistedParent().version).toBe(2)
         expectDomainChangedEvents().containsExactly(ChildChangedEvent(
                 ChildSnapshot(childNaturalId, null, ENABLED.name,
-                        null, emptySet(), 1),
+                        atZero, null, emptySet(), 1),
                 ChildSnapshot(childNaturalId, parentNaturalId, ENABLED.name,
-                        null, emptySet(), 2)))
+                        atZero, null, emptySet(), 2)))
     }
 
     @Test
@@ -173,8 +173,8 @@ internal class PersistedChildrenTest
         expect(currentPersistedParent().version).toBe(3)
         expectDomainChangedEvents().containsExactly(ChildChangedEvent(
                 ChildSnapshot(childNaturalId, parentNaturalId, ENABLED.name,
-                        null, emptySet(), 1),
+                        atZero, null, emptySet(), 1),
                 ChildSnapshot(childNaturalId, null, ENABLED.name,
-                        null, emptySet(), 2)))
+                        atZero, null, emptySet(), 2)))
     }
 }

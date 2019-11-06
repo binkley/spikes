@@ -1,9 +1,12 @@
 package x.domainpersistencemodeling
 
+import java.time.OffsetDateTime
+
 data class ChildSnapshot(
         val naturalId: String,
         val parentNaturalId: String?,
         val state: String,
+        val at: OffsetDateTime, // UTC
         val value: String?,
         val sideValues: Set<String>, // Sorted
         val version: Int)
@@ -21,6 +24,7 @@ interface ChildDetails
     val naturalId: String
     val parentNaturalId: String?
     val state: String
+    val at: OffsetDateTime // UTC
     val value: String?
     val sideValues: Set<String> // Sorted
     val defaultSideValues: Set<String> // Sorted
@@ -36,6 +40,7 @@ interface ChildDetails
 interface MutableChildDetails : ChildDetails {
     override var parentNaturalId: String?
     override var state: String
+    override var at: OffsetDateTime // UTC
     override var value: String?
     override val sideValues: MutableSet<String> // Sorted
     override val defaultSideValues: MutableSet<String> // Sorted

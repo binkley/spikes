@@ -17,6 +17,7 @@ CREATE TABLE child
     natural_id          VARCHAR       NOT NULL UNIQUE,
     parent_natural_id   VARCHAR REFERENCES parent (natural_id), -- Nullable
     state               VARCHAR       NOT NULL,
+    at                  TIMESTAMPTZ   NOT NULL,
     value               VARCHAR,
     default_side_values VARCHAR ARRAY NOT NULL,
     side_values         VARCHAR ARRAY NOT NULL,
@@ -55,7 +56,8 @@ $$;
 -- Workaround issue in Spring Data with passing sets for ARRAY types in a procedure
 CREATE OR REPLACE FUNCTION upsert_child(_natural_id child.natural_id%TYPE,
                                         _parent_natural_id child.parent_natural_id%TYPE,
-                                        _state parent.state%TYPE,
+                                        _state child.state%TYPE,
+                                        _at child.at%TYPE,
                                         _value child.value%TYPE,
                                         _default_side_values VARCHAR,
                                         _side_values VARCHAR,
@@ -67,17 +69,20 @@ AS
 $$
 BEGIN
     RETURN QUERY INSERT INTO child
-        (natural_id, parent_natural_id, state, value,
+        (natural_id, parent_natural_id, state, at,
+         value,
          side_values,
          default_side_values, version)
-        VALUES (_natural_id, _parent_natural_id, _state, _value,
+        VALUES (_natural_id, _parent_natural_id, _state, _at,
+                _value,
                 CAST(_side_values AS VARCHAR ARRAY),
                 CAST(_default_side_values AS VARCHAR ARRAY), _version)
         ON CONFLICT (natural_id) DO UPDATE
-            SET (parent_natural_id, state, value,
+            SET (parent_natural_id, state, at, value,
                  side_values,
                  default_side_values, version)
-                = (excluded.parent_natural_id, excluded.state, excluded.value,
+                = (excluded.parent_natural_id, excluded.state, excluded.at,
+                   excluded.value,
                    excluded.side_values,
                    excluded.default_side_values, excluded.version)
         RETURNING *;

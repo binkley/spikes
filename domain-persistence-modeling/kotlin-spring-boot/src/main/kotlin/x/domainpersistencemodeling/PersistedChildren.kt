@@ -12,15 +12,18 @@ import org.springframework.transaction.annotation.Transactional
 import x.domainpersistencemodeling.KnownState.ENABLED
 import x.domainpersistencemodeling.PersistableDomain.UpsertedDomainResult
 import x.domainpersistencemodeling.UpsertableRecord.UpsertedRecordResult
+import java.time.Instant.EPOCH
+import java.time.OffsetDateTime
+import java.time.ZoneOffset.UTC
 import java.util.Objects
 import java.util.Optional
 import java.util.TreeSet
 
 internal fun ChildRecord.toSnapshot() = ChildSnapshot(
-        naturalId, parentNaturalId, state, value, sideValues, version)
+        naturalId, parentNaturalId, state, at, value, sideValues, version)
 
 @Component
-internal open class PersistedChildFactory(
+internal class PersistedChildFactory(
         private val repository: ChildRepository,
         private val publisher: ApplicationEventPublisher)
     : ChildFactory {
@@ -73,6 +76,8 @@ internal open class PersistedChild(
         get() = record().parentNaturalId
     override val state: String
         get() = record().state
+    override val at: OffsetDateTime
+        get() = record().at
     override val value: String?
         get() = record().value
     override val sideValues: Set<String> // Sorted
@@ -198,13 +203,14 @@ interface ChildRepository : CrudRepository<ChildRecord, Long> {
 
     @Query("""
         SELECT *
-        FROM upsert_child(:naturalId, :parentNaturalId, :state, :value, 
+        FROM upsert_child(:naturalId, :parentNaturalId, :state, :at, :value, 
         :sideValues, :defaultSideValues, :version)
         """)
     fun upsert(
             @Param("naturalId") naturalId: String,
             @Param("parentNaturalId") parentNaturalId: String?,
             @Param("state") state: String,
+            @Param("at") at: OffsetDateTime, // UTC
             @Param("value") value: String?,
             @Param("sideValues") sideValues: String,
             @Param("defaultSideValues") defaultSideValues: String,
@@ -216,6 +222,7 @@ interface ChildRepository : CrudRepository<ChildRecord, Long> {
         val upserted = upsert(entity.naturalId,
                 entity.parentNaturalId,
                 entity.state,
+                entity.at,
                 entity.value,
                 entity.sideValues.workAroundArrayTypeForPostgres(),
                 entity.defaultSideValues.workAroundArrayTypeForPostgres(),
@@ -233,6 +240,7 @@ data class ChildRecord(
         override var naturalId: String,
         override var parentNaturalId: String?,
         override var state: String,
+        override var at: OffsetDateTime, // UTC
         override var value: String?,
         override var sideValues: MutableSet<String>,
         override var defaultSideValues: MutableSet<String>,
@@ -240,14 +248,16 @@ data class ChildRecord(
     : MutableChildDetails,
         UpsertableRecord<ChildRecord> {
     internal constructor(naturalId: String)
-            : this(null, naturalId, null, ENABLED.name, null,
-            mutableSetOf(), mutableSetOf(), 0)
+            : this(null, naturalId, null, ENABLED.name,
+            OffsetDateTime.ofInstant(EPOCH, UTC), null, mutableSetOf(),
+            mutableSetOf(), 0)
 
     override fun upsertedWith(upserted: ChildRecord): ChildRecord {
         id = upserted.id
         naturalId = upserted.naturalId
         parentNaturalId = upserted.parentNaturalId
         state = upserted.state
+        at = upserted.at
         value = upserted.value
         sideValues = TreeSet(upserted.sideValues)
         defaultSideValues = TreeSet(upserted.defaultSideValues)

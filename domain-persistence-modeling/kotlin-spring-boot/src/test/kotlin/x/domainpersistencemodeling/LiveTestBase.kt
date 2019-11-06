@@ -7,9 +7,12 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.transaction.annotation.Transactional
+import java.time.Instant.EPOCH
+import java.time.ZoneOffset.UTC
 
 internal const val parentNaturalId = "a"
 internal const val childNaturalId = "p"
+internal val atZero = EPOCH.atOffset(UTC)
 
 @AutoConfigureTestDatabase(replace = NONE)
 @SpringBootTest

@@ -8,13 +8,15 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.data.jdbc.DataJdbcTest
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE
+import org.springframework.context.annotation.Import
 import org.springframework.transaction.annotation.Transactional
 
 /** @todo Update to use [LiveTestBase], or delete and cover elsewhere */
 @AutoConfigureTestDatabase(replace = NONE)
 @DataJdbcTest
+@Import(TimeConfiguration::class)
 @Transactional
-internal open class PersistenceTest @Autowired constructor(
+internal class PersistenceTest @Autowired constructor(
         private val parents: ParentRepository,
         private val children: ChildRepository) {
     companion object {

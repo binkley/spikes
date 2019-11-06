@@ -108,9 +108,9 @@ internal class PersistedParentsTest
         expectDomainChangedEvents().containsExactly(
                 ChildChangedEvent(
                         ChildSnapshot(childNaturalId, null,
-                                ENABLED.name, null, emptySet(), 1),
+                                ENABLED.name, atZero, null, emptySet(), 1),
                         ChildSnapshot(childNaturalId, parentNaturalId,
-                                ENABLED.name, value, emptySet(), 2)),
+                                ENABLED.name, atZero, value, emptySet(), 2)),
                 ParentChangedEvent(
                         ParentSnapshot(parentNaturalId, ENABLED.name, null,
                                 setOf(), 1),
@@ -176,9 +176,9 @@ internal class PersistedParentsTest
         expectDomainChangedEvents().containsExactly(
                 ChildChangedEvent(
                         ChildSnapshot(childNaturalId, null,
-                                ENABLED.name, null, emptySet(), 1),
+                                ENABLED.name, atZero, null, emptySet(), 1),
                         ChildSnapshot(childNaturalId, parentNaturalId,
-                                ENABLED.name, null, emptySet(), 2)),
+                                ENABLED.name, atZero, null, emptySet(), 2)),
                 ParentChangedEvent(
                         ParentSnapshot(parentNaturalId, ENABLED.name, null,
                                 setOf(), 1),
@@ -194,9 +194,9 @@ internal class PersistedParentsTest
         expectDomainChangedEvents().containsExactly(
                 ChildChangedEvent(
                         ChildSnapshot(childNaturalId, parentNaturalId,
-                                ENABLED.name, null, emptySet(), 2),
+                                ENABLED.name, atZero, null, emptySet(), 2),
                         ChildSnapshot(childNaturalId, null,
-                                ENABLED.name, null, emptySet(), 3)),
+                                ENABLED.name, atZero, null, emptySet(), 3)),
                 ParentChangedEvent(
                         ParentSnapshot(parentNaturalId, ENABLED.name, null,
                                 setOf(), 2),

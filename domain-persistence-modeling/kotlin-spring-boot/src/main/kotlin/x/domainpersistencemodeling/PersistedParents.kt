@@ -20,7 +20,7 @@ internal fun ParentRecord.toSnapshot() = ParentSnapshot(
         naturalId, state, value, sideValues, version)
 
 @Component
-internal open class PersistedParentFactory(
+internal class PersistedParentFactory(
         private val repository: ParentRepository,
         private val children: ChildFactory,
         private val publisher: ApplicationEventPublisher)
