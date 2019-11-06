@@ -7,6 +7,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.transaction.annotation.Transactional
+import x.domainpersistencemodeling.KnownState.DISABLED
 
 @AutoConfigureTestDatabase(replace = NONE)
 @SpringBootTest
@@ -24,6 +25,17 @@ internal open class SideValuesTest @Autowired constructor(
     }
 
     @Test
+    internal fun `should ignore defaults for disabled children`() {
+        val child = testing.createNewUnassignedChild()
+        child.update {
+            defaultSideValues.add("A")
+            state = DISABLED.name
+        }
+
+        assertThat(child.currentSideValues).isEmpty()
+    }
+
+    @Test
     internal fun `should use overrides for children`() {
         val child = testing.createNewUnassignedChild()
         child.update {
@@ -32,6 +44,18 @@ internal open class SideValuesTest @Autowired constructor(
         }
 
         assertThat(child.currentSideValues).isEqualTo(setOf("B"))
+    }
+
+    @Test
+    internal fun `should ignore overrides for disabled children`() {
+        val child = testing.createNewUnassignedChild()
+        child.update {
+            defaultSideValues.add("A")
+            sideValues.add("B")
+            state = DISABLED.name
+        }
+
+        assertThat(child.currentSideValues).isEmpty()
     }
 
     @Test

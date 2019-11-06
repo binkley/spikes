@@ -53,7 +53,9 @@ interface MutableChild : MutableChildDetails {
 
 interface Child : ChildDetails,
         ScopedMutable<Child, MutableChild>,
-        PersistableDomain<ChildSnapshot, Child>
+        PersistableDomain<ChildSnapshot, Child> {
+    val relevant: Boolean
+}
 
 interface UnassignedChild : Child {
     /** Assigns this child to [parent], a mutable operation. */
