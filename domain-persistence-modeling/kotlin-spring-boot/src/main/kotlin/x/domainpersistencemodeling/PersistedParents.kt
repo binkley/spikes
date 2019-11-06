@@ -2,6 +2,7 @@ package x.domainpersistencemodeling
 
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.annotation.Id
+import org.springframework.data.annotation.Transient
 import org.springframework.data.jdbc.repository.query.Query
 import org.springframework.data.relational.core.mapping.Table
 import org.springframework.data.repository.CrudRepository
@@ -17,7 +18,7 @@ import java.util.TreeSet
 import java.util.stream.Collectors.toCollection
 
 internal fun ParentRecord.toSnapshot() = ParentSnapshot(
-        naturalId, state, value, sideValues, version)
+        naturalId, state, null, value, sideValues, version)
 
 @Component
 internal class PersistedParentFactory(
@@ -286,6 +287,9 @@ data class ParentRecord(
         UpsertableRecord<ParentRecord> {
     internal constructor(naturalId: String)
             : this(null, naturalId, ENABLED.name, null, mutableSetOf(), 0)
+
+    @Transient
+    override val at = null // TODO: Smell
 
     override fun upsertedWith(upserted: ParentRecord): ParentRecord {
         id = upserted.id

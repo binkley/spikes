@@ -45,11 +45,16 @@ internal class PersistedParentsTest
         expectDomainChangedEvents().containsExactly(
                 ParentChangedEvent(
                         null,
-                        ParentSnapshot(parentNaturalId, ENABLED.name, null,
-                                setOf(), 1)))
+                        newParentSnapshot(null, setOf(), 1)))
 
         expect(currentPersistedParent()).toBe(unsaved)
     }
+
+    private fun newParentSnapshot(value: String?,
+            sideValues: Set<String>,
+            version: Int) =
+            ParentSnapshot(parentNaturalId, ENABLED.name, null, value,
+                    sideValues, version)
 
     @Test
     fun shouldDetectNoChanges() {
@@ -78,12 +83,10 @@ internal class PersistedParentsTest
         original.save()
 
         expect(original.changed).toBe(false)
-        expectDomainChangedEvents()
-                .containsExactly(ParentChangedEvent(
-                        ParentSnapshot(parentNaturalId, ENABLED.name, null,
-                                setOf(), 1),
-                        ParentSnapshot(parentNaturalId, ENABLED.name, value,
-                                setOf(), 2)))
+        expectDomainChangedEvents().containsExactly(
+                ParentChangedEvent(
+                        newParentSnapshot(null, setOf(), 1),
+                        newParentSnapshot(value, setOf(), 2)))
     }
 
     @Test
@@ -112,10 +115,8 @@ internal class PersistedParentsTest
                         ChildSnapshot(childNaturalId, parentNaturalId,
                                 ENABLED.name, atZero, value, emptySet(), 2)),
                 ParentChangedEvent(
-                        ParentSnapshot(parentNaturalId, ENABLED.name, null,
-                                setOf(), 1),
-                        ParentSnapshot(parentNaturalId, ENABLED.name, null,
-                                setOf(), 2)))
+                        newParentSnapshot(null, setOf(), 1),
+                        newParentSnapshot(null, setOf(), 2)))
     }
 
     @Test
@@ -128,10 +129,9 @@ internal class PersistedParentsTest
         expect {
             existing.version
         }.toThrow<DomainException> { }
-        expectDomainChangedEvents()
-                .containsExactly(ParentChangedEvent(
-                        ParentSnapshot(parentNaturalId, ENABLED.name, null,
-                                setOf(), 1),
+        expectDomainChangedEvents().containsExactly(
+                ParentChangedEvent(
+                        newParentSnapshot(null, setOf(), 1),
                         null))
     }
 
@@ -180,10 +180,8 @@ internal class PersistedParentsTest
                         ChildSnapshot(childNaturalId, parentNaturalId,
                                 ENABLED.name, atZero, null, emptySet(), 2)),
                 ParentChangedEvent(
-                        ParentSnapshot(parentNaturalId, ENABLED.name, null,
-                                setOf(), 1),
-                        ParentSnapshot(parentNaturalId, ENABLED.name, null,
-                                setOf(), 2)))
+                        newParentSnapshot(null, setOf(), 1),
+                        newParentSnapshot(null, setOf(), 2)))
 
         parent.unassign(assignedChild)
         val childUnassigned = parent.save().domain
@@ -198,9 +196,7 @@ internal class PersistedParentsTest
                         ChildSnapshot(childNaturalId, null,
                                 ENABLED.name, atZero, null, emptySet(), 3)),
                 ParentChangedEvent(
-                        ParentSnapshot(parentNaturalId, ENABLED.name, null,
-                                setOf(), 2),
-                        ParentSnapshot(parentNaturalId, ENABLED.name, null,
-                                setOf(), 3)))
+                        newParentSnapshot(null, setOf(), 2),
+                        newParentSnapshot(null, setOf(), 3)))
     }
 }
