@@ -10,7 +10,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE
 import org.springframework.transaction.annotation.Transactional
 
-/** @todo Update to use [Testing], or delete and cover elsewhere */
+/** @todo Update to use [LiveTestBase], or delete and cover elsewhere */
 @AutoConfigureTestDatabase(replace = NONE)
 @DataJdbcTest
 @Transactional

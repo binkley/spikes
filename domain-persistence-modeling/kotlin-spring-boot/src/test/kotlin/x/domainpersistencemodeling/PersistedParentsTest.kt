@@ -7,32 +7,24 @@ import ch.tutteli.atrium.api.cc.en_GB.toBe
 import ch.tutteli.atrium.api.cc.en_GB.toThrow
 import ch.tutteli.atrium.verbs.expect
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE
-import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.transaction.annotation.Transactional
 import x.domainpersistencemodeling.KnownState.ENABLED
 import x.domainpersistencemodeling.PersistableDomain.UpsertedDomainResult
 
-@AutoConfigureTestDatabase(replace = NONE)
-@SpringBootTest
-@Transactional
-internal open class PersistedParentsTest @Autowired constructor(
-        private val testing: Testing) {
+internal class PersistedParentsTest
+    : LiveTestBase() {
     @Test
     fun shouldCreateNew() {
-        val found = testing.findExistingOrCreateNewParent()
+        val found = findExistingOrCreateNewParent()
 
-        expect(found).toBe(testing.createNewParent())
+        expect(found).toBe(createNewParent())
         expect(found.children).isEmpty()
     }
 
     @Test
     fun shouldFindExisting() {
-        val saved = testing.newSavedParent()
+        val saved = newSavedParent()
 
-        val found = testing.findExistingOrCreateNewParent()
+        val found = findExistingOrCreateNewParent()
 
         expect(found).toBe(saved)
         expect(found.children).isEmpty()
@@ -40,37 +32,37 @@ internal open class PersistedParentsTest @Autowired constructor(
 
     @Test
     fun shouldRoundTrip() {
-        val unsaved = testing.createNewParent()
+        val unsaved = createNewParent()
 
         expect(unsaved.version).toBe(0)
-        testing.expectDomainChangedEvents().isEmpty()
+        expectDomainChangedEvents().isEmpty()
 
         val saved = unsaved.save()
 
-        expect(testing.allParents().toList()).hasSize(1)
+        expect(allParents().toList()).hasSize(1)
         expect(unsaved.version).toBe(1)
         expect(saved).toBe(UpsertedDomainResult(unsaved, true))
-        testing.expectDomainChangedEvents().containsExactly(
+        expectDomainChangedEvents().containsExactly(
                 ParentChangedEvent(
                         null,
                         ParentSnapshot(parentNaturalId, ENABLED.name, null,
                                 setOf(), 1)))
 
-        expect(testing.currentPersistedParent()).toBe(unsaved)
+        expect(currentPersistedParent()).toBe(unsaved)
     }
 
     @Test
     fun shouldDetectNoChanges() {
-        val original = testing.newSavedParent()
+        val original = newSavedParent()
         val resaved = original.save()
 
         expect(resaved).toBe(UpsertedDomainResult(original, false))
-        testing.expectDomainChangedEvents().isEmpty()
+        expectDomainChangedEvents().isEmpty()
     }
 
     @Test
     fun shouldMutate() {
-        val original = testing.newSavedParent()
+        val original = newSavedParent()
 
         expect(original.changed).toBe(false)
 
@@ -81,12 +73,12 @@ internal open class PersistedParentsTest @Autowired constructor(
 
         expect(original.changed).toBe(true)
         expect(original.value).toBe(value)
-        testing.expectDomainChangedEvents().isEmpty()
+        expectDomainChangedEvents().isEmpty()
 
         original.save()
 
         expect(original.changed).toBe(false)
-        testing.expectDomainChangedEvents()
+        expectDomainChangedEvents()
                 .containsExactly(ParentChangedEvent(
                         ParentSnapshot(parentNaturalId, ENABLED.name, null,
                                 setOf(), 1),
@@ -96,8 +88,8 @@ internal open class PersistedParentsTest @Autowired constructor(
 
     @Test
     fun shouldMutateChildren() {
-        val parent = testing.newSavedParent()
-        val child = testing.newSavedUnassignedChild()
+        val parent = newSavedParent()
+        val child = newSavedUnassignedChild()
 
         parent.assign(child)
 
@@ -111,9 +103,9 @@ internal open class PersistedParentsTest @Autowired constructor(
         }
         parent.save()
 
-        expect(testing.currentPersistedChild().value).toBe(value)
+        expect(currentPersistedChild().value).toBe(value)
 
-        testing.expectDomainChangedEvents().containsExactly(
+        expectDomainChangedEvents().containsExactly(
                 ChildChangedEvent(
                         ChildSnapshot(childNaturalId, null,
                                 ENABLED.name, null, emptySet(), 1),
@@ -128,15 +120,15 @@ internal open class PersistedParentsTest @Autowired constructor(
 
     @Test
     fun shouldDelete() {
-        val existing = testing.newSavedParent()
+        val existing = newSavedParent()
 
         existing.delete()
 
-        expect(testing.allParents().toList()).isEmpty()
+        expect(allParents().toList()).isEmpty()
         expect {
             existing.version
         }.toThrow<DomainException> { }
-        testing.expectDomainChangedEvents()
+        expectDomainChangedEvents()
                 .containsExactly(ParentChangedEvent(
                         ParentSnapshot(parentNaturalId, ENABLED.name, null,
                                 setOf(), 1),
@@ -145,8 +137,8 @@ internal open class PersistedParentsTest @Autowired constructor(
 
     @Test
     fun shouldNotDelete() {
-        val parent = testing.newSavedParent()
-        val child = testing.newSavedUnassignedChild()
+        val parent = newSavedParent()
+        val child = newSavedUnassignedChild()
 
         parent.assign(child)
 
@@ -157,8 +149,8 @@ internal open class PersistedParentsTest @Autowired constructor(
 
     @Test
     fun shouldNotAssignAlreadyAssignedChild() {
-        val parent = testing.newSavedParent()
-        val child = testing.newSavedUnassignedChild()
+        val parent = newSavedParent()
+        val child = newSavedUnassignedChild()
 
         parent.assign(child)
 
@@ -169,8 +161,8 @@ internal open class PersistedParentsTest @Autowired constructor(
 
     @Test
     fun shouldAssignAndUnassignChild() {
-        val parent = testing.newSavedParent()
-        val child = testing.newSavedUnassignedChild()
+        val parent = newSavedParent()
+        val child = newSavedUnassignedChild()
 
         expect(parent.children).isEmpty()
 
@@ -179,9 +171,9 @@ internal open class PersistedParentsTest @Autowired constructor(
 
         expect(parent.children).containsExactly(child)
         expect(parentAssignedWithChild.version).toBe(2)
-        expect(testing.currentPersistedChild().parentNaturalId)
+        expect(currentPersistedChild().parentNaturalId)
                 .toBe(parentNaturalId)
-        testing.expectDomainChangedEvents().containsExactly(
+        expectDomainChangedEvents().containsExactly(
                 ChildChangedEvent(
                         ChildSnapshot(childNaturalId, null,
                                 ENABLED.name, null, emptySet(), 1),
@@ -198,8 +190,8 @@ internal open class PersistedParentsTest @Autowired constructor(
 
         expect(parent.children).isEmpty()
         expect(childUnassigned.version).toBe(3)
-        expect(testing.currentPersistedChild().parentNaturalId).toBe(null)
-        testing.expectDomainChangedEvents().containsExactly(
+        expect(currentPersistedChild().parentNaturalId).toBe(null)
+        expectDomainChangedEvents().containsExactly(
                 ChildChangedEvent(
                         ChildSnapshot(childNaturalId, parentNaturalId,
                                 ENABLED.name, null, emptySet(), 2),

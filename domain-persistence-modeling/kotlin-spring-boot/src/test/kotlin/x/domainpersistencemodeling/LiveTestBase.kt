@@ -3,16 +3,25 @@ package x.domainpersistencemodeling
 import ch.tutteli.atrium.api.cc.en_GB.toBe
 import ch.tutteli.atrium.verbs.expect
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.stereotype.Component
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.transaction.annotation.Transactional
 
 internal const val parentNaturalId = "a"
 internal const val childNaturalId = "p"
 
-@Component
-internal open class Testing @Autowired constructor(
-        val parents: ParentFactory,
-        val children: ChildFactory,
-        val testListener: TestListener<DomainChangedEvent<*>>) {
+@AutoConfigureTestDatabase(replace = NONE)
+@SpringBootTest
+@Transactional
+internal abstract class LiveTestBase {
+    @Autowired
+    lateinit var parents: ParentFactory
+    @Autowired
+    lateinit var children: ChildFactory
+    @Autowired
+    lateinit var testListener: TestListener<DomainChangedEvent<*>>
+
     internal fun expectDomainChangedEvents() = testListener.expectNext
     internal fun resetDomainChangedEvents() = testListener.reset()
 
