@@ -50,7 +50,7 @@ internal class PersistedParentFactory(
         repository.delete(record)
     }
 
-    internal fun refresh(naturalId: String) =
+    internal fun refreshRecord(naturalId: String) =
             repository.findByNaturalId(naturalId).orElseThrow()
 
     internal fun notifyChanged(
@@ -118,9 +118,9 @@ internal open class PersistedParent(
 
         if (saveMutatedChildren()) {
             snapshotChildren = TreeSet(children)
-            val refreshed = factory.refresh(naturalId)
-            record!!.version = refreshed.version
-            result = UpsertedRecordResult.of(record(), Optional.of(refreshed))
+            // Refresh the version
+            record = factory.refreshRecord(naturalId)
+            result = UpsertedRecordResult.of(record(), Optional.of(record!!))
         }
 
         val after = record().toSnapshot()
