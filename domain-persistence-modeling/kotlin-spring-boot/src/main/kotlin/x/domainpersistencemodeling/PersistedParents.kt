@@ -44,7 +44,7 @@ internal class PersistedParentFactory(
 
     override fun createNew(naturalId: String) =
             PersistedParent(this, null, ParentRecord(naturalId),
-                    emptySequence())
+                    PersistedParentComputedDetails(emptySequence()))
 
     override fun findExistingOrCreateNew(naturalId: String) =
             findExisting(naturalId) ?: createNew(naturalId)
@@ -67,7 +67,7 @@ internal class PersistedParentFactory(
         val children = children.findAssignedFor(record.naturalId)
         return PersistedParent(this,
                 record.toSnapshot(children.toSortedSet()),
-                record, children)
+                record, PersistedParentComputedDetails(children))
     }
 }
 
@@ -78,14 +78,31 @@ internal class PersistedParentComputedDetails(
         get() = children.at
 
     private var snapshotChildren: Set<AssignedChild>
-    private var _children: MutableSet<AssignedChild>
+    private var currentChildren: MutableSet<AssignedChild>
 
     override val children: Set<AssignedChild>
-        get() = _children
+        get() = currentChildren
 
     init {
         snapshotChildren = assigned.toSortedSet()
-        _children = TreeSet(snapshotChildren)
+        currentChildren = TreeSet(snapshotChildren)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        other as PersistedParentComputedDetails
+        return children == other.children
+    }
+
+    override fun hashCode() =
+            Objects.hash(snapshotChildren, children)
+
+    override fun toString() =
+            "${super.toString()}{snapshotChildren=$snapshotChildren, children=$children}"
+
+    internal fun replaceChildren(all: Set<AssignedChild>) {
+        currentChildren = all.toMutableSet()
     }
 
     internal fun saveMutatedChildren(): Boolean {
@@ -106,6 +123,9 @@ internal class PersistedParentComputedDetails(
             changedChildren.forEach { it.save() }
             mutated = true
         }
+
+        if (mutated) snapshotChildren = TreeSet(children)
+
         return mutated
     }
 
@@ -134,30 +154,22 @@ internal open class PersistedParent(
         private val factory: PersistedParentFactory,
         private var snapshot: ParentSnapshot?,
         private var record: ParentRecord?,
-        assigned: Sequence<AssignedChild>)
+        private val computed: PersistedParentComputedDetails)
     : Parent {
     override val naturalId: String
         get() = record().naturalId
     override val state: String
         get() = record().state
     override val at: OffsetDateTime?
-        get() = children.at
+        get() = computed.at
     override val value: String?
         get() = record().value
     override val sideValues: Set<String> // Sorted
         get() = TreeSet(record().sideValues)
     override val version: Int
         get() = record().version
-    private var snapshotChildren: Set<AssignedChild>
-    private var _children: MutableSet<AssignedChild>
-
     override val children: Set<AssignedChild>
-        get() = _children
-
-    init {
-        snapshotChildren = assigned.toSortedSet()
-        _children = TreeSet(snapshotChildren)
-    }
+        get() = computed.children
 
     @Transactional
     override fun assign(child: UnassignedChild) = let {
@@ -186,8 +198,7 @@ internal open class PersistedParent(
                 else UpsertedRecordResult.of(record(), Optional.empty())
         record = result.record
 
-        if (saveMutatedChildren()) {
-            snapshotChildren = TreeSet(children)
+        if (computed.saveMutatedChildren()) {
             // Refresh the version
             record = factory.refreshRecord(naturalId)
             result = UpsertedRecordResult.of(record(), Optional.of(record!!))
@@ -208,7 +219,7 @@ internal open class PersistedParent(
         val after = null as ParentSnapshot?
         factory.delete(record())
         // Removed from current object, but potentially mutated
-        saveMutatedChildren()
+        computed.saveMutatedChildren()
         record = null
         snapshot = after
         factory.notifyChanged(before, after)
@@ -223,72 +234,28 @@ internal open class PersistedParent(
         if (javaClass != other?.javaClass) return false
         other as PersistedParent
         return snapshot == other.snapshot
-                && snapshotChildren == other.snapshotChildren
                 && record == other.record
-                && children == other.children
+                && computed == other.computed
     }
 
     override fun hashCode() =
-            Objects.hash(snapshot, snapshotChildren, record, children)
+            Objects.hash(snapshot, record, computed)
 
     override fun toString() =
-            "${super.toString()}{snapshot=$snapshot, snapshotChildren=$snapshotChildren, record=$record, children=$children}"
+            "${super.toString()}{snapshot=$snapshot, record=$record, computed=$computed}"
 
-    private fun addChild(child: AssignedChild,
-            all: MutableSet<AssignedChild>) {
+    private fun addChild(child: AssignedChild, all: Set<AssignedChild>) {
         child.update {
             assignTo(this@PersistedParent)
         }
-        _children = all
+        computed.replaceChildren(all)
     }
 
-    private fun removeChild(child: AssignedChild,
-            all: MutableSet<AssignedChild>) {
+    private fun removeChild(child: AssignedChild, all: Set<AssignedChild>) {
         child.update {
             unassignFromAny()
         }
-        _children = all
-    }
-
-    private fun assignedChildren(): Set<Child> {
-        val assigned = TreeSet(children)
-        assigned.removeAll(snapshotChildren)
-        return assigned
-    }
-
-    private fun unassignedChildren(): Set<Child> {
-        val unassigned = TreeSet(snapshotChildren)
-        unassigned.removeAll(children)
-        return unassigned
-    }
-
-    private fun changedChildren(): Set<Child> {
-        val changed = TreeSet(snapshotChildren)
-        changed.retainAll(children)
-        return changed.stream()
-                .filter { it.changed }
-                .collect(toCollection(::TreeSet))
-    }
-
-    private fun saveMutatedChildren(): Boolean {
-        // TODO: Gross function
-        var mutated = false
-        val assignedChildren = assignedChildren()
-        if (assignedChildren.isNotEmpty()) {
-            assignedChildren.forEach { it.save() }
-            mutated = true
-        }
-        val unassignedChildren = unassignedChildren()
-        if (unassignedChildren.isNotEmpty()) {
-            unassignedChildren.forEach { it.save() }
-            mutated = true
-        }
-        val changedChildren = changedChildren()
-        if (changedChildren.isNotEmpty()) {
-            changedChildren.forEach { it.save() }
-            mutated = true
-        }
-        return mutated
+        computed.replaceChildren(all)
     }
 
     private fun record() =
