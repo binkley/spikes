@@ -9,6 +9,10 @@ import java.sql.Timestamp
 import java.time.OffsetDateTime
 import java.time.ZoneOffset.UTC
 
+/**
+ * TODO: Why does Spring Data need converters for [OffsetDateTime]?
+ *   See [https://jdbc.postgresql.org/documentation/head/8-date-time.html.]
+ */
 @Configuration class TimeConfiguration {
     @Bean
     fun offsetDateTimeReadConverter() =
