@@ -6,6 +6,6 @@
 
 Spikes are not to be considered stable.
 
-* [Kotlin Micronaut](kotlin-micronaut/)
 * [Java Spring Boot](java-spring-boot/)
-* [Kotlin Spring Boot](kotlin-spring-boot/)
+* [Kotlin Spring Boot](kotlin-spring-boot/) (most up-to-date spike)
+* [Kotlin Micronaut](kotlin-micronaut/)
