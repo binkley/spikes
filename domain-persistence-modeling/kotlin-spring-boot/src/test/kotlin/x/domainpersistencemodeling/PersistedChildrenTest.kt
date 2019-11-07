@@ -65,12 +65,16 @@ internal class PersistedChildrenTest
 
         expect(original.changed).toBe(false)
 
+        // TODO: Millis and micros work, but not nanos
+        val at = atZero.plusNanos(1_000L)
         val value = "FOOBAR"
         original.update {
+            this.at = at
             this.value = value
         }
 
         expect(original.changed).toBe(true)
+        expect(original.at).toBe(at)
         expect(original.value).toBe(value)
         expectDomainChangedEvents().isEmpty()
 
@@ -81,7 +85,7 @@ internal class PersistedChildrenTest
                 ChildSnapshot(childNaturalId, null, ENABLED.name,
                         atZero, null, emptySet(), 1),
                 ChildSnapshot(childNaturalId, null, ENABLED.name,
-                        atZero, value, emptySet(), 2)))
+                        at, value, emptySet(), 2)))
     }
 
     @Test
