@@ -71,6 +71,65 @@ internal class PersistedParentFactory(
     }
 }
 
+internal class PersistedParentComputedDetails(
+        assigned: Sequence<AssignedChild>)
+    : ParentComputedDetails {
+    override val at: OffsetDateTime?
+        get() = children.at
+
+    private var snapshotChildren: Set<AssignedChild>
+    private var _children: MutableSet<AssignedChild>
+
+    override val children: Set<AssignedChild>
+        get() = _children
+
+    init {
+        snapshotChildren = assigned.toSortedSet()
+        _children = TreeSet(snapshotChildren)
+    }
+
+    internal fun saveMutatedChildren(): Boolean {
+        // TODO: Gross function
+        var mutated = false
+        val assignedChildren = assignedChildren()
+        if (assignedChildren.isNotEmpty()) {
+            assignedChildren.forEach { it.save() }
+            mutated = true
+        }
+        val unassignedChildren = unassignedChildren()
+        if (unassignedChildren.isNotEmpty()) {
+            unassignedChildren.forEach { it.save() }
+            mutated = true
+        }
+        val changedChildren = changedChildren()
+        if (changedChildren.isNotEmpty()) {
+            changedChildren.forEach { it.save() }
+            mutated = true
+        }
+        return mutated
+    }
+
+    private fun assignedChildren(): Set<Child> {
+        val assigned = TreeSet(children)
+        assigned.removeAll(snapshotChildren)
+        return assigned
+    }
+
+    private fun unassignedChildren(): Set<Child> {
+        val unassigned = TreeSet(snapshotChildren)
+        unassigned.removeAll(children)
+        return unassigned
+    }
+
+    private fun changedChildren(): Set<Child> {
+        val changed = TreeSet(snapshotChildren)
+        changed.retainAll(children)
+        return changed.stream()
+                .filter { it.changed }
+                .collect(toCollection(::TreeSet))
+    }
+}
+
 internal open class PersistedParent(
         private val factory: PersistedParentFactory,
         private var snapshot: ParentSnapshot?,
