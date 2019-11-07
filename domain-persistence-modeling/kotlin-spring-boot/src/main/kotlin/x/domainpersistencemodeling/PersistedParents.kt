@@ -92,14 +92,15 @@ internal class PersistedParentComputedDetails(
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
         other as PersistedParentComputedDetails
-        return children == other.children
+        return snapshotChildren == other.snapshotChildren
+                && currentChildren == other.currentChildren
     }
 
     override fun hashCode() =
-            Objects.hash(snapshotChildren, children)
+            Objects.hash(snapshotChildren, currentChildren)
 
     override fun toString() =
-            "${super.toString()}{snapshotChildren=$snapshotChildren, children=$children}"
+            "${super.toString()}{snapshotChildren=$snapshotChildren, currentChildren=$currentChildren}"
 
     internal fun addChild(child: AssignedChild) {
         currentChildren.add(child)
