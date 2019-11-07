@@ -17,9 +17,9 @@ import java.util.Optional
 import java.util.TreeSet
 import java.util.stream.Collectors.toCollection
 
-internal fun ParentRecord.toSnapshot(children: Set<AssignedChild>) =
+internal fun ParentRecord.toSnapshot(computed: ParentComputedDetails) =
         ParentSnapshot(
-                naturalId, state, children.at, value, sideValues, version)
+                naturalId, state, computed.at, value, sideValues, version)
 
 @Component
 internal class PersistedParentFactory(
@@ -59,10 +59,10 @@ internal class PersistedParentFactory(
             publisher.publishEvent(ParentChangedEvent(before, after))
 
     private fun toParent(record: ParentRecord): PersistedParent {
-        val children = children.findAssignedFor(record.naturalId)
-        return PersistedParent(this,
-                record.toSnapshot(children.toSortedSet()),
-                record, PersistedParentComputedDetails(children))
+        val computed = PersistedParentComputedDetails(
+                children.findAssignedFor(record.naturalId))
+        return PersistedParent(this, record.toSnapshot(computed), record,
+                computed)
     }
 }
 
@@ -188,7 +188,7 @@ internal open class PersistedParent(
     }
 
     override val changed
-        get() = snapshot != record().toSnapshot(children)
+        get() = snapshot != record().toSnapshot(computed)
 
     override fun save(): UpsertedDomainResult<ParentSnapshot, Parent> {
         // Save ourselves first, so children have a valid parent
@@ -204,7 +204,7 @@ internal open class PersistedParent(
             result = UpsertedRecordResult.of(record(), Optional.of(record!!))
         }
 
-        val after = record().toSnapshot(children)
+        val after = record().toSnapshot(computed)
         snapshot = after
         if (result.changed) // Trust the database
             factory.notifyChanged(before, after)
