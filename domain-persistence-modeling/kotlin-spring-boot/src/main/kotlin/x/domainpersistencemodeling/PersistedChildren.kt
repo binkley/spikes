@@ -158,8 +158,8 @@ internal class PersistedMutableChild(private val record: ChildRecord)
         MutableChildDetails by record {
     override val sideValues: MutableSet<String>
         get() = TrackedSortedSet(record.sideValues,
-                { _, all -> record.sideValues = all },
-                { _, all -> record.sideValues = all })
+                ::replaceSideValues.uncurrySecond(),
+                ::replaceSideValues.uncurrySecond())
 
     override fun assignTo(parent: Parent) {
         record.parentNaturalId = parent.naturalId
@@ -180,6 +180,10 @@ internal class PersistedMutableChild(private val record: ChildRecord)
 
     override fun toString() =
             "${super.toString()}{record=$record}"
+
+    private fun replaceSideValues(all: MutableSet<String>) {
+        record.sideValues = all
+    }
 }
 
 @Repository

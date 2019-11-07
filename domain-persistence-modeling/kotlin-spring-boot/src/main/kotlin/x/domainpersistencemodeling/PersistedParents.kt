@@ -101,8 +101,12 @@ internal class PersistedParentComputedDetails(
     override fun toString() =
             "${super.toString()}{snapshotChildren=$snapshotChildren, children=$children}"
 
-    internal fun replaceChildren(all: Set<AssignedChild>) {
-        currentChildren = all.toMutableSet()
+    internal fun addChild(child: AssignedChild) {
+        currentChildren.add(child)
+    }
+
+    internal fun removeChild(child: AssignedChild) {
+        currentChildren.remove(child)
     }
 
     internal fun saveMutatedChildren(): Boolean {
@@ -226,8 +230,10 @@ internal open class PersistedParent(
     }
 
     override fun <R> update(block: MutableParent.() -> R): R =
-            PersistedMutableParent(
-                    record(), children, ::addChild, ::removeChild).let(block)
+            PersistedMutableParent(record(), children,
+                    ::addChild.uncurryFirst(),
+                    ::removeChild.uncurryFirst())
+                    .let(block)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -244,18 +250,18 @@ internal open class PersistedParent(
     override fun toString() =
             "${super.toString()}{snapshot=$snapshot, record=$record, computed=$computed}"
 
-    private fun addChild(child: AssignedChild, all: Set<AssignedChild>) {
+    private fun addChild(child: AssignedChild) {
         child.update {
             assignTo(this@PersistedParent)
         }
-        computed.replaceChildren(all)
+        computed.addChild(child)
     }
 
-    private fun removeChild(child: AssignedChild, all: Set<AssignedChild>) {
+    private fun removeChild(child: AssignedChild) {
         child.update {
             unassignFromAny()
         }
-        computed.replaceChildren(all)
+        computed.removeChild(child)
     }
 
     private fun record() =
@@ -270,9 +276,13 @@ internal data class PersistedMutableParent(
     : MutableParent,
         MutableParentIntrinsicDetails by record {
     override val sideValues = TrackedSortedSet(record.sideValues,
-            { _, all -> record.sideValues = all },
-            { _, all -> record.sideValues = all })
+            ::replaceSideValues.uncurrySecond(),
+            ::replaceSideValues.uncurrySecond())
     override val children = TrackedSortedSet(initial, added, removed)
+
+    private fun replaceSideValues(all: MutableSet<String>) {
+        record.sideValues = all
+    }
 }
 
 interface ParentRepository : CrudRepository<ParentRecord, Long> {
