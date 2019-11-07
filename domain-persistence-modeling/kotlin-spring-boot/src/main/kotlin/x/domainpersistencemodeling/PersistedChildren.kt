@@ -50,7 +50,7 @@ internal class PersistedChildFactory(
             }.asSequence()
 
     internal fun save(record: ChildRecord) =
-            UpsertedRecordResult.of(record, repository.upsert(record))
+            UpsertedRecordResult(record, repository.upsert(record))
 
     internal fun delete(record: ChildRecord) =
             repository.delete(record)
@@ -115,6 +115,7 @@ internal open class PersistedChild(
         snapshot = after
         if (result.changed) // Trust the database
             factory.notifyChanged(before, after)
+
         return UpsertedDomainResult(this, result.changed)
     }
 

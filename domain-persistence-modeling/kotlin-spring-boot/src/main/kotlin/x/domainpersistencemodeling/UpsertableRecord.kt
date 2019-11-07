@@ -7,10 +7,7 @@ interface UpsertableRecord<Record : UpsertableRecord<Record>> {
 
     data class UpsertedRecordResult<Record : UpsertableRecord<Record>>(
             val record: Record, val changed: Boolean) {
-        companion object {
-            fun <Record : UpsertableRecord<Record>> of(
-                    entity: Record, upserted: Optional<Record>) =
-                    UpsertedRecordResult(entity, upserted.isPresent)
-        }
+        constructor(record: Record, upserted: Optional<Record>)
+                : this(record, upserted.isPresent)
     }
 }

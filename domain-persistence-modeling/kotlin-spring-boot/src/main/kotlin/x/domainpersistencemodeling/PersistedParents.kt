@@ -45,7 +45,7 @@ internal class PersistedParentFactory(
             findExisting(naturalId) ?: createNew(naturalId)
 
     fun save(record: ParentRecord) =
-            UpsertedRecordResult.of(record, repository.upsert(record))
+            UpsertedRecordResult(record, repository.upsert(record))
 
     internal fun delete(record: ParentRecord) {
         repository.delete(record)
@@ -196,13 +196,13 @@ internal open class PersistedParent(
         val before = snapshot
         var result =
                 if (changed) factory.save(record())
-                else UpsertedRecordResult.of(record(), Optional.empty())
+                else UpsertedRecordResult(record(), false)
         record = result.record
 
         if (computed.saveMutatedChildren()) {
             // Refresh the version
             record = factory.refreshRecord(naturalId)
-            result = UpsertedRecordResult.of(record(), Optional.of(record!!))
+            result = UpsertedRecordResult(record(), true)
         }
 
         val after = record().toSnapshot(computed)
