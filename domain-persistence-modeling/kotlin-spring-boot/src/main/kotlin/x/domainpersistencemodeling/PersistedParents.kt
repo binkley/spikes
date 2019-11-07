@@ -2,7 +2,6 @@ package x.domainpersistencemodeling
 
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.annotation.Id
-import org.springframework.data.annotation.Transient
 import org.springframework.data.jdbc.repository.query.Query
 import org.springframework.data.relational.core.mapping.Table
 import org.springframework.data.repository.CrudRepository
@@ -12,13 +11,20 @@ import org.springframework.transaction.annotation.Transactional
 import x.domainpersistencemodeling.KnownState.ENABLED
 import x.domainpersistencemodeling.PersistableDomain.UpsertedDomainResult
 import x.domainpersistencemodeling.UpsertableRecord.UpsertedRecordResult
+import java.time.OffsetDateTime
 import java.util.Objects
 import java.util.Optional
 import java.util.TreeSet
 import java.util.stream.Collectors.toCollection
 
-internal fun ParentRecord.toSnapshot() = ParentSnapshot(
-        naturalId, state, null, value, sideValues, version)
+internal val Set<AssignedChild>.at
+    get() = map {
+        it.at
+    }.min()
+
+internal fun ParentRecord.toSnapshot(children: Set<AssignedChild>) =
+        ParentSnapshot(
+                naturalId, state, children.at, value, sideValues, version)
 
 @Component
 internal class PersistedParentFactory(
@@ -57,9 +63,11 @@ internal class PersistedParentFactory(
             before: ParentSnapshot?, after: ParentSnapshot?) =
             publisher.publishEvent(ParentChangedEvent(before, after))
 
-    private fun toParent(record: ParentRecord) =
-            PersistedParent(this, record.toSnapshot(), record,
-                    children.findAssignedFor(record.naturalId))
+    private fun toParent(record: ParentRecord): PersistedParent {
+        val children = children.findAssignedFor(record.naturalId)
+        return PersistedParent(this, record.toSnapshot(children.toSet()),
+                record, children)
+    }
 }
 
 internal open class PersistedParent(
@@ -72,6 +80,8 @@ internal open class PersistedParent(
         get() = record().naturalId
     override val state: String
         get() = record().state
+    override val at: OffsetDateTime?
+        get() = children.at
     override val value: String?
         get() = record().value
     override val sideValues: Set<String> // Sorted
@@ -106,7 +116,7 @@ internal open class PersistedParent(
     }
 
     override val changed
-        get() = snapshot != record().toSnapshot()
+        get() = snapshot != record().toSnapshot(children)
 
     override fun save(): UpsertedDomainResult<ParentSnapshot, Parent> {
         // Save ourselves first, so children have a valid parent
@@ -123,7 +133,7 @@ internal open class PersistedParent(
             result = UpsertedRecordResult.of(record(), Optional.of(record!!))
         }
 
-        val after = record().toSnapshot()
+        val after = record().toSnapshot(children)
         snapshot = after
         if (result.changed) // Trust the database
             factory.notifyChanged(before, after)
@@ -232,10 +242,9 @@ internal data class PersistedMutableParent(
         private val removed: (AssignedChild, MutableSet<AssignedChild>) -> Unit)
     : MutableParent,
         MutableParentDetails by record {
-    override val sideValues: MutableSet<String>
-        get() = TrackedSortedSet(record.sideValues,
-                { _, all -> record.sideValues = all },
-                { _, all -> record.sideValues = all })
+    override val sideValues = TrackedSortedSet(record.sideValues,
+            { _, all -> record.sideValues = all },
+            { _, all -> record.sideValues = all })
     override val children = TrackedSortedSet(initial, added, removed)
 }
 
@@ -287,9 +296,6 @@ data class ParentRecord(
         UpsertableRecord<ParentRecord> {
     internal constructor(naturalId: String)
             : this(null, naturalId, ENABLED.name, null, mutableSetOf(), 0)
-
-    @Transient
-    override val at = null // TODO: Smell
 
     override fun upsertedWith(upserted: ParentRecord): ParentRecord {
         id = upserted.id

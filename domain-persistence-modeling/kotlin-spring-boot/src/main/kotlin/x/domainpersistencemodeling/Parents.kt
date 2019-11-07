@@ -21,7 +21,6 @@ interface ParentDetails
     : Comparable<ParentDetails> {
     val naturalId: String
     val state: String
-    val at: OffsetDateTime?
     val value: String?
     val sideValues: Set<String> // Sorted
     val version: Int
@@ -45,11 +44,7 @@ interface Parent
         ScopedMutable<Parent, MutableParent>,
         PersistableDomain<ParentSnapshot, Parent> {
     val children: Set<AssignedChild>
-
-    override val at
-        get() = children.map {
-            it.at
-        }.min()
+    val at: OffsetDateTime?
 
     /** Assigns [child] to this parent, a mutable operation. */
     fun assign(child: UnassignedChild): AssignedChild

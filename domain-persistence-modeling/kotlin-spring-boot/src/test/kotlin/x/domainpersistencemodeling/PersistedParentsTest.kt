@@ -89,32 +89,42 @@ internal class PersistedParentsTest
     @Test
     fun shouldMutateChildren() {
         val parent = newSavedParent()
+
+        expect(parent.at).toBe(null)
+
         val child = newSavedUnassignedChild()
 
         parent.assign(child)
 
+        expect(parent.at).toBe(child.at)
+
+        // TODO: Millis and micros work, but not nanos
+        val at = atZero.plusNanos(1_000L)
         val value = "FOOBAR"
         parent.update {
             children.forEach {
                 it.update {
+                    this.at = at
                     this.value = value
                 }
             }
         }
         parent.save()
 
+        expect(currentPersistedChild().at).toBe(at)
         expect(currentPersistedChild().value).toBe(value)
+        expect(currentPersistedParent().at).toBe(at)
 
         expectDomainChangedEvents().containsExactly(
                 ChildChangedEvent(
                         ChildSnapshot(childNaturalId, null,
                                 ENABLED.name, atZero, null, emptySet(), 1),
                         ChildSnapshot(childNaturalId, parentNaturalId,
-                                ENABLED.name, atZero, value, emptySet(), 2)),
+                                ENABLED.name, at, value, emptySet(), 2)),
                 ParentChangedEvent(
                         ParentSnapshot(parentNaturalId, ENABLED.name, null,
                                 null, setOf(), 1),
-                        ParentSnapshot(parentNaturalId, ENABLED.name, null,
+                        ParentSnapshot(parentNaturalId, ENABLED.name, at,
                                 null, setOf(), 2)))
     }
 
@@ -182,7 +192,7 @@ internal class PersistedParentsTest
                 ParentChangedEvent(
                         ParentSnapshot(parentNaturalId, ENABLED.name, null,
                                 null, setOf(), 1),
-                        ParentSnapshot(parentNaturalId, ENABLED.name, null,
+                        ParentSnapshot(parentNaturalId, ENABLED.name, atZero,
                                 null, setOf(), 2)))
 
         parent.unassign(assignedChild)
@@ -198,7 +208,7 @@ internal class PersistedParentsTest
                         ChildSnapshot(childNaturalId, null,
                                 ENABLED.name, atZero, null, emptySet(), 3)),
                 ParentChangedEvent(
-                        ParentSnapshot(parentNaturalId, ENABLED.name, null,
+                        ParentSnapshot(parentNaturalId, ENABLED.name, atZero,
                                 null, setOf(), 2),
                         ParentSnapshot(parentNaturalId, ENABLED.name, null,
                                 null, setOf(), 3)))
