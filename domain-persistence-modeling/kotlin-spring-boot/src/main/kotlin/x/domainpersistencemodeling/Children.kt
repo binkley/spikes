@@ -19,8 +19,8 @@ interface ChildFactory {
     fun findAssignedFor(parentNaturalId: String): Sequence<AssignedChild>
 }
 
-interface ChildDetails
-    : Comparable<ChildDetails> {
+interface ChildIntrinsicDetails
+    : Comparable<ChildIntrinsicDetails> {
     val naturalId: String
     val parentNaturalId: String?
     val state: String
@@ -33,11 +33,13 @@ interface ChildDetails
     val assigned: Boolean
         get() = null != parentNaturalId
 
-    override operator fun compareTo(other: ChildDetails) =
+    override operator fun compareTo(other: ChildIntrinsicDetails) =
             naturalId.compareTo(other.naturalId)
 }
 
-interface MutableChildDetails : ChildDetails {
+interface ChildComputedDetails
+
+interface MutableChildIntrinsicDetails : ChildIntrinsicDetails {
     override var parentNaturalId: String?
     override var state: String
     override var at: OffsetDateTime // UTC
@@ -46,7 +48,11 @@ interface MutableChildDetails : ChildDetails {
     override val defaultSideValues: MutableSet<String> // Sorted
 }
 
-interface Child : ChildDetails,
+interface MutableChildComputedDetails
+
+interface Child
+    : ChildIntrinsicDetails,
+        ChildComputedDetails,
         ScopedMutable<Child, MutableChild>,
         PersistableDomain<ChildSnapshot, Child> {
     val relevant: Boolean
@@ -57,7 +63,9 @@ interface Child : ChildDetails,
  * only [Parent] implementations can use them.  Neither Java nor Kotlin have
  * something like C++'s `friend` access specifier.
  */
-interface MutableChild : MutableChildDetails {
+interface MutableChild
+    : MutableChildIntrinsicDetails,
+        MutableChildComputedDetails {
     fun assignTo(parent: ParentIntrinsicDetails)
     fun unassignFromAny()
 }

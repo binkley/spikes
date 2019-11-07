@@ -155,7 +155,7 @@ internal open class PersistedChild(
 
 internal class PersistedMutableChild(private val record: ChildRecord)
     : MutableChild,
-        MutableChildDetails by record {
+        MutableChildIntrinsicDetails by record {
     override val sideValues: MutableSet<String>
         get() = TrackedSortedSet(record.sideValues,
                 ::replaceSideValues.uncurrySecond(),
@@ -249,7 +249,7 @@ data class ChildRecord(
         override var sideValues: MutableSet<String>,
         override var defaultSideValues: MutableSet<String>,
         override var version: Int)
-    : MutableChildDetails,
+    : MutableChildIntrinsicDetails,
         UpsertableRecord<ChildRecord> {
     internal constructor(naturalId: String)
             : this(null, naturalId, null, ENABLED.name,

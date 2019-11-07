@@ -19,7 +19,7 @@ val Child.currentSideValues: Set<String>
         else -> defaultSideValues
     }
 
-val Set<ChildDetails>.at
+val Set<ChildIntrinsicDetails>.at
     get() = map {
         it.at
     }.min()
