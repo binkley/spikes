@@ -190,6 +190,7 @@ internal open class PersistedParent(
     override val changed
         get() = snapshot != record().toSnapshot(computed)
 
+    @Transactional
     override fun save(): UpsertedDomainResult<ParentSnapshot, Parent> {
         // Save ourselves first, so children have a valid parent
         val before = snapshot
@@ -211,6 +212,7 @@ internal open class PersistedParent(
         return UpsertedDomainResult(this, result.changed)
     }
 
+    @Transactional
     override fun delete() {
         if (children.isNotEmpty()) throw DomainException(
                 "Deleting parent with assigned children: $this")

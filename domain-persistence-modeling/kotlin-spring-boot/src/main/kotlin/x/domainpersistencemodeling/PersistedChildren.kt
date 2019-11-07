@@ -106,6 +106,7 @@ internal open class PersistedChild(
     override val changed
         get() = snapshot != toSnapshot()
 
+    @Transactional
     override fun save(): UpsertedDomainResult<ChildSnapshot, Child> {
         if (!changed) return UpsertedDomainResult(this, false)
 
@@ -119,6 +120,7 @@ internal open class PersistedChild(
         return UpsertedDomainResult(this, result.changed)
     }
 
+    @Transactional
     override fun delete() {
         if (null != parentNaturalId) throw DomainException(
                 "Deleting child assigned to a parent: $this")
