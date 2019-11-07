@@ -86,8 +86,6 @@ internal open class PersistedChild(
         get() = TreeSet(record().defaultSideValues)
     override val version: Int
         get() = record().version
-    override val relevant: Boolean
-        get() = KnownState.forName(record().state)?.relevant ?: true
 
     @Transactional
     override fun assignTo(parent: Parent): AssignedChild = apply {

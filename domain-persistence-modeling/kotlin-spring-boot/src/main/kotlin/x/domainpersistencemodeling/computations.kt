@@ -1,6 +1,8 @@
 package x.domainpersistencemodeling
 
-val Parent.currentSideValues: Set<String>
+val <T> T.currentSideValues: Set<String>
+        where T : ParentIntrinsicDetails,
+              T : ParentComputedDetails
     get() = when {
         sideValues.isNotEmpty() -> sideValues
         else -> children.map {
@@ -12,7 +14,7 @@ val Parent.currentSideValues: Set<String>
         }.toSortedSet()
     }
 
-val Child.currentSideValues: Set<String>
+val ChildIntrinsicDetails.currentSideValues: Set<String>
     get() = when {
         !relevant -> setOf()
         sideValues.isNotEmpty() -> sideValues

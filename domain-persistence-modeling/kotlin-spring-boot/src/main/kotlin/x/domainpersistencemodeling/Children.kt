@@ -33,6 +33,9 @@ interface ChildIntrinsicDetails
     val assigned: Boolean
         get() = null != parentNaturalId
 
+    val relevant: Boolean
+        get() = KnownState.forName(state)?.relevant ?: true
+
     override operator fun compareTo(other: ChildIntrinsicDetails) =
             naturalId.compareTo(other.naturalId)
 }
@@ -54,9 +57,7 @@ interface Child
     : ChildIntrinsicDetails,
         ChildComputedDetails,
         ScopedMutable<Child, MutableChild>,
-        PersistableDomain<ChildSnapshot, Child> {
-    val relevant: Boolean
-}
+        PersistableDomain<ChildSnapshot, Child>
 
 /**
  * Lacks a way to restrict access to [assignTo] and [unassignFromAny] so that

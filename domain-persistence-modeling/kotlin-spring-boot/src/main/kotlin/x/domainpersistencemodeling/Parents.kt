@@ -30,7 +30,7 @@ interface ParentIntrinsicDetails
 }
 
 interface ParentComputedDetails {
-    val children: Set<AssignedChild>
+    val children: Set<ChildIntrinsicDetails>
     val at: OffsetDateTime?
 }
 
@@ -49,6 +49,8 @@ interface Parent
         ParentComputedDetails,
         ScopedMutable<Parent, MutableParent>,
         PersistableDomain<ParentSnapshot, Parent> {
+    override val children: Set<AssignedChild>
+
     /** Assigns [child] to this parent, a mutable operation. */
     fun assign(child: UnassignedChild): AssignedChild
 

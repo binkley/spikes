@@ -15,8 +15,8 @@ internal class AtTest {
 
     @Test
     internal fun `should have minimal "at" with children`() {
-        val childDetailsA = childDetailsAt(atZero)
-        val childDetailsB = childDetailsAt(atZero.plusNanos(1_000L))
+        val childDetailsA = childHavingAt(atZero)
+        val childDetailsB = childHavingAt(atZero.plusNanos(1_000L))
 
         val children: Set<ChildIntrinsicDetails> =
                 setOf(childDetailsA, childDetailsB)
@@ -25,7 +25,7 @@ internal class AtTest {
     }
 }
 
-private fun childDetailsAt(at: OffsetDateTime) =
+private fun childHavingAt(at: OffsetDateTime) =
         object : ChildIntrinsicDetails {
             override val naturalId = "a"
             override val parentNaturalId = "b"
