@@ -65,7 +65,8 @@ internal class PersistedParentFactory(
 
     private fun toParent(record: ParentRecord): PersistedParent {
         val children = children.findAssignedFor(record.naturalId)
-        return PersistedParent(this, record.toSnapshot(children.toSet()),
+        return PersistedParent(this,
+                record.toSnapshot(children.toSortedSet()),
                 record, children)
     }
 }
@@ -143,12 +144,12 @@ internal open class PersistedParent(
     override fun delete() {
         if (children.isNotEmpty()) throw DomainException(
                 "Deleting parent with assigned children: $this")
-        // Removed from current object, but potentially not persisted
-        snapshotChildren.forEach { it.save() }
 
         val before = snapshot
         val after = null as ParentSnapshot?
         factory.delete(record())
+        // Removed from current object, but potentially mutated
+        saveMutatedChildren()
         record = null
         snapshot = after
         factory.notifyChanged(before, after)
