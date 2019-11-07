@@ -46,20 +46,20 @@ interface MutableChildDetails : ChildDetails {
     override val defaultSideValues: MutableSet<String> // Sorted
 }
 
+interface Child : ChildDetails,
+        ScopedMutable<Child, MutableChild>,
+        PersistableDomain<ChildSnapshot, Child> {
+    val relevant: Boolean
+}
+
 /**
  * Lacks a way to restrict access to [assignTo] and [unassignFromAny] so that
  * only [Parent] implementations can use them.  Neither Java nor Kotlin have
  * something like C++'s `friend` access specifier.
  */
 interface MutableChild : MutableChildDetails {
-    fun assignTo(parent: ParentDetails)
+    fun assignTo(parent: Parent)
     fun unassignFromAny()
-}
-
-interface Child : ChildDetails,
-        ScopedMutable<Child, MutableChild>,
-        PersistableDomain<ChildSnapshot, Child> {
-    val relevant: Boolean
 }
 
 interface UnassignedChild : Child {

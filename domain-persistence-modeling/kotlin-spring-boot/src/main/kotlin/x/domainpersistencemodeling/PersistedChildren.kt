@@ -161,7 +161,7 @@ internal class PersistedMutableChild(private val record: ChildRecord)
                 { _, all -> record.sideValues = all },
                 { _, all -> record.sideValues = all })
 
-    override fun assignTo(parent: ParentDetails) {
+    override fun assignTo(parent: Parent) {
         record.parentNaturalId = parent.naturalId
     }
 

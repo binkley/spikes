@@ -17,41 +17,48 @@ interface ParentFactory {
     fun findExistingOrCreateNew(naturalId: String): Parent
 }
 
-interface ParentDetails
-    : Comparable<ParentDetails> {
+interface ParentIntrinsicDetails
+    : Comparable<ParentIntrinsicDetails> {
     val naturalId: String
     val state: String
     val value: String?
     val sideValues: Set<String> // Sorted
     val version: Int
 
-    override fun compareTo(other: ParentDetails) =
+    override fun compareTo(other: ParentIntrinsicDetails) =
             naturalId.compareTo(other.naturalId)
 }
 
-interface MutableParentDetails : ParentDetails {
+interface ParentComputedDetails {
+    val children: Set<AssignedChild>
+    val at: OffsetDateTime?
+}
+
+interface MutableParentIntrinsicDetails : ParentIntrinsicDetails {
     override var state: String
     override var value: String?
     override val sideValues: MutableSet<String> // Sorted
 }
 
-interface MutableParent : MutableParentDetails {
+interface MutableParentComputedDetails {
     val children: MutableSet<AssignedChild>
 }
 
 interface Parent
-    : ParentDetails,
+    : ParentIntrinsicDetails,
+        ParentComputedDetails,
         ScopedMutable<Parent, MutableParent>,
         PersistableDomain<ParentSnapshot, Parent> {
-    val children: Set<AssignedChild>
-    val at: OffsetDateTime?
-
     /** Assigns [child] to this parent, a mutable operation. */
     fun assign(child: UnassignedChild): AssignedChild
 
     /** Unassigns [child] from this parent, a mutable operation. */
     fun unassign(child: AssignedChild): UnassignedChild
 }
+
+interface MutableParent
+    : MutableParentIntrinsicDetails,
+        MutableParentComputedDetails
 
 data class ParentChangedEvent(
         val before: ParentSnapshot?,
