@@ -5,7 +5,6 @@
   * [Reversal of roles](#reversal-of-roles)
 * [Spring-recommended documentation](#spring-recommended-documentation)
   * [Reference documentation](#reference-documentation)
-  * [Guides](#guides)
 
 ## Concepts
 
@@ -27,8 +26,9 @@ To achieve these goals, each domain object implements
 [`ScopedMutable`](src/main/kotlin/x/domainpersistencemodeling/ScopedMutable.kt),
 which provides three methods:
 
-* `update(block)`, running the mutations of `block` against a mutable version
-  of the domain object, and returning an updated and immutable domain object
+* `ScopedMutable.update(block)`, running the mutations of `block` against a
+  mutable version of the domain object, and returning an updated and immutable
+  domain object
 
 In the method, the return is the result of the block.
 
@@ -71,7 +71,7 @@ Consider the **contrary** persistence representation: parent records track
 their child records:
 
 ```kotlin
-data class ParentRecord(
+data class ParentRecord( // Contrary case -- **do not do this**
     var naturalKey: String,
     var someValue: Int,
     var children: Set<ChildRecord>)
@@ -111,19 +111,17 @@ this cost even when updating satellite data on the parent record.
 For further reference, please consider the following sections:
 
 * [Official Apache Maven documentation](https://maven.apache.org/guides/index.html)
+  &mdash; After much trial with both Gradle and Maven, this spike uses Maven
+  for:
+  1. More repeatable builds
+  2. Simplicity of build configuration
 * [Spring Boot Maven Plugin Reference Guide](https://docs.spring.io/spring-boot/docs/2.2.0.RC1/maven-plugin/)
-* [Rest Repositories](https://docs.spring.io/spring-boot/docs/2.1.9.RELEASE/reference/htmlsingle/#howto-use-exposing-spring-data-repositories-rest-endpoint)
 * [Spring Data JDBC](https://docs.spring.io/spring-data/jdbc/docs/current/reference/html/)
+  &mdash; Simple persistence based on _aggregate roots_
 * [Flyway Migration](https://docs.spring.io/spring-boot/docs/2.1.9.RELEASE/reference/htmlsingle/#howto-execute-flyway-database-migrations-on-startup)
-* [Spring Boot Actuator](https://docs.spring.io/spring-boot/docs/2.1.9.RELEASE/reference/htmlsingle/#production-ready)
-* [Atrium](https://docs.atriumlib.org)
-* [Test Containers](https://www.testcontainers.org)
-
-### Guides
-
-The following guides illustrate how to use some features concretely:
-
-* [Accessing JPA Data with REST](https://spring.io/guides/gs/accessing-data-rest/)
-  &mdash; Also applies to Data JDBC
-* [Using Spring Data JDBC](https://github.com/spring-projects/spring-data-examples/tree/master/jdbc/basics)
-* [Building a RESTful Web Service with Spring Boot Actuator](https://spring.io/guides/gs/actuator-service/)
+  &mdash; Simple installation of SQL schemas (unclear if it can be even
+  simpler)
+* [Atrium](https://docs.atriumlib.org) &mdash; `expect`-style assertions for
+  Kotlin
+* [Test Containers](https://www.testcontainers.org) &mdash; runs tests using
+  Postgres in a Docker container
