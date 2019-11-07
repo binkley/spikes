@@ -17,12 +17,6 @@ import java.util.Optional
 import java.util.TreeSet
 import java.util.stream.Collectors.toCollection
 
-/** TODO: Still a smell */
-internal val Set<AssignedChild>.at
-    get() = map {
-        it.at
-    }.min()
-
 internal fun ParentRecord.toSnapshot(children: Set<AssignedChild>) =
         ParentSnapshot(
                 naturalId, state, children.at, value, sideValues, version)

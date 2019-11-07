@@ -161,7 +161,7 @@ internal class PersistedMutableChild(private val record: ChildRecord)
                 ::replaceSideValues.uncurrySecond(),
                 ::replaceSideValues.uncurrySecond())
 
-    override fun assignTo(parent: Parent) {
+    override fun assignTo(parent: ParentIntrinsicDetails) {
         record.parentNaturalId = parent.naturalId
     }
 

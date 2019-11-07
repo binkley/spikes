@@ -58,7 +58,7 @@ interface Child : ChildDetails,
  * something like C++'s `friend` access specifier.
  */
 interface MutableChild : MutableChildDetails {
-    fun assignTo(parent: Parent)
+    fun assignTo(parent: ParentIntrinsicDetails)
     fun unassignFromAny()
 }
 

@@ -18,3 +18,8 @@ val Child.currentSideValues: Set<String>
         sideValues.isNotEmpty() -> sideValues
         else -> defaultSideValues
     }
+
+val Set<ChildDetails>.at
+    get() = map {
+        it.at
+    }.min()
