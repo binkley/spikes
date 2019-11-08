@@ -14,20 +14,30 @@ internal class PersistedParentsTest
     : LiveTestBase() {
     @Test
     fun shouldCreateNew() {
-        val found = findExistingOrCreateNewParent()
+        val found = parents.findExistingOrCreateNew(parentNaturalId)
 
         expect(found).toBe(createNewParent())
         expect(found.children).isEmpty()
+
+        expectSqlQueriesByType {
+            it.size
+        }.toBe(mapOf("SELECT" to 1))
+        expectDomainChangedEvents().isEmpty()
     }
 
     @Test
     fun shouldFindExisting() {
         val saved = newSavedParent()
 
-        val found = findExistingOrCreateNewParent()
+        val found = parents.findExistingOrCreateNew(parentNaturalId)
 
         expect(found).toBe(saved)
         expect(found.children).isEmpty()
+
+        expectSqlQueriesByType {
+            it.size
+        }.toBe(mapOf("SELECT" to 2)) // 1 == parent, 2 == children (none)
+        expectDomainChangedEvents().isEmpty()
     }
 
     @Test

@@ -14,20 +14,30 @@ internal class PersistedChildrenTest
     : LiveTestBase() {
     @Test
     fun shouldCreateNew() {
-        val found = findExistingOrCreateNewUnassignedChild()
+        val found = children.findExistingOrCreateNewUnassigned(childNaturalId)
 
         expect(found).toBe(createNewUnassignedChild())
         expect(found.existing).toBe(false)
+
+        expectSqlQueriesByType {
+            it.size
+        }.toBe(mapOf("SELECT" to 1))
+        expectDomainChangedEvents().isEmpty()
     }
 
     @Test
     fun shouldFindExisting() {
         val saved = newSavedUnassignedChild()
 
-        val found = findExistingOrCreateNewUnassignedChild()
+        val found = children.findExistingOrCreateNewUnassigned(childNaturalId)
 
         expect(found).toBe(saved)
         expect(found.existing).toBe(true)
+
+        expectSqlQueriesByType {
+            it.size
+        }.toBe(mapOf("SELECT" to 1))
+        expectDomainChangedEvents().isEmpty()
     }
 
     @Test
