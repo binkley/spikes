@@ -24,6 +24,8 @@ internal abstract class LiveTestBase {
     lateinit var children: ChildFactory
     @Autowired
     lateinit var testListener: TestListener<DomainChangedEvent<*>>
+    @Autowired
+    lateinit var sqlQueries: SqlQueries
 
     internal fun expectDomainChangedEvents() = testListener.expectNext
     internal fun resetDomainChangedEvents() = testListener.reset()
