@@ -251,12 +251,23 @@ internal class PersistedParentsTest
         val parent = newSavedParent()
         val child = newSavedUnassignedChild()
         val assignedChild = parent.assign(child)
+
         parent.save()
 
         expectSqlQueriesByType {
             it.size
         }.toBe(mapOf("SELECT" to 1, "UPSERT" to 2))
-        resetDomainChangedEvents()
+        expectDomainChangedEvents().containsExactly(
+                ChildChangedEvent(
+                        ChildSnapshot(childNaturalId, null,
+                                ENABLED.name, atZero, null, emptySet(), 1),
+                        ChildSnapshot(childNaturalId, parentNaturalId,
+                                ENABLED.name, atZero, null, emptySet(), 2)),
+                ParentChangedEvent(
+                        ParentSnapshot(parentNaturalId, ENABLED.name, null,
+                                null, setOf(), 1),
+                        ParentSnapshot(parentNaturalId, ENABLED.name, atZero,
+                                null, setOf(), 2)))
 
         val value = "PQR"
         child.update {

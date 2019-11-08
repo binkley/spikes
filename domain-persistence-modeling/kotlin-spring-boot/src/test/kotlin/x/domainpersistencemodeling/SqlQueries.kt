@@ -27,6 +27,10 @@ class SqlQueries
             reset()
         }
 
+    override fun close() {
+        appender.stop()
+    }
+
     fun <V> expectNextByType(toValue: (List<String>) -> V) =
             expect(queries.groupBy {
                 bucket(it)
@@ -38,9 +42,8 @@ class SqlQueries
 
     fun reset() = queries.clear()
 
-    override fun close() {
-        appender.stop()
-    }
+    @Suppress("unused")
+    fun dump() = println(queries)
 
     private inner class Appender : AppenderBase<ILoggingEvent>() {
         private val logger =

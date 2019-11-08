@@ -40,8 +40,8 @@ internal abstract class LiveTestBase {
 
     /**
      * Aggressively checks that tests asserted against SQL queries and domain
-     * change events.  Use [@AfterEach] to tie failures to the test that did
-     * not check.
+     * change events.  Use [@AfterEach] to tie failures to tests that do not
+     * check.
      */
     @AfterEach
     internal fun setUp() {
@@ -54,13 +54,10 @@ internal abstract class LiveTestBase {
     internal fun <V> expectSqlQueriesByType(toValue: (List<String>) -> V) =
             sqlQueries.expectNextByType(toValue)
 
-    internal fun resetSqlQueries() = sqlQueries.reset()
-
     internal fun expectDomainChangedEvents() = testListener.expectNext
-    internal fun resetDomainChangedEvents() = testListener.reset()
 
     internal fun expectAllParents() = expect(parents.all().toList()).also {
-        resetSqlQueries()
+        sqlQueries.reset()
     }
 
     internal fun createNewParent(naturalId: String = parentNaturalId) =
@@ -69,41 +66,41 @@ internal abstract class LiveTestBase {
     internal fun findExistingOrCreateNewParent(
             naturalId: String = parentNaturalId) =
             parents.findExistingOrCreateNew(naturalId).also {
-                resetSqlQueries()
+                sqlQueries.reset()
             }
 
     internal fun newSavedParent(): Parent {
         val saved = createNewParent().save()
         expect(saved.changed).toBe(true)
         val parent = saved.domain
-        resetSqlQueries()
-        resetDomainChangedEvents()
+        sqlQueries.reset()
+        testListener.reset()
         return parent
     }
 
     internal fun currentPersistedParent(
             naturalId: String = parentNaturalId) =
             parents.findExisting(naturalId)!!.also {
-                resetSqlQueries()
+                sqlQueries.reset()
             }
 
     internal fun expectAllChildren() = expect(children.all().toList()).also {
-        resetSqlQueries()
+        sqlQueries.reset()
     }
 
     internal fun newSavedUnassignedChild(): UnassignedChild {
         val saved = createNewUnassignedChild().save()
         expect(saved.changed).toBe(true)
         val child = saved.domain
-        resetSqlQueries()
-        resetDomainChangedEvents()
+        sqlQueries.reset()
+        testListener.reset()
         return child as UnassignedChild
     }
 
     internal fun currentPersistedChild(
             naturalId: String = childNaturalId) =
             children.findExisting(naturalId)!!.also {
-                resetSqlQueries()
+                sqlQueries.reset()
             }
 
     internal fun createNewUnassignedChild(
@@ -113,6 +110,6 @@ internal abstract class LiveTestBase {
     internal fun findExistingOrCreateNewUnassignedChild(
             naturalId: String = childNaturalId) =
             children.findExistingOrCreateNewUnassigned(naturalId).also {
-                resetSqlQueries()
+                sqlQueries.reset()
             }
 }

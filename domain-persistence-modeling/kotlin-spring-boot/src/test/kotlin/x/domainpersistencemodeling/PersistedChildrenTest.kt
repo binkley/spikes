@@ -196,7 +196,11 @@ internal class PersistedChildrenTest
         expectSqlQueriesByType {
             it.size
         }.toBe(mapOf("UPSERT" to 1))
-        resetDomainChangedEvents()
+        expectDomainChangedEvents().containsExactly(
+                ChildChangedEvent(
+                        null,
+                        ChildSnapshot(childNaturalId, parentNaturalId,
+                                ENABLED.name, atZero, null, emptySet(), 1)))
 
         expect(parent.version).toBe(1)
 
