@@ -190,6 +190,10 @@ internal open class PersistedParent(
     override val changed
         get() = snapshot != record().toSnapshot(computed)
 
+    /**
+     * Notice that when **saving**, save the parent _first_, so added
+     * children have a valid FK reference.
+     */
     @Transactional
     override fun save(): UpsertedDomainResult<ParentSnapshot, Parent> {
         // Save ourselves first, so children have a valid parent
@@ -212,17 +216,17 @@ internal open class PersistedParent(
         return UpsertedDomainResult(this, result.changed)
     }
 
+    /**
+     * Notice that when **deleting**, save the parent _last_, so that FK
+     * references get cleared.
+     */
     @Transactional
     override fun delete() {
         if (children.isNotEmpty()) throw DomainException(
                 "Deleting parent with assigned children: $this")
 
         val before = snapshot
-        if (computed.saveMutatedChildren()) {
-            // Removed children need saving to clear FK constraints
-            // TODO: Is refresh needed?  Delete ignores the version?
-            record = factory.refreshRecord(naturalId)
-        }
+        computed.saveMutatedChildren()
         factory.delete(record())
 
         val after = null as ParentSnapshot?

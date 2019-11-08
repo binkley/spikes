@@ -63,12 +63,17 @@ internal class PersistedChildFactory(
             PersistedChild(this, record.toSnapshot(), record)
 }
 
+/**
+ * Notice that this is both an [UnassignedChild] and an [AssignedChild] for
+ * ease of implementation.  Externally, this details is not visible, as
+ * [PersistedChildFactory] returns only interfaces, not concrete classes, in
+ * its factory methods, and downcasting to narrow is safe.
+ */
 internal open class PersistedChild(
         private val factory: PersistedChildFactory,
         private var snapshot: ChildSnapshot?,
         private var record: ChildRecord?)
-    : Child,
-        UnassignedChild,
+    : UnassignedChild,
         AssignedChild {
     override val naturalId: String
         get() = record().naturalId
