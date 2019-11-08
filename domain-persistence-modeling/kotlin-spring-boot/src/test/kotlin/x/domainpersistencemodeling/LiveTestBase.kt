@@ -3,7 +3,7 @@ package x.domainpersistencemodeling
 import ch.tutteli.atrium.api.cc.en_GB.isEmpty
 import ch.tutteli.atrium.api.cc.en_GB.toBe
 import ch.tutteli.atrium.verbs.expect
-import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.AfterEach
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE
@@ -31,9 +31,10 @@ internal abstract class LiveTestBase {
 
     /**
      * Aggressively checks that tests asserted against SQL queries and domain
-     * change events.
+     * change events.  Use [@AfterEach] to tie failures to the test that did
+     * not check.
      */
-    @BeforeEach
+    @AfterEach
     internal fun setUp() {
         sqlQueries.expectNext.isEmpty()
         testListener.expectNext.isEmpty()
