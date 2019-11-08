@@ -35,6 +35,7 @@ internal class PersistedParentsTest
         val unsaved = createNewParent()
 
         expect(unsaved.version).toBe(0)
+        expect(sqlQueries).isEmpty()
         expectDomainChangedEvents().isEmpty()
 
         val saved = unsaved.save()
@@ -42,6 +43,7 @@ internal class PersistedParentsTest
         expect(allParents().toList()).hasSize(1)
         expect(unsaved.version).toBe(1)
         expect(saved).toBe(UpsertedDomainResult(unsaved, true))
+        expect(sqlQueries).hasSize(1)
         expectDomainChangedEvents().containsExactly(
                 ParentChangedEvent(
                         null,

@@ -2,6 +2,7 @@ package x.domainpersistencemodeling
 
 import ch.tutteli.atrium.api.cc.en_GB.toBe
 import ch.tutteli.atrium.verbs.expect
+import org.junit.jupiter.api.AfterEach
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE
@@ -26,6 +27,12 @@ internal abstract class LiveTestBase {
     lateinit var testListener: TestListener<DomainChangedEvent<*>>
     @Autowired
     lateinit var sqlQueries: SqlQueries
+
+    @AfterEach
+    internal fun tearDown() {
+        testListener.reset()
+        sqlQueries.clear()
+    }
 
     internal fun expectDomainChangedEvents() = testListener.expectNext
     internal fun resetDomainChangedEvents() = testListener.reset()

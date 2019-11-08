@@ -36,6 +36,9 @@ class SqlQueries
         appender.stop()
     }
 
+    val byType: Map<String, List<String>>
+        get() = groupBy { bucket(it) }
+
     private inner class Appender : AppenderBase<ILoggingEvent>() {
         override fun append(eventObject: ILoggingEvent) {
             val message = eventObject.message
