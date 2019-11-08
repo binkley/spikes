@@ -19,9 +19,7 @@ internal class PersistedParentsTest
         expect(found).toBe(createNewParent())
         expect(found.children).isEmpty()
 
-        expectSqlQueriesByType {
-            it.size
-        }.toBe(mapOf("SELECT" to 1))
+        expectSqlQueryCountsByType(select = 1)
         expectDomainChangedEvents().isEmpty()
     }
 
@@ -34,9 +32,8 @@ internal class PersistedParentsTest
         expect(found).toBe(saved)
         expect(found.children).isEmpty()
 
-        expectSqlQueriesByType {
-            it.size
-        }.toBe(mapOf("SELECT" to 2)) // 1 == parent, 2 == children (none)
+        // 1 == parent, 2 == children (none)
+        expectSqlQueryCountsByType(select = 2)
         expectDomainChangedEvents().isEmpty()
     }
 
@@ -50,9 +47,7 @@ internal class PersistedParentsTest
 
         val saved = unsaved.save()
 
-        expectSqlQueriesByType {
-            it.size
-        }.toBe(mapOf("UPSERT" to 1))
+        expectSqlQueryCountsByType(upsert = 1)
         expectAllParents().hasSize(1)
         expect(unsaved.version).toBe(1)
         expect(saved).toBe(UpsertedDomainResult(unsaved, true))
@@ -95,9 +90,7 @@ internal class PersistedParentsTest
 
         original.save()
 
-        expectSqlQueriesByType {
-            it.size
-        }.toBe(mapOf("UPSERT" to 1))
+        expectSqlQueryCountsByType(upsert = 1)
 
         expect(original.changed).toBe(false)
 
@@ -134,9 +127,7 @@ internal class PersistedParentsTest
         }
         parent.save()
 
-        expectSqlQueriesByType {
-            it.size
-        }.toBe(mapOf("SELECT" to 1, "UPSERT" to 2))
+        expectSqlQueryCountsByType(select = 1, upsert = 2)
 
         expect(currentPersistedChild().at).toBe(at)
         expect(currentPersistedChild().value).toBe(value)
@@ -161,9 +152,7 @@ internal class PersistedParentsTest
 
         existing.delete()
 
-        expectSqlQueriesByType {
-            it.size
-        }.toBe(mapOf("DELETE" to 1))
+        expectSqlQueryCountsByType(delete = 1)
 
         expectAllParents().isEmpty()
         expect {
@@ -187,6 +176,9 @@ internal class PersistedParentsTest
         expect {
             parent.delete()
         }.toThrow<DomainException> { }
+
+        expectSqlQueries().isEmpty()
+        expectDomainChangedEvents().isEmpty()
     }
 
     @Test
@@ -199,6 +191,9 @@ internal class PersistedParentsTest
         expect {
             parent.assign(child)
         }.toThrow<DomainException> { }
+
+        expectSqlQueries().isEmpty()
+        expectDomainChangedEvents().isEmpty()
     }
 
     @Test
@@ -211,9 +206,7 @@ internal class PersistedParentsTest
         val assignedChild = parent.assign(child)
         val parentAssignedWithChild = parent.save().domain
 
-        expectSqlQueriesByType {
-            it.size
-        }.toBe(mapOf("SELECT" to 1, "UPSERT" to 2))
+        expectSqlQueryCountsByType(select = 1, upsert = 2)
 
         expect(parent.children).containsExactly(child)
         expect(parentAssignedWithChild.version).toBe(2)
@@ -235,9 +228,7 @@ internal class PersistedParentsTest
         parent.unassign(assignedChild)
         val childUnassigned = parent.save().domain
 
-        expectSqlQueriesByType {
-            it.size
-        }.toBe(mapOf("SELECT" to 1, "UPSERT" to 2))
+        expectSqlQueryCountsByType(select = 1, upsert = 2)
 
         expect(parent.children).isEmpty()
         expect(childUnassigned.version).toBe(3)
@@ -264,9 +255,7 @@ internal class PersistedParentsTest
 
         parent.save()
 
-        expectSqlQueriesByType {
-            it.size
-        }.toBe(mapOf("SELECT" to 1, "UPSERT" to 2))
+        expectSqlQueryCountsByType(select = 1, upsert = 2)
         expectDomainChangedEvents().containsExactly(
                 ChildChangedEvent(
                         ChildSnapshot(childNaturalId, null,

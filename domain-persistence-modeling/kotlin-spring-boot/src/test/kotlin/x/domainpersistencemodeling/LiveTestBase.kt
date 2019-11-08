@@ -53,6 +53,23 @@ internal abstract class LiveTestBase {
     internal fun <V> expectSqlQueriesByType(toValue: (List<String>) -> V) =
             sqlQueries.expectNextByType(toValue)
 
+    internal fun expectSqlQueryCountsByType(
+            delete: Int = 0,
+            insert: Int = 0,
+            select: Int = 0,
+            update: Int = 0,
+            upsert: Int = 0) {
+        val expected = mutableMapOf<String, Int>()
+        if (0 != delete) expected["DELETE"] = delete
+        if (0 != insert) expected["INSERT"] = insert
+        if (0 != select) expected["SELECT"] = select
+        if (0 != update) expected["UPDATE"] = update
+        if (0 != upsert) expected["UPSERT"] = upsert
+        expectSqlQueriesByType {
+            it.size
+        }.toBe(expected)
+    }
+
     internal fun expectDomainChangedEvents() = testListener.expectNext
 
     internal fun expectAllParents() = expect(parents.all().toList()).also {
