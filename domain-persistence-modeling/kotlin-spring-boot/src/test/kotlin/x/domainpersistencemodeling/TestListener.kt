@@ -11,15 +11,13 @@ class TestListener<Event : DomainChangedEvent<*>>
     : ApplicationListener<Event> {
     private val received = mutableListOf<Event>()
 
-    fun reset() {
-        received.clear()
-    }
+    fun reset() = received.clear()
 
     override fun onApplicationEvent(event: Event) {
         received.add(event)
     }
 
-    /** Creates a `List` expectation for AssertJ, and resets the listener. */
+    /** Creates a `List` expectation for Atrium, and resets the listener. */
     val expectNext: ReportingAssertionPlant<List<Event>>
         get() = expect(received.toList()).also {
             reset()

@@ -35,22 +35,22 @@ internal class PersistedParentsTest
         val unsaved = createNewParent()
 
         expect(unsaved.version).toBe(0)
-        expect(sqlQueries).isEmpty()
+        expectSqlQueries().isEmpty()
         expectDomainChangedEvents().isEmpty()
 
         val saved = unsaved.save()
 
-        expect(allParents().toList()).hasSize(1)
+        expectSqlQueries().hasSize(1)
+        expectAllParents().hasSize(1)
         expect(unsaved.version).toBe(1)
         expect(saved).toBe(UpsertedDomainResult(unsaved, true))
-        expect(sqlQueries).hasSize(1)
+        expect(currentPersistedParent()).toBe(unsaved)
+
         expectDomainChangedEvents().containsExactly(
                 ParentChangedEvent(
                         null,
                         ParentSnapshot(parentNaturalId, ENABLED.name, null,
                                 null, setOf(), 1)))
-
-        expect(currentPersistedParent()).toBe(unsaved)
     }
 
     @Test
@@ -59,6 +59,8 @@ internal class PersistedParentsTest
         val resaved = original.save()
 
         expect(resaved).toBe(UpsertedDomainResult(original, false))
+
+        expectSqlQueries().isEmpty()
         expectDomainChangedEvents().isEmpty()
     }
 
@@ -75,11 +77,15 @@ internal class PersistedParentsTest
 
         expect(original.changed).toBe(true)
         expect(original.value).toBe(value)
+
+        expectSqlQueries().isEmpty()
         expectDomainChangedEvents().isEmpty()
 
         original.save()
 
         expect(original.changed).toBe(false)
+
+        expectSqlQueries().hasSize(1)
         expectDomainChangedEvents().containsExactly(
                 ParentChangedEvent(
                         ParentSnapshot(parentNaturalId, ENABLED.name, null,
@@ -117,6 +123,7 @@ internal class PersistedParentsTest
         expect(currentPersistedChild().value).toBe(value)
         expect(currentPersistedParent().at).toBe(at)
 
+        expectSqlQueries().isEmpty()
         expectDomainChangedEvents().containsExactly(
                 ChildChangedEvent(
                         ChildSnapshot(childNaturalId, null,
@@ -136,10 +143,15 @@ internal class PersistedParentsTest
 
         existing.delete()
 
-        expect(allParents().toList()).isEmpty()
+        expectSqlQueriesByType {
+            it.size
+        }.toBe(mapOf("DELETE" to 1))
+
+        expectAllParents().isEmpty()
         expect {
             existing.version
         }.toThrow<DomainException> { }
+
         expectDomainChangedEvents().containsExactly(
                 ParentChangedEvent(
                         ParentSnapshot(parentNaturalId, ENABLED.name, null,
@@ -185,6 +197,8 @@ internal class PersistedParentsTest
         expect(parentAssignedWithChild.version).toBe(2)
         expect(currentPersistedChild().parentNaturalId)
                 .toBe(parentNaturalId)
+
+        expectSqlQueries().isEmpty()
         expectDomainChangedEvents().containsExactly(
                 ChildChangedEvent(
                         ChildSnapshot(childNaturalId, null,
@@ -203,6 +217,8 @@ internal class PersistedParentsTest
         expect(parent.children).isEmpty()
         expect(childUnassigned.version).toBe(3)
         expect(currentPersistedChild().parentNaturalId).toBe(null)
+
+        expectSqlQueries().isEmpty()
         expectDomainChangedEvents().containsExactly(
                 ChildChangedEvent(
                         ChildSnapshot(childNaturalId, parentNaturalId,
@@ -234,6 +250,7 @@ internal class PersistedParentsTest
 
         expect(currentPersistedChild().value).toBe(value)
 
+        expectSqlQueries().isEmpty()
         expectDomainChangedEvents().containsExactly(
                 ChildChangedEvent(
                         ChildSnapshot(childNaturalId, parentNaturalId,

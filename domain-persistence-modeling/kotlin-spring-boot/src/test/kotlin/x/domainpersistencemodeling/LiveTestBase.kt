@@ -1,8 +1,9 @@
 package x.domainpersistencemodeling
 
+import ch.tutteli.atrium.api.cc.en_GB.isEmpty
 import ch.tutteli.atrium.api.cc.en_GB.toBe
 import ch.tutteli.atrium.verbs.expect
-import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE
@@ -24,55 +25,76 @@ internal abstract class LiveTestBase {
     @Autowired
     lateinit var children: ChildFactory
     @Autowired
-    lateinit var testListener: TestListener<DomainChangedEvent<*>>
-    @Autowired
     lateinit var sqlQueries: SqlQueries
+    @Autowired
+    lateinit var testListener: TestListener<DomainChangedEvent<*>>
 
-    @AfterEach
-    internal fun tearDown() {
-        testListener.reset()
-        sqlQueries.clear()
+    /**
+     * Aggressively checks that tests asserted against SQL queries and domain
+     * change events.
+     */
+    @BeforeEach
+    internal fun setUp() {
+        sqlQueries.expectNext.isEmpty()
+        testListener.expectNext.isEmpty()
     }
+
+    internal fun expectSqlQueries() = sqlQueries.expectNext
+    internal fun expectSqlQueriesByType() = sqlQueries.expectNextByType { it }
+    internal fun <V> expectSqlQueriesByType(toValue: (List<String>) -> V) =
+            sqlQueries.expectNextByType(toValue)
+
+    internal fun resetSqlQueries() = sqlQueries.reset()
 
     internal fun expectDomainChangedEvents() = testListener.expectNext
     internal fun resetDomainChangedEvents() = testListener.reset()
 
-    internal fun allParents() = parents.all()
+    internal fun expectAllParents() = expect(parents.all().toList()).also {
+        resetSqlQueries()
+    }
 
     internal fun createNewParent(naturalId: String = parentNaturalId) =
             parents.createNew(naturalId)
 
     internal fun findExistingOrCreateNewParent(
             naturalId: String = parentNaturalId) =
-            parents.findExistingOrCreateNew(naturalId)
+            parents.findExistingOrCreateNew(naturalId).also {
+                resetSqlQueries()
+            }
 
     internal fun newSavedParent(): Parent {
         val saved = createNewParent().save()
         expect(saved.changed).toBe(true)
         val parent = saved.domain
-        testListener.reset()
+        resetSqlQueries()
+        resetDomainChangedEvents()
         return parent
     }
 
     internal fun currentPersistedParent(
-            naturalId: String = parentNaturalId): Parent {
-        return parents.findExisting(naturalId)!!
-    }
+            naturalId: String = parentNaturalId) =
+            parents.findExisting(naturalId)!!.also {
+                resetSqlQueries()
+            }
 
-    internal fun allChildren() = children.all()
+    internal fun expectAllChildren() = expect(children.all().toList()).also {
+        resetSqlQueries()
+    }
 
     internal fun newSavedUnassignedChild(): UnassignedChild {
         val saved = createNewUnassignedChild().save()
         expect(saved.changed).toBe(true)
         val child = saved.domain
-        testListener.reset()
+        resetSqlQueries()
+        resetDomainChangedEvents()
         return child as UnassignedChild
     }
 
     internal fun currentPersistedChild(
-            naturalId: String = childNaturalId): Child {
-        return children.findExisting(naturalId)!!
-    }
+            naturalId: String = childNaturalId) =
+            children.findExisting(naturalId)!!.also {
+                resetSqlQueries()
+            }
 
     internal fun createNewUnassignedChild(
             naturalId: String = childNaturalId) =
@@ -80,5 +102,7 @@ internal abstract class LiveTestBase {
 
     internal fun findExistingOrCreateNewUnassignedChild(
             naturalId: String = childNaturalId) =
-            children.findExistingOrCreateNewUnassigned(naturalId)
+            children.findExistingOrCreateNewUnassigned(naturalId).also {
+                resetSqlQueries()
+            }
 }
