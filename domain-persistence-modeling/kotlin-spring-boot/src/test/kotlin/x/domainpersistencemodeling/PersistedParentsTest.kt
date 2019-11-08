@@ -56,8 +56,8 @@ internal class PersistedParentsTest
         expectDomainChangedEvents().containsExactly(
                 ParentChangedEvent(
                         null,
-                        ParentSnapshot(parentNaturalId, ENABLED.name, null,
-                                null, setOf(), 1)))
+                        ParentSnapshot(parentNaturalId, null, ENABLED.name,
+                                null, null, setOf(), 1)))
     }
 
     @Test
@@ -96,10 +96,10 @@ internal class PersistedParentsTest
 
         expectDomainChangedEvents().containsExactly(
                 ParentChangedEvent(
-                        ParentSnapshot(parentNaturalId, ENABLED.name, null,
-                                null, setOf(), 1),
-                        ParentSnapshot(parentNaturalId, ENABLED.name, null,
-                                value, setOf(), 2)))
+                        ParentSnapshot(parentNaturalId, null, ENABLED.name,
+                                null, null, setOf(), 1),
+                        ParentSnapshot(parentNaturalId, null, ENABLED.name,
+                                null, value, setOf(), 2)))
     }
 
     @Test
@@ -140,10 +140,10 @@ internal class PersistedParentsTest
                         ChildSnapshot(childNaturalId, parentNaturalId,
                                 ENABLED.name, at, value, emptySet(), 2)),
                 ParentChangedEvent(
-                        ParentSnapshot(parentNaturalId, ENABLED.name, null,
-                                null, setOf(), 1),
-                        ParentSnapshot(parentNaturalId, ENABLED.name, at,
-                                null, setOf(), 2)))
+                        ParentSnapshot(parentNaturalId, null, ENABLED.name,
+                                null, null, setOf(), 1),
+                        ParentSnapshot(parentNaturalId, null, ENABLED.name,
+                                at, null, setOf(), 2)))
     }
 
     @Test
@@ -161,8 +161,8 @@ internal class PersistedParentsTest
 
         expectDomainChangedEvents().containsExactly(
                 ParentChangedEvent(
-                        ParentSnapshot(parentNaturalId, ENABLED.name, null,
-                                null, setOf(), 1),
+                        ParentSnapshot(parentNaturalId, null, ENABLED.name,
+                                null, null, setOf(), 1),
                         null))
     }
 
@@ -220,10 +220,10 @@ internal class PersistedParentsTest
                         ChildSnapshot(childNaturalId, parentNaturalId,
                                 ENABLED.name, atZero, null, emptySet(), 2)),
                 ParentChangedEvent(
-                        ParentSnapshot(parentNaturalId, ENABLED.name, null,
-                                null, setOf(), 1),
-                        ParentSnapshot(parentNaturalId, ENABLED.name, atZero,
-                                null, setOf(), 2)))
+                        ParentSnapshot(parentNaturalId, null, ENABLED.name,
+                                null, null, setOf(), 1),
+                        ParentSnapshot(parentNaturalId, null, ENABLED.name,
+                                atZero, null, setOf(), 2)))
 
         parent.unassign(assigned)
         parent = parent.save().domain
@@ -241,10 +241,10 @@ internal class PersistedParentsTest
                         ChildSnapshot(childNaturalId, null,
                                 ENABLED.name, atZero, null, emptySet(), 3)),
                 ParentChangedEvent(
-                        ParentSnapshot(parentNaturalId, ENABLED.name, atZero,
-                                null, setOf(), 2),
-                        ParentSnapshot(parentNaturalId, ENABLED.name, null,
-                                null, setOf(), 3)))
+                        ParentSnapshot(parentNaturalId, null, ENABLED.name,
+                                atZero, null, setOf(), 2),
+                        ParentSnapshot(parentNaturalId, null, ENABLED.name,
+                                null, null, setOf(), 3)))
     }
 
     @Test
@@ -263,10 +263,10 @@ internal class PersistedParentsTest
                         ChildSnapshot(childNaturalId, parentNaturalId,
                                 ENABLED.name, atZero, null, emptySet(), 2)),
                 ParentChangedEvent(
-                        ParentSnapshot(parentNaturalId, ENABLED.name, null,
-                                null, setOf(), 1),
-                        ParentSnapshot(parentNaturalId, ENABLED.name, atZero,
-                                null, setOf(), 2)))
+                        ParentSnapshot(parentNaturalId, null, ENABLED.name,
+                                null, null, setOf(), 1),
+                        ParentSnapshot(parentNaturalId, null, ENABLED.name,
+                                atZero, null, setOf(), 2)))
 
         val value = "PQR"
         child.update {
@@ -286,8 +286,8 @@ internal class PersistedParentsTest
                         ChildSnapshot(childNaturalId, null,
                                 ENABLED.name, atZero, value, emptySet(), 3)),
                 ParentChangedEvent(
-                        ParentSnapshot(parentNaturalId, ENABLED.name, atZero,
-                                null, setOf(), 2),
+                        ParentSnapshot(parentNaturalId, null, ENABLED.name,
+                                atZero, null, setOf(), 2),
                         null))
     }
 }

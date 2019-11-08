@@ -4,6 +4,7 @@ import java.time.OffsetDateTime
 
 data class ParentSnapshot(
         val naturalId: String,
+        val otherNaturalId: String?,
         val state: String,
         val at: OffsetDateTime?,
         val value: String?,
@@ -20,6 +21,7 @@ interface ParentFactory {
 interface ParentIntrinsicDetails
     : Comparable<ParentIntrinsicDetails> {
     val naturalId: String
+    val otherNaturalId: String? // TODO: Not yet mutable
     val state: String
     val value: String?
     val sideValues: Set<String> // Sorted

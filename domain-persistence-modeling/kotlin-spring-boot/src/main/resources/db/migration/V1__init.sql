@@ -11,15 +11,16 @@ CREATE TABLE other
 
 CREATE TABLE parent
 (
-    id          SERIAL PRIMARY KEY,
-    natural_id  VARCHAR       NOT NULL UNIQUE,
-    state       VARCHAR       NOT NULL,
-    value       VARCHAR,
-    side_values VARCHAR ARRAY NOT NULL,
+    id               SERIAL PRIMARY KEY,
+    natural_id       VARCHAR       NOT NULL UNIQUE,
+    other_natural_id VARCHAR REFERENCES other (natural_id), -- Nullable
+    state            VARCHAR       NOT NULL,
+    value            VARCHAR,
+    side_values      VARCHAR ARRAY NOT NULL,
     -- DB controls Audit columns, not caller
-    version     INT,
-    created_at  TIMESTAMP,
-    updated_at  TIMESTAMP
+    version          INT,
+    created_at       TIMESTAMP,
+    updated_at       TIMESTAMP
 );
 
 CREATE TABLE child
@@ -59,6 +60,7 @@ $$;
 
 -- Workaround issue in Spring Data with passing sets for ARRAY types in a procedure
 CREATE OR REPLACE FUNCTION upsert_parent(_natural_id parent.natural_id%TYPE,
+                                         _other_natural_id parent.other_natural_id%TYPE,
                                          _state parent.state%TYPE,
                                          _value parent.value%TYPE,
                                          _side_values VARCHAR,
@@ -70,14 +72,14 @@ AS
 $$
 BEGIN
     RETURN QUERY INSERT INTO parent
-        (natural_id, state, value,
+        (natural_id, other_natural_id, state, value,
          side_values, version)
-        VALUES (_natural_id, _state, _value,
+        VALUES (_natural_id, _other_natural_id, _state, _value,
                 CAST(_side_values AS VARCHAR ARRAY), _version)
         ON CONFLICT (natural_id) DO UPDATE
-            SET (state, value,
+            SET (other_natural_id, state, value,
                  side_values, version)
-                = (excluded.state, excluded.value,
+                = (excluded.other_natural_id, excluded.state, excluded.value,
                    excluded.side_values, excluded.version)
         RETURNING *;
 END;
@@ -133,7 +135,7 @@ BEGIN
 END;
 $$;
 
-CREATE OR REPLACE FUNCTION insert_other_audit_f()
+CREATE OR REPLACE FUNCTION insert_other_natural_id_audit_f()
     RETURNS TRIGGER
     LANGUAGE plpgsql
 AS
@@ -270,19 +272,19 @@ BEGIN
 END;
 $$;
 
-CREATE TRIGGER a_update_other_immutable_natural_key_t
+CREATE TRIGGER a_update_other_natural_id_immutable_natural_key_t
     BEFORE UPDATE
     ON other
     FOR EACH ROW
 EXECUTE PROCEDURE update_immutable_natural_key_f();
 
-CREATE TRIGGER b_insert_other_audit_t
+CREATE TRIGGER b_insert_other_natural_id_audit_t
     BEFORE INSERT
     ON other
     FOR EACH ROW
-EXECUTE PROCEDURE insert_other_audit_f();
+EXECUTE PROCEDURE insert_other_natural_id_audit_f();
 
-CREATE TRIGGER b_update_other_audit_t
+CREATE TRIGGER b_update_other_natural_id_audit_t
     BEFORE UPDATE
     ON other
     FOR EACH ROW

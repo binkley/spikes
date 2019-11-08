@@ -18,8 +18,8 @@ import java.util.TreeSet
 import java.util.stream.Collectors.toCollection
 
 internal fun ParentRecord.toSnapshot(computed: ParentComputedDetails) =
-        ParentSnapshot(
-                naturalId, state, computed.at, value, sideValues, version)
+        ParentSnapshot(naturalId, otherNaturalId, state, computed.at, value,
+                sideValues, version)
 
 @Component
 internal class PersistedParentFactory(
@@ -158,6 +158,8 @@ internal open class PersistedParent(
     : Parent {
     override val naturalId: String
         get() = record().naturalId
+    override val otherNaturalId: String?
+        get() = record().otherNaturalId
     override val state: String
         get() = record().state
     override val at: OffsetDateTime?
@@ -297,10 +299,11 @@ interface ParentRepository : CrudRepository<ParentRecord, Long> {
 
     @Query("""
         SELECT *
-        FROM upsert_parent(:naturalId, :state, :value, :sideValues, :version)
+        FROM upsert_parent(:naturalId, :otherNaturalId, :state, :value, :sideValues, :version)
         """)
     fun upsert(
             @Param("naturalId") naturalId: String,
+            @Param("otherNaturalId") otherNaturalId: String?,
             @Param("state") state: String,
             @Param("value") value: String?,
             @Param("sideValues") sideValues: String,
@@ -311,6 +314,7 @@ interface ParentRepository : CrudRepository<ParentRecord, Long> {
     fun upsert(entity: ParentRecord): Optional<ParentRecord> {
         val upserted = upsert(
                 entity.naturalId,
+                entity.otherNaturalId,
                 entity.state,
                 entity.value,
                 entity.sideValues.workAroundArrayTypeForPostgres(),
@@ -326,6 +330,7 @@ interface ParentRepository : CrudRepository<ParentRecord, Long> {
 data class ParentRecord(
         @Id var id: Long?,
         override var naturalId: String,
+        override val otherNaturalId: String?,
         override var state: String,
         override var value: String?,
         override var sideValues: MutableSet<String>,
@@ -333,11 +338,13 @@ data class ParentRecord(
     : MutableParentIntrinsicDetails,
         UpsertableRecord<ParentRecord> {
     internal constructor(naturalId: String)
-            : this(null, naturalId, ENABLED.name, null, mutableSetOf(), 0)
+            : this(null, naturalId, null, ENABLED.name, null, mutableSetOf(),
+            0)
 
     override fun upsertedWith(upserted: ParentRecord): ParentRecord {
         id = upserted.id
         naturalId = upserted.naturalId
+        // TODO: otherNaturalId = upserted.otherNaturalId
         state = upserted.state
         value = upserted.value
         sideValues = TreeSet(upserted.sideValues)

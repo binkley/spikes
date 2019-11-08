@@ -75,6 +75,7 @@ private fun parentHavingSideValues(
         sideValues: Set<String> = setOf()) =
         object : TestParent {
             override val naturalId = "a"
+            override val otherNaturalId = null
             override val state = ENABLED.name
             override val value = null
             override val sideValues = sideValues
