@@ -7,7 +7,6 @@ import ch.tutteli.atrium.api.cc.en_GB.toBe
 import ch.tutteli.atrium.api.cc.en_GB.toThrow
 import ch.tutteli.atrium.verbs.expect
 import org.junit.jupiter.api.Test
-import x.domainpersistencemodeling.KnownState.ENABLED
 import x.domainpersistencemodeling.PersistableDomain.UpsertedDomainResult
 
 internal class PersistedChildrenTest
@@ -54,10 +53,10 @@ internal class PersistedChildrenTest
         expect(saved).toBe(UpsertedDomainResult(unsaved, true))
         expect(currentPersistedChild()).toBe(unsaved)
 
-        expectDomainChangedEvents().containsExactly(ChildChangedEvent(
-                null,
-                ChildSnapshot(childNaturalId, null, ENABLED.name,
-                        atZero, null, emptySet(), 1)))
+        expectDomainChangedEvents().containsExactly(
+                aChildChangedEvent(
+                        noBefore = true,
+                        afterVersion = 1))
     }
 
     @Test
@@ -97,11 +96,14 @@ internal class PersistedChildrenTest
         expectSqlQueryCountsByType(upsert = 1)
         expect(original.changed).toBe(false)
 
-        expectDomainChangedEvents().containsExactly(ChildChangedEvent(
-                ChildSnapshot(childNaturalId, null, ENABLED.name,
-                        atZero, null, emptySet(), 1),
-                ChildSnapshot(childNaturalId, null, ENABLED.name,
-                        at, value, emptySet(), 2)))
+        expectDomainChangedEvents().containsExactly(
+                aChildChangedEvent(
+                        beforeVersion = 1,
+                        beforeAt = atZero,
+                        beforeValue = null,
+                        afterVersion = 2,
+                        afterAt = at,
+                        afterValue = value))
     }
 
     @Test
@@ -116,10 +118,10 @@ internal class PersistedChildrenTest
             existing.version
         }.toThrow<DomainException> { }
 
-        expectDomainChangedEvents().containsExactly(ChildChangedEvent(
-                ChildSnapshot(childNaturalId, null, ENABLED.name,
-                        atZero, null, emptySet(), 1),
-                null))
+        expectDomainChangedEvents().containsExactly(
+                aChildChangedEvent(
+                        beforeVersion = 1,
+                        noAfter = true))
     }
 
     @Test
@@ -141,10 +143,11 @@ internal class PersistedChildrenTest
                 .toBe(parentNaturalId)
         expect(currentPersistedParent().version).toBe(2)
 
-        expectDomainChangedEvents().containsExactly(ChildChangedEvent(
-                null,
-                ChildSnapshot(childNaturalId, parentNaturalId, ENABLED.name,
-                        atZero, null, emptySet(), 1)))
+        expectDomainChangedEvents().containsExactly(
+                aChildChangedEvent(
+                        noBefore = true,
+                        afterVersion = 1,
+                        afterParentNaturalId = parentNaturalId))
     }
 
     @Test
@@ -170,11 +173,12 @@ internal class PersistedChildrenTest
                 .toBe(parentNaturalId)
         expect(currentPersistedParent().version).toBe(2)
 
-        expectDomainChangedEvents().containsExactly(ChildChangedEvent(
-                ChildSnapshot(childNaturalId, null, ENABLED.name,
-                        atZero, null, emptySet(), 1),
-                ChildSnapshot(childNaturalId, parentNaturalId, ENABLED.name,
-                        atZero, null, emptySet(), 2)))
+        expectDomainChangedEvents().containsExactly(
+                aChildChangedEvent(
+                        beforeVersion = 1,
+                        beforeParentNaturalId = null,
+                        afterVersion = 2,
+                        afterParentNaturalId = parentNaturalId))
     }
 
     @Test
@@ -186,10 +190,10 @@ internal class PersistedChildrenTest
 
         expectSqlQueryCountsByType(upsert = 1)
         expectDomainChangedEvents().containsExactly(
-                ChildChangedEvent(
-                        null,
-                        ChildSnapshot(childNaturalId, parentNaturalId,
-                                ENABLED.name, atZero, null, emptySet(), 1)))
+                aChildChangedEvent(
+                        noBefore = true,
+                        afterVersion = 1,
+                        afterParentNaturalId = parentNaturalId))
 
         expect(parent.version).toBe(1)
 
@@ -203,10 +207,11 @@ internal class PersistedChildrenTest
         // Created, assigned by child, unassigned by child == version 3
         expect(currentPersistedParent().version).toBe(3)
 
-        expectDomainChangedEvents().containsExactly(ChildChangedEvent(
-                ChildSnapshot(childNaturalId, parentNaturalId, ENABLED.name,
-                        atZero, null, emptySet(), 1),
-                ChildSnapshot(childNaturalId, null, ENABLED.name,
-                        atZero, null, emptySet(), 2)))
+        expectDomainChangedEvents().containsExactly(
+                aChildChangedEvent(
+                        beforeVersion = 1,
+                        beforeParentNaturalId = parentNaturalId,
+                        afterVersion = 2,
+                        afterParentNaturalId = null))
     }
 }

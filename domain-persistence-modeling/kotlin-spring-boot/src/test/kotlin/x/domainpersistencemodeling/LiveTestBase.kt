@@ -9,7 +9,9 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.transaction.annotation.Transactional
+import x.domainpersistencemodeling.KnownState.ENABLED
 import java.time.Instant.EPOCH
+import java.time.OffsetDateTime
 import java.time.ZoneOffset.UTC
 
 internal const val otherNaturalId = "o"
@@ -145,3 +147,59 @@ internal abstract class LiveTestBase {
             naturalId: String = childNaturalId) =
             children.createNewUnassigned(naturalId)
 }
+
+internal fun anOtherChangedEvent( // TODO: Tie defaults to record defaults
+        noBefore: Boolean = false,
+        beforeValue: String? = null,
+        beforeOtherVersion: Int = 0,
+        noAfter: Boolean = false,
+        afterValue: String? = null,
+        afterVersion: Int = 0) = OtherChangedEvent(
+        if (noBefore) null else OtherSnapshot(otherNaturalId, beforeValue,
+                beforeOtherVersion),
+        if (noAfter) null else OtherSnapshot(otherNaturalId, afterValue,
+                afterVersion))
+
+internal fun aParentChangedEvent( // TODO: Tie defaults to record defaults
+        noBefore: Boolean = false,
+        beforeOtherNaturalId: String? = null,
+        beforeState: String = ENABLED.name,
+        beforeAt: OffsetDateTime? = null,
+        beforeValue: String? = null,
+        beforeSideValues: Set<String> = setOf(),
+        beforeVersion: Int = 0,
+        noAfter: Boolean = false,
+        afterOtherNaturalId: String? = null,
+        afterState: String = ENABLED.name,
+        afterAt: OffsetDateTime? = null,
+        afterValue: String? = null,
+        afterSideValues: Set<String> = setOf(),
+        afterVersion: Int = 0) = ParentChangedEvent(
+        if (noBefore) null else ParentSnapshot(parentNaturalId,
+                beforeOtherNaturalId, beforeState, beforeAt, beforeValue,
+                beforeSideValues, beforeVersion),
+        if (noAfter) null else ParentSnapshot(parentNaturalId,
+                afterOtherNaturalId, afterState, afterAt, afterValue,
+                afterSideValues, afterVersion))
+
+internal fun aChildChangedEvent( // TODO: Tie defaults to record defaults
+        noBefore: Boolean = false,
+        beforeParentNaturalId: String? = null,
+        beforeState: String = ENABLED.name,
+        beforeAt: OffsetDateTime = atZero,
+        beforeValue: String? = null,
+        beforeSideValues: Set<String> = setOf(),
+        beforeVersion: Int = 0,
+        noAfter: Boolean = false,
+        afterParentNaturalId: String? = null,
+        afterState: String = ENABLED.name,
+        afterAt: OffsetDateTime = atZero,
+        afterValue: String? = null,
+        afterSideValues: Set<String> = setOf(),
+        afterVersion: Int = 0) = ChildChangedEvent(
+        if (noBefore) null else ChildSnapshot(childNaturalId,
+                beforeParentNaturalId, beforeState, beforeAt, beforeValue,
+                beforeSideValues, beforeVersion),
+        if (noAfter) null else ChildSnapshot(childNaturalId,
+                afterParentNaturalId, afterState, afterAt, afterValue,
+                afterSideValues, afterVersion))

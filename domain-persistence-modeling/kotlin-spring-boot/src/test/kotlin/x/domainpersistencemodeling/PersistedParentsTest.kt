@@ -7,7 +7,6 @@ import ch.tutteli.atrium.api.cc.en_GB.toBe
 import ch.tutteli.atrium.api.cc.en_GB.toThrow
 import ch.tutteli.atrium.verbs.expect
 import org.junit.jupiter.api.Test
-import x.domainpersistencemodeling.KnownState.ENABLED
 import x.domainpersistencemodeling.PersistableDomain.UpsertedDomainResult
 
 internal class PersistedParentsTest
@@ -54,10 +53,9 @@ internal class PersistedParentsTest
         expect(currentPersistedParent()).toBe(unsaved)
 
         expectDomainChangedEvents().containsExactly(
-                ParentChangedEvent(
-                        null,
-                        ParentSnapshot(parentNaturalId, null, ENABLED.name,
-                                null, null, setOf(), 1)))
+                aParentChangedEvent(
+                        noBefore = true,
+                        afterVersion = 1))
     }
 
     @Test
@@ -95,11 +93,11 @@ internal class PersistedParentsTest
         expect(original.changed).toBe(false)
 
         expectDomainChangedEvents().containsExactly(
-                ParentChangedEvent(
-                        ParentSnapshot(parentNaturalId, null, ENABLED.name,
-                                null, null, setOf(), 1),
-                        ParentSnapshot(parentNaturalId, null, ENABLED.name,
-                                null, value, setOf(), 2)))
+                aParentChangedEvent(
+                        beforeVersion = 1,
+                        beforeValue = null,
+                        afterVersion = 2,
+                        afterValue = value))
     }
 
     @Test
@@ -134,16 +132,20 @@ internal class PersistedParentsTest
         expect(currentPersistedParent().at).toBe(at)
 
         expectDomainChangedEvents().containsExactly(
-                ChildChangedEvent(
-                        ChildSnapshot(childNaturalId, null,
-                                ENABLED.name, atZero, null, emptySet(), 1),
-                        ChildSnapshot(childNaturalId, parentNaturalId,
-                                ENABLED.name, at, value, emptySet(), 2)),
-                ParentChangedEvent(
-                        ParentSnapshot(parentNaturalId, null, ENABLED.name,
-                                null, null, setOf(), 1),
-                        ParentSnapshot(parentNaturalId, null, ENABLED.name,
-                                at, null, setOf(), 2)))
+                aChildChangedEvent(
+                        beforeVersion = 1,
+                        beforeParentNaturalId = null,
+                        beforeAt = atZero,
+                        beforeValue = null,
+                        afterVersion = 2,
+                        afterParentNaturalId = parentNaturalId,
+                        afterAt = at,
+                        afterValue = value),
+                aParentChangedEvent(
+                        beforeVersion = 1,
+                        beforeAt = null,
+                        afterVersion = 2,
+                        afterAt = at))
     }
 
     @Test
@@ -160,10 +162,9 @@ internal class PersistedParentsTest
         }.toThrow<DomainException> { }
 
         expectDomainChangedEvents().containsExactly(
-                ParentChangedEvent(
-                        ParentSnapshot(parentNaturalId, null, ENABLED.name,
-                                null, null, setOf(), 1),
-                        null))
+                aParentChangedEvent(
+                        beforeVersion = 1,
+                        noAfter = true))
     }
 
     @Test
@@ -214,16 +215,16 @@ internal class PersistedParentsTest
                 .toBe(parentNaturalId)
 
         expectDomainChangedEvents().containsExactly(
-                ChildChangedEvent(
-                        ChildSnapshot(childNaturalId, null,
-                                ENABLED.name, atZero, null, emptySet(), 1),
-                        ChildSnapshot(childNaturalId, parentNaturalId,
-                                ENABLED.name, atZero, null, emptySet(), 2)),
-                ParentChangedEvent(
-                        ParentSnapshot(parentNaturalId, null, ENABLED.name,
-                                null, null, setOf(), 1),
-                        ParentSnapshot(parentNaturalId, null, ENABLED.name,
-                                atZero, null, setOf(), 2)))
+                aChildChangedEvent(
+                        beforeVersion = 1,
+                        beforeParentNaturalId = null,
+                        afterVersion = 2,
+                        afterParentNaturalId = parentNaturalId),
+                aParentChangedEvent(
+                        beforeVersion = 1,
+                        beforeAt = null,
+                        afterVersion = 2,
+                        afterAt = atZero))
 
         parent.unassign(assigned)
         parent = parent.save().domain
@@ -235,16 +236,16 @@ internal class PersistedParentsTest
         expect(currentPersistedChild().parentNaturalId).toBe(null)
 
         expectDomainChangedEvents().containsExactly(
-                ChildChangedEvent(
-                        ChildSnapshot(childNaturalId, parentNaturalId,
-                                ENABLED.name, atZero, null, emptySet(), 2),
-                        ChildSnapshot(childNaturalId, null,
-                                ENABLED.name, atZero, null, emptySet(), 3)),
-                ParentChangedEvent(
-                        ParentSnapshot(parentNaturalId, null, ENABLED.name,
-                                atZero, null, setOf(), 2),
-                        ParentSnapshot(parentNaturalId, null, ENABLED.name,
-                                null, null, setOf(), 3)))
+                aChildChangedEvent(
+                        beforeVersion = 2,
+                        beforeParentNaturalId = parentNaturalId,
+                        afterVersion = 3,
+                        afterParentNaturalId = null),
+                aParentChangedEvent(
+                        beforeVersion = 2,
+                        beforeAt = atZero,
+                        afterVersion = 3,
+                        afterAt = null))
     }
 
     @Test
@@ -257,16 +258,17 @@ internal class PersistedParentsTest
 
         expectSqlQueryCountsByType(select = 1, upsert = 2)
         expectDomainChangedEvents().containsExactly(
-                ChildChangedEvent(
-                        ChildSnapshot(childNaturalId, null,
-                                ENABLED.name, atZero, null, emptySet(), 1),
-                        ChildSnapshot(childNaturalId, parentNaturalId,
-                                ENABLED.name, atZero, null, emptySet(), 2)),
-                ParentChangedEvent(
-                        ParentSnapshot(parentNaturalId, null, ENABLED.name,
-                                null, null, setOf(), 1),
-                        ParentSnapshot(parentNaturalId, null, ENABLED.name,
-                                atZero, null, setOf(), 2)))
+                aChildChangedEvent(
+                        beforeVersion = 1,
+                        beforeParentNaturalId = null,
+                        afterVersion = 2,
+                        afterParentNaturalId = parentNaturalId
+                ),
+                aParentChangedEvent(
+                        beforeVersion = 1,
+                        beforeAt = null,
+                        afterVersion = 2,
+                        afterAt = atZero))
 
         val value = "PQR"
         child.update {
@@ -280,14 +282,16 @@ internal class PersistedParentsTest
 
         expectSqlQueries().isEmpty()
         expectDomainChangedEvents().containsExactly(
-                ChildChangedEvent(
-                        ChildSnapshot(childNaturalId, parentNaturalId,
-                                ENABLED.name, atZero, null, emptySet(), 2),
-                        ChildSnapshot(childNaturalId, null,
-                                ENABLED.name, atZero, value, emptySet(), 3)),
-                ParentChangedEvent(
-                        ParentSnapshot(parentNaturalId, null, ENABLED.name,
-                                atZero, null, setOf(), 2),
-                        null))
+                aChildChangedEvent(
+                        beforeVersion = 2,
+                        beforeParentNaturalId = parentNaturalId,
+                        beforeValue = null,
+                        afterVersion = 3,
+                        afterParentNaturalId = null,
+                        afterValue = value),
+                aParentChangedEvent(
+                        beforeVersion = 2,
+                        beforeAt = atZero,
+                        noAfter = true))
     }
 }

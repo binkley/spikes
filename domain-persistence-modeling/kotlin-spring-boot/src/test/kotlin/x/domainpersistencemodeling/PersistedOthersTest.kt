@@ -49,9 +49,9 @@ internal class PersistedOthersTest
         expect(currentPersistedOther()).toBe(unsaved)
 
         expectDomainChangedEvents().containsExactly(
-                OtherChangedEvent(
-                        null,
-                        OtherSnapshot(otherNaturalId, null, 1)))
+                anOtherChangedEvent(
+                        noBefore = true,
+                        afterVersion = 1))
     }
 
     @Test
@@ -89,8 +89,10 @@ internal class PersistedOthersTest
         expect(original.changed).toBe(false)
 
         expectDomainChangedEvents().containsExactly(
-                OtherChangedEvent(
-                        OtherSnapshot(otherNaturalId, null, 1),
-                        OtherSnapshot(otherNaturalId, value, 2)))
+                anOtherChangedEvent(
+                        beforeOtherVersion = 1,
+                        beforeValue = null,
+                        afterVersion = 2,
+                        afterValue = value))
     }
 }
