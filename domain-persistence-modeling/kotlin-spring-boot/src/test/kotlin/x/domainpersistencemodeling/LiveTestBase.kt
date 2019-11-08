@@ -12,8 +12,9 @@ import org.springframework.transaction.annotation.Transactional
 import java.time.Instant.EPOCH
 import java.time.ZoneOffset.UTC
 
-internal const val parentNaturalId = "a"
-internal const val childNaturalId = "p"
+internal const val otherNaturalId = "o"
+internal const val parentNaturalId = "p"
+internal const val childNaturalId = "c"
 internal val atZero = EPOCH.atOffset(UTC)
 
 /**
@@ -32,6 +33,8 @@ internal val atZero = EPOCH.atOffset(UTC)
 @SpringBootTest
 @Transactional
 internal abstract class LiveTestBase {
+    @Autowired
+    lateinit var others: OtherFactory
     @Autowired
     lateinit var parents: ParentFactory
     @Autowired
@@ -74,6 +77,28 @@ internal abstract class LiveTestBase {
     }
 
     internal fun expectDomainChangedEvents() = testListener.expectNext
+
+    internal fun expectAllOthers() = expect(others.all().toList()).also {
+        sqlQueries.reset()
+    }
+
+    internal fun createNewOther(naturalId: String = otherNaturalId) =
+            others.createNew(naturalId)
+
+    internal fun newSavedOther(): Other {
+        val saved = createNewOther().save()
+        expect(saved.changed).toBe(true)
+        val other = saved.domain
+        sqlQueries.reset()
+        testListener.reset()
+        return other
+    }
+
+    internal fun currentPersistedOther(
+            naturalId: String = otherNaturalId) =
+            others.findExisting(naturalId)!!.also {
+                sqlQueries.reset()
+            }
 
     internal fun expectAllParents() = expect(parents.all().toList()).also {
         sqlQueries.reset()

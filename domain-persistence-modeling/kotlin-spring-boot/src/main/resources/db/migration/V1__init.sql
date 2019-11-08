@@ -1,3 +1,14 @@
+CREATE TABLE other
+(
+    id         SERIAL PRIMARY KEY,
+    natural_id VARCHAR NOT NULL UNIQUE,
+    value      VARCHAR,
+    -- DB controls Audit columns, not caller
+    version    INT,
+    created_at TIMESTAMP,
+    updated_at TIMESTAMP
+);
+
 CREATE TABLE parent
 (
     id          SERIAL PRIMARY KEY,
@@ -26,6 +37,25 @@ CREATE TABLE child
     created_at          TIMESTAMP,
     updated_at          TIMESTAMP
 );
+
+CREATE OR REPLACE FUNCTION upsert_other(_natural_id other.natural_id%TYPE,
+                                        _value other.value%TYPE,
+                                        _version other.version%TYPE)
+    RETURNS SETOF OTHER
+    ROWS 1
+    LANGUAGE plpgsql
+AS
+$$
+BEGIN
+    RETURN QUERY INSERT INTO other
+        (natural_id, value, version)
+        VALUES (_natural_id, _value, _version)
+        ON CONFLICT (natural_id) DO UPDATE
+            SET (value, version)
+                = (excluded.value, excluded.version)
+        RETURNING *;
+END;
+$$;
 
 -- Workaround issue in Spring Data with passing sets for ARRAY types in a procedure
 CREATE OR REPLACE FUNCTION upsert_parent(_natural_id parent.natural_id%TYPE,
@@ -99,6 +129,29 @@ BEGIN
         RAISE 'Cannot change the natural key: %.%: NEW: %; OLD: %',
             TG_TABLE_SCHEMA, TG_TABLE_NAME, new, old;
     END IF;
+    RETURN new;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION insert_other_audit_f()
+    RETURNS TRIGGER
+    LANGUAGE plpgsql
+AS
+$$
+DECLARE
+    now TIMESTAMP DEFAULT now();
+BEGIN
+    -- While running upsert do on conflict, both insert and update triggers are fired
+    -- Check for this case, and do not overwrite the existing audit columns
+    -- When an existing row, the update trigger will handle everything
+    PERFORM * FROM other WHERE natural_id = new.natural_id;
+    IF FOUND THEN
+        RETURN new;
+    END IF;
+
+    new.version := 1;
+    new.created_at := now;
+    new.updated_at := now;
     RETURN new;
 END;
 $$;
@@ -216,6 +269,24 @@ BEGIN
     RETURN old;
 END;
 $$;
+
+CREATE TRIGGER a_update_other_immutable_natural_key_t
+    BEFORE UPDATE
+    ON other
+    FOR EACH ROW
+EXECUTE PROCEDURE update_immutable_natural_key_f();
+
+CREATE TRIGGER b_insert_other_audit_t
+    BEFORE INSERT
+    ON other
+    FOR EACH ROW
+EXECUTE PROCEDURE insert_other_audit_f();
+
+CREATE TRIGGER b_update_other_audit_t
+    BEFORE UPDATE
+    ON other
+    FOR EACH ROW
+EXECUTE PROCEDURE update_audit_f();
 
 CREATE TRIGGER a_update_parent_immutable_natural_key_t
     BEFORE UPDATE
