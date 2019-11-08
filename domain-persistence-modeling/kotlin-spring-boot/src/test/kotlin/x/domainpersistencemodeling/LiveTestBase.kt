@@ -50,7 +50,6 @@ internal abstract class LiveTestBase {
     }
 
     internal fun expectSqlQueries() = sqlQueries.expectNext
-    internal fun expectSqlQueriesByType() = sqlQueries.expectNextByType { it }
     internal fun <V> expectSqlQueriesByType(toValue: (List<String>) -> V) =
             sqlQueries.expectNextByType(toValue)
 
@@ -62,12 +61,6 @@ internal abstract class LiveTestBase {
 
     internal fun createNewParent(naturalId: String = parentNaturalId) =
             parents.createNew(naturalId)
-
-    internal fun findExistingOrCreateNewParent(
-            naturalId: String = parentNaturalId) =
-            parents.findExistingOrCreateNew(naturalId).also {
-                sqlQueries.reset()
-            }
 
     internal fun newSavedParent(): Parent {
         val saved = createNewParent().save()
@@ -106,10 +99,4 @@ internal abstract class LiveTestBase {
     internal fun createNewUnassignedChild(
             naturalId: String = childNaturalId) =
             children.createNewUnassigned(naturalId)
-
-    internal fun findExistingOrCreateNewUnassignedChild(
-            naturalId: String = childNaturalId) =
-            children.findExistingOrCreateNewUnassigned(naturalId).also {
-                sqlQueries.reset()
-            }
 }
