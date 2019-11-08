@@ -43,7 +43,7 @@ internal class PersistedChildrenTest
 
         expectSqlQueriesByType {
             it.size
-        }.toBe(mapOf("SELECT" to 1)) // TODO: Test for UPSERT
+        }.toBe(mapOf("UPSERT" to 1))
 
         expectAllChildren().hasSize(1)
         expect(unsaved.version).toBe(1)
@@ -90,7 +90,9 @@ internal class PersistedChildrenTest
 
         original.save()
 
-        expectSqlQueries().hasSize(1)
+        expectSqlQueriesByType {
+            it.size
+        }.toBe(mapOf("UPSERT" to 1))
         expect(original.changed).toBe(false)
 
         expectDomainChangedEvents().containsExactly(ChildChangedEvent(
@@ -133,11 +135,14 @@ internal class PersistedChildrenTest
 
         unsaved.save()
 
+        expectSqlQueriesByType {
+            it.size
+        }.toBe(mapOf("UPSERT" to 1))
+
         expect(currentPersistedChild().parentNaturalId)
                 .toBe(parentNaturalId)
         expect(currentPersistedParent().version).toBe(2)
 
-        expectSqlQueries().isEmpty()
         expectDomainChangedEvents().containsExactly(ChildChangedEvent(
                 null,
                 ChildSnapshot(childNaturalId, parentNaturalId, ENABLED.name,
@@ -163,12 +168,15 @@ internal class PersistedChildrenTest
 
         assigned.save()
 
+        expectSqlQueriesByType {
+            it.size
+        }.toBe(mapOf("UPSERT" to 1))
+
         expect(assigned.version).toBe(2)
         expect(currentPersistedChild().parentNaturalId)
                 .toBe(parentNaturalId)
         expect(currentPersistedParent().version).toBe(2)
 
-        expectSqlQueries().isEmpty()
         expectDomainChangedEvents().containsExactly(ChildChangedEvent(
                 ChildSnapshot(childNaturalId, null, ENABLED.name,
                         atZero, null, emptySet(), 1),
@@ -184,6 +192,10 @@ internal class PersistedChildrenTest
             assignTo(parent)
         }
         child.save().domain
+
+        expectSqlQueriesByType {
+            it.size
+        }.toBe(mapOf("UPSERT" to 1))
         resetDomainChangedEvents()
 
         expect(parent.version).toBe(1)
@@ -191,12 +203,15 @@ internal class PersistedChildrenTest
         child.update(MutableChild::unassignFromAny)
         child.save()
 
+        expectSqlQueriesByType {
+            it.size
+        }.toBe(mapOf("UPSERT" to 1))
+
         expect(child.version).toBe(2)
         expect(currentPersistedChild().parentNaturalId).toBe(null)
         // Created, assigned by child, unassigned by child == version 3
         expect(currentPersistedParent().version).toBe(3)
 
-        expectSqlQueries().isEmpty()
         expectDomainChangedEvents().containsExactly(ChildChangedEvent(
                 ChildSnapshot(childNaturalId, parentNaturalId, ENABLED.name,
                         atZero, null, emptySet(), 1),

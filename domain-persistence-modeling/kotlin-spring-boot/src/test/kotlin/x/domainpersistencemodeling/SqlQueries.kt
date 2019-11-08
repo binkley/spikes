@@ -30,7 +30,7 @@ class SqlQueries
     fun <V> expectNextByType(toValue: (List<String>) -> V) =
             expect(queries.groupBy {
                 bucket(it)
-            }.map {
+            }.extractUpserts().map {
                 it.key to toValue(it.value)
             }.toMap()).also {
                 reset()
@@ -75,6 +75,27 @@ class SqlQueries
     private companion object {
         val queryOnly = Pattern.compile(
                 "^Executing prepared SQL statement \\[(.*)]$")
+        private val upsert = Pattern.compile("^SELECT \\* FROM upsert_.*$")
+
+        fun Map<String, List<String>>.extractUpserts() = map {
+            if ("SELECT" == it.key) {
+                it.value.extractUpserts()
+            } else {
+                listOf(it.key to it.value)
+            }
+        }.flatten().toMap()
+
+        fun List<String>.extractUpserts() = map {
+            val matcher = upsert.matcher(it)
+            if (matcher.find()) "UPSERT" to it
+            else "SELECT" to it
+        }.groupBy {
+            it.first
+        }.map {
+            it.key to it.value.map { itt ->
+                itt.second
+            }
+        }
 
         fun bucket(query: String) = try {
             CCJSqlParserUtil.parse(query).javaClass.simpleName

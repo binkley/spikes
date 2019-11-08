@@ -40,7 +40,9 @@ internal class PersistedParentsTest
 
         val saved = unsaved.save()
 
-        expectSqlQueries().hasSize(1)
+        expectSqlQueriesByType {
+            it.size
+        }.toBe(mapOf("UPSERT" to 1))
         expectAllParents().hasSize(1)
         expect(unsaved.version).toBe(1)
         expect(saved).toBe(UpsertedDomainResult(unsaved, true))
@@ -83,9 +85,12 @@ internal class PersistedParentsTest
 
         original.save()
 
+        expectSqlQueriesByType {
+            it.size
+        }.toBe(mapOf("UPSERT" to 1))
+
         expect(original.changed).toBe(false)
 
-        expectSqlQueries().hasSize(1)
         expectDomainChangedEvents().containsExactly(
                 ParentChangedEvent(
                         ParentSnapshot(parentNaturalId, ENABLED.name, null,
@@ -119,11 +124,14 @@ internal class PersistedParentsTest
         }
         parent.save()
 
+        expectSqlQueriesByType {
+            it.size
+        }.toBe(mapOf("SELECT" to 1, "UPSERT" to 2))
+
         expect(currentPersistedChild().at).toBe(at)
         expect(currentPersistedChild().value).toBe(value)
         expect(currentPersistedParent().at).toBe(at)
 
-        expectSqlQueries().isEmpty()
         expectDomainChangedEvents().containsExactly(
                 ChildChangedEvent(
                         ChildSnapshot(childNaturalId, null,
@@ -193,12 +201,15 @@ internal class PersistedParentsTest
         val assignedChild = parent.assign(child)
         val parentAssignedWithChild = parent.save().domain
 
+        expectSqlQueriesByType {
+            it.size
+        }.toBe(mapOf("SELECT" to 1, "UPSERT" to 2))
+
         expect(parent.children).containsExactly(child)
         expect(parentAssignedWithChild.version).toBe(2)
         expect(currentPersistedChild().parentNaturalId)
                 .toBe(parentNaturalId)
 
-        expectSqlQueries().isEmpty()
         expectDomainChangedEvents().containsExactly(
                 ChildChangedEvent(
                         ChildSnapshot(childNaturalId, null,
@@ -214,11 +225,14 @@ internal class PersistedParentsTest
         parent.unassign(assignedChild)
         val childUnassigned = parent.save().domain
 
+        expectSqlQueriesByType {
+            it.size
+        }.toBe(mapOf("SELECT" to 1, "UPSERT" to 2))
+
         expect(parent.children).isEmpty()
         expect(childUnassigned.version).toBe(3)
         expect(currentPersistedChild().parentNaturalId).toBe(null)
 
-        expectSqlQueries().isEmpty()
         expectDomainChangedEvents().containsExactly(
                 ChildChangedEvent(
                         ChildSnapshot(childNaturalId, parentNaturalId,
@@ -238,6 +252,10 @@ internal class PersistedParentsTest
         val child = newSavedUnassignedChild()
         val assignedChild = parent.assign(child)
         parent.save()
+
+        expectSqlQueriesByType {
+            it.size
+        }.toBe(mapOf("SELECT" to 1, "UPSERT" to 2))
         resetDomainChangedEvents()
 
         val value = "PQR"

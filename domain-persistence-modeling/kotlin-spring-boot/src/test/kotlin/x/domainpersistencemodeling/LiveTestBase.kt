@@ -16,6 +16,15 @@ internal const val parentNaturalId = "a"
 internal const val childNaturalId = "p"
 internal val atZero = EPOCH.atOffset(UTC)
 
+/**
+ * Provides testing help for the full stack application with a Dockerized
+ * Postgres on a random port.  Tests are transactional, so forgets any
+ * persistence changes made during tests.
+ *
+ * The general pattern for "expectFoo" methods:
+ * - Returns an Atrium expectation natural to the methods
+ * - Resets the appropriate SQL or domain changed event tracker
+ */
 @AutoConfigureTestDatabase(replace = NONE)
 @SpringBootTest
 @Transactional
