@@ -213,4 +213,34 @@ internal class PersistedParentsTest
                         ParentSnapshot(parentNaturalId, ENABLED.name, null,
                                 null, setOf(), 3)))
     }
+
+    @Test
+    fun shouldPersistMutatedButUnassignedChildren() {
+        val parent = newSavedParent()
+        val child = newSavedUnassignedChild()
+        val assignedChild = parent.assign(child)
+        parent.save()
+        resetDomainChangedEvents()
+
+        val value = "PQR"
+        child.update {
+            this.value = value
+        }
+
+        parent.unassign(assignedChild)
+        parent.delete()
+
+        expect(currentPersistedChild().value).toBe(value)
+
+        expectDomainChangedEvents().containsExactly(
+                ChildChangedEvent(
+                        ChildSnapshot(childNaturalId, parentNaturalId,
+                                ENABLED.name, atZero, null, emptySet(), 2),
+                        ChildSnapshot(childNaturalId, null,
+                                ENABLED.name, atZero, value, emptySet(), 3)),
+                ParentChangedEvent(
+                        ParentSnapshot(parentNaturalId, ENABLED.name, atZero,
+                                null, setOf(), 2),
+                        null))
+    }
 }

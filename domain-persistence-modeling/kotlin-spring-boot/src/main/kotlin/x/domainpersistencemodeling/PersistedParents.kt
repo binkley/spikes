@@ -218,10 +218,14 @@ internal open class PersistedParent(
                 "Deleting parent with assigned children: $this")
 
         val before = snapshot
-        val after = null as ParentSnapshot?
+        if (computed.saveMutatedChildren()) {
+            // Removed children need saving to clear FK constraints
+            // TODO: Is refresh needed?  Delete ignores the version?
+            record = factory.refreshRecord(naturalId)
+        }
         factory.delete(record())
-        // Removed from current object, but potentially mutated
-        computed.saveMutatedChildren()
+
+        val after = null as ParentSnapshot?
         record = null
         snapshot = after
         factory.notifyChanged(before, after)
