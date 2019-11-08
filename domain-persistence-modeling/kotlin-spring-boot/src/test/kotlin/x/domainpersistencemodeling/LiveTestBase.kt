@@ -21,6 +21,9 @@ internal val atZero = EPOCH.atOffset(UTC)
  * Postgres on a random port.  Tests are transactional, so forgets any
  * persistence changes made during tests.
  *
+ * The general pattern for "newFoo" methods:
+ * - Resets the appropriate SQL or domain changed event tracker
+ *
  * The general pattern for "expectFoo" methods:
  * - Returns an Atrium expectation natural to the methods
  * - Resets the appropriate SQL or domain changed event tracker
