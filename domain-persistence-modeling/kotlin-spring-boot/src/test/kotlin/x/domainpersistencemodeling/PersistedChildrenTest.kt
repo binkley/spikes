@@ -129,9 +129,7 @@ internal class PersistedChildrenTest
         expect(parent.version).toBe(1)
 
         val unsaved = createNewUnassignedChild()
-        unsaved.update {
-            assignTo(parent)
-        }
+        unsaved.assignTo(parent)
 
         expect(unsaved.parentNaturalId).toBe(parentNaturalId)
 
@@ -156,10 +154,7 @@ internal class PersistedChildrenTest
 
         expect(parent.version).toBe(1)
 
-        val assigned = child
-        assigned.update {
-            assignTo(parent)
-        }
+        val assigned = child.assignTo(parent)
 
         expect(assigned.parentNaturalId).toBe(parentNaturalId)
 
@@ -185,11 +180,9 @@ internal class PersistedChildrenTest
     @Test
     fun shouldUnassignChild() {
         val parent = newSavedParent()
-        val child = createNewUnassignedChild()
-        child.update {
-            assignTo(parent)
-        }
-        child.save().domain
+        val unassigned = createNewUnassignedChild()
+        val assigned = unassigned.assignTo(parent)
+        assigned.save().domain
 
         expectSqlQueryCountsByType(upsert = 1)
         expectDomainChangedEvents().containsExactly(
@@ -200,12 +193,12 @@ internal class PersistedChildrenTest
 
         expect(parent.version).toBe(1)
 
-        child.update(MutableChild::unassignFromAny)
-        child.save()
+        assigned.unassignFromAny()
+        assigned.save()
 
         expectSqlQueryCountsByType(upsert = 1)
 
-        expect(child.version).toBe(2)
+        expect(unassigned.version).toBe(2)
         expect(currentPersistedChild().parentNaturalId).toBe(null)
         // Created, assigned by child, unassigned by child == version 3
         expect(currentPersistedParent().version).toBe(3)

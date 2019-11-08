@@ -107,7 +107,7 @@ internal abstract class LiveTestBase {
         val child = saved.domain
         sqlQueries.reset()
         testListener.reset()
-        return child as UnassignedChild
+        return child
     }
 
     internal fun currentPersistedChild(

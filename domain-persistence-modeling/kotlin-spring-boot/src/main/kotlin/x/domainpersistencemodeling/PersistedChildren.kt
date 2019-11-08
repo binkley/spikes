@@ -27,18 +27,18 @@ internal class PersistedChildFactory(
         private val repository: ChildRepository,
         private val publisher: ApplicationEventPublisher)
     : ChildFactory {
-    override fun all(): Sequence<Child> =
+    override fun all(): Sequence<Child<*>> =
             repository.findAll().map {
                 toChild(it)
             }.asSequence()
 
-    override fun findExisting(naturalId: String): Child? =
+    override fun findExisting(naturalId: String): Child<*>? =
             repository.findByNaturalId(naturalId).orElse(null)?.let {
                 toChild(it)
             }
 
     override fun createNewUnassigned(naturalId: String): UnassignedChild =
-            PersistedChild(this, null, ChildRecord(naturalId))
+            PersistedUnassignedChild(this, null, ChildRecord(naturalId))
 
     override fun findExistingOrCreateNewUnassigned(naturalId: String) =
             findExisting(naturalId) ?: createNewUnassigned(naturalId)
@@ -46,7 +46,7 @@ internal class PersistedChildFactory(
     override fun findAssignedFor(
             parentNaturalId: String): Sequence<AssignedChild> =
             repository.findByParentNaturalId(parentNaturalId).map {
-                toChild(it)
+                PersistedAssignedChild(this, it.toSnapshot(), it)
             }.asSequence()
 
     internal fun save(record: ChildRecord) =
@@ -60,7 +60,10 @@ internal class PersistedChildFactory(
             publisher.publishEvent(ChildChangedEvent(before, after))
 
     private fun toChild(record: ChildRecord) =
-            PersistedChild(this, record.toSnapshot(), record)
+            if (null == record.parentNaturalId)
+                PersistedUnassignedChild(this, record.toSnapshot(), record)
+            else
+                PersistedAssignedChild(this, record.toSnapshot(), record)
 }
 
 /**
@@ -69,12 +72,11 @@ internal class PersistedChildFactory(
  * [PersistedChildFactory] returns only interfaces, not concrete classes, in
  * its factory methods, and downcasting to narrow is safe.
  */
-internal open class PersistedChild(
-        private val factory: PersistedChildFactory,
-        private var snapshot: ChildSnapshot?,
-        private var record: ChildRecord?)
-    : UnassignedChild,
-        AssignedChild {
+internal open class PersistedChild<C : Child<C>>(
+        protected val factory: PersistedChildFactory,
+        protected var snapshot: ChildSnapshot?,
+        protected var record: ChildRecord?)
+    : Child<C> {
     override val naturalId: String
         get() = record().naturalId
     override val parentNaturalId: String?
@@ -92,26 +94,13 @@ internal open class PersistedChild(
     override val version: Int
         get() = record().version
 
-    @Transactional
-    override fun assignTo(parent: Parent): AssignedChild = apply {
-        update {
-            assignTo(parent)
-        }
-    }
-
-    @Transactional
-    override fun unassignFromAny(): UnassignedChild = apply {
-        update {
-            unassignFromAny()
-        }
-    }
-
     override val changed
         get() = snapshot != toSnapshot()
 
+    @Suppress("UNCHECKED_CAST")
     @Transactional
-    override fun save(): UpsertedDomainResult<ChildSnapshot, Child> {
-        if (!changed) return UpsertedDomainResult(this, false)
+    override fun save(): UpsertedDomainResult<ChildSnapshot, C> {
+        if (!changed) return UpsertedDomainResult(this as C, false)
 
         val before = snapshot
         val result = factory.save(record())
@@ -121,7 +110,7 @@ internal open class PersistedChild(
         if (result.changed) // Trust the database
             factory.notifyChanged(before, after)
 
-        return UpsertedDomainResult(this, result.changed)
+        return UpsertedDomainResult(this as C, result.changed)
     }
 
     @Transactional
@@ -143,7 +132,7 @@ internal open class PersistedChild(
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
-        other as PersistedChild
+        other as PersistedChild<*>
         return snapshot == other.snapshot
                 && record == other.record
     }
@@ -159,6 +148,41 @@ internal open class PersistedChild(
     private fun toSnapshot() = record().toSnapshot()
 }
 
+internal open class PersistedUnassignedChild(
+        factory: PersistedChildFactory,
+        snapshot: ChildSnapshot?,
+        record: ChildRecord?)
+    : PersistedChild<UnassignedChild>(
+        factory, snapshot, record),
+        UnassignedChild {
+    @Transactional
+    override fun assignTo(parent: Parent): AssignedChild = let {
+        update {
+            parentNaturalId = parent.naturalId
+        }
+        // In C/C++, we could simply cast, since memory layout is identical
+        PersistedAssignedChild(factory, snapshot, record)
+    }
+}
+
+internal open class PersistedAssignedChild(
+        factory: PersistedChildFactory,
+        snapshot: ChildSnapshot?,
+        record: ChildRecord?)
+    : PersistedChild<AssignedChild>(
+        factory, snapshot, record),
+        AssignedChild {
+
+    @Transactional
+    override fun unassignFromAny(): UnassignedChild = let {
+        update {
+            parentNaturalId = null
+        }
+        // In C/C++, we could simply cast, since memory layout is identical
+        PersistedUnassignedChild(factory, snapshot, record)
+    }
+}
+
 internal class PersistedMutableChild(private val record: ChildRecord)
     : MutableChild,
         MutableChildIntrinsicDetails by record {
@@ -166,14 +190,6 @@ internal class PersistedMutableChild(private val record: ChildRecord)
         get() = TrackedSortedSet(record.sideValues,
                 ::replaceSideValues.uncurrySecond(),
                 ::replaceSideValues.uncurrySecond())
-
-    override fun assignTo(parent: ParentIntrinsicDetails) {
-        record.parentNaturalId = parent.naturalId
-    }
-
-    override fun unassignFromAny() {
-        record.parentNaturalId = null
-    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

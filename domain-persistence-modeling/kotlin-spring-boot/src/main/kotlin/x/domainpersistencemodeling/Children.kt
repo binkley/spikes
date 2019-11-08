@@ -12,10 +12,10 @@ data class ChildSnapshot(
         val version: Int)
 
 interface ChildFactory {
-    fun all(): Sequence<Child>
-    fun findExisting(naturalId: String): Child?
+    fun all(): Sequence<Child<*>>
+    fun findExisting(naturalId: String): Child<*>?
     fun createNewUnassigned(naturalId: String): UnassignedChild
-    fun findExistingOrCreateNewUnassigned(naturalId: String): Child
+    fun findExistingOrCreateNewUnassigned(naturalId: String): Child<*>
     fun findAssignedFor(parentNaturalId: String): Sequence<AssignedChild>
 }
 
@@ -53,30 +53,22 @@ interface MutableChildIntrinsicDetails : ChildIntrinsicDetails {
 
 interface MutableChildComputedDetails
 
-interface Child
+interface Child<C : Child<C>>
     : ChildIntrinsicDetails,
         ChildComputedDetails,
-        ScopedMutable<Child, MutableChild>,
-        PersistableDomain<ChildSnapshot, Child>
+        ScopedMutable<C, MutableChild>,
+        PersistableDomain<ChildSnapshot, C>
 
-/**
- * Lacks a way to restrict access to [assignTo] and [unassignFromAny] so that
- * only [Parent] implementations can use them.  Neither Java nor Kotlin have
- * something like C++'s `friend` access specifier.
- */
 interface MutableChild
     : MutableChildIntrinsicDetails,
-        MutableChildComputedDetails {
-    fun assignTo(parent: ParentIntrinsicDetails)
-    fun unassignFromAny()
-}
+        MutableChildComputedDetails
 
-interface UnassignedChild : Child {
+interface UnassignedChild : Child<UnassignedChild> {
     /** Assigns this child to [parent], a mutable operation. */
     fun assignTo(parent: Parent): AssignedChild
 }
 
-interface AssignedChild : Child {
+interface AssignedChild : Child<AssignedChild> {
     /** Unassigns this child from any parent, a mutable operation. */
     fun unassignFromAny(): UnassignedChild
 }

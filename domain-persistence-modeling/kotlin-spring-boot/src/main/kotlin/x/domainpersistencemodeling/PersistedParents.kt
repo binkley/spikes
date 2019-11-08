@@ -129,19 +129,19 @@ internal class PersistedParentComputedDetails(
         return mutated
     }
 
-    private fun assignedChildren(): Set<Child> {
+    private fun assignedChildren(): Set<AssignedChild> {
         val assigned = TreeSet(children)
         assigned.removeAll(snapshotChildren)
         return assigned
     }
 
-    private fun unassignedChildren(): Set<Child> {
+    private fun unassignedChildren(): Set<AssignedChild> {
         val unassigned = TreeSet(snapshotChildren)
         unassigned.removeAll(children)
         return unassigned
     }
 
-    private fun changedChildren(): Set<Child> {
+    private fun changedChildren(): Set<AssignedChild> {
         val changed = TreeSet(snapshotChildren)
         changed.retainAll(children)
         return changed.stream()
@@ -173,10 +173,11 @@ internal open class PersistedParent(
 
     @Transactional
     override fun assign(child: UnassignedChild) = let {
+        val assigned = child.assignTo(this)
         update {
-            children += child as AssignedChild
+            children += assigned
         }
-        child as AssignedChild
+        assigned
     }
 
     @Transactional
@@ -184,7 +185,7 @@ internal open class PersistedParent(
         update {
             children -= child
         }
-        child as UnassignedChild
+        child.unassignFromAny()
     }
 
     override val changed
@@ -257,16 +258,10 @@ internal open class PersistedParent(
             "${super.toString()}{snapshot=$snapshot, record=$record, computed=$computed}"
 
     private fun addChild(child: AssignedChild) {
-        child.update {
-            assignTo(this@PersistedParent)
-        }
         computed.addChild(child)
     }
 
     private fun removeChild(child: AssignedChild) {
-        child.update {
-            unassignFromAny()
-        }
         computed.removeChild(child)
     }
 

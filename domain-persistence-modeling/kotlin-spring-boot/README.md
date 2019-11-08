@@ -3,6 +3,7 @@
 * [Concepts](#concepts)
   * [Scoped mutation](#scoped-mutation)
   * [Reversal of roles](#reversal-of-roles)
+  * [Distinct types](#distinct-types)
 * [Spring-recommended documentation](#spring-recommended-documentation)
   * [Reference documentation](#reference-documentation)
 
@@ -103,6 +104,21 @@ operations.
 
 And in this **contrary** persistence representation, saving a parent bears
 this cost even when updating satellite data on the parent record.
+
+## Distinct types
+
+To aid in avoiding programming mistakes, and catch such errors in complilation
+rather than at runtime, child domain objects are divided into two types:
+"unassigned" (`UnassignedChild`) and "assigned" (`AssignedChild`).  As the JVM
+and JVM-based languages such as Kotlin and Java do not support casting based
+on memory layout (unlike "C" and C++), the code needs to construct distinct
+objects when converting between "unassigned" and "assigned".
+
+There is an upside: This prevents misuse of the wrong type through their
+common base type as conversion creates a new object.
+
+One downside: This violates the rule that only `update` mutates objects.
+Rather, for children, `update`, `assignTo`, and `unassignFromAny` all mutate.
 
 ## Spring-recommended documentation
 

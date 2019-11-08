@@ -169,9 +169,9 @@ internal class PersistedParentsTest
     @Test
     fun shouldNotDelete() {
         val parent = newSavedParent()
-        val child = newSavedUnassignedChild()
+        val unassigned = newSavedUnassignedChild()
 
-        parent.assign(child)
+        parent.assign(unassigned)
 
         expect {
             parent.delete()
@@ -198,18 +198,18 @@ internal class PersistedParentsTest
 
     @Test
     fun shouldAssignAndUnassignChild() {
-        val parent = newSavedParent()
-        val child = newSavedUnassignedChild()
+        var parent = newSavedParent()
+        val unassigned = newSavedUnassignedChild()
 
         expect(parent.children).isEmpty()
 
-        val assignedChild = parent.assign(child)
-        val parentAssignedWithChild = parent.save().domain
+        val assigned = parent.assign(unassigned)
+        parent = parent.save().domain
 
         expectSqlQueryCountsByType(select = 1, upsert = 2)
 
-        expect(parent.children).containsExactly(child)
-        expect(parentAssignedWithChild.version).toBe(2)
+        expect(parent.children).containsExactly(assigned)
+        expect(parent.version).toBe(2)
         expect(currentPersistedChild().parentNaturalId)
                 .toBe(parentNaturalId)
 
@@ -225,13 +225,13 @@ internal class PersistedParentsTest
                         ParentSnapshot(parentNaturalId, ENABLED.name, atZero,
                                 null, setOf(), 2)))
 
-        parent.unassign(assignedChild)
-        val childUnassigned = parent.save().domain
+        parent.unassign(assigned)
+        parent = parent.save().domain
 
         expectSqlQueryCountsByType(select = 1, upsert = 2)
 
         expect(parent.children).isEmpty()
-        expect(childUnassigned.version).toBe(3)
+        expect(parent.version).toBe(3)
         expect(currentPersistedChild().parentNaturalId).toBe(null)
 
         expectDomainChangedEvents().containsExactly(
