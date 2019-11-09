@@ -293,4 +293,36 @@ internal class PersistedParentsTest
                         beforeAt = atZero,
                         noAfter = true))
     }
+
+    @Test
+    fun `should assign and unassign other`() {
+        val parent = newSavedParent()
+        val other = newSavedOther()
+
+        parent.assign(other)
+        parent.save()
+
+        expectSqlQueryCountsByType(upsert = 1)
+        expect(currentPersistedParent().otherNaturalId).toBe(other.naturalId)
+
+        expectDomainChangedEvents().containsExactly(
+                aParentChangedEvent(
+                        beforeVersion = 1,
+                        beforeOtherNaturalId = null,
+                        afterVersion = 2,
+                        afterOtherNaturalId = otherNaturalId))
+
+        parent.unassignAnyOther()
+        parent.save()
+
+        expectSqlQueryCountsByType(upsert = 1)
+        expect(currentPersistedParent().otherNaturalId).toBe(null)
+
+        expectDomainChangedEvents().containsExactly(
+                aParentChangedEvent(
+                        beforeVersion = 2,
+                        beforeOtherNaturalId = otherNaturalId,
+                        afterVersion = 3,
+                        afterOtherNaturalId = null))
+    }
 }

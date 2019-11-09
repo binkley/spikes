@@ -21,7 +21,7 @@ interface ParentFactory {
 interface ParentIntrinsicDetails
     : Comparable<ParentIntrinsicDetails> {
     val naturalId: String
-    val otherNaturalId: String? // TODO: Not yet mutable
+    val otherNaturalId: String?
     val state: String
     val value: String?
     val sideValues: Set<String> // Sorted
@@ -37,6 +37,7 @@ interface ParentComputedDetails {
 }
 
 interface MutableParentIntrinsicDetails : ParentIntrinsicDetails {
+    override var otherNaturalId: String?
     override var state: String
     override var value: String?
     override val sideValues: MutableSet<String> // Sorted
@@ -52,6 +53,12 @@ interface Parent
         ScopedMutable<Parent, MutableParent>,
         PersistableDomain<ParentSnapshot, Parent> {
     override val children: Set<AssignedChild>
+
+    /** Assigns [other] to this parent, a mutable operation. */
+    fun assign(other: Other)
+
+    /** Unassigns the other from this parent, a mutable operation. */
+    fun unassignAnyOther()
 
     /** Assigns [child] to this parent, a mutable operation. */
     fun assign(child: UnassignedChild): AssignedChild

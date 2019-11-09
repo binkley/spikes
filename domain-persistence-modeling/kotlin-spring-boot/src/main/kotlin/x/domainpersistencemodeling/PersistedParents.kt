@@ -173,7 +173,14 @@ internal open class PersistedParent(
     override val children: Set<AssignedChild>
         get() = computed.children
 
-    @Transactional
+    override fun assign(other: Other) = update {
+        otherNaturalId = other.naturalId
+    }
+
+    override fun unassignAnyOther() = update {
+        otherNaturalId = null
+    }
+
     override fun assign(child: UnassignedChild) = let {
         val assigned = child.assignTo(this)
         update {
@@ -182,7 +189,6 @@ internal open class PersistedParent(
         assigned
     }
 
-    @Transactional
     override fun unassign(child: AssignedChild) = let {
         update {
             children -= child
@@ -330,7 +336,7 @@ interface ParentRepository : CrudRepository<ParentRecord, Long> {
 data class ParentRecord(
         @Id var id: Long?,
         override var naturalId: String,
-        override val otherNaturalId: String?,
+        override var otherNaturalId: String?,
         override var state: String,
         override var value: String?,
         override var sideValues: MutableSet<String>,
@@ -344,7 +350,7 @@ data class ParentRecord(
     override fun upsertedWith(upserted: ParentRecord): ParentRecord {
         id = upserted.id
         naturalId = upserted.naturalId
-        // TODO: otherNaturalId = upserted.otherNaturalId
+        otherNaturalId = upserted.otherNaturalId
         state = upserted.state
         value = upserted.value
         sideValues = TreeSet(upserted.sideValues)
