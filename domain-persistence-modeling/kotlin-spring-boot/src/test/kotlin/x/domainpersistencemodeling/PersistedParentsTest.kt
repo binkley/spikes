@@ -15,7 +15,7 @@ internal class PersistedParentsTest
     fun shouldCreateNew() {
         val found = parents.findExistingOrCreateNew(parentNaturalId)
 
-        expect(found).toBe(createNewParent())
+        expect(found).toBe(newUnsavedParent())
         expect(found.children).isEmpty()
 
         expectSqlQueryCountsByType(select = 1)
@@ -38,7 +38,7 @@ internal class PersistedParentsTest
 
     @Test
     fun shouldRoundTrip() {
-        val unsaved = createNewParent()
+        val unsaved = newUnsavedParent()
 
         expect(unsaved.version).toBe(0)
         expectSqlQueries().isEmpty()

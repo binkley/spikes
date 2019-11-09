@@ -15,7 +15,7 @@ internal class PersistedChildrenTest
     fun shouldCreateNew() {
         val found = children.findExistingOrCreateNewUnassigned(childNaturalId)
 
-        expect(found).toBe(createNewUnassignedChild())
+        expect(found).toBe(newUnsavedUnassignedChild())
         expect(found.existing).toBe(false)
 
         expectSqlQueryCountsByType(select = 1)
@@ -37,7 +37,7 @@ internal class PersistedChildrenTest
 
     @Test
     fun shouldRoundTrip() {
-        val unsaved = createNewUnassignedChild()
+        val unsaved = newUnsavedUnassignedChild()
 
         expect(unsaved.version).toBe(0)
 
@@ -130,7 +130,7 @@ internal class PersistedChildrenTest
 
         expect(parent.version).toBe(1)
 
-        val unsaved = createNewUnassignedChild()
+        val unsaved = newUnsavedUnassignedChild()
         unsaved.assignTo(parent)
 
         expect(unsaved.parentNaturalId).toBe(parentNaturalId)
@@ -184,7 +184,7 @@ internal class PersistedChildrenTest
     @Test
     fun shouldUnassignChild() {
         val parent = newSavedParent()
-        val unassigned = createNewUnassignedChild()
+        val unassigned = newUnsavedUnassignedChild()
         val assigned = unassigned.assignTo(parent)
         assigned.save().domain
 

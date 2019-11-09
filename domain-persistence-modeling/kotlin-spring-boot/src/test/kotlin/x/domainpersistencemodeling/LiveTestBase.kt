@@ -30,6 +30,9 @@ internal val atZero = EPOCH.atOffset(UTC)
  * The general pattern for "expectFoo" methods:
  * - Returns an Atrium expectation natural to the methods
  * - Resets the appropriate SQL or domain changed event tracker
+ *
+ * The general pattern for "currentFoo" methods:
+ * - Resets the appropriate SQL or domain changed event tracker
  */
 @AutoConfigureTestDatabase(replace = NONE)
 @SpringBootTest
@@ -84,11 +87,11 @@ internal abstract class LiveTestBase {
         sqlQueries.reset()
     }
 
-    internal fun createNewOther(naturalId: String = otherNaturalId) =
+    internal fun newUnsavedOther(naturalId: String = otherNaturalId) =
             others.createNew(naturalId)
 
     internal fun newSavedOther(): Other {
-        val saved = createNewOther().save()
+        val saved = newUnsavedOther().save()
         expect(saved.changed).toBe(true)
         val other = saved.domain
         sqlQueries.reset()
@@ -105,11 +108,11 @@ internal abstract class LiveTestBase {
         sqlQueries.reset()
     }
 
-    internal fun createNewParent(naturalId: String = parentNaturalId) =
+    internal fun newUnsavedParent(naturalId: String = parentNaturalId) =
             parents.createNew(naturalId)
 
     internal fun newSavedParent(): Parent {
-        val saved = createNewParent().save()
+        val saved = newUnsavedParent().save()
         expect(saved.changed).toBe(true)
         val parent = saved.domain
         sqlQueries.reset()
@@ -127,7 +130,7 @@ internal abstract class LiveTestBase {
     }
 
     internal fun newSavedUnassignedChild(): UnassignedChild {
-        val saved = createNewUnassignedChild().save()
+        val saved = newUnsavedUnassignedChild().save()
         expect(saved.changed).toBe(true)
         val child = saved.domain
         sqlQueries.reset()
@@ -141,7 +144,7 @@ internal abstract class LiveTestBase {
                 sqlQueries.reset()
             }
 
-    internal fun createNewUnassignedChild(
+    internal fun newUnsavedUnassignedChild(
             naturalId: String = childNaturalId) =
             children.createNewUnassigned(naturalId)
 }

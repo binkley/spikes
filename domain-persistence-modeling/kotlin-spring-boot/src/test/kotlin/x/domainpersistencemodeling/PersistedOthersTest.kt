@@ -14,7 +14,7 @@ internal class PersistedOthersTest
     fun shouldCreateNew() {
         val found = others.findExistingOrCreateNew(otherNaturalId)
 
-        expect(found).toBe(createNewOther())
+        expect(found).toBe(newUnsavedOther())
 
         expectSqlQueryCountsByType(select = 1)
         expectDomainChangedEvents().isEmpty()
@@ -34,7 +34,7 @@ internal class PersistedOthersTest
 
     @Test
     fun shouldRoundTrip() {
-        val unsaved = createNewOther()
+        val unsaved = newUnsavedOther()
 
         expect(unsaved.version).toBe(0)
         expectSqlQueries().isEmpty()
