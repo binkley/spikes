@@ -57,7 +57,7 @@ interface Parent
     /** Assigns [other] to this parent, a mutable operation. */
     fun assign(other: Other)
 
-    /** Unassigns the other from this parent, a mutable operation. */
+    /** Unassigns any other from this parent, a mutable operation. */
     fun unassignAnyOther()
 
     /** Assigns [child] to this parent, a mutable operation. */

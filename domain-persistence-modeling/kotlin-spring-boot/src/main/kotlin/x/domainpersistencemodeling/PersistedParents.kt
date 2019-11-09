@@ -172,6 +172,8 @@ internal open class PersistedParent(
         get() = record().version
     override val children: Set<AssignedChild>
         get() = computed.children
+    override val changed
+        get() = snapshot != record().toSnapshot(computed)
 
     override fun assign(other: Other) = update {
         otherNaturalId = other.naturalId
@@ -195,9 +197,6 @@ internal open class PersistedParent(
         }
         child.unassignFromAny()
     }
-
-    override val changed
-        get() = snapshot != record().toSnapshot(computed)
 
     /**
      * Notice that when **saving**, save the parent _first_, so added

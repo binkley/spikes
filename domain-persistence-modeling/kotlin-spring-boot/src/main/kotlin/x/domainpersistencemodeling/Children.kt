@@ -23,7 +23,7 @@ interface ChildFactory {
 interface ChildIntrinsicDetails
     : Comparable<ChildIntrinsicDetails> {
     val naturalId: String
-    val otherNaturalId: String? // TODO: Not yet mutable
+    val otherNaturalId: String?
     val parentNaturalId: String?
     val state: String
     val at: OffsetDateTime // UTC
@@ -45,6 +45,7 @@ interface ChildIntrinsicDetails
 interface ChildComputedDetails
 
 interface MutableChildIntrinsicDetails : ChildIntrinsicDetails {
+    override var otherNaturalId: String?
     override var parentNaturalId: String?
     override var state: String
     override var at: OffsetDateTime // UTC
@@ -59,7 +60,13 @@ interface Child<C : Child<C>>
     : ChildIntrinsicDetails,
         ChildComputedDetails,
         ScopedMutable<C, MutableChild>,
-        PersistableDomain<ChildSnapshot, C>
+        PersistableDomain<ChildSnapshot, C> {
+    /** Assigns [other] to this child, a mutable operation. */
+    fun assign(other: Other)
+
+    /** Unassigns any other from this child, a mutable operation. */
+    fun unassignAnyOther()
+}
 
 interface MutableChild
     : MutableChildIntrinsicDetails,

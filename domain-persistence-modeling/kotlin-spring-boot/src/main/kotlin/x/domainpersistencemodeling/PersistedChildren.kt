@@ -96,9 +96,16 @@ internal open class PersistedChild<C : Child<C>>(
         get() = TreeSet(record().defaultSideValues)
     override val version: Int
         get() = record().version
-
     override val changed
         get() = snapshot != toSnapshot()
+
+    override fun assign(other: Other) = update {
+        otherNaturalId = other.naturalId
+    }
+
+    override fun unassignAnyOther() = update {
+        otherNaturalId = null
+    }
 
     @Suppress("UNCHECKED_CAST")
     @Transactional
@@ -269,7 +276,7 @@ interface ChildRepository : CrudRepository<ChildRecord, Long> {
 data class ChildRecord(
         @Id var id: Long?,
         override var naturalId: String,
-        override val otherNaturalId: String?,
+        override var otherNaturalId: String?,
         override var parentNaturalId: String?,
         override var state: String,
         override var at: OffsetDateTime, // UTC
@@ -287,7 +294,7 @@ data class ChildRecord(
     override fun upsertedWith(upserted: ChildRecord): ChildRecord {
         id = upserted.id
         naturalId = upserted.naturalId
-        // TODO: otherNaturalId = upserted.otherNaturalId
+        otherNaturalId = upserted.otherNaturalId
         parentNaturalId = upserted.parentNaturalId
         state = upserted.state
         at = upserted.at
