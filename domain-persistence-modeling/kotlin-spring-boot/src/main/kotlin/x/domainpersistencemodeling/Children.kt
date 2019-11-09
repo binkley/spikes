@@ -4,6 +4,7 @@ import java.time.OffsetDateTime
 
 data class ChildSnapshot(
         val naturalId: String,
+        val otherNaturalId: String?,
         val parentNaturalId: String?,
         val state: String,
         val at: OffsetDateTime, // UTC
@@ -22,6 +23,7 @@ interface ChildFactory {
 interface ChildIntrinsicDetails
     : Comparable<ChildIntrinsicDetails> {
     val naturalId: String
+    val otherNaturalId: String? // TODO: Not yet mutable
     val parentNaturalId: String?
     val state: String
     val at: OffsetDateTime // UTC

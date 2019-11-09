@@ -20,7 +20,8 @@ import java.util.Optional
 import java.util.TreeSet
 
 internal fun ChildRecord.toSnapshot() = ChildSnapshot(
-        naturalId, parentNaturalId, state, at, value, sideValues, version)
+        naturalId, otherNaturalId, parentNaturalId, state, at, value,
+        sideValues, version)
 
 @Component
 internal class PersistedChildFactory(
@@ -79,6 +80,8 @@ internal open class PersistedChild<C : Child<C>>(
     : Child<C> {
     override val naturalId: String
         get() = record().naturalId
+    override val otherNaturalId: String?
+        get() = record().otherNaturalId
     override val parentNaturalId: String?
         get() = record().parentNaturalId
     override val state: String
@@ -229,11 +232,12 @@ interface ChildRepository : CrudRepository<ChildRecord, Long> {
 
     @Query("""
         SELECT *
-        FROM upsert_child(:naturalId, :parentNaturalId, :state, :at, :value, 
-        :sideValues, :defaultSideValues, :version)
+        FROM upsert_child(:naturalId, :otherNaturalId, :parentNaturalId,
+        :state, :at, :value, :sideValues, :defaultSideValues, :version)
         """)
     fun upsert(
             @Param("naturalId") naturalId: String,
+            @Param("otherNaturalId") otherNaturalId: String?,
             @Param("parentNaturalId") parentNaturalId: String?,
             @Param("state") state: String,
             @Param("at") at: OffsetDateTime, // UTC
@@ -246,6 +250,7 @@ interface ChildRepository : CrudRepository<ChildRecord, Long> {
     @JvmDefault
     fun upsert(entity: ChildRecord): Optional<ChildRecord> {
         val upserted = upsert(entity.naturalId,
+                entity.otherNaturalId,
                 entity.parentNaturalId,
                 entity.state,
                 entity.at,
@@ -264,6 +269,7 @@ interface ChildRepository : CrudRepository<ChildRecord, Long> {
 data class ChildRecord(
         @Id var id: Long?,
         override var naturalId: String,
+        override val otherNaturalId: String?,
         override var parentNaturalId: String?,
         override var state: String,
         override var at: OffsetDateTime, // UTC
@@ -274,13 +280,14 @@ data class ChildRecord(
     : MutableChildIntrinsicDetails,
         UpsertableRecord<ChildRecord> {
     internal constructor(naturalId: String)
-            : this(null, naturalId, null, ENABLED.name,
+            : this(null, naturalId, null, null, ENABLED.name,
             OffsetDateTime.ofInstant(EPOCH, UTC), null, mutableSetOf(),
             mutableSetOf(), 0)
 
     override fun upsertedWith(upserted: ChildRecord): ChildRecord {
         id = upserted.id
         naturalId = upserted.naturalId
+        // TODO: otherNaturalId = upserted.otherNaturalId
         parentNaturalId = upserted.parentNaturalId
         state = upserted.state
         at = upserted.at

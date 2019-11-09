@@ -251,8 +251,8 @@ internal class PersistedParentsTest
     @Test
     fun shouldPersistMutatedButUnassignedChildren() {
         val parent = newSavedParent()
-        val child = newSavedUnassignedChild()
-        val assignedChild = parent.assign(child)
+        val unassigned = newSavedUnassignedChild()
+        val assigned = parent.assign(unassigned)
 
         parent.save()
 
@@ -262,8 +262,7 @@ internal class PersistedParentsTest
                         beforeVersion = 1,
                         beforeParentNaturalId = null,
                         afterVersion = 2,
-                        afterParentNaturalId = parentNaturalId
-                ),
+                        afterParentNaturalId = parentNaturalId),
                 aParentChangedEvent(
                         beforeVersion = 1,
                         beforeAt = null,
@@ -271,11 +270,11 @@ internal class PersistedParentsTest
                         afterAt = atZero))
 
         val value = "PQR"
-        child.update {
+        unassigned.update {
             this.value = value
         }
 
-        parent.unassign(assignedChild)
+        parent.unassign(assigned)
         parent.delete()
 
         expect(currentPersistedChild().value).toBe(value)

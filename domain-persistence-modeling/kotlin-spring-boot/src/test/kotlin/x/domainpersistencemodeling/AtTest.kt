@@ -28,6 +28,7 @@ internal class AtTest {
 private fun childHavingAt(at: OffsetDateTime) =
         object : ChildIntrinsicDetails {
             override val naturalId = "a"
+            override val otherNaturalId = null
             override val parentNaturalId = "b"
             override val state = "IRRELEVANT"
             override val at = at

@@ -27,6 +27,7 @@ CREATE TABLE child
 (
     id                  SERIAL PRIMARY KEY,
     natural_id          VARCHAR       NOT NULL UNIQUE,
+    other_natural_id    VARCHAR REFERENCES other (natural_id),  -- Nullable
     parent_natural_id   VARCHAR REFERENCES parent (natural_id), -- Nullable
     state               VARCHAR       NOT NULL,
     at                  TIMESTAMPTZ   NOT NULL,
@@ -87,6 +88,7 @@ $$;
 
 -- Workaround issue in Spring Data with passing sets for ARRAY types in a procedure
 CREATE OR REPLACE FUNCTION upsert_child(_natural_id child.natural_id%TYPE,
+                                        _other_natural_id child.other_natural_id%TYPE,
                                         _parent_natural_id child.parent_natural_id%TYPE,
                                         _state child.state%TYPE,
                                         _at child.at%TYPE,
@@ -101,20 +103,20 @@ AS
 $$
 BEGIN
     RETURN QUERY INSERT INTO child
-        (natural_id, parent_natural_id, state, at,
-         value,
+        (natural_id, other_natural_id, parent_natural_id,
+         state, at, value,
          side_values,
          default_side_values, version)
-        VALUES (_natural_id, _parent_natural_id, _state, _at,
-                _value,
+        VALUES (_natural_id, _other_natural_id, _parent_natural_id,
+                _state, _at, _value,
                 CAST(_side_values AS VARCHAR ARRAY),
                 CAST(_default_side_values AS VARCHAR ARRAY), _version)
         ON CONFLICT (natural_id) DO UPDATE
-            SET (parent_natural_id, state, at, value,
+            SET (other_natural_id, parent_natural_id, state, at, value,
                  side_values,
                  default_side_values, version)
-                = (excluded.parent_natural_id, excluded.state, excluded.at,
-                   excluded.value,
+                = (excluded.other_natural_id, excluded.parent_natural_id,
+                   excluded.state, excluded.at, excluded.value,
                    excluded.side_values,
                    excluded.default_side_values, excluded.version)
         RETURNING *;

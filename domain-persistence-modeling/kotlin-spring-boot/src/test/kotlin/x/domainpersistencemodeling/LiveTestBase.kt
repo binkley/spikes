@@ -96,8 +96,7 @@ internal abstract class LiveTestBase {
         return other
     }
 
-    internal fun currentPersistedOther(
-            naturalId: String = otherNaturalId) =
+    internal fun currentPersistedOther(naturalId: String = otherNaturalId) =
             others.findExisting(naturalId)!!.also {
                 sqlQueries.reset()
             }
@@ -118,8 +117,7 @@ internal abstract class LiveTestBase {
         return parent
     }
 
-    internal fun currentPersistedParent(
-            naturalId: String = parentNaturalId) =
+    internal fun currentPersistedParent(naturalId: String = parentNaturalId) =
             parents.findExisting(naturalId)!!.also {
                 sqlQueries.reset()
             }
@@ -184,6 +182,7 @@ internal fun aParentChangedEvent( // TODO: Tie defaults to record defaults
 
 internal fun aChildChangedEvent( // TODO: Tie defaults to record defaults
         noBefore: Boolean = false,
+        beforeOtherNaturalId: String? = null,
         beforeParentNaturalId: String? = null,
         beforeState: String = ENABLED.name,
         beforeAt: OffsetDateTime = atZero,
@@ -191,6 +190,7 @@ internal fun aChildChangedEvent( // TODO: Tie defaults to record defaults
         beforeSideValues: Set<String> = setOf(),
         beforeVersion: Int = 0,
         noAfter: Boolean = false,
+        afterOtherNaturalId: String? = null,
         afterParentNaturalId: String? = null,
         afterState: String = ENABLED.name,
         afterAt: OffsetDateTime = atZero,
@@ -198,8 +198,8 @@ internal fun aChildChangedEvent( // TODO: Tie defaults to record defaults
         afterSideValues: Set<String> = setOf(),
         afterVersion: Int = 0) = ChildChangedEvent(
         if (noBefore) null else ChildSnapshot(childNaturalId,
-                beforeParentNaturalId, beforeState, beforeAt, beforeValue,
-                beforeSideValues, beforeVersion),
+                beforeOtherNaturalId, beforeParentNaturalId, beforeState,
+                beforeAt, beforeValue, beforeSideValues, beforeVersion),
         if (noAfter) null else ChildSnapshot(childNaturalId,
-                afterParentNaturalId, afterState, afterAt, afterValue,
-                afterSideValues, afterVersion))
+                afterOtherNaturalId, afterParentNaturalId, afterState,
+                afterAt, afterValue, afterSideValues, afterVersion))

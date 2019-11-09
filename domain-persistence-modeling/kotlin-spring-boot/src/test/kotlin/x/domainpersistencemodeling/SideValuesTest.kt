@@ -61,6 +61,7 @@ private fun childHavingSideValues(
         state: String = ENABLED.name) =
         object : ChildIntrinsicDetails {
             override val naturalId = "a"
+            override val otherNaturalId = null
             override val parentNaturalId = "b"
             override val state = state
             override val at = atZero
