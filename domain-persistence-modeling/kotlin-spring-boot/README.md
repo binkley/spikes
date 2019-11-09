@@ -5,6 +5,7 @@
   * [Scoped mutation](#scoped-mutation)
   * [Reversal of roles](#reversal-of-roles)
   * [Distinct types](#distinct-types)
+* [Questions](#questions)
 * [Spring-recommended documentation](#spring-recommended-documentation)
   * [Reference documentation](#reference-documentation)
 
@@ -132,6 +133,30 @@ common base type as conversion creates a new object.
 
 One downside: This violates the rule that only `update` mutates objects.
 Rather, for children, `update`, `assignTo`, and `unassignFromAny` all mutate.
+
+## Questions
+
+1. Should snapshots be deep or shallow?
+2. Should snapshots generally follow the persistence representation or the
+   domain representation?  If snapshots are purely implementation
+   representations, it makes more sense to follow persistence, and let another
+   layer translate (eg, REST)
+3. How should the domain hide simple details that are replaced with
+   corresponding domain representations?
+
+An example using "parent" details:
+
+- `naturalId` (key) - common to all
+- `otherNaturalId` (key) - only persistence; snapshot should choose between
+  this or `other`
+- `other` (domain) - only domain
+- `children` (domain) - only domain; snapshot does not provide this but could
+- `state` (string) - common to all
+- `at` (date-time) - only computed and snapshot
+- `value` (string) - common to all
+- `sideValues` (set of string) - common to all, but contrast with
+  representation in the DB
+- `version` (number) - common to all
 
 ## Spring-recommended documentation
 
