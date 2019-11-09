@@ -99,7 +99,9 @@ internal class PersistedParentComputedDetails(
         currentChildren.remove(child)
     }
 
-    internal fun saveMutatedChildren(): Boolean {
+    internal fun saveMutated() = saveMutatedChildren()
+
+    private fun saveMutatedChildren(): Boolean {
         // TODO: Gross function
         var mutated = false
         val assignedChildren = assignedChildren()
@@ -205,7 +207,7 @@ internal open class PersistedParent(
                 else UpsertedRecordResult(record(), false)
         record = result.record
 
-        if (computed.saveMutatedChildren()) {
+        if (computed.saveMutated()) {
             // Refresh the version
             record = factory.refreshRecord(naturalId)
             result = UpsertedRecordResult(record(), true)
@@ -228,7 +230,7 @@ internal open class PersistedParent(
                 "Deleting parent with assigned children: $this")
 
         val before = snapshot
-        computed.saveMutatedChildren()
+        computed.saveMutated()
         factory.delete(record())
 
         val after = null as ParentSnapshot?
