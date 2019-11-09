@@ -126,7 +126,7 @@ internal open class PersistedOther(
 internal data class PersistedMutableOther(
         private val record: OtherRecord)
     : MutableOther,
-        MutableOtherIntrinsicDetails by record
+        MutableOtherSimpleDetails by record
 
 interface OtherRepository : CrudRepository<OtherRecord, Long> {
     @Query("""
@@ -166,7 +166,7 @@ data class OtherRecord(
         override var naturalId: String,
         override var value: String?,
         override var version: Int)
-    : MutableOtherIntrinsicDetails,
+    : MutableOtherSimpleDetails,
         UpsertableRecord<OtherRecord> {
     internal constructor(naturalId: String)
             : this(null, naturalId, null, 0)

@@ -12,32 +12,32 @@ interface OtherFactory {
     fun findExistingOrCreateNew(naturalId: String): Other
 }
 
-interface OtherIntrinsicDetails
-    : Comparable<OtherIntrinsicDetails> {
+interface OtherSimpleDetails
+    : Comparable<OtherSimpleDetails> {
     val naturalId: String
     val value: String?
     val version: Int
 
-    override fun compareTo(other: OtherIntrinsicDetails) =
+    override fun compareTo(other: OtherSimpleDetails) =
             naturalId.compareTo(other.naturalId)
 }
 
 interface OtherComputedDetails
 
-interface MutableOtherIntrinsicDetails : OtherIntrinsicDetails {
+interface MutableOtherSimpleDetails : OtherSimpleDetails {
     override var value: String?
 }
 
 interface MutableOtherComputedDetails
 
 interface Other
-    : OtherIntrinsicDetails,
+    : OtherSimpleDetails,
         OtherComputedDetails,
         ScopedMutable<Other, MutableOther>,
         PersistableDomain<OtherSnapshot, Other>
 
 interface MutableOther
-    : MutableOtherIntrinsicDetails,
+    : MutableOtherSimpleDetails,
         MutableOtherComputedDetails
 
 data class OtherChangedEvent(

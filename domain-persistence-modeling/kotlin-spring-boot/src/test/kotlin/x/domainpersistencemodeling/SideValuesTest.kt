@@ -60,7 +60,7 @@ private fun childHavingSideValues(
         defaultSideValues: Set<String>,
         sideValues: Set<String> = setOf(),
         state: String = ENABLED.name) =
-        object : ChildIntrinsicDetails {
+        object : ChildSimpleDetails {
             override val naturalId = "a"
             override val otherNaturalId: String? = null
             override val parentNaturalId = "b"
@@ -73,7 +73,7 @@ private fun childHavingSideValues(
         }
 
 private fun parentHavingSideValues(
-        children: Set<ChildIntrinsicDetails>,
+        children: Set<ChildSimpleDetails>,
         sideValues: Set<String> = setOf()) =
         object : TestParent {
             override val naturalId = "a"
@@ -87,5 +87,5 @@ private fun parentHavingSideValues(
         }
 
 interface TestParent
-    : ParentIntrinsicDetails,
+    : ParentSimpleDetails,
         ParentComputedDetails

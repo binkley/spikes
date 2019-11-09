@@ -18,8 +18,8 @@ interface ParentFactory {
     fun findExistingOrCreateNew(naturalId: String): Parent
 }
 
-interface ParentIntrinsicDetails
-    : Comparable<ParentIntrinsicDetails> {
+interface ParentSimpleDetails
+    : Comparable<ParentSimpleDetails> {
     val naturalId: String
     val otherNaturalId: String?
     val state: String
@@ -27,16 +27,16 @@ interface ParentIntrinsicDetails
     val sideValues: Set<String> // Sorted
     val version: Int
 
-    override fun compareTo(other: ParentIntrinsicDetails) =
+    override fun compareTo(other: ParentSimpleDetails) =
             naturalId.compareTo(other.naturalId)
 }
 
 interface ParentComputedDetails {
-    val children: Set<ChildIntrinsicDetails>
+    val children: Set<ChildSimpleDetails>
     val at: OffsetDateTime?
 }
 
-interface MutableParentIntrinsicDetails : ParentIntrinsicDetails {
+interface MutableParentSimpleDetails : ParentSimpleDetails {
     override var otherNaturalId: String?
     override var state: String
     override var value: String?
@@ -48,7 +48,7 @@ interface MutableParentComputedDetails {
 }
 
 interface Parent
-    : ParentIntrinsicDetails,
+    : ParentSimpleDetails,
         ParentComputedDetails,
         ScopedMutable<Parent, MutableParent>,
         PersistableDomain<ParentSnapshot, Parent> {
@@ -68,7 +68,7 @@ interface Parent
 }
 
 interface MutableParent
-    : MutableParentIntrinsicDetails,
+    : MutableParentSimpleDetails,
         MutableParentComputedDetails
 
 data class ParentChangedEvent(

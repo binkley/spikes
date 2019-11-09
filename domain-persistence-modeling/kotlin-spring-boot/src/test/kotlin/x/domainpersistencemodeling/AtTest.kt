@@ -18,7 +18,7 @@ internal class AtTest {
         val childDetailsA = childHavingAt(atZero)
         val childDetailsB = childHavingAt(atZero.plusNanos(1_000L))
 
-        val children: Set<ChildIntrinsicDetails> =
+        val children: Set<ChildSimpleDetails> =
                 setOf(childDetailsA, childDetailsB)
 
         expect(children.at).toBe(childDetailsA.at)
@@ -26,7 +26,7 @@ internal class AtTest {
 }
 
 private fun childHavingAt(at: OffsetDateTime) =
-        object : ChildIntrinsicDetails {
+        object : ChildSimpleDetails {
             override val naturalId = "a"
             override val otherNaturalId: String? = null
             override val parentNaturalId = "b"

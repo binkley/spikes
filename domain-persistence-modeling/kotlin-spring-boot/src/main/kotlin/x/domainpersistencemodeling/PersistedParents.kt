@@ -282,7 +282,7 @@ internal data class PersistedMutableParent(
         private val added: (AssignedChild, MutableSet<AssignedChild>) -> Unit,
         private val removed: (AssignedChild, MutableSet<AssignedChild>) -> Unit)
     : MutableParent,
-        MutableParentIntrinsicDetails by record {
+        MutableParentSimpleDetails by record {
     override val sideValues = TrackedSortedSet(record.sideValues,
             ::replaceSideValues.uncurrySecond(),
             ::replaceSideValues.uncurrySecond())
@@ -340,7 +340,7 @@ data class ParentRecord(
         override var value: String?,
         override var sideValues: MutableSet<String>,
         override var version: Int)
-    : MutableParentIntrinsicDetails,
+    : MutableParentSimpleDetails,
         UpsertableRecord<ParentRecord> {
     internal constructor(naturalId: String)
             : this(null, naturalId, null, ENABLED.name, null, mutableSetOf(),

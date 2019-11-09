@@ -20,8 +20,8 @@ interface ChildFactory {
     fun findAssignedFor(parentNaturalId: String): Sequence<AssignedChild>
 }
 
-interface ChildIntrinsicDetails
-    : Comparable<ChildIntrinsicDetails> {
+interface ChildSimpleDetails
+    : Comparable<ChildSimpleDetails> {
     val naturalId: String
     val otherNaturalId: String?
     val parentNaturalId: String?
@@ -38,13 +38,13 @@ interface ChildIntrinsicDetails
     val relevant: Boolean
         get() = KnownState.forName(state)?.relevant ?: true
 
-    override operator fun compareTo(other: ChildIntrinsicDetails) =
+    override operator fun compareTo(other: ChildSimpleDetails) =
             naturalId.compareTo(other.naturalId)
 }
 
 interface ChildComputedDetails
 
-interface MutableChildIntrinsicDetails : ChildIntrinsicDetails {
+interface MutableChildSimpleDetails : ChildSimpleDetails {
     override var otherNaturalId: String?
     override var parentNaturalId: String?
     override var state: String
@@ -57,7 +57,7 @@ interface MutableChildIntrinsicDetails : ChildIntrinsicDetails {
 interface MutableChildComputedDetails
 
 interface Child<C : Child<C>>
-    : ChildIntrinsicDetails,
+    : ChildSimpleDetails,
         ChildComputedDetails,
         ScopedMutable<C, MutableChild>,
         PersistableDomain<ChildSnapshot, C> {
@@ -69,7 +69,7 @@ interface Child<C : Child<C>>
 }
 
 interface MutableChild
-    : MutableChildIntrinsicDetails,
+    : MutableChildSimpleDetails,
         MutableChildComputedDetails
 
 interface UnassignedChild : Child<UnassignedChild> {
