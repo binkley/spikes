@@ -22,8 +22,7 @@ interface OtherIntrinsicDetails
             naturalId.compareTo(other.naturalId)
 }
 
-interface OtherComputedDetails {
-}
+interface OtherComputedDetails
 
 interface MutableOtherIntrinsicDetails : OtherIntrinsicDetails {
     override var value: String?

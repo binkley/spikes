@@ -204,7 +204,7 @@ internal class PersistedChildrenTest
 
         expect(unassigned.version).toBe(2)
         expect(currentPersistedChild().parentNaturalId).toBe(null)
-        // Created, assigned by child, unassigned by child == version 3
+        // Created, assigned by the child, unassigned by the child -> 3
         expect(currentPersistedParent().version).toBe(3)
 
         expectDomainChangedEvents().containsExactly(

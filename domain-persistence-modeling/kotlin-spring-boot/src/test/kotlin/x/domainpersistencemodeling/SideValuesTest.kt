@@ -4,6 +4,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import x.domainpersistencemodeling.KnownState.DISABLED
 import x.domainpersistencemodeling.KnownState.ENABLED
+import java.time.OffsetDateTime
 
 internal class SideValuesTest {
     @Test
@@ -61,11 +62,11 @@ private fun childHavingSideValues(
         state: String = ENABLED.name) =
         object : ChildIntrinsicDetails {
             override val naturalId = "a"
-            override val otherNaturalId = null
+            override val otherNaturalId: String? = null
             override val parentNaturalId = "b"
             override val state = state
             override val at = atZero
-            override val value = null
+            override val value: String? = null
             override val sideValues = sideValues
             override val defaultSideValues = defaultSideValues
             override val version = 1
@@ -76,13 +77,13 @@ private fun parentHavingSideValues(
         sideValues: Set<String> = setOf()) =
         object : TestParent {
             override val naturalId = "a"
-            override val otherNaturalId = null
+            override val otherNaturalId: String? = null
             override val state = ENABLED.name
-            override val value = null
+            override val value: String? = null
             override val sideValues = sideValues
             override val version = 1
             override val children = children
-            override val at = null
+            override val at: OffsetDateTime? = null
         }
 
 interface TestParent

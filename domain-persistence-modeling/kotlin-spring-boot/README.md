@@ -27,26 +27,25 @@ To achieve these goals, each domain object implements
 [`ScopedMutable`](src/main/kotlin/x/domainpersistencemodeling/ScopedMutable.kt),
 which provides three methods:
 
-* `ScopedMutable.update(block)`, running the mutations of `block` against a
-  mutable version of the domain object, and returning an updated and immutable
+* `ScopedMutable.update(block)` runs the mutations of `block` against a
+  mutable version of the domain object, and returns an updated and immutable
   domain object
 
 In the method, the return is the result of the block.
 
 In addition, there are several specialized scoped-mutation methods:
 
-* `PersistableDomain.save()`, saving the domain object in persistence, and
-  returning an updated and immutable domain object including any changes made
+* `PersistableDomain.save()` saves the domain object in persistence, and
+  returns an updated and immutable domain object including any changes made
   by persistence (eg, versioning).
-* `PersistableDomain.delete()`, deleting the domain object in persistence.
-  Afterward this call, the domain object is _unusable_.
+* `PersistableDomain.delete()` deletes the domain object in persistence.
+  After this call, the domain object is _unusable_.
 
-And a domain object may have specialized scoped-mutation methods particular
-to itself:
+A domain object may have specialized scoped-mutation methods particular to
+itself:
 
-* `Parent.assign(Child)`, mutating both parent and child, but not persisting.
-* `Parent.unassign(Child)`, mutating both parent and child, but not
-  persisting.
+* `Parent.assign(Child)` mutates both parent and child, but does not persist
+* `Parent.unassign(Child)` mutates both parent and child, but does not persist
 
 ## Reversal of roles
 
@@ -102,13 +101,13 @@ operation of saving a parent has become an *O(N<sup>2</sup>)* operation.
 A parent with roughly 3,000 children results in a multiple of 10MM persistence
 operations.
 
-And in this **contrary** persistence representation, saving a parent bears
-this cost even when updating satellite data on the parent record.
+In this **contrary** persistence representation, saving a parent bears this
+cost even when updating satellite data on the parent record.
 
 ## Distinct types
 
 To aid in avoiding programming mistakes, and catch such errors in complilation
-rather than at runtime, child domain objects are divided into two types:
+rather than at runtime, we divide child domain objects into two types:
 "unassigned" (`UnassignedChild`) and "assigned" (`AssignedChild`).  As the JVM
 and JVM-based languages such as Kotlin and Java do not support casting based
 on memory layout (unlike "C" and C++), the code needs to construct distinct

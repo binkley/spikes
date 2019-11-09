@@ -145,9 +145,10 @@ $$
 DECLARE
     now TIMESTAMP DEFAULT now();
 BEGIN
-    -- While running upsert do on conflict, both insert and update triggers are fired
-    -- Check for this case, and do not overwrite the existing audit columns
-    -- When an existing row, the update trigger will handle everything
+    -- While running upsert do on conflict, Postgres fires both insert and
+    -- update triggers.  Check for this case, and do not overwrite the
+    -- existing audit columns.  When an existing row, the update trigger
+    -- handles the rest
     PERFORM * FROM other WHERE natural_id = new.natural_id;
     IF FOUND THEN
         RETURN new;
@@ -168,9 +169,10 @@ $$
 DECLARE
     now TIMESTAMP DEFAULT now();
 BEGIN
-    -- While running upsert do on conflict, both insert and update triggers are fired
-    -- Check for this case, and do not overwrite the existing audit columns
-    -- When an existing row, the update trigger will handle everything
+    -- While running upsert do on conflict, Postgres fires both insert and
+    -- update triggers.  Check for this case, and do not overwrite the
+    -- existing audit columns.  When an existing row, the update trigger
+    -- handles the rest
     PERFORM * FROM parent WHERE natural_id = new.natural_id;
     IF FOUND THEN
         RETURN new;
@@ -191,9 +193,10 @@ $$
 DECLARE
     now TIMESTAMP DEFAULT now();
 BEGIN
-    -- While running upsert do on conflict, both insert and update triggers are fired
-    -- Check for this case, and do not overwrite the existing audit columns
-    -- When an existing row, the update trigger will handle everything
+    -- While running upsert do on conflict, Postgres fires both insert and
+    -- update triggers.  Check for this case, and do not overwrite the
+    -- existing audit columns.  When an existing row, the update trigger
+    -- handles the rest
     PERFORM * FROM child WHERE natural_id = new.natural_id;
     IF FOUND THEN
         RETURN new;

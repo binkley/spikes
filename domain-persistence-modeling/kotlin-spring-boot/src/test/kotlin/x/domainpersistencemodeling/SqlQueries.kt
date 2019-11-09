@@ -52,9 +52,11 @@ class SqlQueries
         private val oldAdditive = logger.isAdditive
 
         override fun append(eventObject: ILoggingEvent) {
-            val message = eventObject.message.lines().map {
+            val message = eventObject.message.lines().filter {
+                it.isNotBlank()
+            }.joinToString(" ") {
                 it.trim()
-            }.joinToString(" ")
+            }
             val matcher = queryOnly.matcher(message)
             if (!matcher.find()) return
             val query = matcher.group(1).trim()
@@ -77,7 +79,7 @@ class SqlQueries
 
     private companion object {
         val queryOnly = Pattern.compile(
-                "^Executing prepared SQL statement \\[(.*)]$")
+                "^Executing prepared SQL statement \\[(.*)]$")!!
         private val upsert = Pattern.compile("^SELECT \\* FROM upsert_.*$")
 
         fun Map<String, List<String>>.extractUpserts() = map {

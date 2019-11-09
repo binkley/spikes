@@ -68,7 +68,7 @@ internal class PersistedChildFactory(
 }
 
 /**
- * Notice that this is both an [UnassignedChild] and an [AssignedChild] for
+ * Notice that this is both an [UnassignedChild], and an [AssignedChild] for
  * ease of implementation.  Externally, this details is not visible, as
  * [PersistedChildFactory] returns only interfaces, not concrete classes, in
  * its factory methods, and downcasting to narrow is safe.
@@ -163,7 +163,7 @@ internal open class PersistedUnassignedChild(
         update {
             parentNaturalId = parent.naturalId
         }
-        // In C/C++, we could simply cast, since memory layout is identical
+        // In "C"/C++, we could simply cast, since memory layout is identical
         PersistedAssignedChild(factory, snapshot, record)
     }
 }
@@ -181,7 +181,7 @@ internal open class PersistedAssignedChild(
         update {
             parentNaturalId = null
         }
-        // In C/C++, we could simply cast, since memory layout is identical
+        // In "C"/C++, we could simply cast, since memory layout is identical
         PersistedUnassignedChild(factory, snapshot, record)
     }
 }
