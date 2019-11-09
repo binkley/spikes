@@ -1,6 +1,7 @@
 # Spring Boot Domain Persistence Modeling
 
 * [Concepts](#concepts)
+  * [Separation of concerns](#separation-of-concerns)
   * [Scoped mutation](#scoped-mutation)
   * [Reversal of roles](#reversal-of-roles)
   * [Distinct types](#distinct-types)
@@ -13,6 +14,19 @@ The key concepts are:
 
 - [_Scoped mutation_](#scoped-mutation)
 - [_Reversal of roles_](#reversal-of-roles)
+
+## Separation of concerns
+
+A classic programming thought, _separation of concerns_ is important for clean
+code, often expressed in the OOP community as the
+[Single Responsibility Principle](https://blog.cleancoder.com/uncle-bob/2014/05/08/SingleReponsibilityPrinciple.html).
+
+Here that entails dividing properties of an entity at different levels:
+
+- Simple values common to all levels
+- Representations specific to persistence
+- Representations specific to domain modeling
+- Computed values in the domain implementation
 
 ## Scoped mutation
 
