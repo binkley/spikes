@@ -232,6 +232,34 @@ BEGIN
 END;
 $$;
 
+CREATE OR REPLACE FUNCTION update_other_update_parent_f()
+    RETURNS TRIGGER
+    LANGUAGE plpgsql
+AS
+$$
+BEGIN
+    UPDATE parent
+    SET updated_at = now() + INTERVAL '1 millisecond'
+    WHERE other_natural_id IN (old.natural_id, new.natural_id);
+
+    RETURN new;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION update_other_update_child_f()
+    RETURNS TRIGGER
+    LANGUAGE plpgsql
+AS
+$$
+BEGIN
+    UPDATE child
+    SET updated_at = now() + INTERVAL '1 millisecond'
+    WHERE other_natural_id IN (old.natural_id, new.natural_id);
+
+    RETURN new;
+END;
+$$;
+
 CREATE OR REPLACE FUNCTION insert_child_update_parent_f()
     RETURNS TRIGGER
     LANGUAGE plpgsql
@@ -280,13 +308,25 @@ CREATE TRIGGER a_update_other_natural_id_immutable_natural_key_t
     FOR EACH ROW
 EXECUTE PROCEDURE update_immutable_natural_key_f();
 
-CREATE TRIGGER b_insert_other_natural_id_audit_t
+CREATE TRIGGER b_update_other_update_parent_t
+    BEFORE UPDATE
+    ON other
+    FOR EACH ROW
+EXECUTE PROCEDURE update_other_update_parent_f();
+
+CREATE TRIGGER c_update_other_update_child_t
+    BEFORE UPDATE
+    ON other
+    FOR EACH ROW
+EXECUTE PROCEDURE update_other_update_child_f();
+
+CREATE TRIGGER d_insert_other_natural_id_audit_t
     BEFORE INSERT
     ON other
     FOR EACH ROW
 EXECUTE PROCEDURE insert_other_natural_id_audit_f();
 
-CREATE TRIGGER b_update_other_natural_id_audit_t
+CREATE TRIGGER d_update_other_natural_id_audit_t
     BEFORE UPDATE
     ON other
     FOR EACH ROW
