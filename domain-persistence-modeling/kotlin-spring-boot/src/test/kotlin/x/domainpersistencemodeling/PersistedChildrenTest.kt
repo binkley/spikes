@@ -12,7 +12,7 @@ import x.domainpersistencemodeling.PersistableDomain.UpsertedDomainResult
 internal class PersistedChildrenTest
     : LiveTestBase() {
     @Test
-    fun shouldCreateNew() {
+    fun `should create new`() {
         val found = children.findExistingOrCreateNewUnassigned(childNaturalId)
 
         expect(found).toBe(newUnsavedUnassignedChild())
@@ -23,7 +23,7 @@ internal class PersistedChildrenTest
     }
 
     @Test
-    fun shouldFindExisting() {
+    fun `should find existing`() {
         val saved = newSavedUnassignedChild()
 
         val found = children.findExistingOrCreateNewUnassigned(childNaturalId)
@@ -36,7 +36,7 @@ internal class PersistedChildrenTest
     }
 
     @Test
-    fun shouldRoundTrip() {
+    fun `should round trip`() {
         val unsaved = newUnsavedUnassignedChild()
 
         expect(unsaved.version).toBe(0)
@@ -60,7 +60,7 @@ internal class PersistedChildrenTest
     }
 
     @Test
-    fun shouldDetectNoChanges() {
+    fun `should detect no changes`() {
         val original = newSavedUnassignedChild()
         val resaved = original.save()
 
@@ -71,7 +71,7 @@ internal class PersistedChildrenTest
     }
 
     @Test
-    fun shouldMutate() {
+    fun `should mutate`() {
         val original = newSavedUnassignedChild()
 
         expect(original.changed).toBe(false)
@@ -107,7 +107,7 @@ internal class PersistedChildrenTest
     }
 
     @Test
-    fun shouldDelete() {
+    fun `should delete`() {
         val existing = newSavedUnassignedChild()
 
         existing.delete()
@@ -125,7 +125,7 @@ internal class PersistedChildrenTest
     }
 
     @Test
-    fun shouldAssignChildAtCreation() {
+    fun `should assign child at creation`() {
         val parent = newSavedParent()
 
         expect(parent.version).toBe(1)
@@ -151,7 +151,7 @@ internal class PersistedChildrenTest
     }
 
     @Test
-    fun shouldAssignChildAtMutation() {
+    fun `should assign child at mutation`() {
         val parent = newSavedParent()
         val child = newSavedUnassignedChild()
 
@@ -182,7 +182,7 @@ internal class PersistedChildrenTest
     }
 
     @Test
-    fun shouldUnassignChild() {
+    fun `should unassign child`() {
         val parent = newSavedParent()
         val unassigned = newUnsavedUnassignedChild()
         val assigned = unassigned.assignTo(parent)

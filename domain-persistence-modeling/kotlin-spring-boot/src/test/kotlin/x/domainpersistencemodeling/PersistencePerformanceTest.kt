@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test
 internal class PersistencePerformanceTest
     : LiveTestBase() {
     @Test
-    fun shouldSaveOnlyOneMutatedChild() {
+    fun `should save only one mutated child`() {
         val parent = newSavedParent()
         for (i in 1..10) {
             val uniqueUnassignedChild =

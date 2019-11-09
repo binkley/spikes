@@ -11,7 +11,7 @@ import x.domainpersistencemodeling.PersistableDomain.UpsertedDomainResult
 internal class PersistedOthersTest
     : LiveTestBase() {
     @Test
-    fun shouldCreateNew() {
+    fun `should create new`() {
         val found = others.findExistingOrCreateNew(otherNaturalId)
 
         expect(found).toBe(newUnsavedOther())
@@ -21,7 +21,7 @@ internal class PersistedOthersTest
     }
 
     @Test
-    fun shouldFindExisting() {
+    fun `should find existing`() {
         val saved = newSavedOther()
 
         val found = others.findExistingOrCreateNew(otherNaturalId)
@@ -33,7 +33,7 @@ internal class PersistedOthersTest
     }
 
     @Test
-    fun shouldRoundTrip() {
+    fun `should round trip`() {
         val unsaved = newUnsavedOther()
 
         expect(unsaved.version).toBe(0)
@@ -55,7 +55,7 @@ internal class PersistedOthersTest
     }
 
     @Test
-    fun shouldDetectNoChanges() {
+    fun `should detect no changes`() {
         val original = newSavedOther()
         val resaved = original.save()
 
@@ -66,7 +66,7 @@ internal class PersistedOthersTest
     }
 
     @Test
-    fun shouldMutate() {
+    fun `should mutate`() {
         val original = newSavedOther()
 
         expect(original.changed).toBe(false)
