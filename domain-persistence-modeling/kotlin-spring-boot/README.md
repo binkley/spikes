@@ -36,12 +36,13 @@ A classic programming thought, _separation of concerns_ is important for clean
 code, often expressed in the OOP community as the
 [Single Responsibility Principle](https://blog.cleancoder.com/uncle-bob/2014/05/08/SingleReponsibilityPrinciple.html).
 
-Here that entails dividing properties of an entity at different levels:
+That entails dividing properties of an entity at different levels:
 
 - Simple values common to all levels
 - Representations specific to persistence
 - Representations specific to domain modeling
 - Computed values in the domain implementation
+- Dependent values provided by another domain
 
 I want to make changes in the right places, and have confidence of no surprise
 side effects.
