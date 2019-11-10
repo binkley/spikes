@@ -27,6 +27,7 @@
         <maven-minimum.version>3.6</maven-minimum.version>
         <postgres.version>11</postgres.version>
         <test-containers.version>1.12.2</test-containers.version>
+        <versions-maven-plugin.version>2.7</versions-maven-plugin.version>
         <!-- @formatter:on -->
     </properties>
 
@@ -129,6 +130,11 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>versions-maven-plugin</artifactId>
+                <version>${versions-maven-plugin.version}</version>
             </plugin>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
