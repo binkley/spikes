@@ -3,6 +3,9 @@ package x.domainpersistencemodeling
 import java.util.Optional
 
 interface UpsertableRecord<Record : UpsertableRecord<Record>> {
+    val naturalId: String
+    val version: Int
+
     fun upsertedWith(upserted: Record): Record
 
     data class UpsertedRecordResult<Record : UpsertableRecord<Record>>(

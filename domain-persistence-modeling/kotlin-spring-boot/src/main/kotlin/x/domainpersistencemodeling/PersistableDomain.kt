@@ -2,6 +2,8 @@ package x.domainpersistencemodeling
 
 interface PersistableDomain<Snapshot,
         Domain : PersistableDomain<Snapshot, Domain>> {
+    val naturalId: String
+
     val version: Int
 
     val existing: Boolean

@@ -12,7 +12,8 @@
 
 This spike explores _domain persistence modeling_, that is, how the domain
 model and persistence models relate, and good ways to express those relations
-in code.
+in code.  It is _not_ a mini-ORM, but uses Spring Data to abstract away
+persistence operations.
 
 ## Goals
 
