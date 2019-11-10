@@ -72,15 +72,9 @@ interface MutableChild
     : MutableChildSimpleDetails,
         MutableChildComputedDetails
 
-interface UnassignedChild : Child<UnassignedChild> {
-    /** Assigns this child to [parent], a mutable operation. */
-    fun assignTo(parentNaturalId: String): AssignedChild
-}
+interface UnassignedChild : Child<UnassignedChild>
 
-interface AssignedChild : Child<AssignedChild> {
-    /** Unassigns this child from any parent, a mutable operation. */
-    fun unassignFromAny(): UnassignedChild
-}
+interface AssignedChild : Child<AssignedChild>
 
 data class ChildChangedEvent(
         val before: ChildSnapshot?,

@@ -174,7 +174,8 @@ internal open class PersistedUnassignedChild(
         computed: PersistedChildComputedDetails)
     : PersistedChild<UnassignedChild>(factory, snapshot, record, computed),
         UnassignedChild {
-    override fun assignTo(parentNaturalId: String): AssignedChild = let {
+    /** Assigns this child to a parent, a mutable operation. */
+    internal fun assignTo(parentNaturalId: String) = let {
         update {
             this.parentNaturalId = parentNaturalId
         }
@@ -190,8 +191,8 @@ internal open class PersistedAssignedChild(
         computed: PersistedChildComputedDetails)
     : PersistedChild<AssignedChild>(factory, snapshot, record, computed),
         AssignedChild {
-
-    override fun unassignFromAny(): UnassignedChild = let {
+    /** Unassigns this child from any parent, a mutable operation. */
+    internal fun unassignFromAny() = let {
         update {
             parentNaturalId = null
         }

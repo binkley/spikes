@@ -129,13 +129,13 @@ internal abstract class LiveTestBase {
         sqlQueries.reset()
     }
 
-    internal fun newSavedUnassignedChild(): UnassignedChild {
+    internal fun newSavedUnassignedChild(): PersistedUnassignedChild {
         val saved = newUnsavedUnassignedChild().save()
         expect(saved.changed).toBe(true)
         val child = saved.domain
         sqlQueries.reset()
         testListener.reset()
-        return child
+        return child as PersistedUnassignedChild
     }
 
     internal fun currentPersistedChild(
@@ -147,6 +147,7 @@ internal abstract class LiveTestBase {
     internal fun newUnsavedUnassignedChild(
             naturalId: String = childNaturalId) =
             children.createNewUnassigned(naturalId)
+                    as PersistedUnassignedChild
 }
 
 internal fun anOtherChangedEvent( // TODO: Tie defaults to record defaults

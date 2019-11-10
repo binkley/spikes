@@ -176,6 +176,10 @@ internal open class PersistedParent(
     }
 
     override fun assign(child: UnassignedChild) = let {
+        // This wart works around Java/Kotlin having no sense of `friend` as
+        // in "C"/C++
+        child as PersistedUnassignedChild
+
         val assigned = child.assignTo(naturalId)
         update {
             children += assigned
@@ -184,6 +188,10 @@ internal open class PersistedParent(
     }
 
     override fun unassign(child: AssignedChild) = let {
+        // This wart works around Java/Kotlin having no sense of `friend` as
+        // in "C"/C++
+        child as PersistedAssignedChild
+
         update {
             children -= child
         }
