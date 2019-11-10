@@ -176,7 +176,7 @@ internal open class PersistedParent(
     }
 
     override fun assign(child: UnassignedChild) = let {
-        val assigned = child.assignTo(this)
+        val assigned = child.assignTo(naturalId)
         update {
             children += assigned
         }

@@ -1,18 +1,32 @@
 # Spring Boot Domain Persistence Modeling
 
+* [Goals](#goals)
 * [Concepts](#concepts)
   * [Separation of concerns](#separation-of-concerns)
   * [Scoped mutation](#scoped-mutation)
   * [Reversal of roles](#reversal-of-roles)
   * [Distinct types](#distinct-types)
-* [Questions](#questions)
+* [Open questions](#open-questions)
 * [Spring-recommended documentation](#spring-recommended-documentation)
   * [Reference documentation](#reference-documentation)
+
+This spike explores _domain persistence modeling_, that is, how the domain
+model and persistence models relate, and good ways to express those relations
+in code.
+
+## Goals
+
+1. Correct: The code is correct, mostly expressed through testing.
+2. Reasoning: I can reason about the code, and make changes with
+   understanding.
+3. Clean: The code is readable, concise, and I can make changes with
+   confidence. 
 
 ## Concepts
 
 The key concepts are:
 
+- [_Separation of concerns_](#separation-of-concerns)
 - [_Scoped mutation_](#scoped-mutation)
 - [_Reversal of roles_](#reversal-of-roles)
 
@@ -28,6 +42,9 @@ Here that entails dividing properties of an entity at different levels:
 - Representations specific to persistence
 - Representations specific to domain modeling
 - Computed values in the domain implementation
+
+I want to make changes in the right places, and have confidence of no surprise
+side effects.
 
 ## Scoped mutation
 
@@ -134,7 +151,7 @@ common base type as conversion creates a new object.
 One downside: This violates the rule that only `update` mutates objects.
 Rather, for children, `update`, `assignTo`, and `unassignFromAny` all mutate.
 
-## Questions
+## Open questions
 
 1. Should snapshots be deep or shallow?
 2. Should snapshots generally follow the persistence representation or the

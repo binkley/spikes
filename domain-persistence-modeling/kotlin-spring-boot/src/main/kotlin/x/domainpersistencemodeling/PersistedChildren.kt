@@ -175,9 +175,9 @@ internal open class PersistedUnassignedChild(
     : PersistedChild<UnassignedChild>(factory, snapshot, record, computed),
         UnassignedChild {
     @Transactional
-    override fun assignTo(parent: Parent): AssignedChild = let {
+    override fun assignTo(parentNaturalId: String): AssignedChild = let {
         update {
-            parentNaturalId = parent.naturalId
+            this.parentNaturalId = parentNaturalId
         }
         // In "C"/C++, we could simply cast, since memory layout is identical
         PersistedAssignedChild(factory, snapshot, record, computed)

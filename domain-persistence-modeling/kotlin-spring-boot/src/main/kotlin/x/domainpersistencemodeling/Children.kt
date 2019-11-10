@@ -74,7 +74,7 @@ interface MutableChild
 
 interface UnassignedChild : Child<UnassignedChild> {
     /** Assigns this child to [parent], a mutable operation. */
-    fun assignTo(parent: Parent): AssignedChild
+    fun assignTo(parentNaturalId: String): AssignedChild
 }
 
 interface AssignedChild : Child<AssignedChild> {
