@@ -24,7 +24,8 @@ internal class PersistedOtherFactory(
     }
 
     override fun createNew(naturalId: String) =
-            PersistedOther(this, null, OtherRecord(naturalId))
+            PersistedOther(this, null, OtherRecord(naturalId),
+                    PersistedOtherComputedDetails())
 
     override fun findExistingOrCreateNew(naturalId: String) =
             findExisting(naturalId) ?: createNew(naturalId)
@@ -36,18 +37,29 @@ internal class PersistedOtherFactory(
         repository.delete(record)
     }
 
+    internal fun refreshRecord(naturalId: String) =
+            repository.findByNaturalId(naturalId).orElseThrow()
+
     internal fun notifyChanged(
             before: OtherSnapshot?, after: OtherSnapshot?) =
             publisher.publishEvent(OtherChangedEvent(before, after))
 
-    private fun toOther(record: OtherRecord) =
-            PersistedOther(this, record.toSnapshot(), record)
+    private fun toOther(record: OtherRecord): PersistedOther {
+        val computed = PersistedOtherComputedDetails()
+        return PersistedOther(this, record.toSnapshot(computed), record,
+                computed)
+    }
+}
+
+internal class PersistedOtherComputedDetails : OtherComputedDetails {
+    internal fun saveMutated() = false
 }
 
 internal open class PersistedOther(
         private val factory: PersistedOtherFactory,
         private var snapshot: OtherSnapshot?,
-        private var record: OtherRecord?)
+        private var record: OtherRecord?,
+        private val computed: PersistedOtherComputedDetails)
     : Other {
     override val naturalId: String
         get() = record().naturalId
@@ -57,7 +69,7 @@ internal open class PersistedOther(
         get() = record().version
 
     override val changed
-        get() = snapshot != record().toSnapshot()
+        get() = snapshot != record().toSnapshot(computed)
 
     /**
      * Notice that when **saving**, save the other _first_, so added
@@ -65,14 +77,20 @@ internal open class PersistedOther(
      */
     @Transactional
     override fun save(): UpsertedDomainResult<OtherSnapshot, Other> {
-        // Save ourselves first, so children have a valid other
+        // Save ourselves first, so children have a valid parent
         val before = snapshot
-        val result =
+        var result =
                 if (changed) factory.save(record())
                 else UpsertedRecordResult(record(), false)
         record = result.record
 
-        val after = record().toSnapshot()
+        if (computed.saveMutated()) {
+            // Refresh the version
+            record = factory.refreshRecord(naturalId)
+            result = UpsertedRecordResult(record(), true)
+        }
+
+        val after = record().toSnapshot(computed)
         snapshot = after
         if (result.changed) // Trust the database
             factory.notifyChanged(before, after)
@@ -86,6 +104,7 @@ internal open class PersistedOther(
     @Transactional
     override fun delete() {
         val before = snapshot
+        computed.saveMutated()
         factory.delete(record())
 
         val after = null as OtherSnapshot?
