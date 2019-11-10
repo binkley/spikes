@@ -10,10 +10,6 @@ import java.time.OffsetDateTime
 import java.util.Objects
 import java.util.TreeSet
 
-internal fun ChildRecord.toSnapshot() = ChildSnapshot(
-        naturalId, otherNaturalId, parentNaturalId, state, at, value,
-        sideValues, version)
-
 @Component
 internal class PersistedChildFactory(
         private val repository: ChildRepository,

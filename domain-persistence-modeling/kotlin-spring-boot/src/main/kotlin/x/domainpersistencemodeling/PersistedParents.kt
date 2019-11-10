@@ -11,10 +11,6 @@ import java.util.Objects
 import java.util.TreeSet
 import java.util.stream.Collectors.toCollection
 
-internal fun ParentRecord.toSnapshot(computed: ParentComputedDetails) =
-        ParentSnapshot(naturalId, otherNaturalId, state, computed.at, value,
-                sideValues, version)
-
 @Component
 internal class PersistedParentFactory(
         private val repository: ParentRepository,

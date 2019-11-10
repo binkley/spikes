@@ -8,9 +8,6 @@ import x.domainpersistencemodeling.PersistableDomain.UpsertedDomainResult
 import x.domainpersistencemodeling.UpsertableRecord.UpsertedRecordResult
 import java.util.Objects
 
-internal fun OtherRecord.toSnapshot() =
-        OtherSnapshot(naturalId, value, version)
-
 @Component
 internal class PersistedOtherFactory(
         private val repository: OtherRepository,
