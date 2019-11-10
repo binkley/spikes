@@ -174,7 +174,6 @@ internal open class PersistedUnassignedChild(
         computed: PersistedChildComputedDetails)
     : PersistedChild<UnassignedChild>(factory, snapshot, record, computed),
         UnassignedChild {
-    @Transactional
     override fun assignTo(parentNaturalId: String): AssignedChild = let {
         update {
             this.parentNaturalId = parentNaturalId
@@ -192,7 +191,6 @@ internal open class PersistedAssignedChild(
     : PersistedChild<AssignedChild>(factory, snapshot, record, computed),
         AssignedChild {
 
-    @Transactional
     override fun unassignFromAny(): UnassignedChild = let {
         update {
             parentNaturalId = null
