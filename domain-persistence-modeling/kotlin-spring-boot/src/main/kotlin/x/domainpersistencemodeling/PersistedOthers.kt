@@ -11,7 +11,7 @@ internal class PersistedOtherFactory(
         private val repository: OtherRepository,
         private val publisher: ApplicationEventPublisher)
     : OtherFactory,
-        PersistedFactory<OtherSnapshot, OtherRecord> {
+        PersistedFactory<OtherSnapshot, OtherRecord, PersistedOtherComputedDetails, MutableOther> {
     override fun all() = repository.findAll().map {
         toDomain(it)
     }.asSequence()
@@ -24,10 +24,8 @@ internal class PersistedOtherFactory(
 
     override fun createNew(naturalId: String) =
             PersistedOther(PersistedDomain(
-                    this, null, OtherRecord(naturalId),
-                    PersistedOtherComputedDetails(),
-                    ::PersistedMutableOther,
-                    ::PersistedOther))
+                    this, null as OtherSnapshot?, OtherRecord(naturalId),
+                    PersistedOtherComputedDetails(), ::PersistedOther))
 
     override fun findExistingOrCreateNew(naturalId: String) =
             findExisting(naturalId) ?: createNew(naturalId)
@@ -46,14 +44,17 @@ internal class PersistedOtherFactory(
             before: OtherSnapshot?, after: OtherSnapshot?) =
             publisher.publishEvent(OtherChangedEvent(before, after))
 
-    override fun toSnapshot(record: OtherRecord) =
+    override fun toSnapshot(record: OtherRecord,
+            computed: PersistedOtherComputedDetails) =
             OtherSnapshot(record.naturalId, record.value, record.version)
+
+    override fun toMutable(record: OtherRecord) =
+            PersistedMutableOther(record)
 
     private fun toDomain(record: OtherRecord): PersistedOther {
         val computed = PersistedOtherComputedDetails()
         return PersistedOther(PersistedDomain(
-                this, toSnapshot(record), record, computed,
-                ::PersistedMutableOther,
+                this, toSnapshot(record, computed), record, computed,
                 ::PersistedOther))
     }
 }
@@ -65,7 +66,7 @@ internal class PersistedOtherComputedDetails
 }
 
 internal open class PersistedOther(
-        private val persisted: PersistedDomain<OtherSnapshot, OtherRecord, PersistedOtherFactory, PersistedOtherComputedDetails, MutableOther, Other>)
+        private val persisted: PersistedDomain<OtherSnapshot, OtherRecord, PersistedOtherComputedDetails, MutableOther, PersistedOtherFactory, Other>)
     : Other,
         PersistableDomain<OtherSnapshot, Other> by persisted,
         ScopedMutable<Other, MutableOther> by persisted {

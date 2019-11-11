@@ -4,13 +4,16 @@ import x.domainpersistencemodeling.PersistableDomain.UpsertedDomainResult
 import x.domainpersistencemodeling.UpsertableRecord.UpsertedRecordResult
 
 internal interface PersistedFactory<Snapshot,
-        Record : UpsertableRecord<Record>> {
+        Record : UpsertableRecord<Record>,
+        Computed : PersistedComputedDetails,
+        Mutable> {
     fun save(record: Record): UpsertedRecordResult<Record>
     fun delete(record: Record)
     fun refreshRecord(naturalId: String): Record
     fun notifyChanged(before: Snapshot?, after: Snapshot?)
 
-    fun toSnapshot(record: Record): Snapshot
+    fun toSnapshot(record: Record, computed: Computed): Snapshot
+    fun toMutable(record: Record): Mutable
 }
 
 internal interface PersistedComputedDetails {
@@ -19,16 +22,16 @@ internal interface PersistedComputedDetails {
 
 internal class PersistedDomain<Snapshot,
         Record : UpsertableRecord<Record>,
-        Factory : PersistedFactory<Snapshot, Record>,
         Computed : PersistedComputedDetails,
-        Mutable, Domain>(
+        Mutable,
+        Factory : PersistedFactory<Snapshot, Record, Computed, Mutable>,
+        Domain>(
         private val factory: Factory,
         var snapshot: Snapshot?,
         var record: Record?,
         private val computed: Computed,
-        private val toMutable: (Record) -> Mutable,
         private val toDomain: (PersistedDomain
-        <Snapshot, Record, Factory, Computed, Mutable, Domain>) -> Domain)
+        <Snapshot, Record, Computed, Mutable, Factory, Domain>) -> Domain)
     : PersistableDomain<Snapshot, Domain>,
         ScopedMutable<Domain, Mutable>
         where Domain : ScopedMutable<Domain, Mutable>,
@@ -38,7 +41,7 @@ internal class PersistedDomain<Snapshot,
     override val version: Int
         get() = record().version
     override val changed
-        get() = snapshot != factory.toSnapshot(record())
+        get() = snapshot != factory.toSnapshot(record(), computed)
 
     fun record() =
             record ?: throw DomainException("Deleted: $this")
@@ -62,7 +65,7 @@ internal class PersistedDomain<Snapshot,
             result = UpsertedRecordResult(record(), true)
         }
 
-        val after = factory.toSnapshot(record())
+        val after = factory.toSnapshot(record(), computed)
         snapshot = after
         if (result.changed) // Trust the database
             factory.notifyChanged(before, after)
@@ -85,5 +88,5 @@ internal class PersistedDomain<Snapshot,
     }
 
     override fun <R> update(block: Mutable.() -> R): R =
-            toMutable(record()).let(block)
+            factory.toMutable(record()).let(block)
 }
