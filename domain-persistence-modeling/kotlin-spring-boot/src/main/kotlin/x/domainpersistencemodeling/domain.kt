@@ -9,6 +9,8 @@ internal interface PersistedFactory<Snapshot,
     fun delete(record: Record)
     fun refreshRecord(naturalId: String): Record
     fun notifyChanged(before: Snapshot?, after: Snapshot?)
+
+    fun toSnapshot(record: Record): Snapshot
 }
 
 internal interface PersistedComputedDetails {
@@ -24,7 +26,6 @@ internal class PersistedDomain<Snapshot,
         var snapshot: Snapshot?,
         var record: Record?,
         private val computed: Computed,
-        private val toSnapshot: (Record, Computed) -> Snapshot,
         private val toMutable: (Record) -> Mutable,
         private val toDomain: (PersistedDomain
         <Snapshot, Record, Factory, Computed, Mutable, Domain>) -> Domain)
@@ -37,7 +38,7 @@ internal class PersistedDomain<Snapshot,
     override val version: Int
         get() = record().version
     override val changed
-        get() = snapshot != toSnapshot(record(), computed)
+        get() = snapshot != factory.toSnapshot(record())
 
     fun record() =
             record ?: throw DomainException("Deleted: $this")
@@ -61,7 +62,7 @@ internal class PersistedDomain<Snapshot,
             result = UpsertedRecordResult(record(), true)
         }
 
-        val after = toSnapshot(record(), computed)
+        val after = factory.toSnapshot(record())
         snapshot = after
         if (result.changed) // Trust the database
             factory.notifyChanged(before, after)

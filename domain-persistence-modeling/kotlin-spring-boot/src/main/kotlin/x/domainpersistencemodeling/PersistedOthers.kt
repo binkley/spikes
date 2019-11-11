@@ -26,7 +26,7 @@ internal class PersistedOtherFactory(
             PersistedOther(PersistedDomain(
                     this, null, OtherRecord(naturalId),
                     PersistedOtherComputedDetails(),
-                    ::toSnapshot.uncurryFirst(), ::PersistedMutableOther,
+                    ::PersistedMutableOther,
                     ::PersistedOther))
 
     override fun findExistingOrCreateNew(naturalId: String) =
@@ -46,14 +46,14 @@ internal class PersistedOtherFactory(
             before: OtherSnapshot?, after: OtherSnapshot?) =
             publisher.publishEvent(OtherChangedEvent(before, after))
 
-    private fun toSnapshot(record: OtherRecord) =
+    override fun toSnapshot(record: OtherRecord) =
             OtherSnapshot(record.naturalId, record.value, record.version)
 
     private fun toDomain(record: OtherRecord): PersistedOther {
         val computed = PersistedOtherComputedDetails()
         return PersistedOther(PersistedDomain(
                 this, toSnapshot(record), record, computed,
-                ::toSnapshot.uncurryFirst(), ::PersistedMutableOther,
+                ::PersistedMutableOther,
                 ::PersistedOther))
     }
 }
