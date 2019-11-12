@@ -5,15 +5,13 @@ import x.domainpersistencemodeling.UpsertableRecord.UpsertedRecordResult
 
 internal interface PersistedFactory<Snapshot,
         Record : UpsertableRecord<Record>,
-        Computed : PersistedComputedDetails,
-        Mutable> {
+        Computed : PersistedComputedDetails> {
     fun save(record: Record): UpsertedRecordResult<Record>
     fun delete(record: Record)
     fun refreshRecord(naturalId: String): Record
     fun notifyChanged(before: Snapshot?, after: Snapshot?)
 
     fun toSnapshot(record: Record, computed: Computed): Snapshot
-    fun toMutable(record: Record): Mutable
 }
 
 internal interface PersistedComputedDetails {
@@ -23,15 +21,16 @@ internal interface PersistedComputedDetails {
 internal class PersistedDomain<Snapshot,
         Record : UpsertableRecord<Record>,
         Computed : PersistedComputedDetails,
-        Mutable,
-        Factory : PersistedFactory<Snapshot, Record, Computed, Mutable>,
-        Domain>(
+        Factory : PersistedFactory<Snapshot, Record, Computed>,
+        Domain,
+        Mutable>(
         private val factory: Factory,
         var snapshot: Snapshot?,
         var record: Record?,
         private val computed: Computed,
         private val toDomain: (PersistedDomain
-        <Snapshot, Record, Computed, Mutable, Factory, Domain>) -> Domain)
+        <Snapshot, Record, Computed, Factory, Domain, Mutable>) -> Domain,
+        private val toMutable: (Record) -> Mutable)
     : PersistableDomain<Snapshot, Domain>,
         ScopedMutable<Domain, Mutable>
         where Domain : ScopedMutable<Domain, Mutable>,
@@ -88,5 +87,5 @@ internal class PersistedDomain<Snapshot,
     }
 
     override fun <R> update(block: Mutable.() -> R): R =
-            factory.toMutable(record()).let(block)
+            toMutable(record()).let(block)
 }

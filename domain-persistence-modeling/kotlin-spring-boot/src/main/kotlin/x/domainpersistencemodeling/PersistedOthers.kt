@@ -11,7 +11,7 @@ internal class PersistedOtherFactory(
         private val repository: OtherRepository,
         private val publisher: ApplicationEventPublisher)
     : OtherFactory,
-        PersistedFactory<OtherSnapshot, OtherRecord, PersistedOtherComputedDetails, MutableOther> {
+        PersistedFactory<OtherSnapshot, OtherRecord, PersistedOtherComputedDetails> {
     override fun all() = repository.findAll().map {
         toDomain(it)
     }.asSequence()
@@ -25,7 +25,9 @@ internal class PersistedOtherFactory(
     override fun createNew(naturalId: String) =
             PersistedOther(PersistedDomain(
                     this, null as OtherSnapshot?, OtherRecord(naturalId),
-                    PersistedOtherComputedDetails(), ::PersistedOther))
+                    PersistedOtherComputedDetails(),
+                    ::PersistedOther,
+                    ::PersistedMutableOther))
 
     override fun findExistingOrCreateNew(naturalId: String) =
             findExisting(naturalId) ?: createNew(naturalId)
@@ -48,14 +50,12 @@ internal class PersistedOtherFactory(
             computed: PersistedOtherComputedDetails) =
             OtherSnapshot(record.naturalId, record.value, record.version)
 
-    override fun toMutable(record: OtherRecord) =
-            PersistedMutableOther(record)
-
     private fun toDomain(record: OtherRecord): PersistedOther {
         val computed = PersistedOtherComputedDetails()
         return PersistedOther(PersistedDomain(
                 this, toSnapshot(record, computed), record, computed,
-                ::PersistedOther))
+                ::PersistedOther,
+                ::PersistedMutableOther))
     }
 }
 
@@ -66,7 +66,7 @@ internal class PersistedOtherComputedDetails
 }
 
 internal open class PersistedOther(
-        private val persisted: PersistedDomain<OtherSnapshot, OtherRecord, PersistedOtherComputedDetails, MutableOther, PersistedOtherFactory, Other>)
+        private val persisted: PersistedDomain<OtherSnapshot, OtherRecord, PersistedOtherComputedDetails, PersistedOtherFactory, Other, MutableOther>)
     : Other,
         PersistableDomain<OtherSnapshot, Other> by persisted,
         ScopedMutable<Other, MutableOther> by persisted {
