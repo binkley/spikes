@@ -26,21 +26,22 @@ internal class PersistedDomain<Snapshot,
         Domain : PersistableDomain<Snapshot, Domain>,
         Mutable>(
         private val factory: Factory,
-        var snapshot: Snapshot?,
-        var record: Record?,
+        private var snapshot: Snapshot?,
+        private var _record: Record?,
         internal val computed: Computed,
         private val toDomain: (PersistedDomain
         <Snapshot, Record, Computed, Factory, Domain, Mutable>) -> Domain)
     : PersistableDomain<Snapshot, Domain> {
     override val naturalId: String
-        get() = record().naturalId
+        get() = record.naturalId
     override val version: Int
-        get() = record().version
+        get() = record.version
     override val changed
-        get() = snapshot != factory.toSnapshot(record(), computed)
+        get() = snapshot != factory.toSnapshot(record, computed)
 
-    fun record() =
-            record ?: throw DomainException("Deleted: $this")
+    /** Throws [DomainException] if the domain object has been deleted. */
+    internal val record: Record
+        get() = _record ?: throw DomainException("Deleted: $this")
 
     /**
      * Notice that when **saving**, save the other _first_, so added
@@ -51,17 +52,17 @@ internal class PersistedDomain<Snapshot,
         // Save ourselves first, so children have a valid parent
         val before = snapshot
         var result =
-                if (changed) factory.save(record())
-                else UpsertedRecordResult(record(), false)
-        record = result.record
+                if (changed) factory.save(record)
+                else UpsertedRecordResult(record, false)
+        _record = result.record
 
         if (computed.saveMutated()) {
             // Refresh the version
-            record = factory.refreshRecord(naturalId)
-            result = UpsertedRecordResult(record(), true)
+            _record = factory.refreshRecord(naturalId)
+            result = UpsertedRecordResult(record, true)
         }
 
-        val after = factory.toSnapshot(record(), computed)
+        val after = factory.toSnapshot(record, computed)
         snapshot = after
         if (result.changed) // Trust the database
             factory.notifyChanged(before, after)
@@ -75,10 +76,10 @@ internal class PersistedDomain<Snapshot,
     override fun delete() {
         val before = snapshot
         computed.saveMutated()
-        factory.delete(record())
+        factory.delete(record)
 
         val after = null as Snapshot?
-        record = null
+        _record = null
         snapshot = after
         factory.notifyChanged(before, after)
     }
@@ -88,12 +89,12 @@ internal class PersistedDomain<Snapshot,
         if (javaClass != other?.javaClass) return false
         other as PersistedDomain<*, *, *, *, *, *>
         return snapshot == other.snapshot
-                && record == other.record
+                && _record == other._record
                 && computed == other.computed
     }
 
-    override fun hashCode() = hash(snapshot, record, computed)
+    override fun hashCode() = hash(snapshot, _record, computed)
 
     override fun toString() =
-            "${super.toString()}{snapshot=${snapshot}, record=${record}, computed=${computed}}"
+            "${super.toString()}{snapshot=${snapshot}, record=${_record}, computed=${computed}}"
 }

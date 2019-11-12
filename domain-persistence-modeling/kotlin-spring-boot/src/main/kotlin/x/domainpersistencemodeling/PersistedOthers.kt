@@ -4,7 +4,6 @@ import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Component
 import x.domainpersistencemodeling.OtherRepository.OtherRecord
 import x.domainpersistencemodeling.UpsertableRecord.UpsertedRecordResult
-import java.util.Objects
 
 @Component
 internal class PersistedOtherFactory(
@@ -24,7 +23,9 @@ internal class PersistedOtherFactory(
 
     override fun createNew(naturalId: String) =
             PersistedOther(PersistedDomain(
-                    this, null as OtherSnapshot?, OtherRecord(naturalId),
+                    this,
+                    null,
+                    OtherRecord(naturalId),
                     PersistedOtherComputedDetails(),
                     ::PersistedOther))
 
@@ -52,7 +53,10 @@ internal class PersistedOtherFactory(
     private fun toDomain(record: OtherRecord): PersistedOther {
         val computed = PersistedOtherComputedDetails()
         return PersistedOther(PersistedDomain(
-                this, toSnapshot(record, computed), record, computed,
+                this,
+                toSnapshot(record, computed),
+                record,
+                computed,
                 ::PersistedOther))
     }
 }
@@ -64,31 +68,26 @@ internal data class PersistedOtherComputedDetails(
     override fun saveMutated() = saveMutated
 }
 
-internal open class PersistedOther(
+internal class PersistedOther(
         private val persisted: PersistedDomain<OtherSnapshot, OtherRecord, PersistedOtherComputedDetails, PersistedOtherFactory, Other, MutableOther>)
     : Other,
         PersistableDomain<OtherSnapshot, Other> by persisted {
     override val value: String?
-        get() = persisted.record().value
+        get() = persisted.record.value
 
     override fun <R> update(block: MutableOther.() -> R): R =
-            PersistedMutableOther(persisted.record()).let(block)
+            PersistedMutableOther(persisted.record).let(block)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
         other as PersistedOther
-        return persisted.snapshot == other.persisted.snapshot
-                && persisted.record == other.persisted.record
-                && persisted.computed == other.persisted.computed
+        return persisted == other.persisted
     }
 
-    override fun hashCode() =
-            Objects.hash(persisted.snapshot, persisted.record,
-                    persisted.computed)
+    override fun hashCode() = persisted.hashCode()
 
-    override fun toString() =
-            "${super.toString()}{snapshot=${persisted.snapshot}, record=${persisted.record}, computed=${persisted.computed}"
+    override fun toString() = "${super.toString()}{persisted=$persisted"
 }
 
 internal data class PersistedMutableOther(
