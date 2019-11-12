@@ -87,7 +87,7 @@ internal class PersistedOther(
 
     override fun hashCode() = persisted.hashCode()
 
-    override fun toString() = "${super.toString()}{persisted=$persisted"
+    override fun toString() = "${super.toString()}$persisted"
 }
 
 internal data class PersistedMutableOther(

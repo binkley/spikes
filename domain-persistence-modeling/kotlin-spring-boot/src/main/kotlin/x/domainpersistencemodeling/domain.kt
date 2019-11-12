@@ -96,5 +96,5 @@ internal class PersistedDomain<Snapshot,
     override fun hashCode() = hash(snapshot, _record, computed)
 
     override fun toString() =
-            "${super.toString()}{snapshot=${snapshot}, record=${_record}, computed=${computed}}"
+            "{snapshot=${snapshot}, record=${_record}, computed=${computed}}"
 }

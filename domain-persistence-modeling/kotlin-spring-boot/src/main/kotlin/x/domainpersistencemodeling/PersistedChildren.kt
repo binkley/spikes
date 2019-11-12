@@ -129,7 +129,7 @@ internal open class PersistedChild<C : Child<C>>(
 
     override fun hashCode() = persisted.hashCode()
 
-    override fun toString() = "${super.toString()}{persisted=$persisted}"
+    override fun toString() = "${super.toString()}$persisted"
 }
 
 internal class PersistedUnassignedChild(
