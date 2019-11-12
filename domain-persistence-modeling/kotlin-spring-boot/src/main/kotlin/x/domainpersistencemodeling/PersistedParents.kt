@@ -16,14 +16,15 @@ internal class PersistedParentFactory(
         private val repository: ParentRepository,
         private val children: ChildFactory,
         private val publisher: ApplicationEventPublisher)
-    : ParentFactory {
+    : ParentFactory,
+        PersistedFactory<ParentSnapshot, ParentRecord, PersistedParentComputedDetails> {
     override fun all() = repository.findAll().map {
-        toParent(it)
+        toDomain(it)
     }.asSequence()
 
     override fun findExisting(naturalId: String): Parent? {
         return repository.findByNaturalId(naturalId).map {
-            toParent(it)
+            toDomain(it)
         }.orElse(null)
     }
 
@@ -34,31 +35,40 @@ internal class PersistedParentFactory(
     override fun findExistingOrCreateNew(naturalId: String) =
             findExisting(naturalId) ?: createNew(naturalId)
 
-    fun save(record: ParentRecord) =
+    override fun save(record: ParentRecord) =
             UpsertedRecordResult(record, repository.upsert(record))
 
-    internal fun delete(record: ParentRecord) {
+    override fun delete(record: ParentRecord) {
         repository.delete(record)
     }
 
-    internal fun refreshRecord(naturalId: String) =
+    override fun refreshRecord(naturalId: String) =
             repository.findByNaturalId(naturalId).orElseThrow()
 
-    internal fun notifyChanged(
+    override fun toSnapshot(record: ParentRecord,
+            computed: PersistedParentComputedDetails) =
+            ParentSnapshot(record.naturalId, record.otherNaturalId,
+                    record.state, computed.at, record.value,
+                    record.sideValues, record.version)
+
+    override fun notifyChanged(
             before: ParentSnapshot?, after: ParentSnapshot?) =
             publisher.publishEvent(ParentChangedEvent(before, after))
 
-    private fun toParent(record: ParentRecord): PersistedParent {
+    private fun toDomain(record: ParentRecord): PersistedParent {
         val computed = PersistedParentComputedDetails(
                 children.findAssignedFor(record.naturalId))
-        return PersistedParent(this, record.toSnapshot(computed), record,
+        return PersistedParent(this, toSnapshot(record, computed), record,
                 computed)
     }
 }
 
 internal class PersistedParentComputedDetails(
         assigned: Sequence<AssignedChild>)
-    : ParentComputedDetails {
+    : ParentComputedDetails,
+        PersistedComputedDetails {
+    override fun saveMutated() = saveMutatedChildren()
+
     override val at: OffsetDateTime?
         get() = children.at
 
@@ -94,8 +104,6 @@ internal class PersistedParentComputedDetails(
     internal fun removeChild(child: AssignedChild) {
         currentChildren.remove(child)
     }
-
-    internal fun saveMutated() = saveMutatedChildren()
 
     private fun saveMutatedChildren(): Boolean {
         // TODO: Gross function
@@ -165,7 +173,7 @@ internal open class PersistedParent(
     override val children: Set<AssignedChild>
         get() = computed.children
     override val changed
-        get() = snapshot != record().toSnapshot(computed)
+        get() = snapshot != factory.toSnapshot(record(), computed)
 
     override fun assign(other: Other) = update {
         otherNaturalId = other.naturalId
@@ -217,7 +225,7 @@ internal open class PersistedParent(
             result = UpsertedRecordResult(record(), true)
         }
 
-        val after = record().toSnapshot(computed)
+        val after = factory.toSnapshot(record(), computed)
         snapshot = after
         if (result.changed) // Trust the database
             factory.notifyChanged(before, after)
