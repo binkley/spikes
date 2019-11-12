@@ -2,9 +2,7 @@ package x.domainpersistencemodeling
 
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Component
-import org.springframework.transaction.annotation.Transactional
 import x.domainpersistencemodeling.ParentRepository.ParentRecord
-import x.domainpersistencemodeling.PersistableDomain.UpsertedDomainResult
 import x.domainpersistencemodeling.UpsertableRecord.UpsertedRecordResult
 import java.time.OffsetDateTime
 import java.util.Objects
@@ -29,8 +27,12 @@ internal class PersistedParentFactory(
     }
 
     override fun createNew(naturalId: String) =
-            PersistedParent(this, null, ParentRecord(naturalId),
-                    PersistedParentComputedDetails(emptySequence()))
+            PersistedParent(PersistedDomain(
+                    this,
+                    null,
+                    ParentRecord(naturalId),
+                    PersistedParentComputedDetails(emptySequence()),
+                    ::PersistedParent))
 
     override fun findExistingOrCreateNew(naturalId: String) =
             findExisting(naturalId) ?: createNew(naturalId)
@@ -42,7 +44,7 @@ internal class PersistedParentFactory(
         repository.delete(record)
     }
 
-    override fun refreshRecord(naturalId: String) =
+    override fun refreshRecord(naturalId: String): ParentRecord =
             repository.findByNaturalId(naturalId).orElseThrow()
 
     override fun toSnapshot(record: ParentRecord,
@@ -58,8 +60,12 @@ internal class PersistedParentFactory(
     private fun toDomain(record: ParentRecord): PersistedParent {
         val computed = PersistedParentComputedDetails(
                 children.findAssignedFor(record.naturalId))
-        return PersistedParent(this, toSnapshot(record, computed), record,
-                computed)
+        return PersistedParent(PersistedDomain(
+                this,
+                toSnapshot(record, computed),
+                record,
+                computed,
+                ::PersistedParent))
     }
 }
 
@@ -151,29 +157,21 @@ internal class PersistedParentComputedDetails(
 }
 
 internal open class PersistedParent(
-        private val factory: PersistedParentFactory,
-        private var snapshot: ParentSnapshot?,
-        private var record: ParentRecord?,
-        private val computed: PersistedParentComputedDetails)
-    : Parent {
-    override val naturalId: String
-        get() = record().naturalId
+        private val persisted: PersistedDomain<ParentSnapshot, ParentRecord, PersistedParentComputedDetails, PersistedParentFactory, Parent, MutableParent>)
+    : Parent,
+        PersistableDomain<ParentSnapshot, Parent> by persisted {
     override val otherNaturalId: String?
-        get() = record().otherNaturalId
+        get() = persisted.record.otherNaturalId
     override val state: String
-        get() = record().state
+        get() = persisted.record.state
     override val at: OffsetDateTime?
-        get() = computed.at
+        get() = persisted.computed.at
     override val value: String?
-        get() = record().value
+        get() = persisted.record.value
     override val sideValues: Set<String> // Sorted
-        get() = TreeSet(record().sideValues)
-    override val version: Int
-        get() = record().version
+        get() = TreeSet(persisted.record.sideValues)
     override val children: Set<AssignedChild>
-        get() = computed.children
-    override val changed
-        get() = snapshot != factory.toSnapshot(record(), computed)
+        get() = persisted.computed.children
 
     override fun assign(other: Other) = update {
         otherNaturalId = other.naturalId
@@ -206,53 +204,15 @@ internal open class PersistedParent(
         child.unassignFromAny()
     }
 
-    /**
-     * Notice that when **saving**, save the parent _first_, so added
-     * children have a valid FK reference.
-     */
-    @Transactional
-    override fun save(): UpsertedDomainResult<ParentSnapshot, Parent> {
-        // Save ourselves first, so children have a valid parent
-        val before = snapshot
-        var result =
-                if (changed) factory.save(record())
-                else UpsertedRecordResult(record(), false)
-        record = result.record
-
-        if (computed.saveMutated()) {
-            // Refresh the version
-            record = factory.refreshRecord(naturalId)
-            result = UpsertedRecordResult(record(), true)
-        }
-
-        val after = factory.toSnapshot(record(), computed)
-        snapshot = after
-        if (result.changed) // Trust the database
-            factory.notifyChanged(before, after)
-        return UpsertedDomainResult(this, result.changed)
-    }
-
-    /**
-     * Notice that when **deleting**, save the parent _last_, so that FK
-     * references get cleared.
-     */
-    @Transactional
     override fun delete() {
         if (children.isNotEmpty()) throw DomainException(
                 "Deleting parent with assigned children: $this")
 
-        val before = snapshot
-        computed.saveMutated()
-        factory.delete(record())
-
-        val after = null as ParentSnapshot?
-        record = null
-        snapshot = after
-        factory.notifyChanged(before, after)
+        persisted.delete()
     }
 
     override fun <R> update(block: MutableParent.() -> R): R =
-            PersistedMutableParent(record(), children,
+            PersistedMutableParent(persisted.record, children,
                     ::addChild.uncurryFirst(),
                     ::removeChild.uncurryFirst())
                     .let(block)
@@ -261,27 +221,20 @@ internal open class PersistedParent(
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
         other as PersistedParent
-        return snapshot == other.snapshot
-                && record == other.record
-                && computed == other.computed
+        return persisted == other.persisted
     }
 
-    override fun hashCode() =
-            Objects.hash(snapshot, record, computed)
+    override fun hashCode() = persisted.hashCode()
 
-    override fun toString() =
-            "${super.toString()}{snapshot=$snapshot, record=$record, computed=$computed}"
+    override fun toString() = "${super.toString()}$persisted"
 
     private fun addChild(child: AssignedChild) {
-        computed.addChild(child)
+        persisted.computed.addChild(child)
     }
 
     private fun removeChild(child: AssignedChild) {
-        computed.removeChild(child)
+        persisted.computed.removeChild(child)
     }
-
-    private fun record() =
-            record ?: throw DomainException("Deleted: $this")
 }
 
 internal data class PersistedMutableParent(
