@@ -2,6 +2,7 @@ package x.domainpersistencemodeling
 
 import x.domainpersistencemodeling.PersistableDomain.UpsertedDomainResult
 import x.domainpersistencemodeling.UpsertableRecord.UpsertedRecordResult
+import java.util.Objects.hash
 
 internal interface PersistedFactory<Snapshot,
         Record : UpsertableRecord<Record>,
@@ -22,19 +23,15 @@ internal class PersistedDomain<Snapshot,
         Record : UpsertableRecord<Record>,
         Computed : PersistedComputedDetails,
         Factory : PersistedFactory<Snapshot, Record, Computed>,
-        Domain,
+        Domain : PersistableDomain<Snapshot, Domain>,
         Mutable>(
         private val factory: Factory,
         var snapshot: Snapshot?,
         var record: Record?,
-        private val computed: Computed,
+        internal val computed: Computed,
         private val toDomain: (PersistedDomain
-        <Snapshot, Record, Computed, Factory, Domain, Mutable>) -> Domain,
-        private val toMutable: (Record) -> Mutable)
-    : PersistableDomain<Snapshot, Domain>,
-        ScopedMutable<Domain, Mutable>
-        where Domain : ScopedMutable<Domain, Mutable>,
-              Domain : PersistableDomain<Snapshot, Domain> {
+        <Snapshot, Record, Computed, Factory, Domain, Mutable>) -> Domain)
+    : PersistableDomain<Snapshot, Domain> {
     override val naturalId: String
         get() = record().naturalId
     override val version: Int
@@ -86,6 +83,17 @@ internal class PersistedDomain<Snapshot,
         factory.notifyChanged(before, after)
     }
 
-    override fun <R> update(block: Mutable.() -> R): R =
-            toMutable(record()).let(block)
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        other as PersistedDomain<*, *, *, *, *, *>
+        return snapshot == other.snapshot
+                && record == other.record
+                && computed == other.computed
+    }
+
+    override fun hashCode() = hash(snapshot, record, computed)
+
+    override fun toString() =
+            "${super.toString()}{snapshot=${snapshot}, record=${record}, computed=${computed}}"
 }

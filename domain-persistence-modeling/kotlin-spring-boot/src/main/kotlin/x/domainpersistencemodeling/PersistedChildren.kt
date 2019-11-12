@@ -74,14 +74,14 @@ internal class PersistedChildFactory(
             toDomain: (PersistedDomain<ChildSnapshot, ChildRecord, PersistedChildComputedDetails, PersistedChildFactory, C, MutableChild>) -> C) =
             toDomain(PersistedDomain(this, snapshot, record,
                     PersistedChildComputedDetails(),
-                    toDomain,
-                    ::PersistedMutableChild))
+                    toDomain))
 }
 
-internal class PersistedChildComputedDetails
+internal data class PersistedChildComputedDetails(
+        private val saveMutated: Boolean = false)
     : ChildComputedDetails,
         PersistedComputedDetails {
-    override fun saveMutated() = false
+    override fun saveMutated() = saveMutated
 }
 
 /**
@@ -93,8 +93,7 @@ internal class PersistedChildComputedDetails
 internal open class PersistedChild<C : Child<C>>(
         protected val persisted: PersistedDomain<ChildSnapshot, ChildRecord, PersistedChildComputedDetails, PersistedChildFactory, C, MutableChild>)
     : Child<C>,
-        PersistableDomain<ChildSnapshot, C> by persisted,
-        ScopedMutable<C, MutableChild> by persisted {
+        PersistableDomain<ChildSnapshot, C> by persisted {
     override val otherNaturalId: String?
         get() = persisted.record().otherNaturalId
     override val parentNaturalId: String?
@@ -110,6 +109,9 @@ internal open class PersistedChild<C : Child<C>>(
     override val defaultSideValues: Set<String> // Sorted
         get() = TreeSet(persisted.record().defaultSideValues)
 
+    override fun <R> update(block: MutableChild.() -> R): R =
+            PersistedMutableChild(persisted.record()).let(block)
+
     override fun assign(other: Other) = update {
         otherNaturalId = other.naturalId
     }
@@ -124,13 +126,15 @@ internal open class PersistedChild<C : Child<C>>(
         other as PersistedChild<*>
         return persisted.snapshot == other.persisted.snapshot
                 && persisted.record == other.persisted.record
+                && persisted.computed == other.persisted.computed
     }
 
     override fun hashCode() =
-            Objects.hash(persisted.snapshot, persisted.record)
+            Objects.hash(persisted.snapshot, persisted.record,
+                    persisted.computed)
 
     override fun toString() =
-            "${super.toString()}{snapshot=$persisted.snapshot, record=$persisted.record}"
+            "${super.toString()}{snapshot=${persisted.snapshot}, record=${persisted.record}, computed=${persisted.computed}}"
 }
 
 internal open class PersistedUnassignedChild(

@@ -26,8 +26,7 @@ internal class PersistedOtherFactory(
             PersistedOther(PersistedDomain(
                     this, null as OtherSnapshot?, OtherRecord(naturalId),
                     PersistedOtherComputedDetails(),
-                    ::PersistedOther,
-                    ::PersistedMutableOther))
+                    ::PersistedOther))
 
     override fun findExistingOrCreateNew(naturalId: String) =
             findExisting(naturalId) ?: createNew(naturalId)
@@ -54,22 +53,21 @@ internal class PersistedOtherFactory(
         val computed = PersistedOtherComputedDetails()
         return PersistedOther(PersistedDomain(
                 this, toSnapshot(record, computed), record, computed,
-                ::PersistedOther,
-                ::PersistedMutableOther))
+                ::PersistedOther))
     }
 }
 
-internal class PersistedOtherComputedDetails
+internal data class PersistedOtherComputedDetails(
+        private val saveMutated: Boolean = false)
     : OtherComputedDetails,
         PersistedComputedDetails {
-    override fun saveMutated() = false
+    override fun saveMutated() = saveMutated
 }
 
 internal open class PersistedOther(
         private val persisted: PersistedDomain<OtherSnapshot, OtherRecord, PersistedOtherComputedDetails, PersistedOtherFactory, Other, MutableOther>)
     : Other,
-        PersistableDomain<OtherSnapshot, Other> by persisted,
-        ScopedMutable<Other, MutableOther> by persisted {
+        PersistableDomain<OtherSnapshot, Other> by persisted {
     override val value: String?
         get() = persisted.record().value
 
@@ -82,13 +80,15 @@ internal open class PersistedOther(
         other as PersistedOther
         return persisted.snapshot == other.persisted.snapshot
                 && persisted.record == other.persisted.record
+                && persisted.computed == other.persisted.computed
     }
 
     override fun hashCode() =
-            Objects.hash(persisted.snapshot, persisted.record)
+            Objects.hash(persisted.snapshot, persisted.record,
+                    persisted.computed)
 
     override fun toString() =
-            "${super.toString()}{snapshot=$persisted.snapshot, record=$persisted.record}"
+            "${super.toString()}{snapshot=${persisted.snapshot}, record=${persisted.record}, computed=${persisted.computed}"
 }
 
 internal data class PersistedMutableOther(
