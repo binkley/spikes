@@ -15,7 +15,7 @@ internal class PersistedParentFactory(
         private val children: ChildFactory,
         private val publisher: ApplicationEventPublisher)
     : ParentFactory,
-        PersistedFactory<ParentSnapshot, ParentRecord, PersistedParentComputedDetails> {
+        PersistedFactory<ParentSnapshot, ParentRecord, PersistedParentDependentDetails> {
     override fun all() = repository.findAll().map {
         toDomain(it)
     }.asSequence()
@@ -31,7 +31,7 @@ internal class PersistedParentFactory(
                     this,
                     null,
                     ParentRecord(naturalId),
-                    PersistedParentComputedDetails(emptySequence()),
+                    PersistedParentDependentDetails(emptySequence()),
                     ::PersistedParent))
 
     override fun findExistingOrCreateNew(naturalId: String) =
@@ -48,9 +48,9 @@ internal class PersistedParentFactory(
             repository.findByNaturalId(naturalId).orElseThrow()
 
     override fun toSnapshot(record: ParentRecord,
-            computed: PersistedParentComputedDetails) =
+            dependent: PersistedParentDependentDetails) =
             ParentSnapshot(record.naturalId, record.otherNaturalId,
-                    record.state, computed.at, record.value,
+                    record.state, dependent.at, record.value,
                     record.sideValues, record.version)
 
     override fun notifyChanged(
@@ -58,21 +58,21 @@ internal class PersistedParentFactory(
             publisher.publishEvent(ParentChangedEvent(before, after))
 
     private fun toDomain(record: ParentRecord): PersistedParent {
-        val computed = PersistedParentComputedDetails(
+        val dependent = PersistedParentDependentDetails(
                 children.findAssignedFor(record.naturalId))
         return PersistedParent(PersistedDomain(
                 this,
-                toSnapshot(record, computed),
+                toSnapshot(record, dependent),
                 record,
-                computed,
+                dependent,
                 ::PersistedParent))
     }
 }
 
-internal class PersistedParentComputedDetails(
+internal class PersistedParentDependentDetails(
         assigned: Sequence<AssignedChild>)
-    : ParentComputedDetails,
-        PersistedComputedDetails {
+    : ParentDependentDetails,
+        PersistedDependentDetails {
     override fun saveMutated() = saveMutatedChildren()
 
     override val at: OffsetDateTime?
@@ -92,7 +92,7 @@ internal class PersistedParentComputedDetails(
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
-        other as PersistedParentComputedDetails
+        other as PersistedParentDependentDetails
         return snapshotChildren == other.snapshotChildren
                 && currentChildren == other.currentChildren
     }
@@ -157,7 +157,7 @@ internal class PersistedParentComputedDetails(
 }
 
 internal open class PersistedParent(
-        private val persisted: PersistedDomain<ParentSnapshot, ParentRecord, PersistedParentComputedDetails, PersistedParentFactory, Parent, MutableParent>)
+        private val persisted: PersistedDomain<ParentSnapshot, ParentRecord, PersistedParentDependentDetails, PersistedParentFactory, Parent, MutableParent>)
     : Parent,
         PersistableDomain<ParentSnapshot, Parent> by persisted {
     override val otherNaturalId: String?
@@ -165,13 +165,13 @@ internal open class PersistedParent(
     override val state: String
         get() = persisted.record.state
     override val at: OffsetDateTime?
-        get() = persisted.computed.at
+        get() = persisted.dependent.at
     override val value: String?
         get() = persisted.record.value
     override val sideValues: Set<String> // Sorted
         get() = TreeSet(persisted.record.sideValues)
     override val children: Set<AssignedChild>
-        get() = persisted.computed.children
+        get() = persisted.dependent.children
 
     override fun assign(other: Other) = update {
         otherNaturalId = other.naturalId
@@ -212,7 +212,8 @@ internal open class PersistedParent(
     }
 
     override fun <R> update(block: MutableParent.() -> R): R =
-            PersistedMutableParent(persisted.record, children,
+            PersistedMutableParent(persisted.record,
+                    persisted.dependent.children,
                     ::addChild.uncurryFirst(),
                     ::removeChild.uncurryFirst())
                     .let(block)
@@ -229,11 +230,11 @@ internal open class PersistedParent(
     override fun toString() = "${super.toString()}$persisted"
 
     private fun addChild(child: AssignedChild) {
-        persisted.computed.addChild(child)
+        persisted.dependent.addChild(child)
     }
 
     private fun removeChild(child: AssignedChild) {
-        persisted.computed.removeChild(child)
+        persisted.dependent.removeChild(child)
     }
 }
 

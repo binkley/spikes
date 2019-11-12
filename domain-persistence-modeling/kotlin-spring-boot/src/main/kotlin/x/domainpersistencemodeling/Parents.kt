@@ -31,7 +31,7 @@ interface ParentSimpleDetails
             naturalId.compareTo(other.naturalId)
 }
 
-interface ParentComputedDetails {
+interface ParentDependentDetails {
     val children: Set<ChildSimpleDetails>
     val at: OffsetDateTime?
 }
@@ -43,13 +43,13 @@ interface MutableParentSimpleDetails : ParentSimpleDetails {
     override val sideValues: MutableSet<String> // Sorted
 }
 
-interface MutableParentComputedDetails {
+interface MutableParentDependentDetails {
     val children: MutableSet<AssignedChild>
 }
 
 interface Parent
     : ParentSimpleDetails,
-        ParentComputedDetails,
+        ParentDependentDetails,
         ScopedMutable<Parent, MutableParent>,
         PersistableDomain<ParentSnapshot, Parent> {
     override val children: Set<AssignedChild>
@@ -69,7 +69,7 @@ interface Parent
 
 interface MutableParent
     : MutableParentSimpleDetails,
-        MutableParentComputedDetails
+        MutableParentDependentDetails
 
 data class ParentChangedEvent(
         val before: ParentSnapshot?,

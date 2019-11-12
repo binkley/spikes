@@ -22,23 +22,23 @@ interface OtherSimpleDetails
             naturalId.compareTo(other.naturalId)
 }
 
-interface OtherComputedDetails
+interface OtherDependentDetails
 
 interface MutableOtherSimpleDetails : OtherSimpleDetails {
     override var value: String?
 }
 
-interface MutableOtherComputedDetails
+interface MutableOtherDependentDetails
 
 interface Other
     : OtherSimpleDetails,
-        OtherComputedDetails,
+        OtherDependentDetails,
         ScopedMutable<Other, MutableOther>,
         PersistableDomain<OtherSnapshot, Other>
 
 interface MutableOther
     : MutableOtherSimpleDetails,
-        MutableOtherComputedDetails
+        MutableOtherDependentDetails
 
 data class OtherChangedEvent(
         val before: OtherSnapshot?,

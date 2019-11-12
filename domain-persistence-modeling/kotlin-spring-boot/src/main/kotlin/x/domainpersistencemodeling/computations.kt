@@ -2,7 +2,7 @@ package x.domainpersistencemodeling
 
 val <T> T.currentSideValues: Set<String>
         where T : ParentSimpleDetails,
-              T : ParentComputedDetails
+              T : ParentDependentDetails
     get() = when {
         sideValues.isNotEmpty() -> sideValues
         else -> children.map {

@@ -10,7 +10,7 @@ internal class PersistedOtherFactory(
         private val repository: OtherRepository,
         private val publisher: ApplicationEventPublisher)
     : OtherFactory,
-        PersistedFactory<OtherSnapshot, OtherRecord, PersistedOtherComputedDetails> {
+        PersistedFactory<OtherSnapshot, OtherRecord, PersistedOtherDependentDetails> {
     override fun all() = repository.findAll().map {
         toDomain(it)
     }.asSequence()
@@ -26,7 +26,7 @@ internal class PersistedOtherFactory(
                     this,
                     null,
                     OtherRecord(naturalId),
-                    PersistedOtherComputedDetails(),
+                    PersistedOtherDependentDetails(),
                     ::PersistedOther))
 
     override fun findExistingOrCreateNew(naturalId: String) =
@@ -47,29 +47,29 @@ internal class PersistedOtherFactory(
             publisher.publishEvent(OtherChangedEvent(before, after))
 
     override fun toSnapshot(record: OtherRecord,
-            computed: PersistedOtherComputedDetails) =
+            dependent: PersistedOtherDependentDetails) =
             OtherSnapshot(record.naturalId, record.value, record.version)
 
     private fun toDomain(record: OtherRecord): PersistedOther {
-        val computed = PersistedOtherComputedDetails()
+        val dependent = PersistedOtherDependentDetails()
         return PersistedOther(PersistedDomain(
                 this,
-                toSnapshot(record, computed),
+                toSnapshot(record, dependent),
                 record,
-                computed,
+                dependent,
                 ::PersistedOther))
     }
 }
 
-internal data class PersistedOtherComputedDetails(
+internal data class PersistedOtherDependentDetails(
         private val saveMutated: Boolean = false)
-    : OtherComputedDetails,
-        PersistedComputedDetails {
+    : OtherDependentDetails,
+        PersistedDependentDetails {
     override fun saveMutated() = saveMutated
 }
 
 internal class PersistedOther(
-        private val persisted: PersistedDomain<OtherSnapshot, OtherRecord, PersistedOtherComputedDetails, PersistedOtherFactory, Other, MutableOther>)
+        private val persisted: PersistedDomain<OtherSnapshot, OtherRecord, PersistedOtherDependentDetails, PersistedOtherFactory, Other, MutableOther>)
     : Other,
         PersistableDomain<OtherSnapshot, Other> by persisted {
     override val value: String?

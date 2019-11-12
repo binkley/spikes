@@ -42,7 +42,7 @@ interface ChildSimpleDetails
             naturalId.compareTo(other.naturalId)
 }
 
-interface ChildComputedDetails
+interface ChildDependentDetails
 
 interface MutableChildSimpleDetails : ChildSimpleDetails {
     override var otherNaturalId: String?
@@ -54,11 +54,11 @@ interface MutableChildSimpleDetails : ChildSimpleDetails {
     override val defaultSideValues: MutableSet<String> // Sorted
 }
 
-interface MutableChildComputedDetails
+interface MutableChildDependentDetails
 
 interface Child<C : Child<C>>
     : ChildSimpleDetails,
-        ChildComputedDetails,
+        ChildDependentDetails,
         ScopedMutable<C, MutableChild>,
         PersistableDomain<ChildSnapshot, C> {
     /** Assigns [other] to this child, a mutable operation. */
@@ -70,7 +70,7 @@ interface Child<C : Child<C>>
 
 interface MutableChild
     : MutableChildSimpleDetails,
-        MutableChildComputedDetails
+        MutableChildDependentDetails
 
 interface UnassignedChild : Child<UnassignedChild>
 

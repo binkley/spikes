@@ -88,4 +88,4 @@ private fun parentHavingSideValues(
 
 interface TestParent
     : ParentSimpleDetails,
-        ParentComputedDetails
+        ParentDependentDetails

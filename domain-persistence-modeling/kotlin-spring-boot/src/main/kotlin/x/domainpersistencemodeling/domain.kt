@@ -6,38 +6,38 @@ import java.util.Objects.hash
 
 internal interface PersistedFactory<Snapshot,
         Record : UpsertableRecord<Record>,
-        Computed : PersistedComputedDetails> {
+        Dependent : PersistedDependentDetails> {
     fun save(record: Record): UpsertedRecordResult<Record>
     fun delete(record: Record)
     fun refreshRecord(naturalId: String): Record
     fun notifyChanged(before: Snapshot?, after: Snapshot?)
 
-    fun toSnapshot(record: Record, computed: Computed): Snapshot
+    fun toSnapshot(record: Record, dependent: Dependent): Snapshot
 }
 
-internal interface PersistedComputedDetails {
+internal interface PersistedDependentDetails {
     fun saveMutated(): Boolean
 }
 
 internal class PersistedDomain<Snapshot,
         Record : UpsertableRecord<Record>,
-        Computed : PersistedComputedDetails,
-        Factory : PersistedFactory<Snapshot, Record, Computed>,
+        Dependent : PersistedDependentDetails,
+        Factory : PersistedFactory<Snapshot, Record, Dependent>,
         Domain : PersistableDomain<Snapshot, Domain>,
         Mutable>(
         private val factory: Factory,
         private var snapshot: Snapshot?,
         private var _record: Record?,
-        internal val computed: Computed,
+        internal val dependent: Dependent,
         private val toDomain: (PersistedDomain
-        <Snapshot, Record, Computed, Factory, Domain, Mutable>) -> Domain)
+        <Snapshot, Record, Dependent, Factory, Domain, Mutable>) -> Domain)
     : PersistableDomain<Snapshot, Domain> {
     override val naturalId: String
         get() = record.naturalId
     override val version: Int
         get() = record.version
     override val changed
-        get() = snapshot != factory.toSnapshot(record, computed)
+        get() = snapshot != factory.toSnapshot(record, dependent)
 
     /** Throws [DomainException] if the domain object has been deleted. */
     internal val record: Record
@@ -56,13 +56,13 @@ internal class PersistedDomain<Snapshot,
                 else UpsertedRecordResult(record, false)
         _record = result.record
 
-        if (computed.saveMutated()) {
+        if (dependent.saveMutated()) {
             // Refresh the version
             _record = factory.refreshRecord(naturalId)
             result = UpsertedRecordResult(record, true)
         }
 
-        val after = factory.toSnapshot(record, computed)
+        val after = factory.toSnapshot(record, dependent)
         snapshot = after
         if (result.changed) // Trust the database
             factory.notifyChanged(before, after)
@@ -75,7 +75,7 @@ internal class PersistedDomain<Snapshot,
      */
     override fun delete() {
         val before = snapshot
-        computed.saveMutated()
+        dependent.saveMutated()
         factory.delete(record)
 
         val after = null as Snapshot?
@@ -90,11 +90,11 @@ internal class PersistedDomain<Snapshot,
         other as PersistedDomain<*, *, *, *, *, *>
         return snapshot == other.snapshot
                 && _record == other._record
-                && computed == other.computed
+                && dependent == other.dependent
     }
 
-    override fun hashCode() = hash(snapshot, _record, computed)
+    override fun hashCode() = hash(snapshot, _record, dependent)
 
     override fun toString() =
-            "{snapshot=${snapshot}, record=${_record}, computed=${computed}}"
+            "{snapshot=${snapshot}, record=${_record}, dependent=${dependent}}"
 }

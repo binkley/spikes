@@ -42,7 +42,7 @@ That entails dividing properties of an entity at different levels:
 - Simple values common to all levels
 - Representations specific to persistence
 - Representations specific to domain modeling
-- Computed values in the domain implementation
+- Dependent values in the domain implementation
 - Dependent values provided by another domain
 
 I want to make changes in the right places, and have confidence of no surprise
@@ -171,7 +171,7 @@ An example using "parent" details:
 - `other` (domain) - only domain
 - `children` (domain) - only domain; snapshot does not provide this but could
 - `state` (string) - common to all
-- `at` (date-time) - only computed and snapshot
+- `at` (date-time) - only dependent details and snapshot
 - `value` (string) - common to all
 - `sideValues` (set of string) - common to all, but contrast with
   representation in the DB
