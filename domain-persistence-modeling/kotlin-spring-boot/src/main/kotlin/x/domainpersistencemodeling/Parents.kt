@@ -43,8 +43,9 @@ interface MutableParentSimpleDetails : ParentSimpleDetails {
     override val sideValues: MutableSet<String> // Sorted
 }
 
-interface MutableParentDependentDetails {
-    val children: MutableSet<AssignedChild>
+interface MutableParentDependentDetails
+    : ParentDependentDetails {
+    override val children: MutableSet<AssignedChild>
 }
 
 interface Parent

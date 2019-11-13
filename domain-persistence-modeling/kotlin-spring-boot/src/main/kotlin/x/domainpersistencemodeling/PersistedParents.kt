@@ -245,6 +245,8 @@ internal data class PersistedMutableParent(
         private val removed: (AssignedChild, MutableSet<AssignedChild>) -> Unit)
     : MutableParent,
         MutableParentSimpleDetails by record {
+    override val at: OffsetDateTime?
+        get() = children.at
     override val sideValues = TrackedSortedSet(record.sideValues,
             ::replaceSideValues.uncurrySecond(),
             ::replaceSideValues.uncurrySecond())

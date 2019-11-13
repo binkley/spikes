@@ -28,7 +28,7 @@ interface MutableOtherSimpleDetails : OtherSimpleDetails {
     override var value: String?
 }
 
-interface MutableOtherDependentDetails
+interface MutableOtherDependentDetails : OtherDependentDetails
 
 interface Other
     : OtherSimpleDetails,

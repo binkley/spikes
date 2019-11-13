@@ -54,7 +54,7 @@ interface MutableChildSimpleDetails : ChildSimpleDetails {
     override val defaultSideValues: MutableSet<String> // Sorted
 }
 
-interface MutableChildDependentDetails
+interface MutableChildDependentDetails : ChildDependentDetails
 
 interface Child<C : Child<C>>
     : ChildSimpleDetails,
