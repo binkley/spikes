@@ -8,14 +8,7 @@ import kotlin.collections.Map.Entry
 class MutableLayers(private val layers: MutableList<Layer> = mutableListOf())
     : Layers,
         LayersForRuleContext {
-    override fun asList(): List<Map<String, Any>> =
-            object : AbstractList<Map<String, Any>>() {
-                override val size: Int
-                    get() = layers.size
-
-                override fun get(index: Int): Map<String, Any> =
-                        layers[index]
-            }
+    override fun asList(): List<Map<String, Any>> = layers
 
     override fun asMap(): Map<String, Any> =
             object : AbstractMap<String, Any>() {
