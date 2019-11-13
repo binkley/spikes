@@ -14,7 +14,7 @@ class MutableLayers(private val layers: MutableList<Layer> = mutableListOf())
                     get() = layers.size
 
                 override fun get(index: Int): Map<String, Any> =
-                        layers.get(index)
+                        layers[index]
             }
 
     override fun asMap(): Map<String, Any> =
@@ -89,10 +89,10 @@ class Layer(override val slot: Int,
         XLayer {
     override val enabled = true
 
-    override fun toDiff() = contents.entries.map {
+    override fun toDiff() = contents.entries.joinToString("\n") {
         val (key, value) = it
         "$key: ${value.toDiff()}"
-    }.joinToString("\n")
+    }
 
     fun edit(block: MutableLayer.() -> Unit) = apply {
         val mutable = MutableLayer(contents)
