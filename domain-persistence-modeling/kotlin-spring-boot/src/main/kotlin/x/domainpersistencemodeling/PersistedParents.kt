@@ -70,7 +70,7 @@ internal class PersistedParentFactory(
 }
 
 internal class PersistedParentDependentDetails(
-        assigned: Sequence<AssignedChild>)
+        initialChildren: Sequence<AssignedChild>)
     : ParentDependentDetails,
         PersistedDependentDetails {
     override fun saveMutated() = saveMutatedChildren()
@@ -78,30 +78,27 @@ internal class PersistedParentDependentDetails(
     override val at: OffsetDateTime?
         get() = children.at
 
-    private var snapshotChildren: Set<AssignedChild>
-    private var currentChildren: MutableSet<AssignedChild>
+    private var initialChildren: Set<AssignedChild> =
+            initialChildren.toSortedSet()
+    private var currentChildren: MutableSet<AssignedChild> =
+            TreeSet(this.initialChildren)
 
     override val children: Set<AssignedChild>
         get() = currentChildren
-
-    init {
-        snapshotChildren = assigned.toSortedSet()
-        currentChildren = TreeSet(snapshotChildren)
-    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
         other as PersistedParentDependentDetails
-        return snapshotChildren == other.snapshotChildren
+        return initialChildren == other.initialChildren
                 && currentChildren == other.currentChildren
     }
 
     override fun hashCode() =
-            Objects.hash(snapshotChildren, currentChildren)
+            Objects.hash(initialChildren, currentChildren)
 
     override fun toString() =
-            "${super.toString()}{snapshotChildren=$snapshotChildren, currentChildren=$currentChildren}"
+            "${super.toString()}{snapshotChildren=$initialChildren, currentChildren=$currentChildren}"
 
     internal fun addChild(child: AssignedChild) {
         currentChildren.add(child)
@@ -130,25 +127,25 @@ internal class PersistedParentDependentDetails(
             mutated = true
         }
 
-        if (mutated) snapshotChildren = TreeSet(children)
+        if (mutated) initialChildren = TreeSet(children)
 
         return mutated
     }
 
     private fun assignedChildren(): Set<AssignedChild> {
         val assigned = TreeSet(children)
-        assigned.removeAll(snapshotChildren)
+        assigned.removeAll(initialChildren)
         return assigned
     }
 
     private fun unassignedChildren(): Set<AssignedChild> {
-        val unassigned = TreeSet(snapshotChildren)
+        val unassigned = TreeSet(initialChildren)
         unassigned.removeAll(children)
         return unassigned
     }
 
     private fun changedChildren(): Set<AssignedChild> {
-        val changed = TreeSet(snapshotChildren)
+        val changed = TreeSet(initialChildren)
         changed.retainAll(children)
         return changed.stream()
                 .filter { it.changed }

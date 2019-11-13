@@ -27,7 +27,7 @@ internal class PersistedDomain<Snapshot,
         Mutable>(
         private val factory: Factory,
         private var snapshot: Snapshot?,
-        private var _record: Record?,
+        private var currentRecord: Record?,
         internal val dependent: Dependent,
         private val toDomain: (PersistedDomain
         <Snapshot, Record, Dependent, Factory, Domain, Mutable>) -> Domain)
@@ -41,7 +41,7 @@ internal class PersistedDomain<Snapshot,
 
     /** Throws [DomainException] if the domain object has been deleted. */
     internal val record: Record
-        get() = _record ?: throw DomainException("Deleted: $this")
+        get() = currentRecord ?: throw DomainException("Deleted: $this")
 
     /**
      * Notice that when **saving**, save the other _first_, so added
@@ -54,11 +54,11 @@ internal class PersistedDomain<Snapshot,
         var result =
                 if (changed) factory.save(record)
                 else UpsertedRecordResult(record, false)
-        _record = result.record
+        currentRecord = result.record
 
         if (dependent.saveMutated()) {
             // Refresh the version
-            _record = factory.refreshRecord(naturalId)
+            currentRecord = factory.refreshRecord(naturalId)
             result = UpsertedRecordResult(record, true)
         }
 
@@ -79,7 +79,7 @@ internal class PersistedDomain<Snapshot,
         factory.delete(record)
 
         val after = null as Snapshot?
-        _record = null
+        currentRecord = null
         snapshot = after
         factory.notifyChanged(before, after)
     }
@@ -89,12 +89,12 @@ internal class PersistedDomain<Snapshot,
         if (javaClass != other?.javaClass) return false
         other as PersistedDomain<*, *, *, *, *, *>
         return snapshot == other.snapshot
-                && _record == other._record
+                && currentRecord == other.currentRecord
                 && dependent == other.dependent
     }
 
-    override fun hashCode() = hash(snapshot, _record, dependent)
+    override fun hashCode() = hash(snapshot, currentRecord, dependent)
 
     override fun toString() =
-            "{snapshot=${snapshot}, record=${_record}, dependent=${dependent}}"
+            "{snapshot=${snapshot}, record=${currentRecord}, dependent=${dependent}}"
 }
