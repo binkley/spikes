@@ -21,7 +21,7 @@ interface Layer
     val enabled: Boolean
     val meta: MutableMap<String, String> // TODO: IMMUTABLE
 
-    fun edit(block: MutableLayer.() -> Unit): Layer
+    fun edit(block: PersistedMutableLayer.() -> Unit): Layer
     fun save(description: String, trimmedScript: String, notes: String?)
             : String
 }

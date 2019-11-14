@@ -2,17 +2,8 @@ package hm.binkley.layers
 
 import org.eclipse.jgit.api.Git
 import java.io.File
-import java.io.IOException
-import java.nio.file.FileVisitResult
-import java.nio.file.FileVisitResult.CONTINUE
 import java.nio.file.Files
-import java.nio.file.Files.walkFileTree
 import java.nio.file.Path
-import java.nio.file.SimpleFileVisitor
-import java.nio.file.attribute.BasicFileAttributes
-import java.time.Instant
-import java.time.ZoneOffset.UTC
-import java.time.format.DateTimeFormatter.ISO_DATE_TIME
 import java.util.Objects
 import javax.script.ScriptEngineManager
 
@@ -116,29 +107,3 @@ class PersistedLayers(private val repository: String)
         }
     }
 }
-
-private fun Int.toIsoDateTime() = ISO_DATE_TIME.withZone(UTC).format(
-        Instant.ofEpochMilli(this * 1000L))
-
-private fun Path.recursivelyDelete() {
-    walkFileTree(this, object : SimpleFileVisitor<Path>() {
-        @Throws(IOException::class)
-        override fun visitFile(
-                file: Path, attrs: BasicFileAttributes)
-                : FileVisitResult {
-            Files.delete(file)
-            return CONTINUE
-        }
-
-        @Throws(IOException::class)
-        override fun postVisitDirectory(dir: Path,
-                e: IOException?): FileVisitResult {
-            if (null == e) {
-                Files.delete(dir)
-                return CONTINUE
-            } else throw e
-        }
-    })
-}
-
-private fun String.clean() = this.trimIndent().trim()
