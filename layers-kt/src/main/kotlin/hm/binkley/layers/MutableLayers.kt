@@ -1,11 +1,14 @@
 package hm.binkley.layers
 
+import org.eclipse.jgit.api.Git
+import java.nio.file.Path
 import java.util.AbstractMap.SimpleEntry
 import java.util.Objects
-import java.util.TreeMap
 import kotlin.collections.Map.Entry
 
 class MutableLayers(
+        private val scriptsDir: Path,
+        private val git: Git,
         private val layers: MutableList<PersistedLayer> = mutableListOf())
     : Layers,
         LayersForRuleContext {
@@ -20,7 +23,7 @@ class MutableLayers(
             }
 
     fun commit(script: String = ""): PersistedLayer {
-        val layer = PersistedLayer(layers.size, script)
+        val layer = PersistedLayer(scriptsDir, git, layers.size, script)
         layers.add(layer)
         return layer
     }
@@ -73,42 +76,6 @@ class MutableLayers(
         get() = layers.filter {
             it.enabled
         }.asReversed()
-}
-
-class PersistedLayer(override val slot: Int,
-        override val script: String,
-        override val meta: MutableMap<String, String> = mutableMapOf(),
-        private val contents: MutableMap<String, Value<*>> = TreeMap())
-    : Map<String, Value<*>> by contents,
-        Layer {
-    override val enabled = true
-
-    override fun toDiff() = contents.entries.joinToString("\n") {
-        val (key, value) = it
-        "$key: ${value.toDiff()}"
-    }
-
-    fun edit(block: MutableLayer.() -> Unit) = apply {
-        val mutable = MutableLayer(contents)
-        mutable.block()
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as PersistedLayer
-
-        return slot == other.slot
-                && script == other.script
-                && contents == other.contents
-                && enabled == other.enabled
-    }
-
-    override fun hashCode() = Objects.hash(slot, script, contents, enabled)
-
-    override fun toString() =
-            "${this::class.simpleName}#$slot:$contents\\$meta[${if (enabled) "enabled" else "disabled"}]"
 }
 
 class MutableLayer(private val contents: MutableMap<String, Value<*>>)
