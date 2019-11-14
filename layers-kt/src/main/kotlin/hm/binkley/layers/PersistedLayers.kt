@@ -1,20 +1,13 @@
 package hm.binkley.layers
 
 import org.eclipse.jgit.api.Git
-import java.io.File
-import java.nio.file.Files
-import java.nio.file.Path
-import java.util.Objects
-import javax.script.ScriptEngineManager
+import java.util.Objects.hash
 
-class PersistedLayers(private val repository: String)
-    : Layers {
-    private val scriptsDir = Files.createTempDirectory("layers")
-    private val git = Git.cloneRepository()
-            .setDirectory(scriptsDir.toFile())
-            .setURI(repository)
-            .call()
-    private val engine = ScriptEngineManager().getEngineByExtension("kts")!!
+class PersistedLayers(
+        private val persistence: Persistence,
+        private val scripting: Scripting)
+    : Layers,
+        AutoCloseable by persistence {
     private val layers = PersistedMutableLayers(this)
 
     init {
@@ -25,18 +18,11 @@ class PersistedLayers(private val repository: String)
 
     override fun asMap() = layers.asMap()
 
-    override fun close() {
-        git.close()
-        scriptsDir.recursivelyDelete()
-    }
-
-    fun refresh() = scriptsDir.load()
-
-    fun createLayer(description: String, script: String,
-            notes: String? = null): Layer {
+    override fun createLayer(
+            description: String, script: String, notes: String?): Layer {
         val cleanDescription = description.clean()
         val cleanScript = script.clean()
-        val layer = layers.new(cleanScript)
+        val layer = newLayer(cleanScript)
 
         val scriptFile = layer.save(
                 cleanDescription, cleanScript, notes?.trimIndent())
@@ -48,31 +34,35 @@ class PersistedLayers(private val repository: String)
         return layer
     }
 
+    override fun refresh() = persistence.refresh(asList().size) {
+        newLayer(it)
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
         other as PersistedLayers
 
-        return repository == other.repository
+        return persistence == other.persistence
+                && scripting == other.scripting
                 && layers == other.layers
     }
 
-    override fun hashCode() = Objects.hash(repository, layers)
+    override fun hashCode() = hash(persistence, scripting, layers)
 
     override fun toString() =
-            "${this::class.simpleName}{repository=$repository, scriptsDir=$scriptsDir, layers=$layers}"
+            "${this::class.simpleName}{persistence=$persistence, scripting=$scripting, layers=$layers}"
 
-    internal fun scriptFile(fileName: String): File {
-        val scriptsDirFile = scriptsDir.toFile()
-        return File("$scriptsDirFile/$fileName")
-    }
+    internal fun scriptFile(fileName: String) =
+            persistence.scriptFile(fileName)
 
-    internal fun <R> withGit(block: Git.() -> R): R = with(git, block)
+    internal fun <R> withGit(block: Git.() -> R): R =
+            persistence.withGit(block)
 
-    private fun PersistedMutableLayers.new(script: String): Layer {
-        with(engine) {
-            val layer = commit(script)
+    private fun newLayer(script: String): Layer {
+        return scripting.withEngine {
+            val layer = layers.commit(script)
 
             layer.edit {
                 eval("""
@@ -85,29 +75,16 @@ class PersistedLayers(private val repository: String)
                 })
             }
 
-            return layer
-        }
-    }
-
-    private fun Path.load() {
-        val scriptsDirFile = toFile()
-        val scripts = scriptsDirFile.list { _, name ->
-            name.endsWith(".kts")
-        }!!.sortedBy {
-            it.removeSuffix(".kts").toInt()
-        }
-
-        scripts.subList(asList().size, scripts.size).map {
-            scriptsDirFile.resolve(it).readText().trim()
-        }.forEach {
-            layers.new(it)
+            layer
         }
     }
 
     private fun MutableLayer.metaFromGitFor(scriptFile: String) = apply {
-        git.log().addPath(scriptFile).call().first().also {
-            meta["commit-time"] = it.commitTime.toIsoDateTime()
-            meta["full-message"] = it.fullMessage
+        persistence.withGit {
+            log().addPath(scriptFile).call().first().also {
+                meta["commit-time"] = it.commitTime.toIsoDateTime()
+                meta["full-message"] = it.fullMessage
+            }
         }
     }
 }

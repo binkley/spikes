@@ -19,7 +19,8 @@ internal class LayersTest {
     internal fun `should persist`(@TempDir baseTempDir: Path) {
         val repoDir = setupRepository(baseTempDir)
 
-        val baker = PersistedLayers(repoDir.absolutePath).use {
+        val baker = PersistedLayers(Persistence(repoDir.absolutePath),
+                Scripting()).use {
             val aCommitMessage = "I am me"
             // Too much whitespace on purpose
             val aDescription = " $aCommitMessage   "
@@ -45,7 +46,7 @@ internal class LayersTest {
                 layer["b"] = 11
             """
             val bLayer = it.createLayer(description = bDescription,
-                    script = bRuleDefinition)
+                    script = bRuleDefinition, notes = null)
 
             assertThat(bLayer.meta["full-message"])
                     .isEqualTo(bCommitMessage)
@@ -79,14 +80,14 @@ internal class LayersTest {
             it
         }
 
-        PersistedLayers(repoDir.absolutePath).use {
+        PersistedLayers(Persistence(repoDir.absolutePath), Scripting()).use {
             assertThat(it.asList()).isEqualTo(baker.asList())
             assertThat(it.asMap()).isEqualTo(baker.asMap())
             assertThat(it).isEqualTo(baker)
         }
 
         val cloneDir = setupClone(baseTempDir, repoDir)
-        PersistedLayers(cloneDir.absolutePath).use {
+        PersistedLayers(Persistence(cloneDir.absolutePath), Scripting()).use {
             assertThat(it.asList()).isEqualTo(baker.asList())
             assertThat(it.asMap()).isEqualTo(baker.asMap())
 

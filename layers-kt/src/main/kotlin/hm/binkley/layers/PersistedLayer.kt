@@ -21,11 +21,9 @@ class PersistedLayer(
         "$key: ${value.toDiff()}"
     }
 
-    override fun edit(block: MutableLayer.() -> Unit): Layer =
-            apply {
-                val mutable = PersistedMutableLayer(_meta, contents)
-                mutable.block()
-            }
+    override fun edit(block: MutableLayer.() -> Unit): Layer = apply {
+        PersistedMutableLayer(_meta, contents).block()
+    }
 
     override fun save(description: String, trimmedScript: String,
             notes: String?)

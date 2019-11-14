@@ -6,12 +6,22 @@ interface Diffable {
     fun toDiff(): String
 }
 
-interface Layers : AutoCloseable {
+interface LayersBase {
     fun asList(): List<Map<String, Any>>
     fun asMap(): Map<String, Any>
 }
 
-interface MutableLayers : Layers
+interface Layers : LayersBase,
+        AutoCloseable {
+    fun createLayer(description: String, script: String, notes: String?)
+            : Layer
+
+    fun refresh()
+}
+
+interface MutableLayers : LayersBase {
+    fun commit(script: String): Layer
+}
 
 interface Layer
     : Map<String, Value<*>>,

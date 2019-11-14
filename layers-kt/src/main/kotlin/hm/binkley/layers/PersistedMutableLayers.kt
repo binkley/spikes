@@ -6,7 +6,7 @@ import kotlin.collections.Map.Entry
 
 class PersistedMutableLayers(
         private val layers: PersistedLayers,
-        private val layerList: MutableList<PersistedLayer> = mutableListOf())
+        private val layerList: MutableList<Layer> = mutableListOf())
     : MutableLayers,
         LayersForRuleContext {
     override fun asList(): List<Map<String, Any>> = layerList
@@ -19,13 +19,10 @@ class PersistedMutableLayers(
                     })
             }
 
-    override fun close() = Unit
-
-    fun commit(script: String = ""): Layer {
-        val layer = PersistedLayer(layers, layerList.size, script)
-        layerList.add(layer)
-        return layer
-    }
+    override fun commit(script: String): Layer =
+            PersistedLayer(layers, layerList.size, script).also {
+                layerList.add(it)
+            }
 
     @Suppress("UNCHECKED_CAST")
     override fun <T> appliedValueFor(key: String) = topDownLayers.flatMap {
@@ -71,7 +68,7 @@ class PersistedMutableLayers(
         SimpleEntry(key, value)
     }
 
-    private val topDownLayers: List<PersistedLayer>
+    private val topDownLayers: List<Layer>
         get() = layerList.filter {
             it.enabled
         }.asReversed()
