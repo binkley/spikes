@@ -11,7 +11,7 @@ interface Layers {
     fun asMap(): Map<String, Any>
 }
 
-interface XLayer
+interface Layer
     : Map<String, Value<*>>,
         Diffable {
     val slot: Int

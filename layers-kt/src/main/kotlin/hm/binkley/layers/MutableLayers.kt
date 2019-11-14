@@ -5,7 +5,8 @@ import java.util.Objects
 import java.util.TreeMap
 import kotlin.collections.Map.Entry
 
-class MutableLayers(private val layers: MutableList<Layer> = mutableListOf())
+class MutableLayers(
+        private val layers: MutableList<PersistedLayer> = mutableListOf())
     : Layers,
         LayersForRuleContext {
     override fun asList(): List<Map<String, Any>> = layers
@@ -18,8 +19,8 @@ class MutableLayers(private val layers: MutableList<Layer> = mutableListOf())
                     })
             }
 
-    fun commit(script: String = ""): Layer {
-        val layer = Layer(layers.size, script)
+    fun commit(script: String = ""): PersistedLayer {
+        val layer = PersistedLayer(layers.size, script)
         layers.add(layer)
         return layer
     }
@@ -68,18 +69,18 @@ class MutableLayers(private val layers: MutableList<Layer> = mutableListOf())
         SimpleEntry(key, value)
     }
 
-    private val topDownLayers: List<Layer>
+    private val topDownLayers: List<PersistedLayer>
         get() = layers.filter {
             it.enabled
         }.asReversed()
 }
 
-class Layer(override val slot: Int,
+class PersistedLayer(override val slot: Int,
         override val script: String,
         override val meta: MutableMap<String, String> = mutableMapOf(),
         private val contents: MutableMap<String, Value<*>> = TreeMap())
     : Map<String, Value<*>> by contents,
-        XLayer {
+        Layer {
     override val enabled = true
 
     override fun toDiff() = contents.entries.joinToString("\n") {
@@ -96,7 +97,7 @@ class Layer(override val slot: Int,
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as Layer
+        other as PersistedLayer
 
         return slot == other.slot
                 && script == other.script

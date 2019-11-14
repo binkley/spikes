@@ -43,7 +43,7 @@ class PersistedLayers(private val repository: String)
     fun refresh() = scriptsDir.load()
 
     fun createLayer(description: String, script: String,
-            notes: String? = null): XLayer {
+            notes: String? = null): Layer {
         val cleanDescription = description.clean()
         val cleanScript = script.clean()
         val layer = layers.new(cleanScript)
@@ -69,7 +69,7 @@ class PersistedLayers(private val repository: String)
     override fun toString() =
             "${this::class.simpleName}{repository=$repository, scriptsDir=$scriptsDir, layers=$layers}"
 
-    private fun MutableLayers.new(script: String): Layer {
+    private fun MutableLayers.new(script: String): PersistedLayer {
         with(engine) {
             val layer = commit(script)
 
@@ -103,7 +103,7 @@ class PersistedLayers(private val repository: String)
         }
     }
 
-    private fun Layer.save(description: String,
+    private fun PersistedLayer.save(description: String,
             trimmedScript: String, notes: String?): String {
         fun Git.write(ext: String, contents: String) {
             val fileName = "$slot.$ext"
@@ -134,7 +134,7 @@ class PersistedLayers(private val repository: String)
         }
     }
 
-    private fun Layer.addMetaFor(scriptFile: String) = apply {
+    private fun PersistedLayer.addMetaFor(scriptFile: String) = apply {
         git.log().addPath(scriptFile).call().first().also {
             meta["commit-time"] = it.commitTime.toIsoDateTime()
             meta["full-message"] = it.fullMessage
