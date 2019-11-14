@@ -19,11 +19,15 @@ interface Layer
     val slot: Int
     val script: String
     val enabled: Boolean
-    val meta: MutableMap<String, String> // TODO: IMMUTABLE
+    val meta: Map<String, String>
 
-    fun edit(block: PersistedMutableLayer.() -> Unit): Layer
+    fun edit(block: MutableLayer.() -> Unit): Layer
     fun save(description: String, trimmedScript: String, notes: String?)
             : String
+}
+
+interface MutableLayer : MutableMap<String, Value<*>> {
+    val meta: MutableMap<String, String>
 }
 
 typealias Rule<T> = (RuleContext<T>) -> T

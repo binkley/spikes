@@ -8,20 +8,22 @@ class PersistedLayer(
         private val layers: PersistedLayers,
         override val slot: Int,
         override val script: String,
-        override val meta: MutableMap<String, String> = mutableMapOf(),
+        private val _meta: MutableMap<String, String> = mutableMapOf(),
         private val contents: MutableMap<String, Value<*>> = TreeMap())
     : Map<String, Value<*>> by contents,
         Layer {
     override val enabled = true
+    override val meta: Map<String, String>
+        get() = _meta
 
     override fun toDiff() = contents.entries.joinToString("\n") {
         val (key, value) = it
         "$key: ${value.toDiff()}"
     }
 
-    override fun edit(block: PersistedMutableLayer.() -> Unit): Layer =
+    override fun edit(block: MutableLayer.() -> Unit): Layer =
             apply {
-                val mutable = PersistedMutableLayer(contents)
+                val mutable = PersistedMutableLayer(_meta, contents)
                 mutable.block()
             }
 

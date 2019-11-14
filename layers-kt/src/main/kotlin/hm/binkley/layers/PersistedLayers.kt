@@ -41,7 +41,11 @@ class PersistedLayers(private val repository: String)
         val scriptFile = layer.save(
                 cleanDescription, cleanScript, notes?.trimIndent())
 
-        return layer.addMetaFor(scriptFile)
+        layer.edit {
+            addMetaFor(scriptFile)
+        }
+
+        return layer
     }
 
     override fun equals(other: Any?): Boolean {
@@ -100,7 +104,7 @@ class PersistedLayers(private val repository: String)
         }
     }
 
-    private fun Layer.addMetaFor(scriptFile: String) = apply {
+    private fun MutableLayer.addMetaFor(scriptFile: String) = apply {
         git.log().addPath(scriptFile).call().first().also {
             meta["commit-time"] = it.commitTime.toIsoDateTime()
             meta["full-message"] = it.fullMessage
