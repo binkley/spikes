@@ -8,10 +8,11 @@ class PersistedLayer(
         private val layers: PersistedLayers,
         override val slot: Int,
         override val script: String,
-        private val _meta: MutableMap<String, String> = mutableMapOf(),
         private val contents: MutableMap<String, Value<*>> = TreeMap())
     : Map<String, Value<*>> by contents,
         Layer {
+    private val _meta: MutableMap<String, String> = mutableMapOf()
+
     override val enabled = true
     override val meta: Map<String, String>
         get() = _meta
@@ -37,20 +38,20 @@ class PersistedLayer(
             add().addFilepattern(fileName).call()
         }
 
-        return layers.withGit {
-            write("kts", trimmedScript)
+        return layers.letGit { git ->
+            git.write("kts", trimmedScript)
             val diff = toDiff()
             if (diff.isNotEmpty())
-                write("txt", diff)
+                git.write("txt", diff)
             notes?.also {
-                write("notes", it)
+                git.write("notes", it)
             }
 
-            val commit = commit()
+            val commit = git.commit()
             commit.message = description.trimIndent().trim()
             commit.call()
 
-            push().call()
+            git.push().call()
 
             "$slot.kts"
         }

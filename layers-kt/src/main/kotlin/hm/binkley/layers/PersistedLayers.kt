@@ -18,24 +18,21 @@ class PersistedLayers(
 
     override fun asMap() = layers.asMap()
 
-    override fun createLayer(
+    override fun newLayer(
             description: String, script: String, notes: String?): Layer {
         val cleanDescription = description.clean()
         val cleanScript = script.clean()
-        val layer = newLayer(cleanScript)
 
-        val scriptFile = layer.save(
-                cleanDescription, cleanScript, notes?.trimIndent())
-
-        layer.edit {
-            metaFromGitFor(scriptFile)
+        return createLayer(cleanScript).apply {
+            edit {
+                metaFromGitFor(save(
+                        cleanDescription, cleanScript, notes?.trimIndent()))
+            }
         }
-
-        return layer
     }
 
     override fun refresh() = persistence.refresh(asList().size) {
-        newLayer(it)
+        createLayer(it)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -57,31 +54,27 @@ class PersistedLayers(
     internal fun scriptFile(fileName: String) =
             persistence.scriptFile(fileName)
 
-    internal fun <R> withGit(block: Git.() -> R): R =
-            persistence.withGit(block)
+    internal fun <R> letGit(block: (Git) -> R): R =
+            persistence.letGit(block)
 
-    private fun newLayer(script: String): Layer {
-        return scripting.withEngine {
-            val layer = layers.commit(script)
-
+    private fun createLayer(script: String) = scripting.letEngine { engine ->
+        layers.commit(script).also { layer ->
             layer.edit {
-                eval("""
+                engine.eval("""
                     import hm.binkley.layers.*
                     import hm.binkley.layers.rules.*
-
+    
                     $script
-                """, createBindings().apply {
-                    this["layer"] = this@edit
+                """, engine.createBindings().also {
+                    it["layer"] = this
                 })
             }
-
-            layer
         }
     }
 
     private fun MutableLayer.metaFromGitFor(scriptFile: String) = apply {
-        persistence.withGit {
-            log().addPath(scriptFile).call().first().also {
+        persistence.letGit { git ->
+            git.log().addPath(scriptFile).call().first().also {
                 meta["commit-time"] = it.commitTime.toIsoDateTime()
                 meta["full-message"] = it.fullMessage
             }

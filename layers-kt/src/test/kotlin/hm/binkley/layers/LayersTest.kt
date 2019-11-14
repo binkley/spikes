@@ -31,7 +31,7 @@ internal class LayersTest {
             val aNote = """
                 Just a note
             """
-            val aLayer = it.createLayer(description = aDescription,
+            val aLayer = it.newLayer(description = aDescription,
                     script = aRuleDefinition,
                     notes = aNote)
 
@@ -45,24 +45,24 @@ internal class LayersTest {
             val bRuleDefinition = """
                 layer["b"] = 11
             """
-            val bLayer = it.createLayer(description = bDescription,
+            val bLayer = it.newLayer(description = bDescription,
                     script = bRuleDefinition, notes = null)
 
             assertThat(bLayer.meta["full-message"])
                     .isEqualTo(bCommitMessage)
 
-            it.createLayer(description = "Empty", script = "", notes = """
+            it.newLayer(description = "Empty", script = "", notes = """
                 An example of marker notes
             """)
 
-            it.createLayer(description = "We are each other", script = """
+            it.newLayer(description = "We are each other", script = """
                 layer["b"] = total(default=0) // Rule replaced
                 layer["b-bonus"] = bonus(otherKey="b", default=0)
             """, notes = """
                 A complex rule dependent on another calculation
             """)
 
-            it.createLayer(description = "Even better!", script = """
+            it.newLayer(description = "Even better!", script = """
                 layer["b-bonus"] = 1
             """, notes = """
                 Bump the 'b' bonus

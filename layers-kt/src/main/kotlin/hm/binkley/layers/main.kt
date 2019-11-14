@@ -2,7 +2,7 @@ package hm.binkley.layers
 
 fun PersistedLayers.noisyCreateLayer(description: String, script: String,
         notes: String? = null) {
-    val layer = createLayer(description, script, notes)
+    val layer = newLayer(description, script, notes)
     val showScript =
             if (layer.script.isEmpty()) "<no script>" else layer.script
     println("#${layer.slot}:\n$showScript")

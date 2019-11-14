@@ -13,7 +13,7 @@ interface LayersBase {
 
 interface Layers : LayersBase,
         AutoCloseable {
-    fun createLayer(description: String, script: String, notes: String?)
+    fun newLayer(description: String, script: String, notes: String?)
             : Layer
 
     fun refresh()

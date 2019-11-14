@@ -23,7 +23,7 @@ class Persistence(private val repository: String) : AutoCloseable {
     internal fun refresh(size: Int, new: (scriptFile: String) -> Unit) =
             scriptsDir.load(size, new)
 
-    internal fun <R> withGit(block: Git.() -> R): R = with(git, block)
+    internal fun <R> letGit(block: (Git) -> R): R = git.let(block)
 
     internal fun scriptFile(fileName: String): File {
         val scriptsDirFile = scriptsDir.toFile()
