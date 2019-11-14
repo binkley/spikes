@@ -35,7 +35,7 @@ histories.
 
 * [`Layers.kt`](./src/main/kotlin/hm/binkley/layers/Layers.kt)
   - Top-level read-only types
-* [`MutableLayers.kt`](./src/main/kotlin/hm/binkley/layers/MutableLayers.kt)
+* [`MutableLayers.kt`](src/main/kotlin/hm/binkley/layers/PersistedMutableLayers.kt)
   - In-memory layered-map (map with history) implementation
 * [`PersistedLayers.kt`](./src/main/kotlin/hm/binkley/layers/PersistedLayers.kt)
   - Persisted-in-Git layered-map (map with history) implementation

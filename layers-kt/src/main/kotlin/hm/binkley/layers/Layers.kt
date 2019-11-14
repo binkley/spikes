@@ -6,7 +6,7 @@ interface Diffable {
     fun toDiff(): String
 }
 
-interface Layers {
+interface Layers : AutoCloseable {
     fun asList(): List<Map<String, Any>>
     fun asMap(): Map<String, Any>
 }

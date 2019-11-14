@@ -18,15 +18,14 @@ import java.util.TreeMap
 import javax.script.ScriptEngineManager
 
 class PersistedLayers(private val repository: String)
-    : Layers,
-        AutoCloseable {
+    : Layers {
     private val scriptsDir = Files.createTempDirectory("layers")
     private val git = Git.cloneRepository()
             .setDirectory(scriptsDir.toFile())
             .setURI(repository)
             .call()
     private val engine = ScriptEngineManager().getEngineByExtension("kts")!!
-    private val layers = MutableLayers(scriptsDir, git)
+    private val layers = PersistedMutableLayers(this)
 
     init {
         refresh()
@@ -70,7 +69,14 @@ class PersistedLayers(private val repository: String)
     override fun toString() =
             "${this::class.simpleName}{repository=$repository, scriptsDir=$scriptsDir, layers=$layers}"
 
-    private fun MutableLayers.new(script: String): PersistedLayer {
+    internal fun scriptFile(fileName: String): File {
+        val scriptsDirFile = scriptsDir.toFile()
+        return File("$scriptsDirFile/$fileName")
+    }
+
+    internal fun <R> withGit(block: Git.() -> R): R = with(git, block)
+
+    private fun PersistedMutableLayers.new(script: String): PersistedLayer {
         with(engine) {
             val layer = commit(script)
 
@@ -113,8 +119,7 @@ class PersistedLayers(private val repository: String)
 }
 
 class PersistedLayer(
-        private val scriptsDir: Path,
-        private val git: Git,
+        private val layers: PersistedLayers,
         override val slot: Int,
         override val script: String,
         override val meta: MutableMap<String, String> = mutableMapOf(),
@@ -137,15 +142,14 @@ class PersistedLayer(
             trimmedScript: String, notes: String?): String {
         fun Git.write(ext: String, contents: String) {
             val fileName = "$slot.$ext"
-            val scriptsDirFile = scriptsDir.toFile()
-            val scriptFile = File("$scriptsDirFile/$fileName")
+            val scriptFile = layers.scriptFile(fileName)
             scriptFile.writeText(contents)
             if (contents.isNotEmpty())
                 scriptFile.appendText("\n")
             add().addFilepattern(fileName).call()
         }
 
-        with(git) {
+        return layers.withGit {
             write("kts", trimmedScript)
             val diff = toDiff()
             if (diff.isNotEmpty())
@@ -158,9 +162,9 @@ class PersistedLayer(
             commit.message = description.trimIndent().trim()
             commit.call()
 
-            git.push().call()
+            push().call()
 
-            return "$slot.kts"
+            "$slot.kts"
         }
     }
 

@@ -1,14 +1,11 @@
 package hm.binkley.layers
 
-import org.eclipse.jgit.api.Git
-import java.nio.file.Path
 import java.util.AbstractMap.SimpleEntry
 import java.util.Objects
 import kotlin.collections.Map.Entry
 
-class MutableLayers(
-        private val scriptsDir: Path,
-        private val git: Git,
+class PersistedMutableLayers(
+        private val xLayers: PersistedLayers,
         private val layers: MutableList<PersistedLayer> = mutableListOf())
     : Layers,
         LayersForRuleContext {
@@ -22,8 +19,10 @@ class MutableLayers(
                     })
             }
 
+    override fun close() = Unit
+
     fun commit(script: String = ""): PersistedLayer {
-        val layer = PersistedLayer(scriptsDir, git, layers.size, script)
+        val layer = PersistedLayer(xLayers, layers.size, script)
         layers.add(layer)
         return layer
     }
@@ -51,7 +50,7 @@ class MutableLayers(
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as MutableLayers
+        other as PersistedMutableLayers
 
         return layers == other.layers
     }
