@@ -19,8 +19,10 @@ internal class LayersTest {
     internal fun `should persist`(@TempDir baseTempDir: Path) {
         val repoDir = setupRepository(baseTempDir)
 
-        val baker = PersistedLayers(Persistence(repoDir.absolutePath),
-                Scripting()).use {
+        val baker = PersistedLayers(
+            Persistence(repoDir.absolutePath),
+            Scripting()
+        ).use {
             val aCommitMessage = "I am me"
             // Too much whitespace on purpose
             val aDescription = " $aCommitMessage   "
@@ -31,12 +33,14 @@ internal class LayersTest {
             val aNote = """
                 Just a note
             """
-            val aLayer = it.newLayer(description = aDescription,
-                    script = aRuleDefinition,
-                    notes = aNote)
+            val aLayer = it.newLayer(
+                description = aDescription,
+                script = aRuleDefinition,
+                notes = aNote
+            )
 
             assertThat(aLayer.meta["full-message"])
-                    .isEqualTo(aCommitMessage)
+                .isEqualTo(aCommitMessage)
 
             val bCommitMessage = """You are you"""
             val bDescription = """
@@ -45,28 +49,36 @@ internal class LayersTest {
             val bRuleDefinition = """
                 layer["b"] = 11
             """
-            val bLayer = it.newLayer(description = bDescription,
-                    script = bRuleDefinition, notes = null)
+            val bLayer = it.newLayer(
+                description = bDescription,
+                script = bRuleDefinition, notes = null
+            )
 
             assertThat(bLayer.meta["full-message"])
-                    .isEqualTo(bCommitMessage)
+                .isEqualTo(bCommitMessage)
 
-            it.newLayer(description = "Empty", script = "", notes = """
+            it.newLayer(
+                description = "Empty", script = "", notes = """
                 An example of marker notes
-            """)
+            """
+            )
 
-            it.newLayer(description = "We are each other", script = """
+            it.newLayer(
+                description = "We are each other", script = """
                 layer["b"] = total(default=0) // Rule replaced
                 layer["b-bonus"] = bonus(otherKey="b", default=0)
             """, notes = """
                 A complex rule dependent on another calculation
-            """)
+            """
+            )
 
-            it.newLayer(description = "Even better!", script = """
+            it.newLayer(
+                description = "Even better!", script = """
                 layer["b-bonus"] = 1
             """, notes = """
                 Bump the 'b' bonus
-            """)
+            """
+            )
 
             assertThat(it.asList()).hasSize(5)
             assertThat(it.asMap()).hasSize(3)
@@ -104,20 +116,20 @@ internal class LayersTest {
     }
 
     private fun setupRepository(baseTempDir: Path) =
-            baseTempDir.toFile().resolve("git").also { repoDir ->
-                Git.init()
-                        .setDirectory(repoDir)
-                        .call().use {
-                            createReadme(repoDir)
-                            it.add()
-                                    .addFilepattern(".")
-                                    .call()
-                            it.commit()
-                                    .setAllowEmpty(true)
-                                    .setMessage("Init")
-                                    .call()
-                        }
-            }
+        baseTempDir.toFile().resolve("git").also { repoDir ->
+            Git.init()
+                .setDirectory(repoDir)
+                .call().use {
+                    createReadme(repoDir)
+                    it.add()
+                        .addFilepattern(".")
+                        .call()
+                    it.commit()
+                        .setAllowEmpty(true)
+                        .setMessage("Init")
+                        .call()
+                }
+        }
 
     private fun createReadme(repoDir: File) {
         with(repoDir.resolve("README.md")) {
@@ -126,11 +138,11 @@ internal class LayersTest {
     }
 
     private fun setupClone(baseTempDir: Path, repoDir: File) =
-            baseTempDir.toFile().resolve("clone").also { cloneDir ->
-                Git.cloneRepository()
-                        .setDirectory(cloneDir)
-                        .setURI(repoDir.absolutePath)
-                        .call()
-                        .close()
-            }
+        baseTempDir.toFile().resolve("clone").also { cloneDir ->
+            Git.cloneRepository()
+                .setDirectory(cloneDir)
+                .setURI(repoDir.absolutePath)
+                .call()
+                .close()
+        }
 }

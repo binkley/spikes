@@ -5,24 +5,24 @@ import java.util.Objects
 import kotlin.collections.Map.Entry
 
 class PersistedMutableLayers(
-        private val layers: PersistedLayers,
-        private val layerList: MutableList<Layer> = mutableListOf())
-    : MutableLayers,
-        LayersForRuleContext {
+    private val layers: PersistedLayers,
+    private val layerList: MutableList<Layer> = mutableListOf()
+) : MutableLayers,
+    LayersForRuleContext {
     override fun asList(): List<Map<String, Any>> = layerList
 
     override fun asMap(): Map<String, Any> =
-            object : AbstractMap<String, Any>() {
-                override val entries: Set<Entry<String, Any>>
-                    get() = applied().toSortedSet(compareBy {
-                        it.key
-                    })
-            }
+        object : AbstractMap<String, Any>() {
+            override val entries: Set<Entry<String, Any>>
+                get() = applied().toSortedSet(compareBy {
+                    it.key
+                })
+        }
 
     override fun commit(script: String): Layer =
-            PersistedLayer(layers, layerList.size, script).also {
-                layerList.add(it)
-            }
+        PersistedLayer(layers, layerList.size, script).also {
+            layerList.add(it)
+        }
 
     @Suppress("UNCHECKED_CAST")
     override fun <T> appliedValueFor(key: String) = topDownLayers.flatMap {

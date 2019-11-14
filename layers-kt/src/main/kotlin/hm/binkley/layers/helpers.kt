@@ -12,22 +12,27 @@ import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
 internal fun Int.toIsoDateTime() = DateTimeFormatter.ISO_DATE_TIME.withZone(
-        ZoneOffset.UTC).format(
-        Instant.ofEpochMilli(this * 1000L))
+    ZoneOffset.UTC
+).format(
+    Instant.ofEpochMilli(this * 1000L)
+)
 
 internal fun Path.recursivelyDelete() {
     Files.walkFileTree(this, object : SimpleFileVisitor<Path>() {
         @Throws(IOException::class)
         override fun visitFile(
-                file: Path, attrs: BasicFileAttributes)
+            file: Path, attrs: BasicFileAttributes
+        )
                 : FileVisitResult {
             Files.delete(file)
             return CONTINUE
         }
 
         @Throws(IOException::class)
-        override fun postVisitDirectory(dir: Path,
-                e: IOException?): FileVisitResult {
+        override fun postVisitDirectory(
+            dir: Path,
+            e: IOException?
+        ): FileVisitResult {
             if (null == e) {
                 Files.delete(dir)
                 return CONTINUE

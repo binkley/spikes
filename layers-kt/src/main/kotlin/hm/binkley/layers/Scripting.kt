@@ -7,7 +7,7 @@ class Scripting {
     private val engine = ScriptEngineManager().getEngineByExtension("kts")!!
 
     internal fun <R> letEngine(block: (ScriptEngine) -> R) =
-            engine.let(block)
+        engine.let(block)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

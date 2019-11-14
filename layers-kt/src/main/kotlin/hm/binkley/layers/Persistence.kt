@@ -8,12 +8,13 @@ import java.util.Objects
 
 class Persistence(private val repository: String) : AutoCloseable {
     private val scriptsDir =
-            Files.createTempDirectory(
-                    "layers")
+        Files.createTempDirectory(
+            "layers"
+        )
     private val git = Git.cloneRepository()
-            .setDirectory(scriptsDir.toFile())
-            .setURI(repository)
-            .call()
+        .setDirectory(scriptsDir.toFile())
+        .setURI(repository)
+        .call()
 
     override fun close() {
         git.close()
@@ -21,7 +22,7 @@ class Persistence(private val repository: String) : AutoCloseable {
     }
 
     internal fun refresh(size: Int, new: (scriptFile: String) -> Unit) =
-            scriptsDir.load(size, new)
+        scriptsDir.load(size, new)
 
     internal fun <R> letGit(block: (Git) -> R): R = git.let(block)
 
@@ -40,10 +41,10 @@ class Persistence(private val repository: String) : AutoCloseable {
     }
 
     override fun hashCode() =
-            Objects.hash(repository)
+        Objects.hash(repository)
 
     override fun toString() =
-            "${this::class.simpleName}{repository=$repository, scriptsDir=$scriptsDir}"
+        "${this::class.simpleName}{repository=$repository, scriptsDir=$scriptsDir}"
 
     private fun Path.load(size: Int, new: (scriptFile: String) -> Unit) {
         val scriptsDirFile = toFile()

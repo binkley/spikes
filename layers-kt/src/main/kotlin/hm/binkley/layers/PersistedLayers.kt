@@ -4,10 +4,10 @@ import org.eclipse.jgit.api.Git
 import java.util.Objects.hash
 
 class PersistedLayers(
-        private val persistence: Persistence,
-        private val scripting: Scripting)
-    : Layers,
-        AutoCloseable by persistence {
+    private val persistence: Persistence,
+    private val scripting: Scripting
+) : Layers,
+    AutoCloseable by persistence {
     private val layers = PersistedMutableLayers(this)
 
     init {
@@ -19,14 +19,18 @@ class PersistedLayers(
     override fun asMap() = layers.asMap()
 
     override fun newLayer(
-            description: String, script: String, notes: String?): Layer {
+        description: String, script: String, notes: String?
+    ): Layer {
         val cleanDescription = description.clean()
         val cleanScript = script.clean()
 
         return createLayer(cleanScript).apply {
             edit {
-                metaFromGitFor(save(
-                        cleanDescription, cleanScript, notes?.trimIndent()))
+                metaFromGitFor(
+                    save(
+                        cleanDescription, cleanScript, notes?.trimIndent()
+                    )
+                )
             }
         }
     }
@@ -49,13 +53,13 @@ class PersistedLayers(
     override fun hashCode() = hash(persistence, scripting, layers)
 
     override fun toString() =
-            "${this::class.simpleName}{persistence=$persistence, scripting=$scripting, layers=$layers}"
+        "${this::class.simpleName}{persistence=$persistence, scripting=$scripting, layers=$layers}"
 
     internal fun scriptFile(fileName: String) =
-            persistence.scriptFile(fileName)
+        persistence.scriptFile(fileName)
 
     internal fun <R> letGit(block: (Git) -> R): R =
-            persistence.letGit(block)
+        persistence.letGit(block)
 
     private fun createLayer(script: String) = scripting.letEngine { engine ->
         layers.commit(script).also { layer ->

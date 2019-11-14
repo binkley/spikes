@@ -5,12 +5,12 @@ import java.util.Objects
 import java.util.TreeMap
 
 class PersistedLayer(
-        private val layers: PersistedLayers,
-        override val slot: Int,
-        override val script: String,
-        private val contents: MutableMap<String, Value<*>> = TreeMap())
-    : Map<String, Value<*>> by contents,
-        Layer {
+    private val layers: PersistedLayers,
+    override val slot: Int,
+    override val script: String,
+    private val contents: MutableMap<String, Value<*>> = TreeMap()
+) : Map<String, Value<*>> by contents,
+    Layer {
     private val _meta: MutableMap<String, String> = mutableMapOf()
 
     override val enabled = true
@@ -26,8 +26,10 @@ class PersistedLayer(
         PersistedMutableLayer(_meta, contents).block()
     }
 
-    override fun save(description: String, trimmedScript: String,
-            notes: String?)
+    override fun save(
+        description: String, trimmedScript: String,
+        notes: String?
+    )
             : String {
         fun Git.write(ext: String, contents: String) {
             val fileName = "$slot.$ext"
@@ -70,9 +72,11 @@ class PersistedLayer(
     }
 
     override fun hashCode() =
-            Objects.hash(slot, script, contents,
-                    enabled)
+        Objects.hash(
+            slot, script, contents,
+            enabled
+        )
 
     override fun toString() =
-            "${this::class.simpleName}#$slot:$contents\\$meta[${if (enabled) "enabled" else "disabled"}]"
+        "${this::class.simpleName}#$slot:$contents\\$meta[${if (enabled) "enabled" else "disabled"}]"
 }

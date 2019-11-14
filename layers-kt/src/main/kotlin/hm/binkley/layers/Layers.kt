@@ -12,7 +12,7 @@ interface LayersBase {
 }
 
 interface Layers : LayersBase,
-        AutoCloseable {
+    AutoCloseable {
     fun newLayer(description: String, script: String, notes: String?)
             : Layer
 
@@ -25,7 +25,7 @@ interface MutableLayers : LayersBase {
 
 interface Layer
     : Map<String, Value<*>>,
-        Diffable {
+    Diffable {
     val slot: Int
     val script: String
     val enabled: Boolean
@@ -42,8 +42,7 @@ interface MutableLayer : MutableMap<String, Value<*>> {
 
 typealias Rule<T> = (RuleContext<T>) -> T
 
-open class Value<T>(val rule: Rule<T>?, val value: T?)
-    : Diffable {
+open class Value<T>(val rule: Rule<T>?, val value: T?) : Diffable {
     // TODO: Print "3 : Int" rather than just "3"
     //  Expression in a class literal has a nullable type 'T', use !! to make
     //  the type non-nullable
@@ -60,14 +59,14 @@ open class Value<T>(val rule: Rule<T>?, val value: T?)
     }
 
     override fun hashCode() =
-            Objects.hash(rule, value)
+        Objects.hash(rule, value)
 
     override fun toString() =
-            "${this::class.simpleName}{rule=$rule, value=$value}"
+        "${this::class.simpleName}{rule=$rule, value=$value}"
 }
 
-open class RuleValue<T>(val name: String, val default: T, rule: Rule<T>)
-    : Value<T>(rule, default) {
+open class RuleValue<T>(val name: String, val default: T, rule: Rule<T>) :
+    Value<T>(rule, default) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -80,20 +79,22 @@ open class RuleValue<T>(val name: String, val default: T, rule: Rule<T>)
     }
 
     override fun hashCode() =
-            Objects.hash(name, default, rule)
+        Objects.hash(name, default, rule)
 
     override fun toString() =
-            "${this::class.simpleName}<rule: $name[=$default]>"
+        "${this::class.simpleName}<rule: $name[=$default]>"
 }
 
 fun <T> value(context: T): Value<T> =
-        Value(null, context)
+    Value(null, context)
 
 fun <T> rule(name: String, default: T, rule: Rule<T>) =
-        RuleValue(name, default, rule)
+    RuleValue(name, default, rule)
 
-class RuleContext<T>(val myKey: String,
-        private val layers: LayersForRuleContext) {
+class RuleContext<T>(
+    val myKey: String,
+    private val layers: LayersForRuleContext
+) {
     val myValues: List<T>
         get() = layers.allValuesFor(myKey)
 
