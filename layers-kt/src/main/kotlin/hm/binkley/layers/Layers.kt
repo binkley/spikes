@@ -11,13 +11,19 @@ interface Layers : AutoCloseable {
     fun asMap(): Map<String, Any>
 }
 
+interface MutableLayers : Layers
+
 interface Layer
     : Map<String, Value<*>>,
         Diffable {
     val slot: Int
     val script: String
     val enabled: Boolean
-    val meta: Map<String, String>
+    val meta: MutableMap<String, String> // TODO: IMMUTABLE
+
+    fun edit(block: MutableLayer.() -> Unit): Layer
+    fun save(description: String, trimmedScript: String, notes: String?)
+            : String
 }
 
 typealias Rule<T> = (RuleContext<T>) -> T

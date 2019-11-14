@@ -7,7 +7,7 @@ import kotlin.collections.Map.Entry
 class PersistedMutableLayers(
         private val xLayers: PersistedLayers,
         private val layers: MutableList<PersistedLayer> = mutableListOf())
-    : Layers,
+    : MutableLayers,
         LayersForRuleContext {
     override fun asList(): List<Map<String, Any>> = layers
 
@@ -21,7 +21,7 @@ class PersistedMutableLayers(
 
     override fun close() = Unit
 
-    fun commit(script: String = ""): PersistedLayer {
+    fun commit(script: String = ""): Layer {
         val layer = PersistedLayer(xLayers, layers.size, script)
         layers.add(layer)
         return layer
