@@ -87,7 +87,6 @@ class RuleContext<T>(val myKey: String,
     val myValues: List<T>
         get() = layers.allValuesFor(myKey)
 
-    @Suppress("UNCHECKED_CAST")
     operator fun <T> get(key: String) = layers.appliedValueFor<T>(key)
 }
 

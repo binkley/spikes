@@ -5,11 +5,11 @@ import java.util.Objects
 import kotlin.collections.Map.Entry
 
 class PersistedMutableLayers(
-        private val xLayers: PersistedLayers,
-        private val layers: MutableList<PersistedLayer> = mutableListOf())
+        private val layers: PersistedLayers,
+        private val layerList: MutableList<PersistedLayer> = mutableListOf())
     : MutableLayers,
         LayersForRuleContext {
-    override fun asList(): List<Map<String, Any>> = layers
+    override fun asList(): List<Map<String, Any>> = layerList
 
     override fun asMap(): Map<String, Any> =
             object : AbstractMap<String, Any>() {
@@ -22,8 +22,8 @@ class PersistedMutableLayers(
     override fun close() = Unit
 
     fun commit(script: String = ""): Layer {
-        val layer = PersistedLayer(xLayers, layers.size, script)
-        layers.add(layer)
+        val layer = PersistedLayer(layers, layerList.size, script)
+        layerList.add(layer)
         return layer
     }
 
@@ -52,12 +52,12 @@ class PersistedMutableLayers(
 
         other as PersistedMutableLayers
 
-        return layers == other.layers
+        return layerList == other.layerList
     }
 
-    override fun hashCode() = Objects.hash(layers)
+    override fun hashCode() = Objects.hash(layerList)
 
-    override fun toString() = "${this::class.simpleName}$layers"
+    override fun toString() = "${this::class.simpleName}$layerList"
 
     @Suppress("UNCHECKED_CAST")
     private fun applied() = topDownLayers.flatMap {
@@ -66,13 +66,13 @@ class PersistedMutableLayers(
         null != it.value.rule
     }.map {
         val key = it.key
-        val value =
-                (it.value.rule!! as Rule<Any>)(RuleContext(key, this))
+        val rule = it.value.rule as Rule<Any>
+        val value = rule(RuleContext(key, this))
         SimpleEntry(key, value)
     }
 
     private val topDownLayers: List<PersistedLayer>
-        get() = layers.filter {
+        get() = layerList.filter {
             it.enabled
         }.asReversed()
 }

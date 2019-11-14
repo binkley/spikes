@@ -42,7 +42,7 @@ class PersistedLayers(private val repository: String)
                 cleanDescription, cleanScript, notes?.trimIndent())
 
         layer.edit {
-            addMetaFor(scriptFile)
+            metaFromGitFor(scriptFile)
         }
 
         return layer
@@ -104,7 +104,7 @@ class PersistedLayers(private val repository: String)
         }
     }
 
-    private fun MutableLayer.addMetaFor(scriptFile: String) = apply {
+    private fun MutableLayer.metaFromGitFor(scriptFile: String) = apply {
         git.log().addPath(scriptFile).call().first().also {
             meta["commit-time"] = it.commitTime.toIsoDateTime()
             meta["full-message"] = it.fullMessage

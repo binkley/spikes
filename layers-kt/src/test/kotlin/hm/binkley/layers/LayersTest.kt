@@ -10,9 +10,13 @@ import java.nio.file.Path
 
 internal class LayersTest {
     @Test
-    internal fun `should persist`(@TempDir baseTempDir: Path) {
+    internal fun `should run tests`() {
+        // TODO: Why isn't Maven running tests?
         if (false) fail<Nothing>("PROVE TESTS RUN")
+    }
 
+    @Test
+    internal fun `should persist`(@TempDir baseTempDir: Path) {
         val repoDir = setupRepository(baseTempDir)
 
         val baker = PersistedLayers(repoDir.absolutePath).use {
