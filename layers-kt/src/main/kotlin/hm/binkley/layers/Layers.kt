@@ -81,3 +81,18 @@ fun <T> value(context: T): Value<T> =
 
 fun <T> rule(name: String, default: T, rule: Rule<T>) =
         RuleValue(name, default, rule)
+
+class RuleContext<T>(val myKey: String,
+        private val layers: LayersForRuleContext) {
+    val myValues: List<T>
+        get() = layers.allValuesFor(myKey)
+
+    @Suppress("UNCHECKED_CAST")
+    operator fun <T> get(key: String) = layers.appliedValueFor<T>(key)
+}
+
+interface LayersForRuleContext {
+    fun <T> appliedValueFor(key: String): T
+
+    fun <T> allValuesFor(key: String): List<T>
+}
