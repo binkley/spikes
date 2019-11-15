@@ -86,9 +86,6 @@ internal class LayersTest {
             assertThat(it.asMap()).containsEntry("b", 11)
             assertThat(it.asMap()).containsEntry("b-bonus", 1)
 
-            it.refresh() // Should do nothing
-            assertThat(it.asList()).hasSize(5)
-
             it
         }
 

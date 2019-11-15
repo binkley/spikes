@@ -57,8 +57,6 @@ interface Layers : AutoCloseable {
     fun newLayer(description: String, script: String, notes: String?)
             : Layer
 
-    fun refresh()
-
     fun newLayer(): Layer
 }
 

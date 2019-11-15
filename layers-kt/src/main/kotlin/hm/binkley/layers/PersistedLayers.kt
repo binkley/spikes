@@ -83,10 +83,6 @@ class PersistedLayers(
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun refresh() = persistence.refresh(asList().size) {
-        createLayer(it)
-    }
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -133,6 +129,10 @@ class PersistedLayers(
             layerList.add(it)
             it.include(script)
         }
+
+    private fun refresh() = persistence.refresh(asList().size) {
+        createLayer(it)
+    }
 
     private fun MutableLayer.metaFromGitFor(scriptFile: String) = apply {
         persistence.letGit { git ->
