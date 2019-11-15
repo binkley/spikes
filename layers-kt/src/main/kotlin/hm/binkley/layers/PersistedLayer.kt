@@ -3,16 +3,19 @@ package hm.binkley.layers
 import org.eclipse.jgit.api.Git
 import java.util.Objects
 import java.util.TreeMap
+import javax.script.ScriptEngine
 
 class PersistedLayer(
     private val layers: PersistedLayers,
     override val slot: Int,
-    override val script: String,
     private val contents: MutableMap<String, Value<*>> = TreeMap()
 ) : Map<String, Value<*>> by contents,
     Layer {
     private val _meta: MutableMap<String, String> = mutableMapOf()
+    private val included = ArrayList<String>()
 
+    override val script: String
+        get() = included.joinToString("\n\n")
     override val enabled = true
     override val meta: Map<String, String>
         get() = _meta
@@ -23,10 +26,20 @@ class PersistedLayer(
     }
 
     override fun edit(block: MutableLayer.() -> Unit): Layer = apply {
-        PersistedMutableLayer(_meta, contents).block()
+        PersistedMutableLayer(this, _meta, contents).block()
     }
 
-    override fun save(
+    override fun commit(description: String, notes: String?): Layer {
+        val cleanDescription = description.clean()
+        val cleanScript = script.clean()
+        val cleanNotes = notes?.clean()
+
+        save(cleanDescription, cleanScript, cleanNotes)
+
+        return layers.newLayer()
+    }
+
+    internal fun save(
         cleanDescription: String,
         cleanScript: String,
         cleanNotes: String?
@@ -79,4 +92,9 @@ class PersistedLayer(
 
     override fun toString() =
         "${this::class.simpleName}#$slot:$contents\\$meta[${if (enabled) "enabled" else "disabled"}]"
+
+    internal fun <R> letEngine(block: (ScriptEngine) -> R): R =
+        layers.letEngine(block)
+
+    internal fun include(script: String) = included.add(script.clean())
 }

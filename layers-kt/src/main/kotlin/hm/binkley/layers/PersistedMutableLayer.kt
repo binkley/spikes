@@ -1,6 +1,7 @@
 package hm.binkley.layers
 
 class PersistedMutableLayer(
+    private val layer: PersistedLayer,
     override val meta: MutableMap<String, String>,
     private val contents: MutableMap<String, Value<*>>
 ) : MutableLayer,
@@ -12,4 +13,18 @@ class PersistedMutableLayer(
         else
             contents[key] = value(value)
     }
+
+    override fun execute(script: String): Unit =
+        layer.letEngine { engine ->
+            engine.eval("""
+                    import hm.binkley.layers.*
+                    import hm.binkley.layers.rules.*
+    
+                    $script
+                """, engine.createBindings().also {
+                it["layer"] = this
+            })
+
+            layer.include(script)
+        }
 }
