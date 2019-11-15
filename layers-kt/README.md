@@ -43,3 +43,8 @@ histories.
   - Persists the rules and values as Kotlin scripts
   - Also, persists for each layer: More human-friendly (`diff`-friendly)
     changesets, and optional free-form notes 
+
+## References
+
+* [_Parsing Kotlin code using Kotlin_](https://jitinsharma.in/posts/parsing-kotlin-using-code-kotlin/)
+* [_KotlinPoet_](https://square.github.io/kotlinpoet/)
