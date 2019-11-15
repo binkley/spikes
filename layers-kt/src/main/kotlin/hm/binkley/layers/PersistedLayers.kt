@@ -102,8 +102,7 @@ class PersistedLayers(
     internal fun scriptFile(fileName: String) =
         persistence.scriptFile(fileName)
 
-    internal fun <R> letGit(block: (Git) -> R): R =
-        persistence.letGit(block)
+    internal fun <R> letGit(block: (Git) -> R): R = persistence.letGit(block)
 
     internal fun <R> letEngine(block: (ScriptEngine) -> R): R =
         scripting.letEngine(block)

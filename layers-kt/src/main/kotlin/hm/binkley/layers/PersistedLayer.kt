@@ -1,7 +1,7 @@
 package hm.binkley.layers
 
 import org.eclipse.jgit.api.Git
-import java.util.Objects
+import java.util.Objects.hash
 import java.util.TreeMap
 import javax.script.ScriptEngine
 
@@ -48,16 +48,14 @@ class PersistedLayer(
             val fileName = "$slot.$ext"
             val scriptFile = layers.scriptFile(fileName)
             scriptFile.writeText(contents)
-            if (contents.isNotEmpty())
-                scriptFile.appendText("\n")
+            if (contents.isNotEmpty()) scriptFile.appendText("\n")
             add().addFilepattern(fileName).call()
         }
 
         return layers.letGit { git ->
             git.write("kts", cleanScript)
             val diff = toDiff()
-            if (diff.isNotEmpty())
-                git.write("txt", diff)
+            if (diff.isNotEmpty()) git.write("txt", diff)
             cleanNotes?.also {
                 git.write("notes", it)
             }
@@ -84,8 +82,7 @@ class PersistedLayer(
                 && enabled == other.enabled
     }
 
-    override fun hashCode() =
-        Objects.hash(slot, script, contents, enabled)
+    override fun hashCode() = hash(slot, script, contents, enabled)
 
     override fun toString() =
         "${this::class.simpleName}#$slot:$contents\\$meta[${if (enabled) "enabled" else "disabled"}]"

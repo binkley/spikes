@@ -2,15 +2,12 @@ package hm.binkley.layers
 
 import org.eclipse.jgit.api.Git
 import java.io.File
-import java.nio.file.Files
+import java.nio.file.Files.createTempDirectory
 import java.nio.file.Path
-import java.util.Objects
+import java.util.Objects.hash
 
 class Persistence(private val repository: String) : AutoCloseable {
-    private val scriptsDir =
-        Files.createTempDirectory(
-            "layers"
-        )
+    private val scriptsDir = createTempDirectory("layers")
     private val git = Git.cloneRepository()
         .setDirectory(scriptsDir.toFile())
         .setURI(repository)
@@ -18,7 +15,7 @@ class Persistence(private val repository: String) : AutoCloseable {
 
     override fun close() {
         git.close()
-        scriptsDir.recursivelyDelete()
+        scriptsDir.deleteRecursively()
     }
 
     internal fun refresh(size: Int, new: (scriptFile: String) -> Unit) =
@@ -40,8 +37,7 @@ class Persistence(private val repository: String) : AutoCloseable {
         return repository == other.repository
     }
 
-    override fun hashCode() =
-        Objects.hash(repository)
+    override fun hashCode() = hash(repository)
 
     override fun toString() =
         "${this::class.simpleName}{repository=$repository, scriptsDir=$scriptsDir}"
