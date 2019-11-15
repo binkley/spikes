@@ -55,7 +55,7 @@ class Persistence(private val repository: String) : AutoCloseable {
         }
 
         scripts.subList(size, scripts.size).map {
-            scriptsDirFile.resolve(it).readText().trim()
+            scriptsDirFile.resolve(it).readText().clean()
         }.forEach {
             new(it)
         }

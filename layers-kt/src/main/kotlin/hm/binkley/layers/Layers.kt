@@ -32,8 +32,11 @@ interface Layer
     val meta: Map<String, String>
 
     fun edit(block: MutableLayer.() -> Unit): Layer
-    fun save(description: String, trimmedScript: String, notes: String?)
-            : String
+    fun save(
+        cleanDescription: String,
+        cleanScript: String,
+        cleanNotes: String?
+    ): String
 }
 
 interface MutableLayer : MutableMap<String, Value<*>> {

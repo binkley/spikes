@@ -27,10 +27,10 @@ class PersistedLayer(
     }
 
     override fun save(
-        description: String, trimmedScript: String,
-        notes: String?
-    )
-            : String {
+        cleanDescription: String,
+        cleanScript: String,
+        cleanNotes: String?
+    ): String {
         fun Git.write(ext: String, contents: String) {
             val fileName = "$slot.$ext"
             val scriptFile = layers.scriptFile(fileName)
@@ -41,16 +41,16 @@ class PersistedLayer(
         }
 
         return layers.letGit { git ->
-            git.write("kts", trimmedScript)
+            git.write("kts", cleanScript)
             val diff = toDiff()
             if (diff.isNotEmpty())
                 git.write("txt", diff)
-            notes?.also {
+            cleanNotes?.also {
                 git.write("notes", it)
             }
 
             val commit = git.commit()
-            commit.message = description.trimIndent().trim()
+            commit.message = cleanDescription
             commit.call()
 
             git.push().call()

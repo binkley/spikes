@@ -23,13 +23,12 @@ class PersistedLayers(
     ): Layer {
         val cleanDescription = description.clean()
         val cleanScript = script.clean()
+        val cleanNotes = notes?.clean()
 
         return createLayer(cleanScript).apply {
             edit {
                 metaFromGitFor(
-                    save(
-                        cleanDescription, cleanScript, notes?.trimIndent()
-                    )
+                    save(cleanDescription, cleanScript, cleanNotes)
                 )
             }
         }
