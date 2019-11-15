@@ -17,16 +17,17 @@ histories.
 
 * &#x2713; Immutable layers for presentation; mutable for editing
 * &#x2713; Rule-based engine
-* &#x2713; Text-based serialization, including rules, diffs, notes, etc
-* &#x2713; Git persistence
-  - &#x2713; History with do/undo/redo (but no API yet for undo/redo)
-  - &#x231B; Branching
-* &#x2713; Persistent operations
-  - Automatic restore of cached state on restarts
+* Persistence
+  - &#x2713; Git text-based serialization, including rules, diffs, notes, etc
+    - &#x2713; Git persistence
+    - &#x2717; History with do/undo/redo (but no API yet for undo/redo)
+    - &#x2717; Branching
+  - &#x2717; Memory-only, for testing and non-Git use
+  - &#x2713; Automatic restore of cached state on restarts
 * &#x2713; Stateless but caching service
   - Suitable for horizontal scaling
-* &#x231B; JSON REST clients
-* &#x231B; [WebSocket](https://en.wikipedia.org/wiki/WebSocket) with
+* &#x2717; JSON REST clients
+* &#x2717; [WebSocket](https://en.wikipedia.org/wiki/WebSocket) with
   [STOMP](https://stomp.github.io) for publishing state visible changes as
   JSON (cf,
   [HTML Standard](https://html.spec.whatwg.org/multipage/web-sockets.html))
