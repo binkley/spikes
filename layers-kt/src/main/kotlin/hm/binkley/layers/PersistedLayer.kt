@@ -85,10 +85,7 @@ class PersistedLayer(
     }
 
     override fun hashCode() =
-        Objects.hash(
-            slot, script, contents,
-            enabled
-        )
+        Objects.hash(slot, script, contents, enabled)
 
     override fun toString() =
         "${this::class.simpleName}#$slot:$contents\\$meta[${if (enabled) "enabled" else "disabled"}]"
