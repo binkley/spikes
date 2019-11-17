@@ -92,12 +92,19 @@ internal class LayersTest {
             """, notes = null
             )
 
-            assertThat(it.asList()).hasSize(7)
-            assertThat(it.asMap()).hasSize(4)
+            it.newLayer(
+                description = "Rule of default", script = """
+                layer["d"] = current(default=3.7)
+            """, notes = null
+            )
+
+            assertThat(it.asList()).hasSize(8)
+            assertThat(it.asMap()).hasSize(5)
             assertThat(it.asMap()).containsEntry("b-enabled", true)
             assertThat(it.asMap()).containsEntry("b", 11)
             assertThat(it.asMap()).containsEntry("b-bonus", 1)
             assertThat(it.asMap()).containsEntry("c", "Bob the Builder")
+            assertThat(it.asMap()).containsEntry("d", 3.7)
 
             it
         }
