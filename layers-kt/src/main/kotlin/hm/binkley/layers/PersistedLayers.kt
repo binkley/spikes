@@ -20,6 +20,7 @@ class PersistedLayers(
     override fun asList(): List<Map<String, Any>> = layerList
 
     override fun asMap(): Map<String, Any> =
+        // TODO: Simplify
         object : AbstractMap<String, Any>() {
             override val entries: Set<Entry<String, Any>>
                 get() = applied().toSortedSet(compareBy {
