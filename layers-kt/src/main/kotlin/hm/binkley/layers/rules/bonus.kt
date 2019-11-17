@@ -21,7 +21,7 @@ class BonusRuleValue(val otherKey: String, default: Int) :
         Objects.hash(default, otherKey)
 
     override fun toString() =
-        "${this::class.simpleName}<rule: *bonus[=$otherKey/$default]>"
+        "${this::class.simpleName}<rule: *bonus[@$otherKey=$default]>"
 }
 
 fun Int.toBonus() = this / 2 - 5
