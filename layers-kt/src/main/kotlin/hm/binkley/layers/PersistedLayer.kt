@@ -14,23 +14,9 @@ class PersistedLayer(
     private val _meta: MutableMap<String, String> = mutableMapOf()
     private val included = ArrayList<String>()
 
-    fun xxx() {
-        fun printSimple(value: Any?) = when (value) {
-            is String -> "\"${value}\""
-            else -> value.toString()
-        }
-
-        fun printValue(value: Value<*>) = when (value) {
-            is RuleValue -> value.toString()
-            else -> printSimple(value.value)
-        }
-
-        println("Layer #${slot + 1}:")
-        contents.forEach { key, value ->
-            val x = printValue(value)
-            println("this[\"$key\"] = $x")
-        }
-    }
+    fun toSourceCode() = map {
+        "this[\"${it.key}\"] = ${it.value.toSourceCode()}"
+    }.joinToString("\n")
 
     override val script: String
         get() = included.joinToString("\n\n")

@@ -28,10 +28,6 @@ interface Layer
      * Persists the current layer, and returns a fresh, scratch layer.
      */
     fun commit(description: String, notes: String?): Layer
-
-    fun toSourceCode() = map {
-        "this[\"${it.key}\"] = ${it.value.toSourceCode()}"
-    }.joinToString("\n")
 }
 
 interface MutableLayer : MutableMap<String, Value<*>> {
@@ -74,6 +70,7 @@ open class Value<T>(val rule: Rule<T>?, val value: T?) : Diffable {
         else -> value.toString()
     }
 
+    // TODO: PersistedValue
     open fun toSourceCode() = printSimple(value)
 
     // TODO: Print "3 : Int" rather than just "3"

@@ -9,7 +9,7 @@ import kotlin.collections.Map.Entry
 class PersistedLayers(
     private val persistence: Persistence,
     private val scripting: Scripting,
-    private val layerList: MutableList<Layer> = mutableListOf()
+    private val layerList: MutableList<PersistedLayer> = mutableListOf()
 ) : Layers,
     LayersForRuleContext,
     AutoCloseable by persistence {
@@ -101,6 +101,10 @@ class PersistedLayers(
 
     override fun toString() =
         "${this::class.simpleName}{persistence=$persistence, scripting=$scripting, layersList=$layerList}"
+
+    internal fun toSourceCode() = layerList.map {
+        it.toSourceCode()
+    }
 
     internal fun scriptFile(fileName: String) =
         persistence.scriptFile(fileName)

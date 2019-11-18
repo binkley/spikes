@@ -109,10 +109,9 @@ internal class LayersTest {
             it
         }
 
-        baker.layers.forEach {
-            println(it.toSourceCode())
+        baker.toSourceCode().forEach {
+            println(it)
         }
-        baker.asList().forEach { (it as PersistedLayer).xxx() }
 
         PersistedLayers(Persistence(repoDir.absolutePath), Scripting()).use {
             assertThat(it.asList()).isEqualTo(baker.asList())
