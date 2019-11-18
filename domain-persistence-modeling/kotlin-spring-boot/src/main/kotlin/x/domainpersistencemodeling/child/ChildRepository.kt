@@ -1,4 +1,4 @@
-package x.domainpersistencemodeling
+package x.domainpersistencemodeling.child
 
 import org.springframework.data.annotation.Id
 import org.springframework.data.jdbc.repository.query.Query
@@ -6,8 +6,10 @@ import org.springframework.data.relational.core.mapping.Table
 import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
-import x.domainpersistencemodeling.ChildRepository.ChildRecord
 import x.domainpersistencemodeling.KnownState.ENABLED
+import x.domainpersistencemodeling.UpsertableRecord
+import x.domainpersistencemodeling.child.ChildRepository.ChildRecord
+import x.domainpersistencemodeling.workAroundArrayTypeForPostgres
 import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneOffset

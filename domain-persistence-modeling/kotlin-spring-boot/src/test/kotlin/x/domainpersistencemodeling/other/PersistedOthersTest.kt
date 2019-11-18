@@ -1,4 +1,4 @@
-package x.domainpersistencemodeling
+package x.domainpersistencemodeling.other
 
 import ch.tutteli.atrium.api.cc.en_GB.containsExactly
 import ch.tutteli.atrium.api.cc.en_GB.hasSize
@@ -6,13 +6,17 @@ import ch.tutteli.atrium.api.cc.en_GB.isEmpty
 import ch.tutteli.atrium.api.cc.en_GB.toBe
 import ch.tutteli.atrium.verbs.expect
 import org.junit.jupiter.api.Test
+import x.domainpersistencemodeling.LiveTestBase
 import x.domainpersistencemodeling.PersistableDomain.UpsertedDomainResult
+import x.domainpersistencemodeling.anOtherChangedEvent
+import x.domainpersistencemodeling.otherNaturalId
 
 internal class PersistedOthersTest
     : LiveTestBase() {
     @Test
     fun `should create new`() {
-        val found = others.findExistingOrCreateNew(otherNaturalId)
+        val found = others.findExistingOrCreateNew(
+                otherNaturalId)
 
         expect(found).toBe(newUnsavedOther())
 
@@ -24,7 +28,8 @@ internal class PersistedOthersTest
     fun `should find existing`() {
         val saved = newSavedOther()
 
-        val found = others.findExistingOrCreateNew(otherNaturalId)
+        val found = others.findExistingOrCreateNew(
+                otherNaturalId)
 
         expect(found).toBe(saved)
 

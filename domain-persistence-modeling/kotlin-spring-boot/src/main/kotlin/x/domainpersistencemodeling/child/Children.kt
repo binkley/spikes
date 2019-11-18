@@ -1,5 +1,10 @@
-package x.domainpersistencemodeling
+package x.domainpersistencemodeling.child
 
+import x.domainpersistencemodeling.DomainChangedEvent
+import x.domainpersistencemodeling.KnownState
+import x.domainpersistencemodeling.Other
+import x.domainpersistencemodeling.PersistableDomain
+import x.domainpersistencemodeling.ScopedMutable
 import java.time.OffsetDateTime
 
 data class ChildSnapshot(
@@ -36,7 +41,8 @@ interface ChildSimpleDetails
         get() = null != parentNaturalId
 
     val relevant: Boolean
-        get() = KnownState.forName(state)?.relevant ?: true
+        get() = KnownState.forName(
+                state)?.relevant ?: true
 
     override operator fun compareTo(other: ChildSimpleDetails) =
             naturalId.compareTo(other.naturalId)

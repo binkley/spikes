@@ -4,6 +4,9 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import x.domainpersistencemodeling.KnownState.DISABLED
 import x.domainpersistencemodeling.KnownState.ENABLED
+import x.domainpersistencemodeling.child.ChildSimpleDetails
+import x.domainpersistencemodeling.parent.ParentDependentDetails
+import x.domainpersistencemodeling.parent.ParentSimpleDetails
 import java.time.OffsetDateTime
 
 internal class SideValuesTest {

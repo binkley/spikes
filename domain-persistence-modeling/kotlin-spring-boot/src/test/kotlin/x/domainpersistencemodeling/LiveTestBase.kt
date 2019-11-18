@@ -10,6 +10,14 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.transaction.annotation.Transactional
 import x.domainpersistencemodeling.KnownState.ENABLED
+import x.domainpersistencemodeling.child.ChildChangedEvent
+import x.domainpersistencemodeling.child.ChildFactory
+import x.domainpersistencemodeling.child.ChildSnapshot
+import x.domainpersistencemodeling.child.PersistedUnassignedChild
+import x.domainpersistencemodeling.parent.Parent
+import x.domainpersistencemodeling.parent.ParentChangedEvent
+import x.domainpersistencemodeling.parent.ParentFactory
+import x.domainpersistencemodeling.parent.ParentSnapshot
 import java.time.Instant.EPOCH
 import java.time.OffsetDateTime
 import java.time.ZoneOffset.UTC
@@ -176,13 +184,17 @@ internal fun aParentChangedEvent( // TODO: Tie defaults to record defaults
         afterAt: OffsetDateTime? = null,
         afterValue: String? = null,
         afterSideValues: Set<String> = setOf(),
-        afterVersion: Int = 0) = ParentChangedEvent(
-        if (noBefore) null else ParentSnapshot(parentNaturalId,
-                beforeOtherNaturalId, beforeState, beforeAt, beforeValue,
-                beforeSideValues, beforeVersion),
-        if (noAfter) null else ParentSnapshot(parentNaturalId,
-                afterOtherNaturalId, afterState, afterAt, afterValue,
-                afterSideValues, afterVersion))
+        afterVersion: Int = 0) =
+        ParentChangedEvent(
+                if (noBefore) null else ParentSnapshot(
+                        parentNaturalId,
+                        beforeOtherNaturalId, beforeState, beforeAt,
+                        beforeValue,
+                        beforeSideValues, beforeVersion),
+                if (noAfter) null else ParentSnapshot(
+                        parentNaturalId,
+                        afterOtherNaturalId, afterState, afterAt, afterValue,
+                        afterSideValues, afterVersion))
 
 internal fun aChildChangedEvent( // TODO: Tie defaults to record defaults
         noBefore: Boolean = false,
@@ -200,10 +212,15 @@ internal fun aChildChangedEvent( // TODO: Tie defaults to record defaults
         afterAt: OffsetDateTime = atZero,
         afterValue: String? = null,
         afterSideValues: Set<String> = setOf(),
-        afterVersion: Int = 0) = ChildChangedEvent(
-        if (noBefore) null else ChildSnapshot(childNaturalId,
-                beforeOtherNaturalId, beforeParentNaturalId, beforeState,
-                beforeAt, beforeValue, beforeSideValues, beforeVersion),
-        if (noAfter) null else ChildSnapshot(childNaturalId,
-                afterOtherNaturalId, afterParentNaturalId, afterState,
-                afterAt, afterValue, afterSideValues, afterVersion))
+        afterVersion: Int = 0) =
+        ChildChangedEvent(
+                if (noBefore) null else ChildSnapshot(
+                        childNaturalId,
+                        beforeOtherNaturalId, beforeParentNaturalId,
+                        beforeState,
+                        beforeAt, beforeValue, beforeSideValues,
+                        beforeVersion),
+                if (noAfter) null else ChildSnapshot(
+                        childNaturalId,
+                        afterOtherNaturalId, afterParentNaturalId, afterState,
+                        afterAt, afterValue, afterSideValues, afterVersion))

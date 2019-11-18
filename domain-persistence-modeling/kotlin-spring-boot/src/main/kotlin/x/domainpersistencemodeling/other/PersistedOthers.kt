@@ -1,8 +1,20 @@
-package x.domainpersistencemodeling
+package x.domainpersistencemodeling.other
 
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Component
+import x.domainpersistencemodeling.MutableOther
+import x.domainpersistencemodeling.MutableOtherSimpleDetails
+import x.domainpersistencemodeling.Other
+import x.domainpersistencemodeling.OtherChangedEvent
+import x.domainpersistencemodeling.OtherDependentDetails
+import x.domainpersistencemodeling.OtherFactory
+import x.domainpersistencemodeling.OtherRepository
 import x.domainpersistencemodeling.OtherRepository.OtherRecord
+import x.domainpersistencemodeling.OtherSnapshot
+import x.domainpersistencemodeling.PersistableDomain
+import x.domainpersistencemodeling.PersistedDependentDetails
+import x.domainpersistencemodeling.PersistedDomain
+import x.domainpersistencemodeling.PersistedFactory
 import x.domainpersistencemodeling.UpsertableRecord.UpsertedRecordResult
 
 @Component
@@ -22,12 +34,13 @@ internal class PersistedOtherFactory(
     }
 
     override fun createNew(naturalId: String) =
-            PersistedOther(PersistedDomain(
-                    this,
-                    null,
-                    OtherRecord(naturalId),
-                    PersistedOtherDependentDetails(),
-                    ::PersistedOther))
+            PersistedOther(
+                    PersistedDomain(
+                            this,
+                            null,
+                            OtherRecord(naturalId),
+                            PersistedOtherDependentDetails(),
+                            ::PersistedOther))
 
     override fun findExistingOrCreateNew(naturalId: String) =
             findExisting(naturalId) ?: createNew(naturalId)
@@ -44,20 +57,25 @@ internal class PersistedOtherFactory(
 
     override fun notifyChanged(
             before: OtherSnapshot?, after: OtherSnapshot?) =
-            publisher.publishEvent(OtherChangedEvent(before, after))
+            publisher.publishEvent(
+                    OtherChangedEvent(
+                            before, after))
 
     override fun toSnapshot(record: OtherRecord,
             dependent: PersistedOtherDependentDetails) =
-            OtherSnapshot(record.naturalId, record.value, record.version)
+            OtherSnapshot(
+                    record.naturalId, record.value, record.version)
 
     private fun toDomain(record: OtherRecord): PersistedOther {
-        val dependent = PersistedOtherDependentDetails()
-        return PersistedOther(PersistedDomain(
-                this,
-                toSnapshot(record, dependent),
-                record,
-                dependent,
-                ::PersistedOther))
+        val dependent =
+                PersistedOtherDependentDetails()
+        return PersistedOther(
+                PersistedDomain(
+                        this,
+                        toSnapshot(record, dependent),
+                        record,
+                        dependent,
+                        ::PersistedOther))
     }
 }
 
@@ -76,7 +94,8 @@ internal class PersistedOther(
         get() = persisted.record.value
 
     override fun <R> update(block: MutableOther.() -> R): R =
-            PersistedMutableOther(persisted.record).let(block)
+            PersistedMutableOther(
+                    persisted.record).let(block)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

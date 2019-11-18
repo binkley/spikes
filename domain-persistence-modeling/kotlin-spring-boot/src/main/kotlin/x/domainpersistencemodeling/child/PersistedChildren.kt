@@ -1,9 +1,16 @@
-package x.domainpersistencemodeling
+package x.domainpersistencemodeling.child
 
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Component
-import x.domainpersistencemodeling.ChildRepository.ChildRecord
+import x.domainpersistencemodeling.Other
+import x.domainpersistencemodeling.PersistableDomain
+import x.domainpersistencemodeling.PersistedDependentDetails
+import x.domainpersistencemodeling.PersistedDomain
+import x.domainpersistencemodeling.PersistedFactory
+import x.domainpersistencemodeling.TrackedSortedSet
 import x.domainpersistencemodeling.UpsertableRecord.UpsertedRecordResult
+import x.domainpersistencemodeling.child.ChildRepository.ChildRecord
+import x.domainpersistencemodeling.uncurrySecond
 import java.time.OffsetDateTime
 import java.util.Objects.hash
 import java.util.TreeSet
@@ -34,7 +41,8 @@ internal class PersistedChildFactory(
     override fun findAssignedFor(parentNaturalId: String)
             : Sequence<AssignedChild> =
             repository.findByParentNaturalId(parentNaturalId).map {
-                createNew(toSnapshot(it, PersistedChildDependentDetails()),
+                createNew(toSnapshot(it,
+                        PersistedChildDependentDetails()),
                         it,
                         ::PersistedAssignedChild)
             }.asSequence()
@@ -50,16 +58,20 @@ internal class PersistedChildFactory(
 
     override fun notifyChanged(
             before: ChildSnapshot?, after: ChildSnapshot?) =
-            publisher.publishEvent(ChildChangedEvent(before, after))
+            publisher.publishEvent(
+                    ChildChangedEvent(
+                            before, after))
 
     override fun toSnapshot(record: ChildRecord,
             dependent: PersistedChildDependentDetails) =
-            ChildSnapshot(record.naturalId, record.otherNaturalId,
+            ChildSnapshot(
+                    record.naturalId, record.otherNaturalId,
                     record.parentNaturalId, record.state, record.at,
                     record.value, record.sideValues, record.version)
 
     private fun toDomain(record: ChildRecord): Child<*> {
-        val dependent = PersistedChildDependentDetails()
+        val dependent =
+                PersistedChildDependentDetails()
 
         return if (null == record.parentNaturalId)
             createNew(toSnapshot(record, dependent), record,
@@ -73,9 +85,11 @@ internal class PersistedChildFactory(
             snapshot: ChildSnapshot?,
             record: ChildRecord,
             toDomain: (PersistedDomain<ChildSnapshot, ChildRecord, PersistedChildDependentDetails, PersistedChildFactory, C, MutableChild>) -> C) =
-            toDomain(PersistedDomain(this, snapshot, record,
-                    PersistedChildDependentDetails(),
-                    toDomain))
+            toDomain(
+                    PersistedDomain(
+                            this, snapshot, record,
+                            PersistedChildDependentDetails(),
+                            toDomain))
 }
 
 internal data class PersistedChildDependentDetails(
@@ -111,7 +125,8 @@ internal open class PersistedChild<C : Child<C>>(
         get() = TreeSet(persisted.record.defaultSideValues)
 
     override fun <R> update(block: MutableChild.() -> R): R =
-            PersistedMutableChild(persisted.record).let(block)
+            PersistedMutableChild(
+                    persisted.record).let(block)
 
     override fun assign(other: Other) = update {
         otherNaturalId = other.naturalId
@@ -169,7 +184,8 @@ internal class PersistedMutableChild(private val record: ChildRecord)
     : MutableChild,
         MutableChildSimpleDetails by record {
     override val sideValues: MutableSet<String>
-        get() = TrackedSortedSet(record.sideValues,
+        get() = TrackedSortedSet(
+                record.sideValues,
                 ::replaceSideValues.uncurrySecond(),
                 ::replaceSideValues.uncurrySecond())
 

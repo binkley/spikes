@@ -1,5 +1,12 @@
-package x.domainpersistencemodeling
+package x.domainpersistencemodeling.parent
 
+import x.domainpersistencemodeling.DomainChangedEvent
+import x.domainpersistencemodeling.Other
+import x.domainpersistencemodeling.PersistableDomain
+import x.domainpersistencemodeling.ScopedMutable
+import x.domainpersistencemodeling.child.AssignedChild
+import x.domainpersistencemodeling.child.ChildSimpleDetails
+import x.domainpersistencemodeling.child.UnassignedChild
 import java.time.OffsetDateTime
 
 data class ParentSnapshot(

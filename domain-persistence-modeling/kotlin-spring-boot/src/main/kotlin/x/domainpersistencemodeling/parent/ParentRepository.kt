@@ -1,4 +1,4 @@
-package x.domainpersistencemodeling
+package x.domainpersistencemodeling.parent
 
 import org.springframework.data.annotation.Id
 import org.springframework.data.jdbc.repository.query.Query
@@ -6,7 +6,9 @@ import org.springframework.data.relational.core.mapping.Table
 import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.query.Param
 import x.domainpersistencemodeling.KnownState.ENABLED
-import x.domainpersistencemodeling.ParentRepository.ParentRecord
+import x.domainpersistencemodeling.UpsertableRecord
+import x.domainpersistencemodeling.parent.ParentRepository.ParentRecord
+import x.domainpersistencemodeling.workAroundArrayTypeForPostgres
 import java.util.Optional
 import java.util.TreeSet
 

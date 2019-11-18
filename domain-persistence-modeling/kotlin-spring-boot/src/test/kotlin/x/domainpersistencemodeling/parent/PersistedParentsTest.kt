@@ -1,4 +1,4 @@
-package x.domainpersistencemodeling
+package x.domainpersistencemodeling.parent
 
 import ch.tutteli.atrium.api.cc.en_GB.containsExactly
 import ch.tutteli.atrium.api.cc.en_GB.hasSize
@@ -7,13 +7,21 @@ import ch.tutteli.atrium.api.cc.en_GB.toBe
 import ch.tutteli.atrium.api.cc.en_GB.toThrow
 import ch.tutteli.atrium.verbs.expect
 import org.junit.jupiter.api.Test
+import x.domainpersistencemodeling.DomainException
+import x.domainpersistencemodeling.LiveTestBase
 import x.domainpersistencemodeling.PersistableDomain.UpsertedDomainResult
+import x.domainpersistencemodeling.aChildChangedEvent
+import x.domainpersistencemodeling.aParentChangedEvent
+import x.domainpersistencemodeling.atZero
+import x.domainpersistencemodeling.otherNaturalId
+import x.domainpersistencemodeling.parentNaturalId
 
 internal class PersistedParentsTest
     : LiveTestBase() {
     @Test
     fun `should create new`() {
-        val found = parents.findExistingOrCreateNew(parentNaturalId)
+        val found = parents.findExistingOrCreateNew(
+                parentNaturalId)
 
         expect(found).toBe(newUnsavedParent())
         expect(found.children).isEmpty()
@@ -26,7 +34,8 @@ internal class PersistedParentsTest
     fun `should find existing`() {
         val saved = newSavedParent()
 
-        val found = parents.findExistingOrCreateNew(parentNaturalId)
+        val found = parents.findExistingOrCreateNew(
+                parentNaturalId)
 
         expect(found).toBe(saved)
         expect(found.children).isEmpty()

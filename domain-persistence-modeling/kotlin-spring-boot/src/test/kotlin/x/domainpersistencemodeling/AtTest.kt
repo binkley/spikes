@@ -3,6 +3,8 @@ package x.domainpersistencemodeling
 import ch.tutteli.atrium.api.cc.en_GB.toBe
 import ch.tutteli.atrium.verbs.expect
 import org.junit.jupiter.api.Test
+import x.domainpersistencemodeling.child.AssignedChild
+import x.domainpersistencemodeling.child.ChildSimpleDetails
 import java.time.OffsetDateTime
 
 internal class AtTest {

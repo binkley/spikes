@@ -1,9 +1,24 @@
-package x.domainpersistencemodeling
+package x.domainpersistencemodeling.parent
 
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Component
-import x.domainpersistencemodeling.ParentRepository.ParentRecord
+import x.domainpersistencemodeling.DomainException
+import x.domainpersistencemodeling.Other
+import x.domainpersistencemodeling.PersistableDomain
+import x.domainpersistencemodeling.PersistedDependentDetails
+import x.domainpersistencemodeling.PersistedDomain
+import x.domainpersistencemodeling.PersistedFactory
+import x.domainpersistencemodeling.TrackedSortedSet
 import x.domainpersistencemodeling.UpsertableRecord.UpsertedRecordResult
+import x.domainpersistencemodeling.at
+import x.domainpersistencemodeling.child.AssignedChild
+import x.domainpersistencemodeling.child.ChildFactory
+import x.domainpersistencemodeling.child.PersistedAssignedChild
+import x.domainpersistencemodeling.child.PersistedUnassignedChild
+import x.domainpersistencemodeling.child.UnassignedChild
+import x.domainpersistencemodeling.parent.ParentRepository.ParentRecord
+import x.domainpersistencemodeling.uncurryFirst
+import x.domainpersistencemodeling.uncurrySecond
 import java.time.OffsetDateTime
 import java.util.Objects
 import java.util.TreeSet
@@ -27,12 +42,14 @@ internal class PersistedParentFactory(
     }
 
     override fun createNew(naturalId: String) =
-            PersistedParent(PersistedDomain(
-                    this,
-                    null,
-                    ParentRecord(naturalId),
-                    PersistedParentDependentDetails(emptySequence()),
-                    ::PersistedParent))
+            PersistedParent(
+                    PersistedDomain(
+                            this,
+                            null,
+                            ParentRecord(naturalId),
+                            PersistedParentDependentDetails(
+                                    emptySequence()),
+                            ::PersistedParent))
 
     override fun findExistingOrCreateNew(naturalId: String) =
             findExisting(naturalId) ?: createNew(naturalId)
@@ -49,23 +66,28 @@ internal class PersistedParentFactory(
 
     override fun toSnapshot(record: ParentRecord,
             dependent: PersistedParentDependentDetails) =
-            ParentSnapshot(record.naturalId, record.otherNaturalId,
+            ParentSnapshot(
+                    record.naturalId, record.otherNaturalId,
                     record.state, dependent.at, record.value,
                     record.sideValues, record.version)
 
     override fun notifyChanged(
             before: ParentSnapshot?, after: ParentSnapshot?) =
-            publisher.publishEvent(ParentChangedEvent(before, after))
+            publisher.publishEvent(
+                    ParentChangedEvent(
+                            before, after))
 
     private fun toDomain(record: ParentRecord): PersistedParent {
-        val dependent = PersistedParentDependentDetails(
-                children.findAssignedFor(record.naturalId))
-        return PersistedParent(PersistedDomain(
-                this,
-                toSnapshot(record, dependent),
-                record,
-                dependent,
-                ::PersistedParent))
+        val dependent =
+                PersistedParentDependentDetails(
+                        children.findAssignedFor(record.naturalId))
+        return PersistedParent(
+                PersistedDomain(
+                        this,
+                        toSnapshot(record, dependent),
+                        record,
+                        dependent,
+                        ::PersistedParent))
     }
 }
 
@@ -209,7 +231,8 @@ internal open class PersistedParent(
     }
 
     override fun <R> update(block: MutableParent.() -> R): R =
-            PersistedMutableParent(persisted.record,
+            PersistedMutableParent(
+                    persisted.record,
                     persisted.dependent.children,
                     ::addChild.uncurryFirst(),
                     ::removeChild.uncurryFirst())
@@ -244,10 +267,14 @@ internal data class PersistedMutableParent(
         MutableParentSimpleDetails by record {
     override val at: OffsetDateTime?
         get() = children.at
-    override val sideValues = TrackedSortedSet(record.sideValues,
-            ::replaceSideValues.uncurrySecond(),
-            ::replaceSideValues.uncurrySecond())
-    override val children = TrackedSortedSet(initial, added, removed)
+    override val sideValues =
+            TrackedSortedSet(
+                    record.sideValues,
+                    ::replaceSideValues.uncurrySecond(),
+                    ::replaceSideValues.uncurrySecond())
+    override val children =
+            TrackedSortedSet(
+                    initial, added, removed)
 
     private fun replaceSideValues(all: MutableSet<String>) {
         record.sideValues = all
