@@ -17,6 +17,8 @@ class PersistedLayers(
         refresh()
     }
 
+    override val layers: List<Layer> = layerList
+
     override fun asList(): List<Map<String, Any>> = layerList
 
     override fun asMap(): Map<String, Any> =

@@ -28,6 +28,10 @@ interface Layer
      * Persists the current layer, and returns a fresh, scratch layer.
      */
     fun commit(description: String, notes: String?): Layer
+
+    fun toSourceCode() = map {
+        "this[\"${it.key}\"] = ${it.value.toSourceCode()}"
+    }.joinToString("\n")
 }
 
 interface MutableLayer : MutableMap<String, Value<*>> {
@@ -51,6 +55,8 @@ interface MutableLayer : MutableMap<String, Value<*>> {
  * editing.
  */
 interface Layers : AutoCloseable {
+    val layers: List<Layer>
+
     fun asList(): List<Map<String, Any>>
     fun asMap(): Map<String, Any>
 
@@ -63,6 +69,13 @@ interface Layers : AutoCloseable {
 typealias Rule<T> = (RuleContext<T>) -> T
 
 open class Value<T>(val rule: Rule<T>?, val value: T?) : Diffable {
+    protected fun printSimple(value: Any?) = when (value) {
+        is String -> "\"${value}\""
+        else -> value.toString()
+    }
+
+    open fun toSourceCode() = printSimple(value)
+
     // TODO: Print "3 : Int" rather than just "3"
     //  Expression in a class literal has a nullable type 'T', use !! to make
     //  the type non-nullable
@@ -87,6 +100,10 @@ open class Value<T>(val rule: Rule<T>?, val value: T?) : Diffable {
 
 open class RuleValue<T>(val name: String, val default: T, rule: Rule<T>) :
     Value<T>(rule, default) {
+    override fun toSourceCode(): String {
+        return rule.toString()
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
