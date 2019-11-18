@@ -181,7 +181,7 @@ class PersistedChildTest {
 
         assertThat(child.getVersion()).isEqualTo(2);
         assertThat(currentPersistedChild().getParentNaturalId()).isNull();
-        // Created, assigned by child, unassigned by child == version 3
+        // Created, assigned and unassigned by the child == version 3
         assertThat(currentPersistedParent().getVersion()).isEqualTo(3);
         assertThat(events()).containsExactly(new ChildChangedEvent(
                 new ChildResource(childNaturalId, parentNaturalId, null,

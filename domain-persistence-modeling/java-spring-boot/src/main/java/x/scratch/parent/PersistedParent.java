@@ -39,9 +39,8 @@ final class PersistedParent
             this.factory = factory;
             this.snapshot = snapshot;
             this.record = record;
-            final var chidren = assigned.collect(toCollection(TreeSet::new));
-            children = chidren;
-            snapshotChildren = new TreeSet<>(chidren);
+            children = assigned.collect(toCollection(TreeSet::new));
+            snapshotChildren = new TreeSet<>(children);
         }
     }
 

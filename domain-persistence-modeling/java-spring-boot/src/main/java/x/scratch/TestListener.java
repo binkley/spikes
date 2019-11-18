@@ -22,7 +22,7 @@ public class TestListener<Event extends DomainChangedEvent<?>>
     }
 
     public List<Event> events() {
-        final var events = new ArrayList<Event>(received);
+        final var events = new ArrayList<>(received);
         reset();
         return events;
     }

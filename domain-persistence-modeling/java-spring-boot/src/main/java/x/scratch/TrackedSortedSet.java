@@ -24,7 +24,7 @@ public class TrackedSortedSet<T extends Comparable<? super T>>
     @Nonnull
     @Override
     public Iterator<T> iterator() {
-        return new Iterator<T>() {
+        return new Iterator<>() {
             private final Iterator<T> it = sorted.iterator();
             private T curr = null;
 
