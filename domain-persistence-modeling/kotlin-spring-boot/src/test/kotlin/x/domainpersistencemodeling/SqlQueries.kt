@@ -7,7 +7,7 @@ import ch.qos.logback.core.AppenderBase
 import ch.tutteli.atrium.creating.ReportingAssertionPlant
 import ch.tutteli.atrium.verbs.expect
 import net.sf.jsqlparser.JSQLParserException
-import net.sf.jsqlparser.parser.CCJSqlParserUtil
+import net.sf.jsqlparser.parser.CCJSqlParserUtil.parse
 import org.slf4j.LoggerFactory.getLogger
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Component
@@ -103,7 +103,7 @@ class SqlQueries
         }
 
         fun bucket(query: String) = try {
-            CCJSqlParserUtil.parse(query).javaClass.simpleName
+            parse(query).javaClass.simpleName
                     .replace("Statement", "")
                     .toUpperCase(Locale.US) // TODO: What is ASCII upcase?
         } catch (e: JSQLParserException) {
