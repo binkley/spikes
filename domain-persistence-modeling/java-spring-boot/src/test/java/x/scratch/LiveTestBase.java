@@ -10,12 +10,15 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import x.scratch.child.Child;
 import x.scratch.child.ChildFactory;
+import x.scratch.child.ChildSnapshot;
 import x.scratch.parent.Parent;
 import x.scratch.parent.ParentFactory;
 
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import static java.util.stream.Collectors.counting;
 import static java.util.stream.Collectors.groupingBy;
@@ -36,6 +39,10 @@ public abstract class LiveTestBase {
     protected final ChildFactory children;
     private final SqlQueries sqlQueries;
     private final TestListener<DomainChangedEvent<?>> testListener;
+
+    protected static ChildSnapshotBuilder childSnapshot() {
+        return new ChildSnapshotBuilder();
+    }
 
     @AfterEach
     void liveTestBaseTearDown() {
@@ -119,5 +126,44 @@ public abstract class LiveTestBase {
                 .isNotEmpty();
         sqlQueries.reset();
         return existing.get();
+    }
+
+    protected static final class ChildSnapshotBuilder {
+        private final Set<String> subchildren = new LinkedHashSet<>();
+        private String parentNaturalId = null;
+        private String value = null;
+        private int version = 0;
+
+        public ChildSnapshotBuilder unassigned() {
+            parentNaturalId = null;
+            return this;
+        }
+
+        public ChildSnapshotBuilder assigned() {
+            parentNaturalId = LiveTestBase.parentNaturalId;
+            return this;
+        }
+
+        public ChildSnapshotBuilder value(final String value) {
+            this.value = value;
+            return this;
+        }
+
+        public ChildSnapshotBuilder subchildren(
+                final Set<String> subchildren) {
+            this.subchildren.clear();
+            this.subchildren.addAll(subchildren);
+            return this;
+        }
+
+        public ChildSnapshotBuilder version(final int version) {
+            this.version = version;
+            return this;
+        }
+
+        public ChildSnapshot build() {
+            return new ChildSnapshot(childNaturalId,
+                    parentNaturalId, value, subchildren, version);
+        }
     }
 }
