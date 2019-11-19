@@ -1,44 +1,65 @@
 package x.scratch;
 
 import lombok.RequiredArgsConstructor;
+import org.assertj.core.api.ListAssert;
+import org.assertj.core.api.MapAssert;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.TestInstance;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.data.jdbc.DataJdbcTest;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import x.scratch.child.Child;
 import x.scratch.child.ChildFactory;
 import x.scratch.parent.Parent;
 import x.scratch.parent.ParentFactory;
 
-import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
-import static java.time.Instant.EPOCH;
-import static java.time.ZoneOffset.UTC;
+import static java.util.stream.Collectors.counting;
+import static java.util.stream.Collectors.groupingBy;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
 @AutoConfigureTestDatabase(replace = NONE)
-@DataJdbcTest
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
+@RequiredArgsConstructor
+@SpringBootTest
 @TestInstance(PER_CLASS)
 @Transactional
 public abstract class LiveTestBase {
     protected static final String parentNaturalId = "p";
     protected static final String childNaturalId = "c";
-    protected static final OffsetDateTime atZero = EPOCH.atOffset(UTC);
 
-    protected final ChildFactory children;
     protected final ParentFactory parents;
-    protected final SqlQueries sqlQueries;
-    protected final TestListener<?> testListener;
+    protected final ChildFactory children;
+    private final SqlQueries sqlQueries;
+    private final TestListener<DomainChangedEvent<?>> testListener;
 
     @AfterEach
     void liveTestBaseTearDown() {
         assertThat(sqlQueries.queriesByType()).isEmpty();
         assertThat(testListener.events()).isEmpty();
+    }
+
+    protected Map<String, List<String>> sqlQueriesByType() {
+        return sqlQueries.queriesByType();
+    }
+
+    protected MapAssert<String, Long> assertSqlQueryTypesByCount() {
+        return assertThat(sqlQueriesByType().entrySet().stream()
+                .collect(groupingBy(Entry::getKey, counting())));
+    }
+
+    protected List<DomainChangedEvent<?>> events() {
+        return testListener.events();
+    }
+
+    protected ListAssert<Parent> assertAllParents() {
+        final var assertion = assertThat(parents.all());
+        sqlQueries.reset();
+        return assertion;
     }
 
     protected Parent newUnsavedParent() {
@@ -47,7 +68,7 @@ public abstract class LiveTestBase {
 
     protected Parent newSavedParent() {
         final var saved = newUnsavedParent().save();
-        assertThat(saved.isChanged()).as("Duplicate upsert")
+        assertThat(saved.isChanged()).as("Parent already saved")
                 .isTrue();
         sqlQueries.reset();
         testListener.reset();
@@ -56,10 +77,16 @@ public abstract class LiveTestBase {
 
     protected Parent currentPersistedParent() {
         final var existing = parents.findExisting(parentNaturalId);
-        assertThat(existing).as("Never saved")
+        assertThat(existing).as("No saved parent")
                 .isNotEmpty();
         sqlQueries.reset();
         return existing.get();
+    }
+
+    protected ListAssert<Child> assertAllChildren() {
+        final var assertion = assertThat(children.all());
+        sqlQueries.reset();
+        return assertion;
     }
 
     protected Child newUnsavedUnassignedChild() {
@@ -68,7 +95,18 @@ public abstract class LiveTestBase {
 
     protected Child newSavedUnassignedChild() {
         final var saved = newUnsavedUnassignedChild().save();
-        assertThat(saved.isChanged()).as("Duplicate upsert")
+        assertThat(saved.isChanged()).as("Child already saved")
+                .isTrue();
+        sqlQueries.reset();
+        testListener.reset();
+        return saved.getDomain();
+    }
+
+    protected Child newSavedAssignedChild() {
+        final var saved = newUnsavedUnassignedChild()
+                .update(it -> it.assignTo(currentPersistedParent()))
+                .save();
+        assertThat(saved.isChanged()).as("Child already saved")
                 .isTrue();
         sqlQueries.reset();
         testListener.reset();
@@ -77,7 +115,7 @@ public abstract class LiveTestBase {
 
     protected Child currentPersistedChild() {
         final var existing = children.findExisting(childNaturalId);
-        assertThat(existing).as("Never saved")
+        assertThat(existing).as("No saved child")
                 .isNotEmpty();
         sqlQueries.reset();
         return existing.get();
