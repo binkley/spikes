@@ -162,10 +162,11 @@ class PersistedChildTest
 
     @Test
     void shouldUnassignChild() {
-        final var parent = newSavedParent();
-        final var child = newSavedAssignedChild();
+        final var parentChild = newSavedAssignedChild();
+        final var parent = parentChild.parent;
+        final var child = parentChild.child;
 
-        assertThat(parent.getVersion()).isEqualTo(1);
+        assertThat(parent.getVersion()).isEqualTo(2);
 
         child.update(MutableChild::unassignFromAny).save();
 

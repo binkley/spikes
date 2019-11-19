@@ -1,60 +1,56 @@
 package x.scratch.parent;
 
-import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
 import x.scratch.DomainChangedEvent;
 import x.scratch.DomainException;
+import x.scratch.LiveTestBase;
 import x.scratch.PersistableDomain.UpsertedDomainResult;
+import x.scratch.SqlQueries;
 import x.scratch.TestListener;
-import x.scratch.child.Child;
 import x.scratch.child.ChildChangedEvent;
 import x.scratch.child.ChildFactory;
 import x.scratch.child.ChildSnapshot;
 
-import java.util.List;
+import java.util.Map;
 
 import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
-import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 import static x.scratch.parent.MutableParent.Helper.assign;
 import static x.scratch.parent.MutableParent.Helper.unassign;
 
-@AutoConfigureTestDatabase(replace = NONE)
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
-@SpringBootTest
-@TestInstance(PER_CLASS)
-@Transactional
-class PersistedParentTest {
-    private static final String parentNaturalId = "a";
-    private static final String childNaturalId = "p";
-
-    private final ParentFactory parents;
-    private final ChildFactory children;
-    private final TestListener<DomainChangedEvent<?>> testListener;
+class PersistedParentTest
+        extends LiveTestBase {
+    @Autowired
+    PersistedParentTest(final ParentFactory parents,
+            final ChildFactory children,
+            final SqlQueries sqlQueries,
+            final TestListener<DomainChangedEvent<?>> testListener) {
+        super(parents, children, sqlQueries, testListener);
+    }
 
     @Test
     void shouldCreateNew() {
-        final var found = parents.findExistingOrCreateNew(parentNaturalId);
+        final var foundOrCreated = parents
+                .findExistingOrCreateNew(parentNaturalId);
 
-        assertThat(found).isEqualTo(parents.createNew(parentNaturalId));
-        assertThat(found.getChildren()).isEmpty();
+        assertSqlQueryTypesByCount().isEqualTo(Map.of("SELECT", 1L));
+        assertThat(foundOrCreated).isEqualTo(
+                parents.createNew(parentNaturalId));
+        assertThat(foundOrCreated.getChildren()).isEmpty();
     }
 
     @Test
     void shouldFindExisting() {
         final var saved = newSavedParent();
 
-        final var found = parents.findExistingOrCreateNew(parentNaturalId);
+        final var foundOrCreated = parents
+                .findExistingOrCreateNew(parentNaturalId);
 
-        assertThat(found).isEqualTo(saved);
-        assertThat(found.getChildren()).isEmpty();
+        assertSqlQueryTypesByCount().isEqualTo(Map.of("SELECT", 1L));
+        assertThat(foundOrCreated).isEqualTo(saved);
+        assertThat(foundOrCreated.getChildren()).isEmpty();
     }
 
     @Test
@@ -102,6 +98,7 @@ class PersistedParentTest {
 
         original.save();
 
+        assertSqlQueryTypesByCount().isEqualTo(Map.of("UPSERT", 1L));
         assertThat(original.isChanged()).isFalse();
         assertThat(events()).containsExactly(new ParentChangedEvent(
                 new ParentSnapshot(parentNaturalId, null, 1),
@@ -110,11 +107,8 @@ class PersistedParentTest {
 
     @Test
     void shouldMutateChildren() {
-        final var parent = newSavedParent();
-        final var child = newSavedChild();
-
-        parent.update(assign(child)).save();
-        testListener.reset();
+        final var parentChild = newSavedAssignedChild();
+        final var parent = parentChild.parent;
 
         final var value = "FOOBAR";
         // Silly example :)
@@ -128,13 +122,13 @@ class PersistedParentTest {
 
         assertThat(events()).containsExactly(
                 new ChildChangedEvent(
-                        new ChildSnapshot(childNaturalId, parentNaturalId,
-                                null, emptySet(), 2),
-                        new ChildSnapshot(childNaturalId, parentNaturalId,
-                                value, emptySet(), 3)),
+                        childSnapshot().assigned().value(null).version(1)
+                                .build(),
+                        childSnapshot().assigned().value(value).version(2)
+                                .build()),
                 new ParentChangedEvent(
-                        new ParentSnapshot(parentNaturalId, null, 2),
-                        new ParentSnapshot(parentNaturalId, null, 3)));
+                        parentSnapshot().version(2).build(),
+                        parentSnapshot().version(3).build()));
     }
 
     @Test
@@ -143,18 +137,19 @@ class PersistedParentTest {
 
         existing.delete();
 
-        assertThat(parents.all()).isEmpty();
+        assertSqlQueryTypesByCount().isEqualTo(Map.of("DELETE", 1L));
+        assertAllParents().isEmpty();
         assertThatThrownBy(existing::getVersion)
                 .isInstanceOf(NullPointerException.class);
-        assertThat(events()).containsExactly(new ParentChangedEvent(
-                new ParentSnapshot(parentNaturalId, null, 1),
+        assertEvents(new ParentChangedEvent(
+                parentSnapshot().version(1).build(),
                 null));
     }
 
     @Test
     void shouldNotDelete() {
         final var parent = newSavedParent();
-        final var child = newSavedChild();
+        final var child = newSavedUnassignedChild();
 
         parent.update(assign(child));
 
@@ -164,10 +159,9 @@ class PersistedParentTest {
 
     @Test
     void shouldNotAssignAlreadyAssignedChild() {
-        final var parent = newSavedParent();
-        final var child = newSavedChild();
-
-        parent.update(assign(child)).save();
+        final var parentChild = newSavedAssignedChild();
+        final var parent = parentChild.parent;
+        final var child = parentChild.child;
 
         assertThatThrownBy(() -> parent.update(assign(child)).save())
                 .isInstanceOf(DomainException.class);
@@ -176,7 +170,7 @@ class PersistedParentTest {
     @Test
     void shouldAssignAndUnassignChild() {
         final var parent = newSavedParent();
-        final var child = newSavedChild();
+        final var child = newSavedUnassignedChild();
 
         assertThat(parent.getChildren()).isEmpty();
 
@@ -214,33 +208,5 @@ class PersistedParentTest {
                 new ParentChangedEvent(
                         new ParentSnapshot(parentNaturalId, null, 2),
                         new ParentSnapshot(parentNaturalId, null, 3)));
-    }
-
-    private Child newSavedChild() {
-        final var saved = children.createNewUnassigned(childNaturalId).save();
-        assertThat(saved.isChanged()).isTrue();
-        final var child = saved.getDomain();
-        testListener.reset();
-        return child;
-    }
-
-    private Child currentPersistedChild() {
-        return children.findExisting(childNaturalId).orElseThrow();
-    }
-
-    private Parent newSavedParent() {
-        final var saved = parents.createNew(parentNaturalId).save();
-        assertThat(saved.isChanged()).isTrue();
-        final var parent = saved.getDomain();
-        testListener.reset();
-        return parent;
-    }
-
-    private Parent currentPersistedParent() {
-        return parents.findExisting(parentNaturalId).orElseThrow();
-    }
-
-    private List<DomainChangedEvent<?>> events() {
-        return testListener.events();
     }
 }

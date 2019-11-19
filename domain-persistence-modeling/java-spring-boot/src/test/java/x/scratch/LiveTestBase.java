@@ -26,6 +26,7 @@ import static java.util.stream.Collectors.groupingBy;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
+import static x.scratch.parent.MutableParent.Helper.assign;
 
 @AutoConfigureTestDatabase(replace = NONE)
 @RequiredArgsConstructor
@@ -66,6 +67,11 @@ public abstract class LiveTestBase {
 
     protected List<DomainChangedEvent<?>> events() {
         return testListener.events();
+    }
+
+    protected void assertEvents(
+            final DomainChangedEvent<?>... expectedEvents) {
+        assertThat(events()).containsExactly(expectedEvents);
     }
 
     protected ListAssert<Parent> assertAllParents() {
@@ -114,15 +120,11 @@ public abstract class LiveTestBase {
         return saved.getDomain();
     }
 
-    protected Child newSavedAssignedChild() {
-        final var saved = newUnsavedUnassignedChild()
-                .update(it -> it.assignTo(currentPersistedParent()))
-                .save();
-        assertThat(saved.isChanged()).as("Child already saved")
-                .isTrue();
+    protected ParentChild newSavedAssignedChild() {
+        final var parentChild = new ParentChild();
         sqlQueries.reset();
         testListener.reset();
-        return saved.getDomain();
+        return parentChild;
     }
 
     protected Child currentPersistedChild() {
@@ -188,6 +190,17 @@ public abstract class LiveTestBase {
 
         public ParentSnapshot build() {
             return new ParentSnapshot(parentNaturalId, value, version);
+        }
+    }
+
+    protected final class ParentChild {
+        public final Parent parent;
+        public final Child child;
+
+        private ParentChild() {
+            parent = newUnsavedParent();
+            child = newUnsavedUnassignedChild();
+            parent.update(assign(child)).save();
         }
     }
 }

@@ -25,11 +25,11 @@ public interface MutableParent
     }
 
     final class Helper {
-        static Consumer<MutableParent> assign(final Child child) {
+        public static Consumer<MutableParent> assign(final Child child) {
             return it -> it.assign(child);
         }
 
-        static Consumer<MutableParent> unassign(final Child child) {
+        public static Consumer<MutableParent> unassign(final Child child) {
             return it -> it.unassign(child);
         }
     }
