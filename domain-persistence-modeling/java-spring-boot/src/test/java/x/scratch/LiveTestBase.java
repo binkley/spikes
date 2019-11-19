@@ -13,6 +13,7 @@ import x.scratch.child.ChildFactory;
 import x.scratch.child.ChildSnapshot;
 import x.scratch.parent.Parent;
 import x.scratch.parent.ParentFactory;
+import x.scratch.parent.ParentSnapshot;
 
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -42,6 +43,10 @@ public abstract class LiveTestBase {
 
     protected static ChildSnapshotBuilder childSnapshot() {
         return new ChildSnapshotBuilder();
+    }
+
+    protected static ParentSnapshotBuilder parentSnapshot() {
+        return new ParentSnapshotBuilder();
     }
 
     @AfterEach
@@ -164,6 +169,25 @@ public abstract class LiveTestBase {
         public ChildSnapshot build() {
             return new ChildSnapshot(childNaturalId,
                     parentNaturalId, value, subchildren, version);
+        }
+    }
+
+    protected static final class ParentSnapshotBuilder {
+        private String value = null;
+        private int version = 0;
+
+        public ParentSnapshotBuilder value(final String value) {
+            this.value = value;
+            return this;
+        }
+
+        public ParentSnapshotBuilder version(final int version) {
+            this.version = version;
+            return this;
+        }
+
+        public ParentSnapshot build() {
+            return new ParentSnapshot(parentNaturalId, value, version);
         }
     }
 }
