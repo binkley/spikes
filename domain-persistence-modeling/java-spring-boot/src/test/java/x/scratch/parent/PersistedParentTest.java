@@ -10,11 +10,9 @@ import x.scratch.SqlQueries;
 import x.scratch.TestListener;
 import x.scratch.child.ChildChangedEvent;
 import x.scratch.child.ChildFactory;
-import x.scratch.child.ChildSnapshot;
 
 import java.util.Map;
 
-import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static x.scratch.parent.MutableParent.Helper.assign;
@@ -67,7 +65,7 @@ class PersistedParentTest
         assertThat(saved).isEqualTo(UpsertedDomainResult.of(unsaved, true));
         assertThat(events()).containsExactly(new ParentChangedEvent(
                 null,
-                new ParentSnapshot(parentNaturalId, null, 1)));
+                parentSnapshot().version(1).build()));
 
         assertThat(currentPersistedParent()).isEqualTo(unsaved);
     }
@@ -101,8 +99,8 @@ class PersistedParentTest
         assertSqlQueryTypesByCount().isEqualTo(Map.of("UPSERT", 1L));
         assertThat(original.isChanged()).isFalse();
         assertThat(events()).containsExactly(new ParentChangedEvent(
-                new ParentSnapshot(parentNaturalId, null, 1),
-                new ParentSnapshot(parentNaturalId, value, 2)));
+                parentSnapshot().value(null).version(1).build(),
+                parentSnapshot().value(value).version(2).build()));
     }
 
     @Test
@@ -184,13 +182,11 @@ class PersistedParentTest
                 .isEqualTo(parentNaturalId);
         assertThat(events()).containsExactly(
                 new ChildChangedEvent(
-                        new ChildSnapshot(childNaturalId, null, null,
-                                emptySet(), 1),
-                        new ChildSnapshot(childNaturalId, parentNaturalId,
-                                null, emptySet(), 2)),
+                        childSnapshot().unassigned().version(1).build(),
+                        childSnapshot().assigned().version(2).build()),
                 new ParentChangedEvent(
-                        new ParentSnapshot(parentNaturalId, null, 1),
-                        new ParentSnapshot(parentNaturalId, null, 2)));
+                        parentSnapshot().version(1).build(),
+                        parentSnapshot().version(2).build()));
 
         final var childUnassigned = parent
                 .update(unassign(child))
@@ -201,12 +197,10 @@ class PersistedParentTest
         assertThat(currentPersistedChild().getParentNaturalId()).isNull();
         assertThat(events()).containsExactly(
                 new ChildChangedEvent(
-                        new ChildSnapshot(childNaturalId, parentNaturalId,
-                                null, emptySet(), 2),
-                        new ChildSnapshot(childNaturalId, null, null,
-                                emptySet(), 3)),
+                        childSnapshot().assigned().version(2).build(),
+                        childSnapshot().unassigned().version(3).build()),
                 new ParentChangedEvent(
-                        new ParentSnapshot(parentNaturalId, null, 2),
-                        new ParentSnapshot(parentNaturalId, null, 3)));
+                        parentSnapshot().version(2).build(),
+                        parentSnapshot().version(3).build()));
     }
 }
