@@ -33,7 +33,7 @@ class PersistedParentTest
         final var foundOrCreated = parents
                 .findExistingOrCreateNew(parentNaturalId);
 
-        assertSqlQueryTypesByCount().isEqualTo(Map.of("SELECT", 1L));
+        assertSqlQueryTypesByCount(Map.of("SELECT", 1L));
         assertThat(foundOrCreated).isEqualTo(
                 parents.createNew(parentNaturalId));
         assertThat(foundOrCreated.getChildren()).isEmpty();
@@ -46,7 +46,7 @@ class PersistedParentTest
         final var foundOrCreated = parents
                 .findExistingOrCreateNew(parentNaturalId);
 
-        assertSqlQueryTypesByCount().isEqualTo(Map.of("SELECT", 1L));
+        assertSqlQueryTypesByCount(Map.of("SELECT", 1L));
         assertThat(foundOrCreated).isEqualTo(saved);
         assertThat(foundOrCreated.getChildren()).isEmpty();
     }
@@ -63,7 +63,7 @@ class PersistedParentTest
         assertThat(parents.all()).hasSize(1);
         assertThat(unsaved.getVersion()).isEqualTo(1);
         assertThat(saved).isEqualTo(UpsertedDomainResult.of(unsaved, true));
-        assertThat(events()).containsExactly(new ParentChangedEvent(
+        assertDomainChangedEvents(new ParentChangedEvent(
                 null,
                 parentSnapshot().version(1).build()));
 
@@ -96,9 +96,9 @@ class PersistedParentTest
 
         original.save();
 
-        assertSqlQueryTypesByCount().isEqualTo(Map.of("UPSERT", 1L));
+        assertSqlQueryTypesByCount(Map.of("UPSERT", 1L));
         assertThat(original.isChanged()).isFalse();
-        assertThat(events()).containsExactly(new ParentChangedEvent(
+        assertDomainChangedEvents(new ParentChangedEvent(
                 parentSnapshot().value(null).version(1).build(),
                 parentSnapshot().value(value).version(2).build()));
     }
@@ -118,7 +118,7 @@ class PersistedParentTest
 
         assertThat(currentPersistedChild().getValue()).isEqualTo(value);
 
-        assertThat(events()).containsExactly(
+        assertDomainChangedEvents(
                 new ChildChangedEvent(
                         childSnapshot().assigned().value(null).version(1)
                                 .build(),
@@ -135,7 +135,7 @@ class PersistedParentTest
 
         existing.delete();
 
-        assertSqlQueryTypesByCount().isEqualTo(Map.of("DELETE", 1L));
+        assertSqlQueryTypesByCount(Map.of("DELETE", 1L));
         assertAllParents().isEmpty();
         assertThatThrownBy(existing::getVersion)
                 .isInstanceOf(NullPointerException.class);
@@ -180,7 +180,7 @@ class PersistedParentTest
         assertThat(childAssigned.getVersion()).isEqualTo(2);
         assertThat(currentPersistedChild().getParentNaturalId())
                 .isEqualTo(parentNaturalId);
-        assertThat(events()).containsExactly(
+        assertDomainChangedEvents(
                 new ChildChangedEvent(
                         childSnapshot().unassigned().version(1).build(),
                         childSnapshot().assigned().version(2).build()),
@@ -195,7 +195,7 @@ class PersistedParentTest
         assertThat(parent.getChildren()).isEmpty();
         assertThat(childUnassigned.getVersion()).isEqualTo(3);
         assertThat(currentPersistedChild().getParentNaturalId()).isNull();
-        assertThat(events()).containsExactly(
+        assertDomainChangedEvents(
                 new ChildChangedEvent(
                         childSnapshot().assigned().version(2).build(),
                         childSnapshot().unassigned().version(3).build()),

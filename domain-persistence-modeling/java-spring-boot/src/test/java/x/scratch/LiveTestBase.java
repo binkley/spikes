@@ -2,7 +2,6 @@ package x.scratch;
 
 import lombok.RequiredArgsConstructor;
 import org.assertj.core.api.ListAssert;
-import org.assertj.core.api.MapAssert;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -60,13 +59,20 @@ public abstract class LiveTestBase {
         return sqlQueries.queriesByType();
     }
 
-    protected MapAssert<String, Long> assertSqlQueryTypesByCount() {
-        return assertThat(sqlQueriesByType().entrySet().stream()
-                .collect(groupingBy(Entry::getKey, counting())));
+    protected void assertSqlQueryTypesByCount(
+            final Map<String, Long> expectedCounts) {
+        assertThat(sqlQueriesByType().entrySet().stream()
+                .collect(groupingBy(Entry::getKey, counting())))
+                .isEqualTo(expectedCounts);
     }
 
     protected List<DomainChangedEvent<?>> events() {
         return testListener.events();
+    }
+
+    protected void assertDomainChangedEvents(
+            final DomainChangedEvent<?>... expectedEvents) {
+        assertThat(events()).containsExactly(expectedEvents);
     }
 
     protected void assertEvents(
