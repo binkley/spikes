@@ -6,7 +6,7 @@ import lombok.Value;
 import java.util.Set;
 
 @Value
-public final class ChildResource {
+public final class ChildSnapshot {
     private final @NonNull String naturalId;
     private final String parentNaturalId;
     private final String value;

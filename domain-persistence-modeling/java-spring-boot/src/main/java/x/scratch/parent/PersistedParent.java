@@ -26,13 +26,13 @@ final class PersistedParent
         implements Parent {
     private final PersistedParentFactory factory;
     private final Set<Child> children;
-    private ParentResource snapshot;
+    private ParentSnapshot snapshot;
     @Delegate(types = ParentDetails.class)
     private ParentRecord record;
     private Set<Child> snapshotChildren;
 
     PersistedParent(final PersistedParentFactory factory,
-            final ParentResource snapshot,
+            final ParentSnapshot snapshot,
             final ParentRecord record,
             final Stream<Child> assigned) {
         try (assigned) {
@@ -50,7 +50,7 @@ final class PersistedParent
     }
 
     @Override
-    public UpsertedDomainResult<ParentResource, Parent> save() {
+    public UpsertedDomainResult<ParentSnapshot, Parent> save() {
         // Save ourselves first, so children have a valid parent
         final var before = snapshot;
         var result = isChanged()
@@ -81,7 +81,7 @@ final class PersistedParent
         snapshotChildren.forEach(Child::save);
 
         final var before = snapshot;
-        final var after = (ParentResource) null;
+        final var after = (ParentSnapshot) null;
         factory.delete(record);
         record = null;
         snapshot = after;
@@ -89,7 +89,7 @@ final class PersistedParent
     }
 
     @Override
-    public ParentResource toResource() {
+    public ParentSnapshot toResource() {
         return PersistedParentFactory.toResource(record);
     }
 

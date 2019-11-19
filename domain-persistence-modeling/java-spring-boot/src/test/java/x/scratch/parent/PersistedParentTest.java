@@ -14,7 +14,7 @@ import x.scratch.TestListener;
 import x.scratch.child.Child;
 import x.scratch.child.ChildChangedEvent;
 import x.scratch.child.ChildFactory;
-import x.scratch.child.ChildResource;
+import x.scratch.child.ChildSnapshot;
 
 import java.util.List;
 
@@ -71,7 +71,7 @@ class PersistedParentTest {
         assertThat(saved).isEqualTo(UpsertedDomainResult.of(unsaved, true));
         assertThat(events()).containsExactly(new ParentChangedEvent(
                 null,
-                new ParentResource(parentNaturalId, null, 1)));
+                new ParentSnapshot(parentNaturalId, null, 1)));
 
         assertThat(currentPersistedParent()).isEqualTo(unsaved);
     }
@@ -104,8 +104,8 @@ class PersistedParentTest {
 
         assertThat(original.isChanged()).isFalse();
         assertThat(events()).containsExactly(new ParentChangedEvent(
-                new ParentResource(parentNaturalId, null, 1),
-                new ParentResource(parentNaturalId, value, 2)));
+                new ParentSnapshot(parentNaturalId, null, 1),
+                new ParentSnapshot(parentNaturalId, value, 2)));
     }
 
     @Test
@@ -128,13 +128,13 @@ class PersistedParentTest {
 
         assertThat(events()).containsExactly(
                 new ChildChangedEvent(
-                        new ChildResource(childNaturalId, parentNaturalId,
+                        new ChildSnapshot(childNaturalId, parentNaturalId,
                                 null, emptySet(), 2),
-                        new ChildResource(childNaturalId, parentNaturalId,
+                        new ChildSnapshot(childNaturalId, parentNaturalId,
                                 value, emptySet(), 3)),
                 new ParentChangedEvent(
-                        new ParentResource(parentNaturalId, null, 2),
-                        new ParentResource(parentNaturalId, null, 3)));
+                        new ParentSnapshot(parentNaturalId, null, 2),
+                        new ParentSnapshot(parentNaturalId, null, 3)));
     }
 
     @Test
@@ -147,7 +147,7 @@ class PersistedParentTest {
         assertThatThrownBy(existing::getVersion)
                 .isInstanceOf(NullPointerException.class);
         assertThat(events()).containsExactly(new ParentChangedEvent(
-                new ParentResource(parentNaturalId, null, 1),
+                new ParentSnapshot(parentNaturalId, null, 1),
                 null));
     }
 
@@ -190,13 +190,13 @@ class PersistedParentTest {
                 .isEqualTo(parentNaturalId);
         assertThat(events()).containsExactly(
                 new ChildChangedEvent(
-                        new ChildResource(childNaturalId, null, null,
+                        new ChildSnapshot(childNaturalId, null, null,
                                 emptySet(), 1),
-                        new ChildResource(childNaturalId, parentNaturalId,
+                        new ChildSnapshot(childNaturalId, parentNaturalId,
                                 null, emptySet(), 2)),
                 new ParentChangedEvent(
-                        new ParentResource(parentNaturalId, null, 1),
-                        new ParentResource(parentNaturalId, null, 2)));
+                        new ParentSnapshot(parentNaturalId, null, 1),
+                        new ParentSnapshot(parentNaturalId, null, 2)));
 
         final var childUnassigned = parent
                 .update(unassign(child))
@@ -207,13 +207,13 @@ class PersistedParentTest {
         assertThat(currentPersistedChild().getParentNaturalId()).isNull();
         assertThat(events()).containsExactly(
                 new ChildChangedEvent(
-                        new ChildResource(childNaturalId, parentNaturalId,
+                        new ChildSnapshot(childNaturalId, parentNaturalId,
                                 null, emptySet(), 2),
-                        new ChildResource(childNaturalId, null, null,
+                        new ChildSnapshot(childNaturalId, null, null,
                                 emptySet(), 3)),
                 new ParentChangedEvent(
-                        new ParentResource(parentNaturalId, null, 2),
-                        new ParentResource(parentNaturalId, null, 3)));
+                        new ParentSnapshot(parentNaturalId, null, 2),
+                        new ParentSnapshot(parentNaturalId, null, 3)));
     }
 
     private Child newSavedChild() {

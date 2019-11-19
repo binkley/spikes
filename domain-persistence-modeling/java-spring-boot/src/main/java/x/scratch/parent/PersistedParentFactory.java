@@ -22,8 +22,8 @@ final class PersistedParentFactory
     private final ChildFactory children;
     private final ApplicationEventPublisher publisher;
 
-    static ParentResource toResource(final ParentRecord record) {
-        return new ParentResource(record.getNaturalId(), record.getValue(),
+    static ParentSnapshot toResource(final ParentRecord record) {
+        return new ParentSnapshot(record.getNaturalId(), record.getValue(),
                 record.getVersion());
     }
 
@@ -62,8 +62,8 @@ final class PersistedParentFactory
         return repository.findByNaturalId(naturalId).orElseThrow();
     }
 
-    void notifyChanged(final ParentResource before,
-            final ParentResource after) {
+    void notifyChanged(final ParentSnapshot before,
+            final ParentSnapshot after) {
         notifyIfChanged(before, after, publisher, ParentChangedEvent::new);
     }
 

@@ -10,7 +10,7 @@ import java.util.Set;
 public interface Parent
         extends ParentDetails,
         ScopedMutable<Parent, MutableParent>,
-        PersistableDomain<ParentResource, Parent> {
+        PersistableDomain<ParentSnapshot, Parent> {
     @Nonnull
     Set<Child> getChildren(); // Immutable
 }

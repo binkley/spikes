@@ -20,7 +20,7 @@ import static lombok.AccessLevel.PACKAGE;
 final class PersistedChild
         implements Child {
     private final PersistedChildFactory factory;
-    private ChildResource snapshot;
+    private ChildSnapshot snapshot;
     private ChildRecord record;
 
     @Nonnull
@@ -56,7 +56,7 @@ final class PersistedChild
     }
 
     @Override
-    public UpsertedDomainResult<ChildResource, Child> save() {
+    public UpsertedDomainResult<ChildSnapshot, Child> save() {
         if (!isChanged()) return UpsertedDomainResult.of(this, false);
 
         final var before = snapshot;
@@ -76,7 +76,7 @@ final class PersistedChild
                     "Deleting child assigned to a parent: %s", this));
 
         final var before = snapshot;
-        final var after = (ChildResource) null;
+        final var after = (ChildSnapshot) null;
         factory.delete(record);
         record = null;
         snapshot = after;
@@ -84,7 +84,7 @@ final class PersistedChild
     }
 
     @Override
-    public ChildResource toResource() {
+    public ChildSnapshot toResource() {
         return PersistedChildFactory.toResource(record);
     }
 

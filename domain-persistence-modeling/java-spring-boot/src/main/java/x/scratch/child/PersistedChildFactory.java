@@ -21,8 +21,8 @@ final class PersistedChildFactory
     private final ChildRepository repository;
     private final ApplicationEventPublisher publisher;
 
-    static ChildResource toResource(final ChildRecord record) {
-        return new ChildResource(record.getNaturalId(),
+    static ChildSnapshot toResource(final ChildRecord record) {
+        return new ChildSnapshot(record.getNaturalId(),
                 record.getParentNaturalId(),
                 record.getValue(), unmodifiableSet(record.getSubchildren()),
                 record.getVersion());
@@ -65,8 +65,8 @@ final class PersistedChildFactory
         repository.delete(record);
     }
 
-    void notifyChanged(final ChildResource before,
-            final ChildResource after) {
+    void notifyChanged(final ChildSnapshot before,
+            final ChildSnapshot after) {
         notifyIfChanged(before, after, publisher, ChildChangedEvent::new);
     }
 
