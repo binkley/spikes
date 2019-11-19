@@ -217,7 +217,7 @@ class PersistedParentTest {
     }
 
     private Child newSavedChild() {
-        final var saved = children.createNew(childNaturalId).save();
+        final var saved = children.createNewUnassigned(childNaturalId).save();
         assertThat(saved.isChanged()).isTrue();
         final var child = saved.getDomain();
         testListener.reset();

@@ -35,9 +35,11 @@ class PersistedChildTest {
 
     @Test
     void shouldCreateNew() {
-        final var found = children.findExistingOrCreateNew(childNaturalId);
+        final var found = children
+                .findExistingOrCreateNewUnassigned(childNaturalId);
 
-        assertThat(found).isEqualTo(children.createNew(childNaturalId));
+        assertThat(found)
+                .isEqualTo(children.createNewUnassigned(childNaturalId));
         assertThat(found.isExisting()).isFalse();
     }
 
@@ -45,7 +47,8 @@ class PersistedChildTest {
     void shouldFindExisting() {
         final var saved = newSavedChild();
 
-        final var found = children.findExistingOrCreateNew(childNaturalId);
+        final var found = children
+                .findExistingOrCreateNewUnassigned(childNaturalId);
 
         assertThat(found).isEqualTo(saved);
         assertThat(found.isExisting()).isTrue();
@@ -53,7 +56,7 @@ class PersistedChildTest {
 
     @Test
     void shouldRoundTrip() {
-        final var unsaved = children.createNew(childNaturalId);
+        final var unsaved = children.createNewUnassigned(childNaturalId);
 
         assertThat(unsaved.getVersion()).isEqualTo(0);
         assertThat(events()).isEmpty();
@@ -126,7 +129,7 @@ class PersistedChildTest {
 
         assertThat(parent.getVersion()).isEqualTo(1);
 
-        final var unsaved = children.createNew(childNaturalId)
+        final var unsaved = children.createNewUnassigned(childNaturalId)
                 .update(it -> it.assignTo(parent));
 
         assertThat(unsaved.getParentNaturalId()).isEqualTo(parentNaturalId);
@@ -170,7 +173,7 @@ class PersistedChildTest {
     @Test
     void shouldUnassignChild() {
         final var parent = newSavedParent();
-        final var child = children.createNew(childNaturalId)
+        final var child = children.createNewUnassigned(childNaturalId)
                 .update(it -> it.assignTo(parent))
                 .save().getDomain();
         testListener.reset();
@@ -191,7 +194,7 @@ class PersistedChildTest {
     }
 
     private Child newSavedChild() {
-        final var saved = children.createNew(childNaturalId).save();
+        final var saved = children.createNewUnassigned(childNaturalId).save();
         assertThat(saved.isChanged()).isTrue();
         final var child = saved.getDomain();
         testListener.reset();

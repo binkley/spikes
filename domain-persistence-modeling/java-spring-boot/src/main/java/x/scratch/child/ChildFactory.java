@@ -8,9 +8,9 @@ public interface ChildFactory {
 
     Optional<Child> findExisting(String naturalId);
 
-    Child createNew(String naturalId);
+    Child createNewUnassigned(String naturalId);
 
-    Child findExistingOrCreateNew(String naturalId);
+    Child findExistingOrCreateNewUnassigned(String naturalId);
 
     Stream<Child> findOwned(String parentNaturalId);
 }

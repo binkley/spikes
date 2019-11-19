@@ -41,13 +41,13 @@ final class PersistedChildFactory
     }
 
     @Override
-    public Child createNew(final String naturalId) {
+    public Child createNewUnassigned(final String naturalId) {
         return new PersistedChild(this, null, createRecordFor(naturalId));
     }
 
     @Override
-    public Child findExistingOrCreateNew(final String naturalId) {
-        return findExisting(naturalId).orElse(createNew(naturalId));
+    public Child findExistingOrCreateNewUnassigned(final String naturalId) {
+        return findExisting(naturalId).orElse(createNewUnassigned(naturalId));
     }
 
     @Override
