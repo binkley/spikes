@@ -27,7 +27,7 @@ final class PersistedParent
     private final PersistedParentFactory factory;
     private final Set<Child> children;
     private ParentSnapshot snapshot;
-    @Delegate(types = ParentDetails.class)
+    @Delegate(types = ParentSimpleDetails.class)
     private ParentRecord record;
     private Set<Child> snapshotChildren;
 

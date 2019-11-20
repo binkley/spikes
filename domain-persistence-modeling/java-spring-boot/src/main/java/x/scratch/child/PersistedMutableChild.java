@@ -5,7 +5,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 import x.scratch.TrackedSortedSet;
-import x.scratch.parent.ParentDetails;
+import x.scratch.parent.ParentSimpleDetails;
 
 import javax.annotation.Nonnull;
 import java.util.Set;
@@ -54,7 +54,7 @@ final class PersistedMutableChild
     }
 
     @Override
-    public void assignTo(final ParentDetails parent) {
+    public void assignTo(final ParentSimpleDetails parent) {
         record.setParentNaturalId(parent.getNaturalId());
     }
 

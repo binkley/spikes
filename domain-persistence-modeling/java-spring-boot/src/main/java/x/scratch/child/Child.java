@@ -4,7 +4,7 @@ import x.scratch.PersistableDomain;
 import x.scratch.ScopedMutable;
 
 public interface Child
-        extends ChildDetails,
+        extends ChildSimpleDetails,
         ScopedMutable<Child, MutableChild>,
         PersistableDomain<ChildSnapshot, Child> {
 }

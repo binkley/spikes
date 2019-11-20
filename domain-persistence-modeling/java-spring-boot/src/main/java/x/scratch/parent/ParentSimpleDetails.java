@@ -2,8 +2,8 @@ package x.scratch.parent;
 
 import javax.annotation.Nonnull;
 
-public interface ParentDetails
-        extends Comparable<ParentDetails> {
+public interface ParentSimpleDetails
+        extends Comparable<ParentSimpleDetails> {
     @Nonnull
     String getNaturalId();
 
@@ -12,7 +12,7 @@ public interface ParentDetails
     int getVersion();
 
     @Override
-    default int compareTo(@Nonnull final ParentDetails that) {
+    default int compareTo(@Nonnull final ParentSimpleDetails that) {
         return getNaturalId().compareTo(that.getNaturalId());
     }
 }

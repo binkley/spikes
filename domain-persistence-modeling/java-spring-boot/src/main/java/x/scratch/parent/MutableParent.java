@@ -10,7 +10,7 @@ import java.util.function.Consumer;
 import static java.lang.String.format;
 
 public interface MutableParent
-        extends MutableParentDetails {
+        extends MutableParentSimpleDetails {
     @Nonnull
     Set<Child> getChildren(); // Mutable
 

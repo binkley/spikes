@@ -15,7 +15,7 @@ import java.util.function.BiConsumer;
 @ToString
 final class PersistedMutableParent
         implements MutableParent {
-    @Delegate(types = MutableParentDetails.class)
+    @Delegate(types = MutableParentSimpleDetails.class)
     private final @NonNull ParentRecord record;
     private final TrackedSortedSet<Child> children;
 

@@ -1,10 +1,10 @@
 package x.scratch.child;
 
-import x.scratch.parent.ParentDetails;
+import x.scratch.parent.ParentSimpleDetails;
 
 public interface MutableChild
-        extends MutableChildDetails {
-    void assignTo(ParentDetails parent);
+        extends MutableChildSimpleDetails {
+    void assignTo(ParentSimpleDetails parent);
 
     void unassignFromAny();
 }

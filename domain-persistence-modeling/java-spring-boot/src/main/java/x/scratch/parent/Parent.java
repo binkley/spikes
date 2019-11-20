@@ -8,7 +8,7 @@ import javax.annotation.Nonnull;
 import java.util.Set;
 
 public interface Parent
-        extends ParentDetails,
+        extends ParentSimpleDetails,
         ScopedMutable<Parent, MutableParent>,
         PersistableDomain<ParentSnapshot, Parent> {
     @Nonnull

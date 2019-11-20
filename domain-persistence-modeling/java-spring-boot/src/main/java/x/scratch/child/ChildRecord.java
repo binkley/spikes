@@ -18,7 +18,7 @@ import static lombok.AccessLevel.PACKAGE;
 @Data
 @Table("child")
 public class ChildRecord
-        implements ChildDetails,
+        implements ChildSimpleDetails,
         UpsertableRecord<ChildRecord> {
     @Id
     private Long id;
