@@ -3,6 +3,7 @@ package x.scratch.child;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import lombok.experimental.Delegate;
 import x.scratch.DomainException;
 
 import javax.annotation.Nonnull;
@@ -22,33 +23,13 @@ final class PersistedChild
         implements Child {
     private final PersistedChildFactory factory;
     private ChildSnapshot snapshot;
+    @Delegate(types = JavaWorkaroundChildSimpleDetails.class)
     private ChildRecord record;
-
-    @Nonnull
-    @Override
-    public String getNaturalId() {
-        return record.getNaturalId();
-    }
-
-    @Override
-    public String getParentNaturalId() {
-        return record.getParentNaturalId();
-    }
-
-    @Override
-    public String getValue() {
-        return record.getValue();
-    }
 
     @Nonnull
     @Override
     public Set<String> getSubchildren() {
         return unmodifiableSet(record.getSubchildren());
-    }
-
-    @Override
-    public int getVersion() {
-        return record.getVersion();
     }
 
     @Override
@@ -98,5 +79,16 @@ final class PersistedChild
     public Child update(final Consumer<MutableChild> block) {
         block.accept(new PersistedMutableChild(record));
         return this;
+    }
+
+    private interface JavaWorkaroundChildSimpleDetails {
+        @Nonnull
+        String getNaturalId();
+
+        String getParentNaturalId();
+
+        String getValue();
+
+        int getVersion();
     }
 }
