@@ -1,4 +1,4 @@
-# Spring Boot Domain Persistence Modeling
+# Spring Boot Domain Persistence Modeling -- Kotlin version
 
 * [Goals](#goals)
 * [Concepts](#concepts)
