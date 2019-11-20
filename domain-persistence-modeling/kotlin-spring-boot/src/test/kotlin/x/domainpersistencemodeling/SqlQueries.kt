@@ -34,7 +34,7 @@ class SqlQueries
     fun <V> expectNextByType(toValue: (List<String>) -> V) =
             expect(queries.groupBy {
                 bucket(it)
-            }.extractUpserts().map {
+            }.map {
                 it.key to toValue(it.value)
             }.toMap()).also {
                 reset()
@@ -76,38 +76,18 @@ class SqlQueries
             start()
         }
     }
+}
 
-    private companion object {
-        val queryOnly = Pattern.compile(
-                "^Executing prepared SQL statement \\[(.*)]$")!!
-        private val upsert = Pattern.compile("^SELECT \\* FROM upsert_.*$")
+private val queryOnly = Pattern.compile(
+        "^Executing prepared SQL statement \\[(.*)]$")!!
+private val upsert = Pattern.compile("^SELECT \\* FROM upsert_.*$")
 
-        fun Map<String, List<String>>.extractUpserts() = map {
-            if ("SELECT" == it.key) {
-                it.value.extractUpserts()
-            } else {
-                listOf(it.key to it.value)
-            }
-        }.flatten().toMap()
-
-        fun List<String>.extractUpserts() = map {
-            val matcher = upsert.matcher(it)
-            if (matcher.find()) "UPSERT" to it
-            else "SELECT" to it
-        }.groupBy {
-            it.first
-        }.map {
-            it.key to it.value.map { itt ->
-                itt.second
-            }
-        }
-
-        fun bucket(query: String) = try {
-            parse(query).javaClass.simpleName
-                    .replace("Statement", "")
-                    .toUpperCase(Locale.US) // TODO: What is ASCII upcase?
-        } catch (e: JSQLParserException) {
-            "INVALID"
-        }
-    }
+private fun bucket(query: String) = try {
+    val matcher = upsert.matcher(query)
+    if (matcher.find()) "UPSERT"
+    else parse(query).javaClass.simpleName
+            .replace("Statement", "")
+            .toUpperCase(Locale.US) // TODO: What is ASCII upcase?
+} catch (e: JSQLParserException) {
+    "INVALID"
 }

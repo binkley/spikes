@@ -29,7 +29,7 @@ class PersistedChildTest
         final var foundOrCreated = children
                 .findExistingOrCreateNewUnassigned(childNaturalId);
 
-        assertSqlQueryTypesByCount(Map.of("SELECT", 1L));
+        assertSqlQueryTypesByCount(Map.of("SELECT", 1));
         assertThat(foundOrCreated).isEqualTo(
                 children.createNewUnassigned(childNaturalId));
         assertThat(foundOrCreated.isExisting()).isFalse();
@@ -42,7 +42,7 @@ class PersistedChildTest
         final var found = children
                 .findExistingOrCreateNewUnassigned(childNaturalId);
 
-        assertSqlQueryTypesByCount(Map.of("SELECT", 1L));
+        assertSqlQueryTypesByCount(Map.of("SELECT", 1));
         assertThat(found).isEqualTo(saved);
         assertThat(found.isExisting()).isTrue();
     }
@@ -93,7 +93,7 @@ class PersistedChildTest
 
         original.save();
 
-        assertSqlQueryTypesByCount(Map.of("UPSERT", 1L));
+        assertSqlQueryTypesByCount(Map.of("UPSERT", 1));
         assertThat(original.isChanged()).isFalse();
         assertDomainChangedEvents(new ChildChangedEvent(
                 childSnapshot().value(null).version(1).build(),
@@ -106,7 +106,7 @@ class PersistedChildTest
 
         existing.delete();
 
-        assertSqlQueryTypesByCount(Map.of("DELETE", 1L));
+        assertSqlQueryTypesByCount(Map.of("DELETE", 1));
         assertAllChildren().isEmpty();
         assertThatThrownBy(existing::getVersion)
                 .isInstanceOf(NullPointerException.class);

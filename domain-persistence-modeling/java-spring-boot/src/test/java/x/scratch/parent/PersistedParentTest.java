@@ -33,7 +33,7 @@ class PersistedParentTest
         final var foundOrCreated = parents
                 .findExistingOrCreateNew(parentNaturalId);
 
-        assertSqlQueryTypesByCount(Map.of("SELECT", 1L));
+        assertSqlQueryTypesByCount(Map.of("SELECT", 1));
         assertThat(foundOrCreated).isEqualTo(
                 parents.createNew(parentNaturalId));
         assertThat(foundOrCreated.getChildren()).isEmpty();
@@ -46,7 +46,8 @@ class PersistedParentTest
         final var foundOrCreated = parents
                 .findExistingOrCreateNew(parentNaturalId);
 
-        assertSqlQueryTypesByCount(Map.of("SELECT", 1L));
+        // SELECT existing parent, then SELECT children
+        assertSqlQueryTypesByCount(Map.of("SELECT", 2));
         assertThat(foundOrCreated).isEqualTo(saved);
         assertThat(foundOrCreated.getChildren()).isEmpty();
     }
@@ -96,7 +97,7 @@ class PersistedParentTest
 
         original.save();
 
-        assertSqlQueryTypesByCount(Map.of("UPSERT", 1L));
+        assertSqlQueryTypesByCount(Map.of("UPSERT", 1));
         assertThat(original.isChanged()).isFalse();
         assertDomainChangedEvents(new ParentChangedEvent(
                 parentSnapshot().value(null).version(1).build(),
@@ -135,7 +136,7 @@ class PersistedParentTest
 
         existing.delete();
 
-        assertSqlQueryTypesByCount(Map.of("DELETE", 1L));
+        assertSqlQueryTypesByCount(Map.of("DELETE", 1));
         assertAllParents().isEmpty();
         assertThatThrownBy(existing::getVersion)
                 .isInstanceOf(NullPointerException.class);

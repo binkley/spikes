@@ -20,8 +20,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import static java.util.stream.Collectors.counting;
-import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
@@ -60,9 +59,9 @@ public abstract class LiveTestBase {
     }
 
     protected void assertSqlQueryTypesByCount(
-            final Map<String, Long> expectedCounts) {
+            final Map<String, Integer> expectedCounts) {
         assertThat(sqlQueriesByType().entrySet().stream()
-                .collect(groupingBy(Entry::getKey, counting())))
+                .collect(toMap(Entry::getKey, e -> e.getValue().size())))
                 .isEqualTo(expectedCounts);
     }
 

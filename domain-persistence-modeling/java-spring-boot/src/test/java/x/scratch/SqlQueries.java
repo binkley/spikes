@@ -36,13 +36,12 @@ public class SqlQueries
 
     private static String bucket(final String query) {
         try {
-            final var bucket = parse(query).getClass()
+            final var matcher = upsert.matcher(query);
+            if (matcher.find()) return "UPSERT";
+            return parse(query).getClass()
                     .getSimpleName()
                     .replace("Statement", "")
                     .toUpperCase(Locale.US);
-            final var matcher = upsert.matcher(query);
-            if (matcher.find()) return "UPSERT";
-            return bucket; // TODO: What is ASCII upcase?
         } catch (final JSQLParserException e) {
             return "INVALID";
         }
@@ -56,11 +55,21 @@ public class SqlQueries
     }
 
     /**
+     * Returns all SQL queries, consuming accumulated queries, and resetting
+     * their collection.
+     */
+    public List<String> getQueries() {
+        final var queries = new ArrayList<>(this.queries);
+        reset();
+        return queries;
+    }
+
+    /**
      * Collates the queries by SQL type, consuming accumulated queries, and
      * resetting their collection.
      */
     public Map<String, List<String>> queriesByType() {
-        final var queriesByType = queries.stream().collect(groupingBy(
+        final var queriesByType = getQueries().stream().collect(groupingBy(
                 SqlQueries::bucket, LinkedHashMap::new, toList()));
         reset();
         return queriesByType;
