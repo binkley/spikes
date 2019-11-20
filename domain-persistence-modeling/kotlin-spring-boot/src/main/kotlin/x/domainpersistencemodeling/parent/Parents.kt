@@ -58,7 +58,7 @@ interface MutableParentDependentDetails
 interface Parent
     : ParentSimpleDetails,
         ParentDependentDetails,
-        ScopedMutable<Parent, MutableParent>,
+        ScopedMutable<MutableParent>,
         PersistableDomain<ParentSnapshot, Parent> {
     override val children: Set<AssignedChild>
 

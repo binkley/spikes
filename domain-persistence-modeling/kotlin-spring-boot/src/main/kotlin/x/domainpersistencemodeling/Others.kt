@@ -33,7 +33,7 @@ interface MutableOtherDependentDetails : OtherDependentDetails
 interface Other
     : OtherSimpleDetails,
         OtherDependentDetails,
-        ScopedMutable<Other, MutableOther>,
+        ScopedMutable<MutableOther>,
         PersistableDomain<OtherSnapshot, Other>
 
 interface MutableOther

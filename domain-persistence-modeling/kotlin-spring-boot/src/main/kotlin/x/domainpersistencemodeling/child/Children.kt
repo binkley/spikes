@@ -65,7 +65,7 @@ interface MutableChildDependentDetails : ChildDependentDetails
 interface Child<C : Child<C>>
     : ChildSimpleDetails,
         ChildDependentDetails,
-        ScopedMutable<C, MutableChild>,
+        ScopedMutable<MutableChild>,
         PersistableDomain<ChildSnapshot, C> {
     /** Assigns [other] to this child, a mutable operation. */
     fun assign(other: Other)

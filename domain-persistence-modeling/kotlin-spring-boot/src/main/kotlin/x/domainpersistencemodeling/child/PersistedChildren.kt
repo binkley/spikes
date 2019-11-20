@@ -125,8 +125,7 @@ internal open class PersistedChild<C : Child<C>>(
         get() = TreeSet(persisted.record.defaultSideValues)
 
     override fun <R> update(block: MutableChild.() -> R): R =
-            PersistedMutableChild(
-                    persisted.record).let(block)
+            PersistedMutableChild(persisted.record).let(block)
 
     override fun assign(other: Other) = update {
         otherNaturalId = other.naturalId

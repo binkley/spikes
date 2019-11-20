@@ -94,8 +94,7 @@ internal class PersistedOther(
         get() = persisted.record.value
 
     override fun <R> update(block: MutableOther.() -> R): R =
-            PersistedMutableOther(
-                    persisted.record).let(block)
+            PersistedMutableOther(persisted.record).let(block)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
