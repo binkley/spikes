@@ -9,6 +9,7 @@ import javax.annotation.Nonnull;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import static java.lang.String.format;
 import static java.util.Collections.unmodifiableSet;
@@ -89,9 +90,13 @@ final class PersistedChild
     }
 
     @Override
+    public <R> R updateTo(final Function<MutableChild, R> block) {
+        return block.apply(new PersistedMutableChild(record));
+    }
+
+    @Override
     public Child update(final Consumer<MutableChild> block) {
-        final var mutable = new PersistedMutableChild(record);
-        block.accept(mutable);
+        block.accept(new PersistedMutableChild(record));
         return this;
     }
 }

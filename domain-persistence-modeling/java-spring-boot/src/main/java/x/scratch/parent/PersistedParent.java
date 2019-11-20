@@ -14,6 +14,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
@@ -141,10 +142,15 @@ final class PersistedParent
     }
 
     @Override
+    public <R> R updateTo(final Function<MutableParent, R> block) {
+        return block.apply(new PersistedMutableParent(
+                record, children, this::addChild, this::removeChild));
+    }
+
+    @Override
     public Parent update(final Consumer<MutableParent> block) {
-        final var mutable = new PersistedMutableParent(
-                record, children, this::addChild, this::removeChild);
-        block.accept(mutable);
+        block.accept(new PersistedMutableParent(
+                record, children, this::addChild, this::removeChild));
         return this;
     }
 
