@@ -17,6 +17,10 @@ public interface ChildSimpleDetails
 
     int getVersion();
 
+    default boolean isAssigned() {
+        return null != getParentNaturalId();
+    }
+
     @Override
     default int compareTo(@Nonnull final ChildSimpleDetails that) {
         return getNaturalId().compareTo(that.getNaturalId());
