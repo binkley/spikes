@@ -7,8 +7,8 @@ import javax.annotation.Nonnull;
 
 import static lombok.AccessLevel.PRIVATE;
 
-public interface PersistableDomain<Resource,
-        Domain extends PersistableDomain<Resource, Domain>> {
+public interface PersistableDomain<Snapshot,
+        Domain extends PersistableDomain<Snapshot, Domain>> {
     @Nonnull
     String getNaturalId();
 
@@ -25,22 +25,22 @@ public interface PersistableDomain<Resource,
      */
     boolean isChanged();
 
-    UpsertedDomainResult<Resource, Domain> save();
+    UpsertedDomainResult<Snapshot, Domain> save();
 
     void delete();
 
-    Resource toResource();
+    Snapshot toSnapshot();
 
     @RequiredArgsConstructor(access = PRIVATE)
     @Value
-    class UpsertedDomainResult<Resource,
-            Domain extends PersistableDomain<Resource, Domain>> {
+    class UpsertedDomainResult<Snapshot,
+            Domain extends PersistableDomain<Snapshot, Domain>> {
         private final Domain domain;
         private final boolean changed;
 
-        public static <Resource,
-                Domain extends PersistableDomain<Resource, Domain>>
-        UpsertedDomainResult<Resource, Domain> of(
+        public static <Snapshot,
+                Domain extends PersistableDomain<Snapshot, Domain>>
+        UpsertedDomainResult<Snapshot, Domain> of(
                 final Domain domain, final boolean changed) {
             return new UpsertedDomainResult<>(domain, changed);
         }

@@ -46,7 +46,7 @@ final class PersistedParent
 
     @Override
     public boolean isChanged() {
-        return !Objects.equals(snapshot, toResource());
+        return !Objects.equals(snapshot, toSnapshot());
     }
 
     @Override
@@ -65,7 +65,7 @@ final class PersistedParent
             result = UpsertedRecordResult.of(record, Optional.of(refreshed));
         }
 
-        final var after = toResource();
+        final var after = toSnapshot();
         snapshot = after;
         if (result.isChanged()) // Trust the database
             factory.notifyChanged(before, after);
@@ -89,8 +89,8 @@ final class PersistedParent
     }
 
     @Override
-    public ParentSnapshot toResource() {
-        return PersistedParentFactory.toResource(record);
+    public ParentSnapshot toSnapshot() {
+        return PersistedParentFactory.toSnapshot(record);
     }
 
     private Set<Child> assignedChildren() {

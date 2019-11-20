@@ -22,7 +22,7 @@ final class PersistedParentFactory
     private final ChildFactory children;
     private final ApplicationEventPublisher publisher;
 
-    static ParentSnapshot toResource(final ParentRecord record) {
+    static ParentSnapshot toSnapshot(final ParentRecord record) {
         return new ParentSnapshot(record.getNaturalId(), record.getValue(),
                 record.getVersion());
     }
@@ -69,7 +69,7 @@ final class PersistedParentFactory
 
     private PersistedParent toParent(final ParentRecord record) {
         final var assigned = children.findOwned(record.getNaturalId());
-        return new PersistedParent(this, toResource(record), record,
+        return new PersistedParent(this, toSnapshot(record), record,
                 assigned);
     }
 }

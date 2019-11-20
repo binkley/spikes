@@ -13,27 +13,27 @@ import java.util.function.BiFunction;
 @Getter
 @EqualsAndHashCode(callSuper = false)
 @ToString
-public abstract class DomainChangedEvent<Resource>
+public abstract class DomainChangedEvent<Snapshot>
         extends ApplicationEvent {
-    private final Resource before;
-    private final Resource after;
+    private final Snapshot before;
+    private final Snapshot after;
 
-    public DomainChangedEvent(final Resource before, final Resource after) {
+    public DomainChangedEvent(final Snapshot before, final Snapshot after) {
         super(source(before, after));
         this.before = before;
         this.after = after;
     }
 
-    public static <Resource, Event extends DomainChangedEvent<Resource>> void notifyIfChanged(
-            final Resource before, final Resource after,
+    public static <Snapshot, Event extends DomainChangedEvent<Snapshot>> void notifyIfChanged(
+            final Snapshot before, final Snapshot after,
             final ApplicationEventPublisher publisher,
-            final BiFunction<Resource, Resource, Event> event) {
+            final BiFunction<Snapshot, Snapshot, Event> event) {
         if (!Objects.equals(before, after))
             publisher.publishEvent(event.apply(before, after));
     }
 
-    private static <Resource> Resource source(
-            final Resource before, final Resource after) {
+    private static <Snapshot> Snapshot source(
+            final Snapshot before, final Snapshot after) {
         return null == after
                 ? Optional.of(before).orElseThrow()
                 : after;

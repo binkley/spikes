@@ -52,7 +52,7 @@ final class PersistedChild
 
     @Override
     public boolean isChanged() {
-        return !Objects.equals(snapshot, toResource());
+        return !Objects.equals(snapshot, toSnapshot());
     }
 
     @Override
@@ -62,7 +62,7 @@ final class PersistedChild
         final var before = snapshot;
         final var result = factory.save(record);
         record = result.getRecord();
-        final var after = toResource();
+        final var after = toSnapshot();
         snapshot = after;
         if (result.isChanged()) // Trust the database
             factory.notifyChanged(before, after);
@@ -84,8 +84,8 @@ final class PersistedChild
     }
 
     @Override
-    public ChildSnapshot toResource() {
-        return PersistedChildFactory.toResource(record);
+    public ChildSnapshot toSnapshot() {
+        return PersistedChildFactory.toSnapshot(record);
     }
 
     @Override

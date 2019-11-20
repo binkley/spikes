@@ -21,7 +21,7 @@ final class PersistedChildFactory
     private final ChildRepository repository;
     private final ApplicationEventPublisher publisher;
 
-    static ChildSnapshot toResource(final ChildRecord record) {
+    static ChildSnapshot toSnapshot(final ChildRecord record) {
         return new ChildSnapshot(record.getNaturalId(),
                 record.getParentNaturalId(),
                 record.getValue(), unmodifiableSet(record.getSubchildren()),
@@ -71,6 +71,6 @@ final class PersistedChildFactory
     }
 
     private PersistedChild toChild(final ChildRecord record) {
-        return new PersistedChild(this, toResource(record), record);
+        return new PersistedChild(this, toSnapshot(record), record);
     }
 }
