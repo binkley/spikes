@@ -3,10 +3,15 @@ package x.scratch;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 
+import javax.annotation.Nonnull;
+
 import static lombok.AccessLevel.PRIVATE;
 
 public interface PersistableDomain<Resource,
         Domain extends PersistableDomain<Resource, Domain>> {
+    @Nonnull
+    String getNaturalId();
+
     int getVersion();
 
     default boolean isExisting() {
