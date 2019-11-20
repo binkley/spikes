@@ -24,27 +24,7 @@ public class TrackedSortedSet<T extends Comparable<? super T>>
     @Nonnull
     @Override
     public Iterator<T> iterator() {
-        return new Iterator<>() {
-            private final Iterator<T> it = sorted.iterator();
-            private T curr = null;
-
-            @Override
-            public boolean hasNext() {
-                return it.hasNext();
-            }
-
-            @Override
-            public T next() {
-                curr = it.next();
-                return curr;
-            }
-
-            @Override
-            public void remove() {
-                it.remove();
-                removed.accept(curr, sorted);
-            }
-        };
+        return sorted.iterator();
     }
 
     @Override
@@ -57,5 +37,19 @@ public class TrackedSortedSet<T extends Comparable<? super T>>
         final var add = sorted.add(t);
         if (add) added.accept(t, sorted);
         return add;
+    }
+
+    /**
+     * Note the business with casting to <code>T</code>.  This is because Java
+     * retrofitted generics onto non-generic classes, and so "remove" must
+     * accept non-T arguments for backwards compatibility.
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public boolean remove(final Object o) {
+        final var t = (T) o;
+        final var remove = sorted.remove(t);
+        if (remove) removed.accept(t, sorted);
+        return remove;
     }
 }
