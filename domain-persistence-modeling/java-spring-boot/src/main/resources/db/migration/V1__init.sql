@@ -1,29 +1,33 @@
 CREATE TABLE parent
 (
-    id         SERIAL PRIMARY KEY,
-    natural_id VARCHAR NOT NULL UNIQUE,
-    value      VARCHAR,
+    id          SERIAL PRIMARY KEY,
+    natural_id  VARCHAR       NOT NULL UNIQUE,
+    value       VARCHAR,
+    side_values VARCHAR ARRAY NOT NULL,
     -- DB controls Audit columns, not caller
-    version    INT,
-    created_at TIMESTAMP,
-    updated_at TIMESTAMP
+    version     INT,
+    created_at  TIMESTAMP,
+    updated_at  TIMESTAMP
 );
 
 CREATE TABLE child
 (
-    id                SERIAL PRIMARY KEY,
-    natural_id        VARCHAR       NOT NULL UNIQUE,
-    parent_natural_id VARCHAR REFERENCES parent (natural_id), -- Nullable
-    value             VARCHAR,
-    subchildren       VARCHAR ARRAY NOT NULL,
+    id                  SERIAL PRIMARY KEY,
+    natural_id          VARCHAR       NOT NULL UNIQUE,
+    parent_natural_id   VARCHAR REFERENCES parent (natural_id), -- Nullable
+    value               VARCHAR,
+    default_side_values VARCHAR ARRAY NOT NULL,
+    side_values         VARCHAR ARRAY NOT NULL,
     -- DB controls Audit columns, not caller
-    version           INT,
-    created_at        TIMESTAMP,
-    updated_at        TIMESTAMP
+    version             INT,
+    created_at          TIMESTAMP,
+    updated_at          TIMESTAMP
 );
 
+-- Workaround issue in Spring Data with passing sets for ARRAY types in a procedure
 CREATE OR REPLACE FUNCTION upsert_parent(_natural_id parent.natural_id%TYPE,
                                          _value parent.value%TYPE,
+                                         _side_values VARCHAR,
                                          _version parent.version%TYPE)
     RETURNS SETOF PARENT
     ROWS 1
@@ -32,11 +36,15 @@ AS
 $$
 BEGIN
     RETURN QUERY INSERT INTO parent
-        (natural_id, value, version)
-        VALUES (_natural_id, _value, _version)
+        (natural_id, value,
+         side_values, version)
+        VALUES (_natural_id, _value,
+                CAST(_side_values AS VARCHAR ARRAY), _version)
         ON CONFLICT (natural_id) DO UPDATE
-            SET (value, version)
-                = (excluded.value, excluded.version)
+            SET (value,
+                 side_values, version)
+                = (excluded.value,
+                   excluded.side_values, excluded.version)
         RETURNING *;
 END;
 $$;
@@ -45,7 +53,8 @@ $$;
 CREATE OR REPLACE FUNCTION upsert_child(_natural_id child.natural_id%TYPE,
                                         _parent_natural_id child.parent_natural_id%TYPE,
                                         _value child.value%TYPE,
-                                        _subchildren VARCHAR,
+                                        _default_side_values VARCHAR,
+                                        _side_values VARCHAR,
                                         _version child.version%TYPE)
     RETURNS SETOF CHILD
     ROWS 1
@@ -54,16 +63,22 @@ AS
 $$
 BEGIN
     RETURN QUERY INSERT INTO child
-        (natural_id, parent_natural_id, value,
-         subchildren, version)
-        VALUES (_natural_id, _parent_natural_id, _value,
-                CAST(_subchildren AS VARCHAR ARRAY), _version)
+        (natural_id, parent_natural_id,
+         value,
+         side_values,
+         default_side_values, version)
+        VALUES (_natural_id, _parent_natural_id,
+                _value,
+                CAST(_side_values AS VARCHAR ARRAY),
+                CAST(_default_side_values AS VARCHAR ARRAY), _version)
         ON CONFLICT (natural_id) DO UPDATE
             SET (parent_natural_id, value,
-                 subchildren,
-                 version)
-                = (excluded.parent_natural_id, excluded.value,
-                   excluded.subchildren, excluded.version)
+                 side_values,
+                 default_side_values, version)
+                = (excluded.parent_natural_id,
+                   excluded.value,
+                   excluded.side_values,
+                   excluded.default_side_values, excluded.version)
         RETURNING *;
 END;
 $$;
@@ -90,9 +105,10 @@ $$
 DECLARE
     now TIMESTAMP DEFAULT now();
 BEGIN
-    -- While running upsert do on conflict, both insert and update triggers are fired
-    -- Check for this case, and do not overwrite the existing audit columns
-    -- When an existing row, the update trigger will handle everything
+    -- While running upsert do on conflict, Postgres fires both insert and
+    -- update triggers.  Check for this case, and do not overwrite the
+    -- existing audit columns.  When an existing row, the update trigger
+    -- handles the rest
     PERFORM * FROM parent WHERE natural_id = new.natural_id;
     IF FOUND THEN
         RETURN new;
@@ -113,9 +129,10 @@ $$
 DECLARE
     now TIMESTAMP DEFAULT now();
 BEGIN
-    -- While running upsert do on conflict, both insert and update triggers are fired
-    -- Check for this case, and do not overwrite the existing audit columns
-    -- When an existing row, the update trigger will handle everything
+    -- While running upsert do on conflict, Postgres fires both insert and
+    -- update triggers.  Check for this case, and do not overwrite the
+    -- existing audit columns.  When an existing row, the update trigger
+    -- handles the rest
     PERFORM * FROM child WHERE natural_id = new.natural_id;
     IF FOUND THEN
         RETURN new;

@@ -28,8 +28,14 @@ final class PersistedChild
 
     @Nonnull
     @Override
-    public Set<String> getSubchildren() {
-        return unmodifiableSet(record.getSubchildren());
+    public Set<String> getDefaultSideValues() {
+        return unmodifiableSet(record.getDefaultSideValues());
+    }
+
+    @Nonnull
+    @Override
+    public Set<String> getSideValues() {
+        return unmodifiableSet(record.getSideValues());
     }
 
     @Override

@@ -1,15 +1,16 @@
 package x.scratch.child;
 
 import lombok.EqualsAndHashCode;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
+import lombok.experimental.Delegate;
 import x.scratch.TrackedSortedSet;
 import x.scratch.parent.ParentSimpleDetails;
 
 import javax.annotation.Nonnull;
 import java.util.Set;
 
+import static java.util.Collections.unmodifiableSet;
 import static lombok.AccessLevel.PACKAGE;
 
 @EqualsAndHashCode
@@ -17,23 +18,8 @@ import static lombok.AccessLevel.PACKAGE;
 @ToString
 final class PersistedMutableChild
         implements MutableChild {
-    private final @NonNull ChildRecord record;
-
-    @Nonnull
-    @Override
-    public String getNaturalId() {
-        return record.getNaturalId();
-    }
-
-    @Override
-    public String getParentNaturalId() {
-        return record.getParentNaturalId();
-    }
-
-    @Override
-    public String getValue() {
-        return record.getValue();
-    }
+    @Delegate(types = JavaWorkaroundMutableChildSimpleDetails.class)
+    private final ChildRecord record;
 
     @Override
     public void setValue(final String newValue) {
@@ -42,15 +28,16 @@ final class PersistedMutableChild
 
     @Nonnull
     @Override
-    public Set<String> getSubchildren() {
-        return new TrackedSortedSet<>(record.getSubchildren(),
-                (item, all) -> record.setSubchildren(all),
-                (item, all) -> record.setSubchildren(all));
+    public Set<String> getDefaultSideValues() {
+        return unmodifiableSet(record.getDefaultSideValues());
     }
 
+    @Nonnull
     @Override
-    public int getVersion() {
-        return record.getVersion();
+    public Set<String> getSideValues() {
+        return new TrackedSortedSet<>(record.getSideValues(),
+                (item, all) -> record.setSideValues(all),
+                (item, all) -> record.setSideValues(all));
     }
 
     @Override
@@ -61,5 +48,16 @@ final class PersistedMutableChild
     @Override
     public void unassignFromAny() {
         record.setParentNaturalId(null);
+    }
+
+    private interface JavaWorkaroundMutableChildSimpleDetails {
+        @Nonnull
+        String getNaturalId();
+
+        String getParentNaturalId();
+
+        String getValue();
+
+        int getVersion();
     }
 }

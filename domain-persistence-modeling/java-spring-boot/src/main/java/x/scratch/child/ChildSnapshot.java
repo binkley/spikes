@@ -10,6 +10,7 @@ public final class ChildSnapshot {
     private final @NonNull String naturalId;
     private final String parentNaturalId;
     private final String value;
-    private final Set<String> subchildren;
+    private final Set<String> defaultSideValues;
+    private final Set<String> sideValues;
     private final int version;
 }

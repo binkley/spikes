@@ -7,6 +7,8 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
+import static x.scratch.Persistence.workAroundArrayTypeForPostgres;
+
 @Repository
 public interface ParentRepository
         extends CrudRepository<ParentRecord, Long> {
@@ -14,16 +16,19 @@ public interface ParentRepository
     Optional<ParentRecord> findByNaturalId(
             @Param("naturalId") String naturalId);
 
-    @Query("SELECT * FROM upsert_parent(:naturalId, :value, :version)")
+    @Query("SELECT * FROM upsert_parent(:naturalId, :value,"
+            + " :sideValues, :version)")
     Optional<ParentRecord> upsert(
             @Param("naturalId") final String naturalId,
             @Param("value") final String value,
+            @Param("sideValues") final String sideValues,
             @Param("version") final Integer version);
 
     default Optional<ParentRecord> upsert(final ParentRecord entity) {
         final var upserted = upsert(
                 entity.getNaturalId(),
                 entity.getValue(),
+                workAroundArrayTypeForPostgres(entity.getSideValues()),
                 entity.getVersion());
         upserted.ifPresent(entity::upsertedWith);
         return upserted;

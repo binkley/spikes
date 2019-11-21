@@ -13,7 +13,10 @@ public interface ChildSimpleDetails
     String getValue();
 
     @Nonnull
-    Set<String> getSubchildren();
+    Set<String> getDefaultSideValues();
+
+    @Nonnull
+    Set<String> getSideValues();
 
     int getVersion();
 

@@ -141,7 +141,8 @@ public abstract class LiveTestBase {
     }
 
     protected static final class ChildSnapshotBuilder {
-        private final Set<String> subchildren = new LinkedHashSet<>();
+        private final Set<String> defaultSideValues = new LinkedHashSet<>();
+        private final Set<String> sideValues = new LinkedHashSet<>();
         private String parentNaturalId = null;
         private String value = null;
         private int version = 0;
@@ -161,10 +162,9 @@ public abstract class LiveTestBase {
             return this;
         }
 
-        public ChildSnapshotBuilder subchildren(
-                final Set<String> subchildren) {
-            this.subchildren.clear();
-            this.subchildren.addAll(subchildren);
+        public ChildSnapshotBuilder sideValues(final Set<String> sideValues) {
+            this.sideValues.clear();
+            this.sideValues.addAll(sideValues);
             return this;
         }
 
@@ -175,7 +175,8 @@ public abstract class LiveTestBase {
 
         public ChildSnapshot build() {
             return new ChildSnapshot(childNaturalId,
-                    parentNaturalId, value, subchildren, version);
+                    parentNaturalId, value, defaultSideValues, sideValues,
+                    version);
         }
     }
 

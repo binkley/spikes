@@ -26,12 +26,14 @@ public class ChildRecord
     private String parentNaturalId;
     private String value;
     @Builder.Default
-    private @NonNull Set<String> subchildren = new TreeSet<>();
+    private @NonNull Set<String> defaultSideValues = new TreeSet<>();
+    @Builder.Default
+    private @NonNull Set<String> sideValues = new TreeSet<>();
     private int version;
 
     static ChildRecord createRecordFor(final String naturalId) {
-        return new ChildRecord(null, naturalId, null, null, new TreeSet<>(),
-                0);
+        return new ChildRecord(null, naturalId, null, null,
+                new TreeSet<>(), new TreeSet<>(), 0);
     }
 
     @Override
@@ -40,7 +42,7 @@ public class ChildRecord
         naturalId = upserted.naturalId;
         parentNaturalId = upserted.parentNaturalId;
         value = upserted.value;
-        subchildren = new TreeSet<>(upserted.subchildren);
+        sideValues = new TreeSet<>(upserted.sideValues);
         version = upserted.version;
         return this;
     }

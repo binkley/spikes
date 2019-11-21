@@ -5,24 +5,14 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import javax.annotation.Nonnull;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Stream;
 
-import static java.util.stream.Collectors.joining;
+import static x.scratch.Persistence.workAroundArrayTypeForPostgres;
 
 @Repository
 public interface ChildRepository
         extends CrudRepository<ChildRecord, Long> {
-    private static String workAroundArrayType(
-            @Nonnull final Set<String> subchildren) {
-        // TODO: Workaround issue in Spring Data with passing sets for
-        //  ARRAY types in a procedure
-        return subchildren.stream()
-                .collect(joining(",", "{", "}"));
-    }
-
     @Query("SELECT * FROM child WHERE natural_id = :naturalId")
     Optional<ChildRecord> findByNaturalId(
             @Param("naturalId") String naturalId);
@@ -32,19 +22,21 @@ public interface ChildRepository
             @Param("parentNaturalId") String parentNaturalId);
 
     @Query("SELECT * FROM upsert_child(:naturalId, :parentNaturalId,"
-            + " :value, :subchildren, :version)")
+            + " :value, :defaultSideValues, :sideValues, :version)")
     Optional<ChildRecord> upsert(
             @Param("naturalId") final String naturalId,
             @Param("parentNaturalId") final String parentNaturalId,
             @Param("value") final String value,
-            @Param("subchildren") final String subchildren,
+            @Param("defaultSideValues") final String defaultSideValues,
+            @Param("sideValues") final String sideValues,
             @Param("version") final Integer version);
 
     default Optional<ChildRecord> upsert(final ChildRecord entity) {
         final var upserted = upsert(entity.getNaturalId(),
                 entity.getParentNaturalId(),
                 entity.getValue(),
-                workAroundArrayType(entity.getSubchildren()),
+                workAroundArrayTypeForPostgres(entity.getDefaultSideValues()),
+                workAroundArrayTypeForPostgres(entity.getSideValues()),
                 entity.getVersion());
         upserted.ifPresent(entity::upsertedWith);
         return upserted;

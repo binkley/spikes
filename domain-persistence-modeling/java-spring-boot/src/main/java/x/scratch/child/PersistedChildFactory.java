@@ -24,7 +24,9 @@ final class PersistedChildFactory
     static ChildSnapshot toSnapshot(final ChildRecord record) {
         return new ChildSnapshot(record.getNaturalId(),
                 record.getParentNaturalId(),
-                record.getValue(), unmodifiableSet(record.getSubchildren()),
+                record.getValue(),
+                unmodifiableSet(record.getDefaultSideValues()),
+                unmodifiableSet(record.getSideValues()),
                 record.getVersion());
     }
 
