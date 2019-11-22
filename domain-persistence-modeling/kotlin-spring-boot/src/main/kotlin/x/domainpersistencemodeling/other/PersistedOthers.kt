@@ -25,14 +25,12 @@ internal class PersistedOtherFactory(
     }
 
     override fun createNew(naturalId: String) =
-            PersistedOther(
-                    PersistedDomain(
-                            this,
-                            null,
-                            OtherRecord(
-                                    naturalId),
-                            PersistedOtherDependentDetails(),
-                            ::PersistedOther))
+            PersistedOther(PersistedDomain(
+                    this,
+                    null,
+                    OtherRecord(naturalId),
+                    PersistedOtherDependentDetails(),
+                    ::PersistedOther))
 
     override fun findExistingOrCreateNew(naturalId: String) =
             findExisting(naturalId) ?: createNew(naturalId)
@@ -49,25 +47,20 @@ internal class PersistedOtherFactory(
 
     override fun notifyChanged(
             before: OtherSnapshot?, after: OtherSnapshot?) =
-            publisher.publishEvent(
-                    OtherChangedEvent(
-                            before, after))
+            publisher.publishEvent(OtherChangedEvent(before, after))
 
     override fun toSnapshot(record: OtherRecord,
             dependent: PersistedOtherDependentDetails) =
-            OtherSnapshot(
-                    record.naturalId, record.value, record.version)
+            OtherSnapshot(record.naturalId, record.value, record.version)
 
     private fun toDomain(record: OtherRecord): PersistedOther {
-        val dependent =
-                PersistedOtherDependentDetails()
-        return PersistedOther(
-                PersistedDomain(
-                        this,
-                        toSnapshot(record, dependent),
-                        record,
-                        dependent,
-                        ::PersistedOther))
+        val dependent = PersistedOtherDependentDetails()
+        return PersistedOther(PersistedDomain(
+                this,
+                toSnapshot(record, dependent),
+                record,
+                dependent,
+                ::PersistedOther))
     }
 }
 

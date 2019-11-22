@@ -41,15 +41,12 @@ internal class PersistedParentFactory(
     }
 
     override fun createNew(naturalId: String) =
-            PersistedParent(
-                    PersistedDomain(
-                            this,
-                            null,
-                            ParentRecord(
-                                    naturalId),
-                            PersistedParentDependentDetails(
-                                    emptySequence()),
-                            ::PersistedParent))
+            PersistedParent(PersistedDomain(
+                    this,
+                    null,
+                    ParentRecord(naturalId),
+                    PersistedParentDependentDetails(emptySequence()),
+                    ::PersistedParent))
 
     override fun findExistingOrCreateNew(naturalId: String) =
             findExisting(naturalId) ?: createNew(naturalId)
@@ -73,21 +70,18 @@ internal class PersistedParentFactory(
 
     override fun notifyChanged(
             before: ParentSnapshot?, after: ParentSnapshot?) =
-            publisher.publishEvent(
-                    ParentChangedEvent(
-                            before, after))
+            publisher.publishEvent(ParentChangedEvent(before, after))
 
     private fun toDomain(record: ParentRecord): PersistedParent {
         val dependent =
                 PersistedParentDependentDetails(
                         children.findAssignedFor(record.naturalId))
-        return PersistedParent(
-                PersistedDomain(
-                        this,
-                        toSnapshot(record, dependent),
-                        record,
-                        dependent,
-                        ::PersistedParent))
+        return PersistedParent(PersistedDomain(
+                this,
+                toSnapshot(record, dependent),
+                record,
+                dependent,
+                ::PersistedParent))
     }
 }
 

@@ -59,9 +59,7 @@ internal class PersistedChildFactory(
 
     override fun notifyChanged(
             before: ChildSnapshot?, after: ChildSnapshot?) =
-            publisher.publishEvent(
-                    ChildChangedEvent(
-                            before, after))
+            publisher.publishEvent(ChildChangedEvent(before, after))
 
     override fun toSnapshot(record: ChildRecord,
             dependent: PersistedChildDependentDetails) =
