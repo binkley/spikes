@@ -1,4 +1,9 @@
-package x.domainpersistencemodeling
+package x.domainpersistencemodeling.child
+
+import x.domainpersistencemodeling.DomainChangedEvent
+import x.domainpersistencemodeling.ScopedMutable
+import x.domainpersistencemodeling.UpsertableDomain
+import x.domainpersistencemodeling.parent.ParentDetails
 
 data class ChildResource(
         val naturalId: String,

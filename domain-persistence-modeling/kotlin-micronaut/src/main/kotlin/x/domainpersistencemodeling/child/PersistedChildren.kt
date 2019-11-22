@@ -1,4 +1,4 @@
-package x.domainpersistencemodeling
+package x.domainpersistencemodeling.child
 
 import io.micronaut.context.event.ApplicationEventPublisher
 import io.micronaut.core.annotation.Introspected
@@ -6,8 +6,12 @@ import io.micronaut.data.annotation.Query
 import io.micronaut.data.jdbc.annotation.JdbcRepository
 import io.micronaut.data.model.query.builder.sql.Dialect.POSTGRES
 import io.micronaut.data.repository.CrudRepository
+import x.domainpersistencemodeling.DomainException
+import x.domainpersistencemodeling.TrackedSortedSet
 import x.domainpersistencemodeling.UpsertableDomain.UpsertedDomainResult
+import x.domainpersistencemodeling.UpsertableRecord
 import x.domainpersistencemodeling.UpsertableRecord.UpsertedRecordResult
+import x.domainpersistencemodeling.parent.ParentDetails
 import java.util.Objects
 import java.util.Optional
 import java.util.TreeSet
@@ -23,7 +27,8 @@ internal open class PersistedChildFactory(
     : ChildFactory {
     companion object {
         internal fun toResource(record: ChildRecord) =
-                ChildResource(record.naturalId,
+                ChildResource(
+                        record.naturalId,
                         record.parentNaturalId,
                         record.value,
                         record.subchildren,
@@ -41,7 +46,10 @@ internal open class PersistedChildFactory(
             }
 
     override fun createNew(naturalId: String): Child =
-            PersistedChild(this, null, ChildRecord(naturalId))
+            PersistedChild(
+                    this, null,
+                    ChildRecord(
+                            naturalId))
 
     override fun findExistingOrCreateNew(naturalId: String) =
             findExisting(naturalId) ?: createNew(naturalId)
@@ -59,10 +67,15 @@ internal open class PersistedChildFactory(
 
     internal fun notifyChanged(
             before: ChildResource?, after: ChildResource?) =
-            publisher.publishEvent(ChildChangedEvent(before, after))
+            publisher.publishEvent(
+                    ChildChangedEvent(
+                            before, after))
 
     private fun toChild(record: ChildRecord) =
-            PersistedChild(this, toResource(record), record)
+            PersistedChild(
+                    this,
+                    toResource(
+                            record), record)
 }
 
 internal class PersistedChild(
@@ -110,12 +123,15 @@ internal class PersistedChild(
     }
 
     override fun update(block: MutableChild.() -> Unit) = apply {
-        val mutable = PersistedMutableChild(record())
+        val mutable =
+                PersistedMutableChild(
+                        record())
         mutable.block()
     }
 
     override fun toResource() =
-            PersistedChildFactory.toResource(record())
+            PersistedChildFactory.toResource(
+                    record())
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -131,14 +147,16 @@ internal class PersistedChild(
             "${super.toString()}{snapshot=$snapshot, record=$record}"
 
     private fun record() =
-            record ?: throw DomainException("Deleted: $this")
+            record ?: throw DomainException(
+                    "Deleted: $this")
 }
 
 internal class PersistedMutableChild(private val record: ChildRecord)
     : MutableChild,
         MutableChildDetails by record {
     override val subchildren: MutableSet<String>
-        get() = TrackedSortedSet(record.subchildren,
+        get() = TrackedSortedSet(
+                record.subchildren,
                 { _, all -> record.subchildren = all },
                 { _, all -> record.subchildren = all })
 

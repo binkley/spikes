@@ -1,4 +1,4 @@
-package x.domainpersistencemodeling
+package x.domainpersistencemodeling.parent
 
 import io.micronaut.context.event.ApplicationEventPublisher
 import io.micronaut.core.annotation.Introspected
@@ -6,8 +6,13 @@ import io.micronaut.data.annotation.Query
 import io.micronaut.data.jdbc.annotation.JdbcRepository
 import io.micronaut.data.model.query.builder.sql.Dialect.POSTGRES
 import io.micronaut.data.repository.CrudRepository
+import x.domainpersistencemodeling.DomainException
+import x.domainpersistencemodeling.TrackedSortedSet
 import x.domainpersistencemodeling.UpsertableDomain.UpsertedDomainResult
+import x.domainpersistencemodeling.UpsertableRecord
 import x.domainpersistencemodeling.UpsertableRecord.UpsertedRecordResult
+import x.domainpersistencemodeling.child.Child
+import x.domainpersistencemodeling.child.ChildFactory
 import java.util.Objects
 import java.util.Optional
 import java.util.TreeSet
@@ -25,7 +30,8 @@ internal class PersistedParentFactory(
     : ParentFactory {
     companion object {
         internal fun toResource(record: ParentRecord) =
-                ParentResource(record.naturalId, record.value,
+                ParentResource(
+                        record.naturalId, record.value,
                         record.version)
     }
 
@@ -40,7 +46,10 @@ internal class PersistedParentFactory(
     }
 
     override fun createNew(naturalId: String) =
-            PersistedParent(this, null, ParentRecord(naturalId),
+            PersistedParent(
+                    this, null,
+                    ParentRecord(
+                            naturalId),
                     emptySequence())
 
     override fun findExistingOrCreateNew(naturalId: String) =
@@ -58,10 +67,15 @@ internal class PersistedParentFactory(
 
     internal fun notifyChanged(
             before: ParentResource?, after: ParentResource?) =
-            publisher.publishEvent(ParentChangedEvent(before, after))
+            publisher.publishEvent(
+                    ParentChangedEvent(
+                            before, after))
 
     private fun toParent(record: ParentRecord) =
-            PersistedParent(this, toResource(record), record,
+            PersistedParent(
+                    this,
+                    toResource(
+                            record), record,
                     children.findOwned(record.naturalId))
 }
 
@@ -163,11 +177,13 @@ internal class PersistedParent(
     }
 
     override fun toResource() =
-            PersistedParentFactory.toResource(record())
+            PersistedParentFactory.toResource(
+                    record())
 
     override fun update(block: MutableParent.() -> Unit): Parent {
-        val mutable = PersistedMutableParent(
-                record(), children, ::addChild, ::removeChild)
+        val mutable =
+                PersistedMutableParent(
+                        record(), children, ::addChild, ::removeChild)
         block(mutable)
         return this
     }
@@ -203,7 +219,8 @@ internal class PersistedParent(
     }
 
     private fun record() =
-            record ?: throw DomainException("Deleted: $this")
+            record ?: throw DomainException(
+                    "Deleted: $this")
 }
 
 internal data class PersistedMutableParent(
@@ -213,7 +230,9 @@ internal data class PersistedMutableParent(
         private val removed: (Child, MutableSet<Child>) -> Unit)
     : MutableParent,
         MutableParentDetails by record {
-    override val children = TrackedSortedSet(initial, added, removed)
+    override val children =
+            TrackedSortedSet(
+                    initial, added, removed)
 }
 
 @JdbcRepository(dialect = POSTGRES)

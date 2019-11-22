@@ -1,4 +1,4 @@
-package x.domainpersistencemodeling
+package x.domainpersistencemodeling.parent
 
 import ch.tutteli.atrium.api.cc.en_GB.containsExactly
 import ch.tutteli.atrium.api.cc.en_GB.hasSize
@@ -8,7 +8,13 @@ import ch.tutteli.atrium.api.cc.en_GB.toThrow
 import ch.tutteli.atrium.verbs.expect
 import io.micronaut.test.annotation.MicronautTest
 import org.junit.jupiter.api.Test
+import x.domainpersistencemodeling.DomainException
+import x.domainpersistencemodeling.TestListener
 import x.domainpersistencemodeling.UpsertableDomain.UpsertedDomainResult
+import x.domainpersistencemodeling.child.Child
+import x.domainpersistencemodeling.child.ChildChangedEvent
+import x.domainpersistencemodeling.child.ChildFactory
+import x.domainpersistencemodeling.child.ChildResource
 import javax.inject.Inject
 
 @MicronautTest
@@ -27,9 +33,11 @@ internal class PersistedParentTest {
 
     @Test
     fun shouldCreateNew() {
-        val found = parents.findExistingOrCreateNew(parentNaturalId)
+        val found = parents.findExistingOrCreateNew(
+                parentNaturalId)
 
-        expect(found).toBe(parents.createNew(parentNaturalId))
+        expect(found).toBe(parents.createNew(
+                parentNaturalId))
         expect(found.children).isEmpty()
     }
 
@@ -37,7 +45,8 @@ internal class PersistedParentTest {
     fun shouldFindExisting() {
         val saved = newSavedParent()
 
-        val found = parents.findExistingOrCreateNew(parentNaturalId)
+        val found = parents.findExistingOrCreateNew(
+                parentNaturalId)
 
         expect(found).toBe(saved)
         expect(found.children).isEmpty()
@@ -45,7 +54,8 @@ internal class PersistedParentTest {
 
     @Test
     fun shouldRoundTrip() {
-        val unsaved = parents.createNew(parentNaturalId)
+        val unsaved = parents.createNew(
+                parentNaturalId)
 
         expect(unsaved.version).toBe(0)
         testListener.expectNext.isEmpty()
@@ -55,9 +65,11 @@ internal class PersistedParentTest {
         expect(parents.all().toList()).hasSize(1)
         expect(unsaved.version).toBe(1)
         expect(saved).toBe(UpsertedDomainResult(unsaved, true))
-        testListener.expectNext.containsExactly(ParentChangedEvent(
-                null,
-                ParentResource(parentNaturalId, null, 1)))
+        testListener.expectNext.containsExactly(
+                ParentChangedEvent(
+                        null,
+                        ParentResource(
+                                parentNaturalId, null, 1)))
 
         expect(currentPersistedParent()).toBe(unsaved)
     }
@@ -91,9 +103,12 @@ internal class PersistedParentTest {
         original.save()
 
         expect(original.changed).toBe(false)
-        testListener.expectNext.containsExactly(ParentChangedEvent(
-                ParentResource(parentNaturalId, null, 1),
-                ParentResource(parentNaturalId, value, 2)))
+        testListener.expectNext.containsExactly(
+                ParentChangedEvent(
+                        ParentResource(
+                                parentNaturalId, null, 1),
+                        ParentResource(
+                                parentNaturalId, value, 2)))
     }
 
     @Test
@@ -120,13 +135,19 @@ internal class PersistedParentTest {
 
         testListener.expectNext.containsExactly(
                 ChildChangedEvent(
-                        ChildResource(childNaturalId, parentNaturalId,
+                        ChildResource(
+                                childNaturalId,
+                                parentNaturalId,
                                 null, emptySet(), 2),
-                        ChildResource(childNaturalId, parentNaturalId,
+                        ChildResource(
+                                childNaturalId,
+                                parentNaturalId,
                                 value, emptySet(), 3)),
                 ParentChangedEvent(
-                        ParentResource(parentNaturalId, null, 2),
-                        ParentResource(parentNaturalId, null, 3)))
+                        ParentResource(
+                                parentNaturalId, null, 2),
+                        ParentResource(
+                                parentNaturalId, null, 3)))
     }
 
     @Test
@@ -139,9 +160,11 @@ internal class PersistedParentTest {
         expect {
             existing.version
         }.toThrow<DomainException> { }
-        testListener.expectNext.containsExactly(ParentChangedEvent(
-                ParentResource(parentNaturalId, null, 1),
-                null))
+        testListener.expectNext.containsExactly(
+                ParentChangedEvent(
+                        ParentResource(
+                                parentNaturalId, null, 1),
+                        null))
     }
 
     @Test
@@ -191,13 +214,18 @@ internal class PersistedParentTest {
                 .toBe(parentNaturalId)
         testListener.expectNext.containsExactly(
                 ChildChangedEvent(
-                        ChildResource(childNaturalId, null, null,
+                        ChildResource(
+                                childNaturalId, null, null,
                                 emptySet(), 1),
-                        ChildResource(childNaturalId, parentNaturalId, null,
+                        ChildResource(
+                                childNaturalId,
+                                parentNaturalId, null,
                                 emptySet(), 2)),
                 ParentChangedEvent(
-                        ParentResource(parentNaturalId, null, 1),
-                        ParentResource(parentNaturalId, null, 2)))
+                        ParentResource(
+                                parentNaturalId, null, 1),
+                        ParentResource(
+                                parentNaturalId, null, 2)))
 
         val childUnassigned = parent.update {
             unassign(child)
@@ -208,17 +236,23 @@ internal class PersistedParentTest {
         expect(currentPersistedChild().parentNaturalId).toBe(null)
         testListener.expectNext.containsExactly(
                 ChildChangedEvent(
-                        ChildResource(childNaturalId, parentNaturalId, null,
+                        ChildResource(
+                                childNaturalId,
+                                parentNaturalId, null,
                                 emptySet(), 2),
-                        ChildResource(childNaturalId, null, null,
+                        ChildResource(
+                                childNaturalId, null, null,
                                 emptySet(), 3)),
                 ParentChangedEvent(
-                        ParentResource(parentNaturalId, null, 2),
-                        ParentResource(parentNaturalId, null, 3)))
+                        ParentResource(
+                                parentNaturalId, null, 2),
+                        ParentResource(
+                                parentNaturalId, null, 3)))
     }
 
     private fun newSavedChild(): Child {
-        val saved = children.createNew(childNaturalId).save()
+        val saved = children.createNew(
+                childNaturalId).save()
         expect(saved.changed).toBe(true)
         val child = saved.domain
         testListener.reset()
@@ -226,10 +260,12 @@ internal class PersistedParentTest {
     }
 
     private fun currentPersistedChild() =
-            children.findExisting(childNaturalId)!!
+            children.findExisting(
+                    childNaturalId)!!
 
     private fun newSavedParent(): Parent {
-        val saved = parents.createNew(parentNaturalId).save()
+        val saved = parents.createNew(
+                parentNaturalId).save()
         expect(saved.changed).toBe(true)
         val parent = saved.domain
         testListener.reset()
@@ -237,5 +273,6 @@ internal class PersistedParentTest {
     }
 
     private fun currentPersistedParent() =
-            parents.findExisting(parentNaturalId)!!
+            parents.findExisting(
+                    parentNaturalId)!!
 }

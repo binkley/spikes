@@ -5,6 +5,12 @@ import ch.tutteli.atrium.api.cc.en_GB.toBe
 import ch.tutteli.atrium.verbs.expect
 import io.micronaut.test.annotation.MicronautTest
 import org.junit.jupiter.api.Test
+import x.domainpersistencemodeling.child.ChildRecord
+import x.domainpersistencemodeling.child.ChildRepository
+import x.domainpersistencemodeling.child.upsert
+import x.domainpersistencemodeling.parent.ParentRecord
+import x.domainpersistencemodeling.parent.ParentRepository
+import x.domainpersistencemodeling.parent.upsert
 import javax.inject.Inject
 
 @MicronautTest
@@ -13,8 +19,13 @@ internal open class PersistenceTest {
         const val parentNaturalId = "a"
         const val childNaturalId = "p"
 
-        fun newUnsavedParent() = ParentRecord(parentNaturalId)
-        fun newUnsavedChild() = ChildRecord(childNaturalId)
+        fun newUnsavedParent() =
+                ParentRecord(
+                        parentNaturalId)
+
+        fun newUnsavedChild() =
+                ChildRecord(
+                        childNaturalId)
     }
 
     @Inject

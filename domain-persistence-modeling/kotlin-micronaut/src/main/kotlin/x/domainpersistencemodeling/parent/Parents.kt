@@ -1,4 +1,10 @@
-package x.domainpersistencemodeling
+package x.domainpersistencemodeling.parent
+
+import x.domainpersistencemodeling.DomainChangedEvent
+import x.domainpersistencemodeling.DomainException
+import x.domainpersistencemodeling.ScopedMutable
+import x.domainpersistencemodeling.UpsertableDomain
+import x.domainpersistencemodeling.child.Child
 
 data class ParentResource(
         val naturalId: String,
@@ -30,12 +36,14 @@ interface MutableParent : MutableParentDetails {
 
     fun assign(child: Child) {
         if (!children.add(child))
-            throw DomainException("Already assigned: $child")
+            throw DomainException(
+                    "Already assigned: $child")
     }
 
     fun unassign(child: Child) {
         if (!children.remove(child))
-            throw DomainException("Not assigned: $child")
+            throw DomainException(
+                    "Not assigned: $child")
     }
 }
 
