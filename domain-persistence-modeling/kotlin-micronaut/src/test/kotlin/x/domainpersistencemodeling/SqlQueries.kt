@@ -50,7 +50,7 @@ class SqlQueries
         private val oldAdditive = logger.isAdditive
 
         override fun append(eventObject: ILoggingEvent) {
-            val message = eventObject.message.lines().filter {
+            val message = eventObject.formattedMessage.lines().filter {
                 it.isNotBlank()
             }.joinToString(" ") {
                 it.trim()
@@ -76,9 +76,8 @@ class SqlQueries
     }
 }
 
-// TODO: These patterns are wrong for Micronaut Data, but compile
 private val queryOnly = Pattern.compile(
-        "^Executing prepared SQL statement \\[(.*)]$")!!
+        "^Executing Query: (.*)$")!!
 private val upsert = Pattern.compile("^SELECT \\* FROM upsert_.*$")
 
 private fun bucket(query: String) = try {
