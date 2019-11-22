@@ -1,14 +1,21 @@
 package x.domainpersistencemodeling.parent
 
 import x.domainpersistencemodeling.DomainChangedEvent
-import x.domainpersistencemodeling.DomainException
+import x.domainpersistencemodeling.PersistableDomain
 import x.domainpersistencemodeling.ScopedMutable
-import x.domainpersistencemodeling.UpsertableDomain
-import x.domainpersistencemodeling.child.Child
+import x.domainpersistencemodeling.child.AssignedChild
+import x.domainpersistencemodeling.child.ChildSimpleDetails
+import x.domainpersistencemodeling.child.UnassignedChild
+import x.domainpersistencemodeling.other.Other
+import java.time.OffsetDateTime
 
-data class ParentResource(
+data class ParentSnapshot(
         val naturalId: String,
+        val otherNaturalId: String?,
+        val state: String,
+        val at: OffsetDateTime?,
         val value: String?,
+        val sideValues: Set<String>, // Sorted
         val version: Int)
 
 interface ParentFactory {
@@ -18,45 +25,61 @@ interface ParentFactory {
     fun findExistingOrCreateNew(naturalId: String): Parent
 }
 
-interface ParentDetails : Comparable<ParentDetails> {
+interface ParentSimpleDetails
+    : Comparable<ParentSimpleDetails> {
     val naturalId: String
+    val otherNaturalId: String?
+    val state: String
     val value: String?
+    val sideValues: Set<String> // Sorted
     val version: Int
 
-    override fun compareTo(other: ParentDetails) =
+    override fun compareTo(other: ParentSimpleDetails) =
             naturalId.compareTo(other.naturalId)
 }
 
-interface MutableParentDetails : ParentDetails {
-    override var value: String?
+interface ParentDependentDetails {
+    val children: Set<ChildSimpleDetails>
+    val at: OffsetDateTime?
 }
 
-interface MutableParent : MutableParentDetails {
-    val children: MutableSet<Child>
+interface MutableParentSimpleDetails : ParentSimpleDetails {
+    override var otherNaturalId: String?
+    override var state: String
+    override var value: String?
+    override val sideValues: MutableSet<String> // Sorted
+}
 
-    fun assign(child: Child) {
-        if (!children.add(child))
-            throw DomainException(
-                    "Already assigned: $child")
-    }
-
-    fun unassign(child: Child) {
-        if (!children.remove(child))
-            throw DomainException(
-                    "Not assigned: $child")
-    }
+interface MutableParentDependentDetails
+    : ParentDependentDetails {
+    override val children: MutableSet<AssignedChild>
 }
 
 interface Parent
-    : ParentDetails,
-        ScopedMutable<Parent, MutableParent>,
-        UpsertableDomain<Parent> {
-    val children: Set<Child>
+    : ParentSimpleDetails,
+        ParentDependentDetails,
+        ScopedMutable<MutableParent>,
+        PersistableDomain<ParentSnapshot, Parent> {
+    override val children: Set<AssignedChild>
 
-    fun toResource(): ParentResource
+    /** Assigns [other] to this parent, a mutable operation. */
+    fun assign(other: Other)
+
+    /** Unassigns any other from this parent, a mutable operation. */
+    fun unassignAnyOther()
+
+    /** Assigns [child] to this parent, a mutable operation. */
+    fun assign(child: UnassignedChild): AssignedChild
+
+    /** Unassigns [child] from this parent, a mutable operation. */
+    fun unassign(child: AssignedChild): UnassignedChild
 }
 
+interface MutableParent
+    : MutableParentSimpleDetails,
+        MutableParentDependentDetails
+
 data class ParentChangedEvent(
-        val before: ParentResource?,
-        val after: ParentResource?)
-    : DomainChangedEvent<ParentResource>(before, after)
+        val before: ParentSnapshot?,
+        val after: ParentSnapshot?)
+    : DomainChangedEvent<ParentSnapshot>(before, after)

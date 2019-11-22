@@ -6,244 +6,255 @@ import ch.tutteli.atrium.api.cc.en_GB.isEmpty
 import ch.tutteli.atrium.api.cc.en_GB.toBe
 import ch.tutteli.atrium.api.cc.en_GB.toThrow
 import ch.tutteli.atrium.verbs.expect
-import io.micronaut.test.annotation.MicronautTest
 import org.junit.jupiter.api.Test
 import x.domainpersistencemodeling.DomainException
-import x.domainpersistencemodeling.TestListener
-import x.domainpersistencemodeling.UpsertableDomain.UpsertedDomainResult
-import x.domainpersistencemodeling.parent.Parent
-import x.domainpersistencemodeling.parent.ParentFactory
-import javax.inject.Inject
+import x.domainpersistencemodeling.LiveTestBase
+import x.domainpersistencemodeling.PersistableDomain.UpsertedDomainResult
+import x.domainpersistencemodeling.aChildChangedEvent
+import x.domainpersistencemodeling.atZero
+import x.domainpersistencemodeling.childNaturalId
+import x.domainpersistencemodeling.otherNaturalId
+import x.domainpersistencemodeling.parentNaturalId
 
-@MicronautTest
-internal class PersistedChildTest {
-    companion object {
-        const val parentNaturalId = "a"
-        const val childNaturalId = "p"
-    }
-
-    @Inject
-    private lateinit var children: ChildFactory
-    @Inject
-    private lateinit var parents: ParentFactory
-    @Inject
-    private lateinit var testListener: TestListener<ChildChangedEvent>
-
+internal class PersistedChildrenTest
+    : LiveTestBase() {
     @Test
-    fun shouldCreateNew() {
-        val found = children.findExistingOrCreateNew(
+    fun `should create new`() {
+        val found = children.findExistingOrCreateNewUnassigned(
                 childNaturalId)
 
-        expect(found).toBe(children.createNew(
-                childNaturalId))
+        expect(found).toBe(newUnsavedUnassignedChild())
         expect(found.existing).toBe(false)
+
+        expectSqlQueryCountsByType(select = 1)
+        expectDomainChangedEvents().isEmpty()
     }
 
     @Test
-    fun shouldFindExisting() {
-        val saved = newSavedChild()
+    fun `should find existing`() {
+        val saved = newSavedUnassignedChild()
 
-        val found = children.findExistingOrCreateNew(
+        val found = children.findExistingOrCreateNewUnassigned(
                 childNaturalId)
 
         expect(found).toBe(saved)
         expect(found.existing).toBe(true)
+
+        expectSqlQueryCountsByType(select = 1)
+        expectDomainChangedEvents().isEmpty()
     }
 
     @Test
-    fun shouldRoundTrip() {
-        val unsaved = children.createNew(
-                childNaturalId)
+    fun `should round trip`() {
+        val unsaved = newUnsavedUnassignedChild()
 
         expect(unsaved.version).toBe(0)
-        testListener.expectNext.isEmpty()
+
+        expectSqlQueries().isEmpty()
+        expectDomainChangedEvents().isEmpty()
 
         val saved = unsaved.save()
 
-        expect(children.all().toList()).hasSize(1)
+        expectSqlQueryCountsByType(upsert = 1)
+
+        expectAllChildren().hasSize(1)
         expect(unsaved.version).toBe(1)
         expect(saved).toBe(UpsertedDomainResult(unsaved, true))
-        testListener.expectNext.containsExactly(
-                ChildChangedEvent(
-                        null,
-                        ChildResource(
-                                childNaturalId, null, null,
-                                emptySet(), 1)))
-
         expect(currentPersistedChild()).toBe(unsaved)
+
+        expectDomainChangedEvents().containsExactly(
+                aChildChangedEvent(
+                        noBefore = true,
+                        afterVersion = 1))
     }
 
     @Test
-    fun shouldDetectNoChanges() {
-        val original = newSavedChild()
+    fun `should detect no changes`() {
+        val original = newSavedUnassignedChild()
         val resaved = original.save()
 
-        expect(resaved)
-                .toBe(UpsertedDomainResult(original, false))
-        testListener.expectNext.isEmpty()
+        expect(resaved).toBe(UpsertedDomainResult(original, false))
+
+        expectSqlQueries().isEmpty()
+        expectDomainChangedEvents().isEmpty()
     }
 
     @Test
-    fun shouldMutate() {
-        val original = newSavedChild()
+    fun `should mutate`() {
+        val original = newSavedUnassignedChild()
 
         expect(original.changed).toBe(false)
 
+        // TODO: Millis and micros work, but not nanos
+        val at = atZero.plusNanos(1_000L)
         val value = "FOOBAR"
-        val modified = original.update {
+        original.update {
+            this.at = at
             this.value = value
         }
 
-        expect(modified).toBe(original)
         expect(original.changed).toBe(true)
+        expect(original.at).toBe(at)
         expect(original.value).toBe(value)
-        testListener.expectNext.isEmpty()
+
+        expectSqlQueries().isEmpty()
+        expectDomainChangedEvents().isEmpty()
 
         original.save()
 
+        expectSqlQueryCountsByType(upsert = 1)
         expect(original.changed).toBe(false)
-        testListener.expectNext.containsExactly(
-                ChildChangedEvent(
-                        ChildResource(
-                                childNaturalId, null, null,
-                                emptySet(), 1),
-                        ChildResource(
-                                childNaturalId, null, value,
-                                emptySet(), 2)))
+
+        expectDomainChangedEvents().containsExactly(
+                aChildChangedEvent(
+                        beforeVersion = 1,
+                        beforeAt = atZero,
+                        beforeValue = null,
+                        afterVersion = 2,
+                        afterAt = at,
+                        afterValue = value))
     }
 
     @Test
-    fun shouldDelete() {
-        val existing = newSavedChild()
+    fun `should delete`() {
+        val existing = newSavedUnassignedChild()
 
         existing.delete()
 
-        expect(children.all().toList()).isEmpty()
+        expectSqlQueryCountsByType(delete = 1)
+        expectAllChildren().isEmpty()
         expect {
             existing.version
         }.toThrow<DomainException> { }
-        testListener.expectNext.containsExactly(
-                ChildChangedEvent(
-                        ChildResource(
-                                childNaturalId, null, null,
-                                emptySet(), 1),
-                        null))
+
+        expectDomainChangedEvents().containsExactly(
+                aChildChangedEvent(
+                        beforeVersion = 1,
+                        noAfter = true))
     }
 
     @Test
-    fun shouldAssignChildAtCreation() {
+    fun `should assign child at creation`() {
         val parent = newSavedParent()
 
         expect(parent.version).toBe(1)
 
-        val unsaved = children.createNew(
-                childNaturalId).update {
-            assignTo(parent)
-        }
+        val unsaved = newUnsavedUnassignedChild()
+        unsaved.assignTo(parent.naturalId)
 
         expect(unsaved.parentNaturalId).toBe(
                 parentNaturalId)
 
         unsaved.save()
 
+        expectSqlQueryCountsByType(upsert = 1)
+
         expect(currentPersistedChild().parentNaturalId)
                 .toBe(parentNaturalId)
         expect(currentPersistedParent().version).toBe(2)
-        testListener.expectNext.containsExactly(
-                ChildChangedEvent(
-                        null,
-                        ChildResource(
-                                childNaturalId,
-                                parentNaturalId, null,
-                                emptySet(), 1)))
+
+        expectDomainChangedEvents().containsExactly(
+                aChildChangedEvent(
+                        noBefore = true,
+                        afterVersion = 1,
+                        afterParentNaturalId = parentNaturalId))
     }
 
     @Test
-    fun shouldAssignChildAtMutation() {
+    fun `should assign child at mutation`() {
         val parent = newSavedParent()
-        val child = newSavedChild()
+        val child = newSavedUnassignedChild()
 
         expect(parent.version).toBe(1)
 
-        val assigned = child.update {
-            assignTo(parent)
-        }
+        val assigned = child.assignTo(parent.naturalId)
 
         expect(assigned.parentNaturalId).toBe(
                 parentNaturalId)
-        testListener.expectNext.isEmpty()
+
+        expectSqlQueries().isEmpty()
+        expectDomainChangedEvents().isEmpty()
 
         assigned.save()
+
+        expectSqlQueryCountsByType(upsert = 1)
 
         expect(assigned.version).toBe(2)
         expect(currentPersistedChild().parentNaturalId)
                 .toBe(parentNaturalId)
         expect(currentPersistedParent().version).toBe(2)
-        testListener.expectNext.containsExactly(
-                ChildChangedEvent(
-                        ChildResource(
-                                childNaturalId, null, null,
-                                emptySet(), 1),
-                        ChildResource(
-                                childNaturalId,
-                                parentNaturalId, null,
-                                emptySet(), 2)))
+
+        expectDomainChangedEvents().containsExactly(
+                aChildChangedEvent(
+                        beforeVersion = 1,
+                        beforeParentNaturalId = null,
+                        afterVersion = 2,
+                        afterParentNaturalId = parentNaturalId))
     }
 
     @Test
-    fun shouldUnassignChild() {
+    fun `should unassign child`() {
         val parent = newSavedParent()
-        val child = children.createNew(
-                childNaturalId).update {
-            assignTo(parent)
-        }.save().domain
-        testListener.reset()
+        val unassigned = newUnsavedUnassignedChild()
+        val assigned = unassigned.assignTo(parent.naturalId)
+        assigned.save().domain
+
+        expectSqlQueryCountsByType(upsert = 1)
+        expectDomainChangedEvents().containsExactly(
+                aChildChangedEvent(
+                        noBefore = true,
+                        afterVersion = 1,
+                        afterParentNaturalId = parentNaturalId))
 
         expect(parent.version).toBe(1)
 
-        child.update(
-                MutableChild::unassignFromAny).save()
+        assigned.unassignFromAny()
+        assigned.save()
 
-        expect(child.version).toBe(2)
+        expectSqlQueryCountsByType(upsert = 1)
+
+        expect(unassigned.version).toBe(2)
         expect(currentPersistedChild().parentNaturalId).toBe(null)
-        // Created, assigned by child, unassigned by child == version 3
+        // Created, assigned by the child, unassigned by the child -> 3
         expect(currentPersistedParent().version).toBe(3)
-        testListener.expectNext.containsExactly(
-                ChildChangedEvent(
-                        ChildResource(
-                                childNaturalId,
-                                parentNaturalId, null,
-                                emptySet(), 1),
-                        ChildResource(
-                                childNaturalId, null, null,
-                                emptySet(), 2)))
+
+        expectDomainChangedEvents().containsExactly(
+                aChildChangedEvent(
+                        beforeVersion = 1,
+                        beforeParentNaturalId = parentNaturalId,
+                        afterVersion = 2,
+                        afterParentNaturalId = null))
     }
 
-    private fun newSavedChild(): Child {
-        val saved = children.createNew(
-                childNaturalId).save()
-        expect(saved.changed).toBe(true)
-        val child = saved.domain
-        testListener.reset()
-        return child
-    }
+    @Test
+    fun `should assign and unassign other`() {
+        val child = newSavedUnassignedChild()
+        val other = newSavedOther()
 
-    private fun currentPersistedChild(): Child {
-        return children.findExisting(
-                childNaturalId)!!
-    }
+        child.assign(other)
+        child.save()
 
-    private fun newSavedParent(): Parent {
-        val saved = parents.createNew(
-                parentNaturalId).save()
-        expect(saved.changed).toBe(true)
-        val parent = saved.domain
-        testListener.reset()
-        return parent
-    }
+        expectSqlQueryCountsByType(upsert = 1)
+        expect(currentPersistedChild().otherNaturalId).toBe(other.naturalId)
 
-    private fun currentPersistedParent(): Parent {
-        return parents.findExisting(
-                parentNaturalId)!!
+        expectDomainChangedEvents().containsExactly(
+                aChildChangedEvent(
+                        beforeVersion = 1,
+                        beforeOtherNaturalId = null,
+                        afterVersion = 2,
+                        afterOtherNaturalId = otherNaturalId))
+
+        child.unassignAnyOther()
+        child.save()
+
+        expectSqlQueryCountsByType(upsert = 1)
+        expect(currentPersistedChild().otherNaturalId).toBe(null)
+
+        expectDomainChangedEvents().containsExactly(
+                aChildChangedEvent(
+                        beforeVersion = 2,
+                        beforeOtherNaturalId = otherNaturalId,
+                        afterVersion = 3,
+                        afterOtherNaturalId = null))
     }
 }

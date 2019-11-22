@@ -1,17 +1,16 @@
 package x.domainpersistencemodeling
 
+import java.util.Optional
+
 interface UpsertableRecord<Record : UpsertableRecord<Record>> {
-    fun updateWith(upserted: Record): Record
+    val naturalId: String
+    val version: Int
+
+    fun upsertedWith(upserted: Record): Record
 
     data class UpsertedRecordResult<Record : UpsertableRecord<Record>>(
             val record: Record, val changed: Boolean) {
-        companion object {
-            fun <Record : UpsertableRecord<Record>> of(
-                    entity: Record,
-                    upserted: Record?): UpsertedRecordResult<Record> {
-                return UpsertedRecordResult(
-                        entity, null != upserted)
-            }
-        }
+        constructor(record: Record, upserted: Optional<Record>)
+                : this(record, upserted.isPresent)
     }
 }
