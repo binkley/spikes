@@ -1,6 +1,8 @@
 package x.domainpersistencemodeling
 
-import org.assertj.core.api.Assertions.assertThat
+import ch.tutteli.atrium.api.cc.en_GB.isEmpty
+import ch.tutteli.atrium.api.cc.en_GB.toBe
+import ch.tutteli.atrium.verbs.expect
 import org.junit.jupiter.api.Test
 import x.domainpersistencemodeling.KnownState.DISABLED
 import x.domainpersistencemodeling.KnownState.ENABLED
@@ -14,7 +16,7 @@ internal class SideValuesTest {
     internal fun `should use defaults for children`() {
         val child = childHavingSideValues(setOf("A"))
 
-        assertThat(child.currentSideValues).isEqualTo(setOf("A"))
+        expect(child.currentSideValues).toBe(setOf("A"))
     }
 
     @Test
@@ -22,14 +24,14 @@ internal class SideValuesTest {
         val child = childHavingSideValues(setOf("A"), setOf(),
                 DISABLED.name)
 
-        assertThat(child.currentSideValues).isEmpty()
+        expect(child.currentSideValues).isEmpty()
     }
 
     @Test
     internal fun `should use overrides for children`() {
         val child = childHavingSideValues(setOf("A"), setOf("B"))
 
-        assertThat(child.currentSideValues).isEqualTo(setOf("B"))
+        expect(child.currentSideValues).toBe(setOf("B"))
     }
 
     @Test
@@ -37,7 +39,7 @@ internal class SideValuesTest {
         val child = childHavingSideValues(setOf("B"), setOf("A"),
                 DISABLED.name)
 
-        assertThat(child.currentSideValues).isEmpty()
+        expect(child.currentSideValues).isEmpty()
     }
 
     @Test
@@ -47,7 +49,7 @@ internal class SideValuesTest {
                 childHavingSideValues(setOf("A", "C")),
                 childHavingSideValues(setOf())))
 
-        assertThat(parent.currentSideValues).isEqualTo(setOf("A"))
+        expect(parent.currentSideValues).toBe(setOf("A"))
     }
 
     @Test
@@ -55,7 +57,7 @@ internal class SideValuesTest {
         val parent = parentHavingSideValues(
                 setOf(childHavingSideValues(setOf("B"))), setOf("A"))
 
-        assertThat(parent.currentSideValues).isEqualTo(setOf("A"))
+        expect(parent.currentSideValues).toBe(setOf("A"))
     }
 }
 
