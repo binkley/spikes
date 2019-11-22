@@ -12,11 +12,12 @@ CREATE TABLE other
 CREATE TABLE parent
 (
     id               SERIAL PRIMARY KEY,
-    natural_id       VARCHAR       NOT NULL UNIQUE,
+    natural_id       VARCHAR NOT NULL UNIQUE,
     other_natural_id VARCHAR REFERENCES other (natural_id), -- Nullable
-    state            VARCHAR       NOT NULL,
+    state            VARCHAR NOT NULL,
     value            VARCHAR,
-    side_values      VARCHAR ARRAY NOT NULL,
+    -- TODO: side_values      VARCHAR ARRAY NOT NULL,
+    side_values      VARCHAR NOT NULL,
     -- DB controls Audit columns, not caller
     version          INT,
     created_at       TIMESTAMP,
@@ -26,14 +27,16 @@ CREATE TABLE parent
 CREATE TABLE child
 (
     id                  SERIAL PRIMARY KEY,
-    natural_id          VARCHAR       NOT NULL UNIQUE,
+    natural_id          VARCHAR     NOT NULL UNIQUE,
     other_natural_id    VARCHAR REFERENCES other (natural_id),  -- Nullable
     parent_natural_id   VARCHAR REFERENCES parent (natural_id), -- Nullable
-    state               VARCHAR       NOT NULL,
-    at                  TIMESTAMPTZ   NOT NULL,
+    state               VARCHAR     NOT NULL,
+    at                  TIMESTAMPTZ NOT NULL,
     value               VARCHAR,
-    default_side_values VARCHAR ARRAY NOT NULL,
-    side_values         VARCHAR ARRAY NOT NULL,
+    -- TODO: default_side_values VARCHAR ARRAY NOT NULL,
+    default_side_values VARCHAR     NOT NULL,
+    -- TODO: side_values         VARCHAR ARRAY NOT NULL,
+    side_values         VARCHAR     NOT NULL,
     -- DB controls Audit columns, not caller
     version             INT,
     created_at          TIMESTAMP,
@@ -76,7 +79,7 @@ BEGIN
         (natural_id, other_natural_id, state, value,
          side_values, version)
         VALUES (_natural_id, _other_natural_id, _state, _value,
-                CAST(_side_values AS VARCHAR ARRAY), _version)
+                _side_values, _version)
         ON CONFLICT (natural_id) DO UPDATE
             SET (other_natural_id, state, value,
                  side_values, version)
@@ -109,8 +112,8 @@ BEGIN
          default_side_values, version)
         VALUES (_natural_id, _other_natural_id, _parent_natural_id,
                 _state, _at, _value,
-                CAST(_side_values AS VARCHAR ARRAY),
-                CAST(_default_side_values AS VARCHAR ARRAY), _version)
+                _side_values,
+                _default_side_values, _version)
         ON CONFLICT (natural_id) DO UPDATE
             SET (other_natural_id, parent_natural_id, state, at, value,
                  side_values,
