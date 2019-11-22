@@ -9,7 +9,7 @@ Spikes are not to be considered stable.
 * Implementations
   * [Java Spring Boot](java-spring-boot/)
   * [Kotlin Spring Boot](kotlin-spring-boot/) (most up-to-date spike)
-  * [Kotlin Micronaut](kotlin-micronaut/)
+  * [Kotlin Micronaut](kotlin-micronaut/) (currently broken)
 * [Goals](#goals)
 * [Concepts](#concepts)
   * [Separation of concerns](#separation-of-concerns)
@@ -187,6 +187,8 @@ Rather, for children, `update`, `assignTo`, and `unassignFromAny` all mutate.
    layer translate (eg, REST)
 3. How should the domain hide simple details that are replaced with
    corresponding domain representations?
+4. Micronaut Data re-port in progress: It now matches the Spring Boot code,
+   however still has some Micronaut Data-specific issues
 
 An example using "parent" details:
 
