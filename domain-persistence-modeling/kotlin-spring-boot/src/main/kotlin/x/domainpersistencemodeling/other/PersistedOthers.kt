@@ -2,20 +2,12 @@ package x.domainpersistencemodeling.other
 
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Component
-import x.domainpersistencemodeling.MutableOther
-import x.domainpersistencemodeling.MutableOtherSimpleDetails
-import x.domainpersistencemodeling.Other
-import x.domainpersistencemodeling.OtherChangedEvent
-import x.domainpersistencemodeling.OtherDependentDetails
-import x.domainpersistencemodeling.OtherFactory
-import x.domainpersistencemodeling.OtherRepository
-import x.domainpersistencemodeling.OtherRepository.OtherRecord
-import x.domainpersistencemodeling.OtherSnapshot
 import x.domainpersistencemodeling.PersistableDomain
 import x.domainpersistencemodeling.PersistedDependentDetails
 import x.domainpersistencemodeling.PersistedDomain
 import x.domainpersistencemodeling.PersistedFactory
 import x.domainpersistencemodeling.UpsertableRecord.UpsertedRecordResult
+import x.domainpersistencemodeling.other.OtherRepository.OtherRecord
 
 @Component
 internal class PersistedOtherFactory(

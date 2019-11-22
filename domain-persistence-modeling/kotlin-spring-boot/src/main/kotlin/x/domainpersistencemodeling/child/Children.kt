@@ -2,9 +2,9 @@ package x.domainpersistencemodeling.child
 
 import x.domainpersistencemodeling.DomainChangedEvent
 import x.domainpersistencemodeling.KnownState
-import x.domainpersistencemodeling.Other
 import x.domainpersistencemodeling.PersistableDomain
 import x.domainpersistencemodeling.ScopedMutable
+import x.domainpersistencemodeling.other.Other
 import java.time.OffsetDateTime
 
 data class ChildSnapshot(

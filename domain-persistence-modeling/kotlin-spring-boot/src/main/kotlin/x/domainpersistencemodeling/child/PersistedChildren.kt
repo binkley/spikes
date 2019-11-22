@@ -2,7 +2,6 @@ package x.domainpersistencemodeling.child
 
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Component
-import x.domainpersistencemodeling.Other
 import x.domainpersistencemodeling.PersistableDomain
 import x.domainpersistencemodeling.PersistedDependentDetails
 import x.domainpersistencemodeling.PersistedDomain
@@ -10,6 +9,7 @@ import x.domainpersistencemodeling.PersistedFactory
 import x.domainpersistencemodeling.TrackedSortedSet
 import x.domainpersistencemodeling.UpsertableRecord.UpsertedRecordResult
 import x.domainpersistencemodeling.child.ChildRepository.ChildRecord
+import x.domainpersistencemodeling.other.Other
 import x.domainpersistencemodeling.uncurrySecond
 import java.time.OffsetDateTime
 import java.util.Objects.hash

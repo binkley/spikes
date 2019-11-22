@@ -14,6 +14,10 @@ import x.domainpersistencemodeling.child.ChildChangedEvent
 import x.domainpersistencemodeling.child.ChildFactory
 import x.domainpersistencemodeling.child.ChildSnapshot
 import x.domainpersistencemodeling.child.PersistedUnassignedChild
+import x.domainpersistencemodeling.other.Other
+import x.domainpersistencemodeling.other.OtherChangedEvent
+import x.domainpersistencemodeling.other.OtherFactory
+import x.domainpersistencemodeling.other.OtherSnapshot
 import x.domainpersistencemodeling.parent.Parent
 import x.domainpersistencemodeling.parent.ParentChangedEvent
 import x.domainpersistencemodeling.parent.ParentFactory
@@ -164,11 +168,14 @@ internal fun anOtherChangedEvent( // TODO: Tie defaults to record defaults
         beforeOtherVersion: Int = 0,
         noAfter: Boolean = false,
         afterValue: String? = null,
-        afterVersion: Int = 0) = OtherChangedEvent(
-        if (noBefore) null else OtherSnapshot(otherNaturalId, beforeValue,
-                beforeOtherVersion),
-        if (noAfter) null else OtherSnapshot(otherNaturalId, afterValue,
-                afterVersion))
+        afterVersion: Int = 0) =
+        OtherChangedEvent(
+                if (noBefore) null else OtherSnapshot(
+                        otherNaturalId, beforeValue,
+                        beforeOtherVersion),
+                if (noAfter) null else OtherSnapshot(
+                        otherNaturalId, afterValue,
+                        afterVersion))
 
 internal fun aParentChangedEvent( // TODO: Tie defaults to record defaults
         noBefore: Boolean = false,

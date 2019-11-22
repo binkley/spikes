@@ -1,11 +1,12 @@
-package x.domainpersistencemodeling
+package x.domainpersistencemodeling.other
 
 import org.springframework.data.annotation.Id
 import org.springframework.data.jdbc.repository.query.Query
 import org.springframework.data.relational.core.mapping.Table
 import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.query.Param
-import x.domainpersistencemodeling.OtherRepository.OtherRecord
+import x.domainpersistencemodeling.UpsertableRecord
+import x.domainpersistencemodeling.other.OtherRepository.OtherRecord
 import java.util.Optional
 
 interface OtherRepository : CrudRepository<OtherRecord, Long> {

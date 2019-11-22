@@ -1,4 +1,8 @@
-package x.domainpersistencemodeling
+package x.domainpersistencemodeling.other
+
+import x.domainpersistencemodeling.DomainChangedEvent
+import x.domainpersistencemodeling.PersistableDomain
+import x.domainpersistencemodeling.ScopedMutable
 
 data class OtherSnapshot(
         val naturalId: String,

@@ -3,7 +3,6 @@ package x.domainpersistencemodeling.parent
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Component
 import x.domainpersistencemodeling.DomainException
-import x.domainpersistencemodeling.Other
 import x.domainpersistencemodeling.PersistableDomain
 import x.domainpersistencemodeling.PersistedDependentDetails
 import x.domainpersistencemodeling.PersistedDomain
@@ -16,6 +15,7 @@ import x.domainpersistencemodeling.child.ChildFactory
 import x.domainpersistencemodeling.child.PersistedAssignedChild
 import x.domainpersistencemodeling.child.PersistedUnassignedChild
 import x.domainpersistencemodeling.child.UnassignedChild
+import x.domainpersistencemodeling.other.Other
 import x.domainpersistencemodeling.parent.ParentRepository.ParentRecord
 import x.domainpersistencemodeling.uncurryFirst
 import x.domainpersistencemodeling.uncurrySecond
