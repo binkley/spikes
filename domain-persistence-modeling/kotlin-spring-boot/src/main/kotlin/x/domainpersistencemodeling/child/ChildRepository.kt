@@ -1,20 +1,12 @@
 package x.domainpersistencemodeling.child
 
-import org.springframework.data.annotation.Id
 import org.springframework.data.jdbc.repository.query.Query
-import org.springframework.data.relational.core.mapping.Table
 import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
-import x.domainpersistencemodeling.KnownState.ENABLED
-import x.domainpersistencemodeling.UpsertableRecord
-import x.domainpersistencemodeling.child.ChildRepository.ChildRecord
 import x.domainpersistencemodeling.workAroundArrayTypeForPostgres
-import java.time.Instant
 import java.time.OffsetDateTime
-import java.time.ZoneOffset
 import java.util.Optional
-import java.util.TreeSet
 
 @Repository
 interface ChildRepository : CrudRepository<ChildRecord, Long> {
@@ -51,56 +43,20 @@ interface ChildRepository : CrudRepository<ChildRecord, Long> {
             @Param("defaultSideValues") defaultSideValues: String,
             @Param("version") version: Int)
             : Optional<ChildRecord>
+}
 
-    @JvmDefault
-    fun upsert(entity: ChildRecord): Optional<ChildRecord> {
-        val upserted = upsert(entity.naturalId,
-                entity.otherNaturalId,
-                entity.parentNaturalId,
-                entity.state,
-                entity.at,
-                entity.value,
-                entity.sideValues.workAroundArrayTypeForPostgres(),
-                entity.defaultSideValues.workAroundArrayTypeForPostgres(),
-                entity.version)
-        upserted.ifPresent {
-            entity.upsertedWith(it)
-        }
-        return upserted
+fun ChildRepository.upsert(entity: ChildRecord): Optional<ChildRecord> {
+    val upserted = upsert(entity.naturalId,
+            entity.otherNaturalId,
+            entity.parentNaturalId,
+            entity.state,
+            entity.at,
+            entity.value,
+            entity.sideValues.workAroundArrayTypeForPostgres(),
+            entity.defaultSideValues.workAroundArrayTypeForPostgres(),
+            entity.version)
+    upserted.ifPresent {
+        entity.upsertedWith(it)
     }
-
-    @Table("child")
-    data class ChildRecord(
-            @Id var id: Long?,
-            override var naturalId: String,
-            override var otherNaturalId: String?,
-            override var parentNaturalId: String?,
-            override var state: String,
-            override var at: OffsetDateTime, // UTC
-            override var value: String?,
-            override var sideValues: MutableSet<String>,
-            override var defaultSideValues: MutableSet<String>,
-            override var version: Int)
-        : MutableChildSimpleDetails,
-            UpsertableRecord<ChildRecord> {
-        internal constructor(naturalId: String)
-                : this(null, naturalId, null, null, ENABLED.name,
-                OffsetDateTime.ofInstant(Instant.EPOCH, ZoneOffset.UTC), null,
-                mutableSetOf(),
-                mutableSetOf(), 0)
-
-        override fun upsertedWith(upserted: ChildRecord): ChildRecord {
-            id = upserted.id
-            naturalId = upserted.naturalId
-            otherNaturalId = upserted.otherNaturalId
-            parentNaturalId = upserted.parentNaturalId
-            state = upserted.state
-            at = upserted.at
-            value = upserted.value
-            sideValues = TreeSet(upserted.sideValues)
-            defaultSideValues = TreeSet(upserted.defaultSideValues)
-            version = upserted.version
-            return this
-        }
-    }
+    return upserted
 }

@@ -8,7 +8,6 @@ import x.domainpersistencemodeling.PersistedDomain
 import x.domainpersistencemodeling.PersistedFactory
 import x.domainpersistencemodeling.TrackedSortedSet
 import x.domainpersistencemodeling.UpsertableRecord.UpsertedRecordResult
-import x.domainpersistencemodeling.child.ChildRepository.ChildRecord
 import x.domainpersistencemodeling.other.Other
 import x.domainpersistencemodeling.uncurrySecond
 import java.time.OffsetDateTime
@@ -32,7 +31,9 @@ internal class PersistedChildFactory(
             }
 
     override fun createNewUnassigned(naturalId: String) =
-            createNew(null, ChildRecord(naturalId),
+            createNew(null,
+                    ChildRecord(
+                            naturalId),
                     ::PersistedUnassignedChild)
 
     override fun findExistingOrCreateNewUnassigned(naturalId: String) =

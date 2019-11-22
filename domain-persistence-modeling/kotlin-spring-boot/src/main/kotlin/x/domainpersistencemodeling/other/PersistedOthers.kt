@@ -7,7 +7,6 @@ import x.domainpersistencemodeling.PersistedDependentDetails
 import x.domainpersistencemodeling.PersistedDomain
 import x.domainpersistencemodeling.PersistedFactory
 import x.domainpersistencemodeling.UpsertableRecord.UpsertedRecordResult
-import x.domainpersistencemodeling.other.OtherRepository.OtherRecord
 
 @Component
 internal class PersistedOtherFactory(
@@ -30,7 +29,8 @@ internal class PersistedOtherFactory(
                     PersistedDomain(
                             this,
                             null,
-                            OtherRecord(naturalId),
+                            OtherRecord(
+                                    naturalId),
                             PersistedOtherDependentDetails(),
                             ::PersistedOther))
 

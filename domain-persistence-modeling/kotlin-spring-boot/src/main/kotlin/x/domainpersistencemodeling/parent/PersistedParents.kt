@@ -16,7 +16,6 @@ import x.domainpersistencemodeling.child.PersistedAssignedChild
 import x.domainpersistencemodeling.child.PersistedUnassignedChild
 import x.domainpersistencemodeling.child.UnassignedChild
 import x.domainpersistencemodeling.other.Other
-import x.domainpersistencemodeling.parent.ParentRepository.ParentRecord
 import x.domainpersistencemodeling.uncurryFirst
 import x.domainpersistencemodeling.uncurrySecond
 import java.time.OffsetDateTime
@@ -46,7 +45,8 @@ internal class PersistedParentFactory(
                     PersistedDomain(
                             this,
                             null,
-                            ParentRecord(naturalId),
+                            ParentRecord(
+                                    naturalId),
                             PersistedParentDependentDetails(
                                     emptySequence()),
                             ::PersistedParent))
