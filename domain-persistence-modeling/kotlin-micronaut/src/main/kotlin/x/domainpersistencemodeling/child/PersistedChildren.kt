@@ -32,8 +32,7 @@ internal class PersistedChildFactory(
 
     override fun createNewUnassigned(naturalId: String) =
             createNew(null,
-                    ChildRecord(
-                            naturalId),
+                    ChildRecord(naturalId),
                     ::PersistedUnassignedChild)
 
     override fun findExistingOrCreateNewUnassigned(naturalId: String) =
@@ -59,9 +58,7 @@ internal class PersistedChildFactory(
 
     override fun notifyChanged(
             before: ChildSnapshot?, after: ChildSnapshot?) =
-            publisher.publishEvent(
-                    ChildChangedEvent(
-                            before, after))
+            publisher.publishEvent(ChildChangedEvent(before, after))
 
     override fun toSnapshot(record: ChildRecord,
             dependent: PersistedChildDependentDetails) =
@@ -71,8 +68,7 @@ internal class PersistedChildFactory(
                     record.value, record.sideValues, record.version)
 
     private fun toDomain(record: ChildRecord): Child<*> {
-        val dependent =
-                PersistedChildDependentDetails()
+        val dependent = PersistedChildDependentDetails()
 
         return if (null == record.parentNaturalId)
             createNew(toSnapshot(record, dependent), record,
@@ -86,11 +82,10 @@ internal class PersistedChildFactory(
             snapshot: ChildSnapshot?,
             record: ChildRecord,
             toDomain: (PersistedDomain<ChildSnapshot, ChildRecord, PersistedChildDependentDetails, PersistedChildFactory, C, MutableChild>) -> C) =
-            toDomain(
-                    PersistedDomain(
-                            this, snapshot, record,
-                            PersistedChildDependentDetails(),
-                            toDomain))
+            toDomain(PersistedDomain(
+                    this, snapshot, record,
+                    PersistedChildDependentDetails(),
+                    toDomain))
 }
 
 internal data class PersistedChildDependentDetails(
