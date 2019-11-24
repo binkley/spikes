@@ -20,7 +20,7 @@ val <T> T.currentSideValues: Set<String>
 
 val ChildSimpleDetails.currentSideValues: Set<String>
     get() = when {
-        !relevant -> kotlin.collections.setOf()
+        !relevant -> setOf()
         sideValues.isNotEmpty() -> sideValues
         else -> defaultSideValues
     }
