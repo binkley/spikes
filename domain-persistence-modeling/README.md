@@ -188,7 +188,7 @@ Rather, for children, `update`, `assignTo`, and `unassignFromAny` all mutate.
 3. How should the domain hide simple details that are replaced with
    corresponding domain representations?
 4. Micronaut Data re-port in progress: It now matches the Spring Boot code,
-   however still has some Micronaut Data-specific issues
+   however it still has some specific issues
 
 An example using "parent" details:
 
