@@ -21,6 +21,7 @@ import x.domainpersistencemodeling.parent.ParentSnapshot
 import java.time.Instant.EPOCH
 import java.time.OffsetDateTime
 import java.time.ZoneOffset.UTC
+import java.util.*
 import javax.inject.Inject
 
 internal const val otherNaturalId = "o"
@@ -55,6 +56,11 @@ internal abstract class LiveTestBase {
     lateinit var sqlQueries: SqlQueries
     @Inject
     lateinit var testListener: TestListener<DomainChangedEvent<*>>
+
+    init {
+        TimeZone.setDefault(TimeZone.getTimeZone(UTC))
+    }
+
 
     /**
      * Aggressively checks that tests asserted against SQL queries and domain
