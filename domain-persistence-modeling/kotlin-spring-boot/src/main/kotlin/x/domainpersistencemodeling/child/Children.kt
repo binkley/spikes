@@ -41,8 +41,7 @@ interface ChildSimpleDetails
         get() = null != parentNaturalId
 
     val relevant: Boolean
-        get() = KnownState.forName(
-                state)?.relevant ?: true
+        get() = KnownState.forName(state)?.relevant ?: true
 
     override operator fun compareTo(other: ChildSimpleDetails) =
             naturalId.compareTo(other.naturalId)
