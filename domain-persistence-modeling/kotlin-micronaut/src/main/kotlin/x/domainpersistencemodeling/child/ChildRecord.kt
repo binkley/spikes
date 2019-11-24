@@ -6,10 +6,11 @@ import x.domainpersistencemodeling.UpsertableRecord
 import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
-import java.util.TreeSet
+import java.util.*
 import javax.persistence.Entity
 import javax.persistence.Id
 import javax.persistence.Table
+import javax.persistence.Transient
 
 @Entity
 @Introspected
@@ -34,6 +35,13 @@ data class ChildRecord(
                     ZoneOffset.UTC), null,
             mutableSetOf(),
             mutableSetOf(), 0)
+
+    @get:Transient
+    override val assigned: Boolean
+        get() = super.assigned
+    @get:Transient
+    override val relevant: Boolean
+        get() = super.relevant
 
     override fun upsertedWith(upserted: ChildRecord): ChildRecord {
         id = upserted.id
