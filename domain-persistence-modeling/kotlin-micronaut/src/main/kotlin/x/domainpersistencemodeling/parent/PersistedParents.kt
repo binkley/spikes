@@ -17,9 +17,9 @@ import x.domainpersistencemodeling.child.UnassignedChild
 import x.domainpersistencemodeling.other.Other
 import x.domainpersistencemodeling.uncurryFirst
 import x.domainpersistencemodeling.uncurrySecond
+import x.domainpersistencemodeling.workAroundArrayTypeForPostgresRead
 import java.time.OffsetDateTime
-import java.util.Objects
-import java.util.TreeSet
+import java.util.*
 import java.util.stream.Collectors.toCollection
 import javax.inject.Singleton
 
@@ -73,13 +73,16 @@ internal class PersistedParentFactory(
             publisher.publishEvent(ParentChangedEvent(before, after))
 
     private fun toDomain(record: ParentRecord): PersistedParent {
-        val dependent =
-                PersistedParentDependentDetails(
-                        children.findAssignedFor(record.naturalId))
+        val dependent = PersistedParentDependentDetails(
+                children.findAssignedFor(record.naturalId))
+
+        val fixedRecord = record.copy()
+        fixedRecord.sideValues = fixedRecord.sideValues.workAroundArrayTypeForPostgresRead()
+
         return PersistedParent(PersistedDomain(
                 this,
-                toSnapshot(record, dependent),
-                record,
+                toSnapshot(fixedRecord, dependent),
+                fixedRecord,
                 dependent,
                 ::PersistedParent))
     }

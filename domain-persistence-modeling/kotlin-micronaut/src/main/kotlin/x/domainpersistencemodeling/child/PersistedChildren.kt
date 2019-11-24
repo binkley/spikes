@@ -9,9 +9,9 @@ import x.domainpersistencemodeling.TrackedSortedSet
 import x.domainpersistencemodeling.UpsertableRecord.UpsertedRecordResult
 import x.domainpersistencemodeling.other.Other
 import x.domainpersistencemodeling.uncurrySecond
+import x.domainpersistencemodeling.workAroundArrayTypeForPostgresRead
 import java.time.OffsetDateTime
-import java.util.Objects
-import java.util.TreeSet
+import java.util.*
 import javax.inject.Singleton
 
 @Singleton
@@ -70,11 +70,15 @@ internal class PersistedChildFactory(
     private fun toDomain(record: ChildRecord): Child<*> {
         val dependent = PersistedChildDependentDetails()
 
+        val fixedRecord = record.copy()
+        fixedRecord.sideValues = fixedRecord.sideValues.workAroundArrayTypeForPostgresRead()
+        fixedRecord.defaultSideValues = fixedRecord.defaultSideValues.workAroundArrayTypeForPostgresRead()
+
         return if (null == record.parentNaturalId)
-            createNew(toSnapshot(record, dependent), record,
+            createNew(toSnapshot(fixedRecord, dependent), fixedRecord,
                     ::PersistedUnassignedChild)
         else
-            createNew(toSnapshot(record, dependent), record,
+            createNew(toSnapshot(fixedRecord, dependent), fixedRecord,
                     ::PersistedAssignedChild)
     }
 
