@@ -1,4 +1,4 @@
 package x.domainpersistencemodeling
 
-fun Collection<*>.workAroundArrayTypeForPostgres() =
+fun Collection<String>.workAroundArrayTypeForPostgresWrite() =
         this.joinToString(",", "{", "}")

@@ -3,7 +3,7 @@ package x.domainpersistencemodeling.parent
 import org.springframework.data.jdbc.repository.query.Query
 import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.query.Param
-import x.domainpersistencemodeling.workAroundArrayTypeForPostgres
+import x.domainpersistencemodeling.workAroundArrayTypeForPostgresWrite
 import java.util.Optional
 
 interface ParentRepository : CrudRepository<ParentRecord, Long> {
@@ -35,7 +35,7 @@ fun ParentRepository.upsert(entity: ParentRecord): Optional<ParentRecord> {
             entity.otherNaturalId,
             entity.state,
             entity.value,
-            entity.sideValues.workAroundArrayTypeForPostgres(),
+            entity.sideValues.workAroundArrayTypeForPostgresWrite(),
             entity.version)
     upserted.ifPresent {
         entity.upsertedWith(it)

@@ -4,7 +4,7 @@ import org.springframework.data.jdbc.repository.query.Query
 import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
-import x.domainpersistencemodeling.workAroundArrayTypeForPostgres
+import x.domainpersistencemodeling.workAroundArrayTypeForPostgresWrite
 import java.time.OffsetDateTime
 import java.util.Optional
 
@@ -52,8 +52,8 @@ fun ChildRepository.upsert(entity: ChildRecord): Optional<ChildRecord> {
             entity.state,
             entity.at,
             entity.value,
-            entity.sideValues.workAroundArrayTypeForPostgres(),
-            entity.defaultSideValues.workAroundArrayTypeForPostgres(),
+            entity.sideValues.workAroundArrayTypeForPostgresWrite(),
+            entity.defaultSideValues.workAroundArrayTypeForPostgresWrite(),
             entity.version)
     upserted.ifPresent {
         entity.upsertedWith(it)
