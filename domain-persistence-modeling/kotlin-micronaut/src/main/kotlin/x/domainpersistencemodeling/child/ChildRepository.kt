@@ -4,9 +4,10 @@ import io.micronaut.data.annotation.Query
 import io.micronaut.data.jdbc.annotation.JdbcRepository
 import io.micronaut.data.model.query.builder.sql.Dialect.POSTGRES
 import io.micronaut.data.repository.CrudRepository
-import x.domainpersistencemodeling.workAroundArrayTypeForPostgres
+import x.domainpersistencemodeling.workAroundArrayTypeForPostgresRead
+import x.domainpersistencemodeling.workAroundArrayTypeForPostgresWrite
 import java.time.OffsetDateTime
-import java.util.Optional
+import java.util.*
 
 @JdbcRepository(dialect = POSTGRES)
 interface ChildRepository : CrudRepository<ChildRecord, Long> {
@@ -51,10 +52,12 @@ fun ChildRepository.upsert(entity: ChildRecord): Optional<ChildRecord> {
             entity.state,
             entity.at,
             entity.value,
-            entity.sideValues.workAroundArrayTypeForPostgres(),
-            entity.defaultSideValues.workAroundArrayTypeForPostgres(),
+            entity.sideValues.workAroundArrayTypeForPostgresWrite(),
+            entity.defaultSideValues.workAroundArrayTypeForPostgresWrite(),
             entity.version)
     upserted.ifPresent {
+        it.sideValues = it.sideValues.workAroundArrayTypeForPostgresRead()
+        it.defaultSideValues = it.defaultSideValues.workAroundArrayTypeForPostgresRead()
         entity.upsertedWith(it)
     }
     return upserted

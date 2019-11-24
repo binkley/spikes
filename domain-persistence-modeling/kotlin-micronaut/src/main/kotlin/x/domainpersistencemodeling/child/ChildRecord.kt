@@ -51,8 +51,7 @@ data class ChildRecord(
         at = upserted.at
         value = upserted.value
         sideValues = TreeSet(upserted.sideValues)
-        defaultSideValues = TreeSet(
-                upserted.defaultSideValues)
+        defaultSideValues = TreeSet(upserted.defaultSideValues)
         version = upserted.version
         return this
     }
