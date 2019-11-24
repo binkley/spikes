@@ -1,10 +1,6 @@
 package x.domainpersistencemodeling.child
 
-import ch.tutteli.atrium.api.cc.en_GB.containsExactly
-import ch.tutteli.atrium.api.cc.en_GB.hasSize
-import ch.tutteli.atrium.api.cc.en_GB.isEmpty
-import ch.tutteli.atrium.api.cc.en_GB.toBe
-import ch.tutteli.atrium.api.cc.en_GB.toThrow
+import ch.tutteli.atrium.api.cc.en_GB.*
 import ch.tutteli.atrium.verbs.expect
 import org.junit.jupiter.api.Test
 import x.domainpersistencemodeling.DomainException
@@ -20,8 +16,7 @@ internal class PersistedChildrenTest
     : LiveTestBase() {
     @Test
     fun `should create new`() {
-        val found = children.findExistingOrCreateNewUnassigned(
-                childNaturalId)
+        val found = children.findExistingOrCreateNewUnassigned(childNaturalId)
 
         expect(found).toBe(newUnsavedUnassignedChild())
         expect(found.existing).toBe(false)
@@ -34,8 +29,7 @@ internal class PersistedChildrenTest
     fun `should find existing`() {
         val saved = newSavedUnassignedChild()
 
-        val found = children.findExistingOrCreateNewUnassigned(
-                childNaturalId)
+        val found = children.findExistingOrCreateNewUnassigned(childNaturalId)
 
         expect(found).toBe(saved)
         expect(found.existing).toBe(true)
@@ -142,8 +136,7 @@ internal class PersistedChildrenTest
         val unsaved = newUnsavedUnassignedChild()
         unsaved.assignTo(parent.naturalId)
 
-        expect(unsaved.parentNaturalId).toBe(
-                parentNaturalId)
+        expect(unsaved.parentNaturalId).toBe(parentNaturalId)
 
         unsaved.save()
 
@@ -169,8 +162,7 @@ internal class PersistedChildrenTest
 
         val assigned = child.assignTo(parent.naturalId)
 
-        expect(assigned.parentNaturalId).toBe(
-                parentNaturalId)
+        expect(assigned.parentNaturalId).toBe(parentNaturalId)
 
         expectSqlQueries().isEmpty()
         expectDomainChangedEvents().isEmpty()

@@ -5,7 +5,7 @@ import x.domainpersistencemodeling.KnownState.ENABLED
 import x.domainpersistencemodeling.UpsertableRecord
 import java.time.Instant
 import java.time.OffsetDateTime
-import java.time.ZoneOffset
+import java.time.ZoneOffset.UTC
 import java.util.*
 import javax.persistence.Entity
 import javax.persistence.Id
@@ -30,9 +30,8 @@ data class ChildRecord(
         UpsertableRecord<ChildRecord> {
     internal constructor(naturalId: String)
             : this(null, naturalId, null, null, ENABLED.name,
-            OffsetDateTime.ofInstant(
-                    Instant.EPOCH,
-                    ZoneOffset.UTC), null,
+            OffsetDateTime.ofInstant(Instant.EPOCH, UTC),
+            null,
             mutableSetOf(),
             mutableSetOf(), 0)
 
