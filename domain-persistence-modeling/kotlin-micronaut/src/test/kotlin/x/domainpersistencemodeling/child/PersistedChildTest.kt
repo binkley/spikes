@@ -1,6 +1,10 @@
 package x.domainpersistencemodeling.child
 
-import ch.tutteli.atrium.api.cc.en_GB.*
+import ch.tutteli.atrium.api.cc.en_GB.containsExactly
+import ch.tutteli.atrium.api.cc.en_GB.hasSize
+import ch.tutteli.atrium.api.cc.en_GB.isEmpty
+import ch.tutteli.atrium.api.cc.en_GB.toBe
+import ch.tutteli.atrium.api.cc.en_GB.toThrow
 import ch.tutteli.atrium.verbs.expect
 import org.junit.jupiter.api.Test
 import x.domainpersistencemodeling.DomainException
@@ -79,8 +83,8 @@ internal class PersistedChildrenTest
 
         expect(original.changed).toBe(false)
 
-        // TODO: Millis and micros work, but not nanos
-        val at = atZero.plusNanos(1_000L)
+        // TODO: Adjusting nanos is acting flaky
+        val at = atZero.plusSeconds(1L)
         val value = "FOOBAR"
         original.update {
             this.at = at
