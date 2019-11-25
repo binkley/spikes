@@ -61,7 +61,8 @@ interface InternalParentRepository : CrudRepository<ParentRecord, Long> {
     @Query(
         """
         SELECT *
-        FROM upsert_parent(:naturalId, :otherNaturalId, :state, :value, :sideValues, :version)
+        FROM upsert_parent(:naturalId, :otherNaturalId, :state, :value,
+        :sideValues, :version)
         """
     )
     fun upsert(
