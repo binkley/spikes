@@ -20,8 +20,7 @@ internal class PersistedParentsTest
     : LiveTestBase() {
     @Test
     fun `should create new`() {
-        val found = parents.findExistingOrCreateNew(
-                parentNaturalId)
+        val found = parents.findExistingOrCreateNew(parentNaturalId)
 
         expect(found).toBe(newUnsavedParent())
         expect(found.children).isEmpty()
@@ -34,8 +33,7 @@ internal class PersistedParentsTest
     fun `should find existing`() {
         val saved = newSavedParent()
 
-        val found = parents.findExistingOrCreateNew(
-                parentNaturalId)
+        val found = parents.findExistingOrCreateNew(parentNaturalId)
 
         expect(found).toBe(saved)
         expect(found.children).isEmpty()
@@ -121,8 +119,8 @@ internal class PersistedParentsTest
 
         expect(parent.at).toBe(child.at)
 
-        // TODO: Millis and micros work, but not nanos
-        val at = atZero.plusNanos(1_000L)
+        // TODO: Adjusting nanos is acting flaky
+        val at = atZero.plusSeconds(1L)
         val value = "FOOBAR"
         parent.update {
             children.forEach {
