@@ -22,5 +22,6 @@ interface PersistableDomain<Snapshot,
 
     data class UpsertedDomainResult<Snapshot,
             Domain : PersistableDomain<Snapshot, Domain>>(
-            val domain: Domain, val changed: Boolean)
+        val domain: Domain, val changed: Boolean
+    )
 }

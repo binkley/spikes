@@ -21,7 +21,8 @@ internal class PersistedParentsTest
     @Test
     fun `should create new`() {
         val found = parents.findExistingOrCreateNew(
-                parentNaturalId)
+            parentNaturalId
+        )
 
         expect(found).toBe(newUnsavedParent())
         expect(found.children).isEmpty()
@@ -35,7 +36,8 @@ internal class PersistedParentsTest
         val saved = newSavedParent()
 
         val found = parents.findExistingOrCreateNew(
-                parentNaturalId)
+            parentNaturalId
+        )
 
         expect(found).toBe(saved)
         expect(found.children).isEmpty()
@@ -62,9 +64,11 @@ internal class PersistedParentsTest
         expect(currentPersistedParent()).toBe(unsaved)
 
         expectDomainChangedEvents().containsExactly(
-                aParentChangedEvent(
-                        noBefore = true,
-                        afterVersion = 1))
+            aParentChangedEvent(
+                noBefore = true,
+                afterVersion = 1
+            )
+        )
     }
 
     @Test
@@ -102,11 +106,13 @@ internal class PersistedParentsTest
         expect(original.changed).toBe(false)
 
         expectDomainChangedEvents().containsExactly(
-                aParentChangedEvent(
-                        beforeVersion = 1,
-                        beforeValue = null,
-                        afterVersion = 2,
-                        afterValue = value))
+            aParentChangedEvent(
+                beforeVersion = 1,
+                beforeValue = null,
+                afterVersion = 2,
+                afterValue = value
+            )
+        )
     }
 
     @Test
@@ -141,20 +147,23 @@ internal class PersistedParentsTest
         expect(currentPersistedParent().at).toBe(at)
 
         expectDomainChangedEvents().containsExactly(
-                aChildChangedEvent(
-                        beforeVersion = 1,
-                        beforeParentNaturalId = null,
-                        beforeAt = atZero,
-                        beforeValue = null,
-                        afterVersion = 2,
-                        afterParentNaturalId = parentNaturalId,
-                        afterAt = at,
-                        afterValue = value),
-                aParentChangedEvent(
-                        beforeVersion = 1,
-                        beforeAt = null,
-                        afterVersion = 2,
-                        afterAt = at))
+            aChildChangedEvent(
+                beforeVersion = 1,
+                beforeParentNaturalId = null,
+                beforeAt = atZero,
+                beforeValue = null,
+                afterVersion = 2,
+                afterParentNaturalId = parentNaturalId,
+                afterAt = at,
+                afterValue = value
+            ),
+            aParentChangedEvent(
+                beforeVersion = 1,
+                beforeAt = null,
+                afterVersion = 2,
+                afterAt = at
+            )
+        )
     }
 
     @Test
@@ -171,9 +180,11 @@ internal class PersistedParentsTest
         }.toThrow<DomainException> { }
 
         expectDomainChangedEvents().containsExactly(
-                aParentChangedEvent(
-                        beforeVersion = 1,
-                        noAfter = true))
+            aParentChangedEvent(
+                beforeVersion = 1,
+                noAfter = true
+            )
+        )
     }
 
     @Test
@@ -221,19 +232,22 @@ internal class PersistedParentsTest
         expect(parent.children).containsExactly(assigned)
         expect(parent.version).toBe(2)
         expect(currentPersistedChild().parentNaturalId)
-                .toBe(parentNaturalId)
+            .toBe(parentNaturalId)
 
         expectDomainChangedEvents().containsExactly(
-                aChildChangedEvent(
-                        beforeVersion = 1,
-                        beforeParentNaturalId = null,
-                        afterVersion = 2,
-                        afterParentNaturalId = parentNaturalId),
-                aParentChangedEvent(
-                        beforeVersion = 1,
-                        beforeAt = null,
-                        afterVersion = 2,
-                        afterAt = atZero))
+            aChildChangedEvent(
+                beforeVersion = 1,
+                beforeParentNaturalId = null,
+                afterVersion = 2,
+                afterParentNaturalId = parentNaturalId
+            ),
+            aParentChangedEvent(
+                beforeVersion = 1,
+                beforeAt = null,
+                afterVersion = 2,
+                afterAt = atZero
+            )
+        )
 
         parent.unassign(assigned)
         parent = parent.save().domain
@@ -245,16 +259,19 @@ internal class PersistedParentsTest
         expect(currentPersistedChild().parentNaturalId).toBe(null)
 
         expectDomainChangedEvents().containsExactly(
-                aChildChangedEvent(
-                        beforeVersion = 2,
-                        beforeParentNaturalId = parentNaturalId,
-                        afterVersion = 3,
-                        afterParentNaturalId = null),
-                aParentChangedEvent(
-                        beforeVersion = 2,
-                        beforeAt = atZero,
-                        afterVersion = 3,
-                        afterAt = null))
+            aChildChangedEvent(
+                beforeVersion = 2,
+                beforeParentNaturalId = parentNaturalId,
+                afterVersion = 3,
+                afterParentNaturalId = null
+            ),
+            aParentChangedEvent(
+                beforeVersion = 2,
+                beforeAt = atZero,
+                afterVersion = 3,
+                afterAt = null
+            )
+        )
     }
 
     @Test
@@ -267,16 +284,19 @@ internal class PersistedParentsTest
 
         expectSqlQueryCountsByType(select = 1, upsert = 2)
         expectDomainChangedEvents().containsExactly(
-                aChildChangedEvent(
-                        beforeVersion = 1,
-                        beforeParentNaturalId = null,
-                        afterVersion = 2,
-                        afterParentNaturalId = parentNaturalId),
-                aParentChangedEvent(
-                        beforeVersion = 1,
-                        beforeAt = null,
-                        afterVersion = 2,
-                        afterAt = atZero))
+            aChildChangedEvent(
+                beforeVersion = 1,
+                beforeParentNaturalId = null,
+                afterVersion = 2,
+                afterParentNaturalId = parentNaturalId
+            ),
+            aParentChangedEvent(
+                beforeVersion = 1,
+                beforeAt = null,
+                afterVersion = 2,
+                afterAt = atZero
+            )
+        )
 
         val value = "PQR"
         unassigned.update {
@@ -290,17 +310,20 @@ internal class PersistedParentsTest
 
         expectSqlQueries().isEmpty()
         expectDomainChangedEvents().containsExactly(
-                aChildChangedEvent(
-                        beforeVersion = 2,
-                        beforeParentNaturalId = parentNaturalId,
-                        beforeValue = null,
-                        afterVersion = 3,
-                        afterParentNaturalId = null,
-                        afterValue = value),
-                aParentChangedEvent(
-                        beforeVersion = 2,
-                        beforeAt = atZero,
-                        noAfter = true))
+            aChildChangedEvent(
+                beforeVersion = 2,
+                beforeParentNaturalId = parentNaturalId,
+                beforeValue = null,
+                afterVersion = 3,
+                afterParentNaturalId = null,
+                afterValue = value
+            ),
+            aParentChangedEvent(
+                beforeVersion = 2,
+                beforeAt = atZero,
+                noAfter = true
+            )
+        )
     }
 
     @Test
@@ -315,11 +338,13 @@ internal class PersistedParentsTest
         expect(currentPersistedParent().otherNaturalId).toBe(other.naturalId)
 
         expectDomainChangedEvents().containsExactly(
-                aParentChangedEvent(
-                        beforeVersion = 1,
-                        beforeOtherNaturalId = null,
-                        afterVersion = 2,
-                        afterOtherNaturalId = otherNaturalId))
+            aParentChangedEvent(
+                beforeVersion = 1,
+                beforeOtherNaturalId = null,
+                afterVersion = 2,
+                afterOtherNaturalId = otherNaturalId
+            )
+        )
 
         parent.unassignAnyOther()
         parent.save()
@@ -328,10 +353,12 @@ internal class PersistedParentsTest
         expect(currentPersistedParent().otherNaturalId).toBe(null)
 
         expectDomainChangedEvents().containsExactly(
-                aParentChangedEvent(
-                        beforeVersion = 2,
-                        beforeOtherNaturalId = otherNaturalId,
-                        afterVersion = 3,
-                        afterOtherNaturalId = null))
+            aParentChangedEvent(
+                beforeVersion = 2,
+                beforeOtherNaturalId = otherNaturalId,
+                afterVersion = 3,
+                afterOtherNaturalId = null
+            )
+        )
     }
 }

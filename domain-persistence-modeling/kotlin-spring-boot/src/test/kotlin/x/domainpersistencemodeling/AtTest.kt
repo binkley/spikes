@@ -21,21 +21,21 @@ internal class AtTest {
         val childDetailsB = childHavingAt(atZero.plusNanos(1_000L))
 
         val children: Set<ChildSimpleDetails> =
-                setOf(childDetailsA, childDetailsB)
+            setOf(childDetailsA, childDetailsB)
 
         expect(children.at).toBe(childDetailsA.at)
     }
 }
 
 private fun childHavingAt(at: OffsetDateTime) =
-        object : ChildSimpleDetails {
-            override val naturalId = "a"
-            override val otherNaturalId: String? = null
-            override val parentNaturalId = "b"
-            override val state = "IRRELEVANT"
-            override val at = at
-            override val value: String? = null
-            override val sideValues = setOf<String>()
-            override val defaultSideValues = setOf<String>()
-            override val version = 1
-        }
+    object : ChildSimpleDetails {
+        override val naturalId = "a"
+        override val otherNaturalId: String? = null
+        override val parentNaturalId = "b"
+        override val state = "IRRELEVANT"
+        override val at = at
+        override val value: String? = null
+        override val sideValues = setOf<String>()
+        override val defaultSideValues = setOf<String>()
+        override val version = 1
+    }

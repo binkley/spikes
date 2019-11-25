@@ -10,51 +10,61 @@ import java.util.Optional
 
 @Repository
 interface ChildRepository : CrudRepository<ChildRecord, Long> {
-    @Query("""
+    @Query(
+        """
         SELECT *
         FROM child
         WHERE natural_id = :naturalId
-        """)
+        """
+    )
     fun findByNaturalId(@Param("naturalId") naturalId: String)
             : Optional<ChildRecord>
 
-    @Query("""
+    @Query(
+        """
         SELECT *
         FROM child
         WHERE parent_natural_id = :parentNaturalId
-        """)
+        """
+    )
     fun findByParentNaturalId(
-            @Param("parentNaturalId") parentNaturalId: String)
+        @Param("parentNaturalId") parentNaturalId: String
+    )
             : Iterable<ChildRecord>
 
-    @Query("""
+    @Query(
+        """
         SELECT *
         FROM upsert_child(:naturalId, :otherNaturalId, :parentNaturalId,
         :state, :at, :value, :sideValues, :defaultSideValues, :version)
-        """)
+        """
+    )
     fun upsert(
-            @Param("naturalId") naturalId: String,
-            @Param("otherNaturalId") otherNaturalId: String?,
-            @Param("parentNaturalId") parentNaturalId: String?,
-            @Param("state") state: String,
-            @Param("at") at: OffsetDateTime, // UTC
-            @Param("value") value: String?,
-            @Param("sideValues") sideValues: String,
-            @Param("defaultSideValues") defaultSideValues: String,
-            @Param("version") version: Int)
+        @Param("naturalId") naturalId: String,
+        @Param("otherNaturalId") otherNaturalId: String?,
+        @Param("parentNaturalId") parentNaturalId: String?,
+        @Param("state") state: String,
+        @Param("at") at: OffsetDateTime, // UTC
+        @Param("value") value: String?,
+        @Param("sideValues") sideValues: String,
+        @Param("defaultSideValues") defaultSideValues: String,
+        @Param("version") version: Int
+    )
             : Optional<ChildRecord>
 }
 
 fun ChildRepository.upsert(entity: ChildRecord): Optional<ChildRecord> {
-    val upserted = upsert(entity.naturalId,
-            entity.otherNaturalId,
-            entity.parentNaturalId,
-            entity.state,
-            entity.at,
-            entity.value,
-            entity.sideValues.workAroundArrayTypeForPostgresWrite(),
-            entity.defaultSideValues.workAroundArrayTypeForPostgresWrite(),
-            entity.version)
+    val upserted = upsert(
+        entity.naturalId,
+        entity.otherNaturalId,
+        entity.parentNaturalId,
+        entity.state,
+        entity.at,
+        entity.value,
+        entity.sideValues.workAroundArrayTypeForPostgresWrite(),
+        entity.defaultSideValues.workAroundArrayTypeForPostgresWrite(),
+        entity.version
+    )
     upserted.ifPresent {
         entity.upsertedWith(it)
     }

@@ -21,8 +21,10 @@ internal class SideValuesTest {
 
     @Test
     internal fun `should ignore defaults for disabled children`() {
-        val child = childHavingSideValues(setOf("A"), setOf(),
-                DISABLED.name)
+        val child = childHavingSideValues(
+            setOf("A"), setOf(),
+            DISABLED.name
+        )
 
         expect(child.currentSideValues).isEmpty()
     }
@@ -36,18 +38,23 @@ internal class SideValuesTest {
 
     @Test
     internal fun `should ignore overrides for disabled children`() {
-        val child = childHavingSideValues(setOf("B"), setOf("A"),
-                DISABLED.name)
+        val child = childHavingSideValues(
+            setOf("B"), setOf("A"),
+            DISABLED.name
+        )
 
         expect(child.currentSideValues).isEmpty()
     }
 
     @Test
     internal fun `should use children's intersection for parents`() {
-        val parent = parentHavingSideValues(setOf(
+        val parent = parentHavingSideValues(
+            setOf(
                 childHavingSideValues(setOf("A", "B")),
                 childHavingSideValues(setOf("A", "C")),
-                childHavingSideValues(setOf())))
+                childHavingSideValues(setOf())
+            )
+        )
 
         expect(parent.currentSideValues).toBe(setOf("A"))
     }
@@ -55,42 +62,45 @@ internal class SideValuesTest {
     @Test
     internal fun `should use overrides for parents`() {
         val parent = parentHavingSideValues(
-                setOf(childHavingSideValues(setOf("B"))), setOf("A"))
+            setOf(childHavingSideValues(setOf("B"))), setOf("A")
+        )
 
         expect(parent.currentSideValues).toBe(setOf("A"))
     }
 }
 
 private fun childHavingSideValues(
-        defaultSideValues: Set<String>,
-        sideValues: Set<String> = setOf(),
-        state: String = ENABLED.name) =
-        object : ChildSimpleDetails {
-            override val naturalId = "a"
-            override val otherNaturalId: String? = null
-            override val parentNaturalId = "b"
-            override val state = state
-            override val at = atZero
-            override val value: String? = null
-            override val sideValues = sideValues
-            override val defaultSideValues = defaultSideValues
-            override val version = 1
-        }
+    defaultSideValues: Set<String>,
+    sideValues: Set<String> = setOf(),
+    state: String = ENABLED.name
+) =
+    object : ChildSimpleDetails {
+        override val naturalId = "a"
+        override val otherNaturalId: String? = null
+        override val parentNaturalId = "b"
+        override val state = state
+        override val at = atZero
+        override val value: String? = null
+        override val sideValues = sideValues
+        override val defaultSideValues = defaultSideValues
+        override val version = 1
+    }
 
 private fun parentHavingSideValues(
-        children: Set<ChildSimpleDetails>,
-        sideValues: Set<String> = setOf()) =
-        object : TestParent {
-            override val naturalId = "a"
-            override val otherNaturalId: String? = null
-            override val state = ENABLED.name
-            override val value: String? = null
-            override val sideValues = sideValues
-            override val version = 1
-            override val children = children
-            override val at: OffsetDateTime? = null
-        }
+    children: Set<ChildSimpleDetails>,
+    sideValues: Set<String> = setOf()
+) =
+    object : TestParent {
+        override val naturalId = "a"
+        override val otherNaturalId: String? = null
+        override val state = ENABLED.name
+        override val value: String? = null
+        override val sideValues = sideValues
+        override val version = 1
+        override val children = children
+        override val at: OffsetDateTime? = null
+    }
 
 interface TestParent
     : ParentSimpleDetails,
-        ParentDependentDetails
+    ParentDependentDetails

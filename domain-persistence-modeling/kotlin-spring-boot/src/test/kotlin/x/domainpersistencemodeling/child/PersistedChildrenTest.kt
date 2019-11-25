@@ -21,7 +21,8 @@ internal class PersistedChildrenTest
     @Test
     fun `should create new`() {
         val found = children.findExistingOrCreateNewUnassigned(
-                childNaturalId)
+            childNaturalId
+        )
 
         expect(found).toBe(newUnsavedUnassignedChild())
         expect(found.existing).toBe(false)
@@ -35,7 +36,8 @@ internal class PersistedChildrenTest
         val saved = newSavedUnassignedChild()
 
         val found = children.findExistingOrCreateNewUnassigned(
-                childNaturalId)
+            childNaturalId
+        )
 
         expect(found).toBe(saved)
         expect(found.existing).toBe(true)
@@ -63,9 +65,11 @@ internal class PersistedChildrenTest
         expect(currentPersistedChild()).toBe(unsaved)
 
         expectDomainChangedEvents().containsExactly(
-                aChildChangedEvent(
-                        noBefore = true,
-                        afterVersion = 1))
+            aChildChangedEvent(
+                noBefore = true,
+                afterVersion = 1
+            )
+        )
     }
 
     @Test
@@ -106,13 +110,15 @@ internal class PersistedChildrenTest
         expect(original.changed).toBe(false)
 
         expectDomainChangedEvents().containsExactly(
-                aChildChangedEvent(
-                        beforeVersion = 1,
-                        beforeAt = atZero,
-                        beforeValue = null,
-                        afterVersion = 2,
-                        afterAt = at,
-                        afterValue = value))
+            aChildChangedEvent(
+                beforeVersion = 1,
+                beforeAt = atZero,
+                beforeValue = null,
+                afterVersion = 2,
+                afterAt = at,
+                afterValue = value
+            )
+        )
     }
 
     @Test
@@ -128,9 +134,11 @@ internal class PersistedChildrenTest
         }.toThrow<DomainException> { }
 
         expectDomainChangedEvents().containsExactly(
-                aChildChangedEvent(
-                        beforeVersion = 1,
-                        noAfter = true))
+            aChildChangedEvent(
+                beforeVersion = 1,
+                noAfter = true
+            )
+        )
     }
 
     @Test
@@ -143,21 +151,24 @@ internal class PersistedChildrenTest
         unsaved.assignTo(parent.naturalId)
 
         expect(unsaved.parentNaturalId).toBe(
-                parentNaturalId)
+            parentNaturalId
+        )
 
         unsaved.save()
 
         expectSqlQueryCountsByType(upsert = 1)
 
         expect(currentPersistedChild().parentNaturalId)
-                .toBe(parentNaturalId)
+            .toBe(parentNaturalId)
         expect(currentPersistedParent().version).toBe(2)
 
         expectDomainChangedEvents().containsExactly(
-                aChildChangedEvent(
-                        noBefore = true,
-                        afterVersion = 1,
-                        afterParentNaturalId = parentNaturalId))
+            aChildChangedEvent(
+                noBefore = true,
+                afterVersion = 1,
+                afterParentNaturalId = parentNaturalId
+            )
+        )
     }
 
     @Test
@@ -170,7 +181,8 @@ internal class PersistedChildrenTest
         val assigned = child.assignTo(parent.naturalId)
 
         expect(assigned.parentNaturalId).toBe(
-                parentNaturalId)
+            parentNaturalId
+        )
 
         expectSqlQueries().isEmpty()
         expectDomainChangedEvents().isEmpty()
@@ -181,15 +193,17 @@ internal class PersistedChildrenTest
 
         expect(assigned.version).toBe(2)
         expect(currentPersistedChild().parentNaturalId)
-                .toBe(parentNaturalId)
+            .toBe(parentNaturalId)
         expect(currentPersistedParent().version).toBe(2)
 
         expectDomainChangedEvents().containsExactly(
-                aChildChangedEvent(
-                        beforeVersion = 1,
-                        beforeParentNaturalId = null,
-                        afterVersion = 2,
-                        afterParentNaturalId = parentNaturalId))
+            aChildChangedEvent(
+                beforeVersion = 1,
+                beforeParentNaturalId = null,
+                afterVersion = 2,
+                afterParentNaturalId = parentNaturalId
+            )
+        )
     }
 
     @Test
@@ -201,10 +215,12 @@ internal class PersistedChildrenTest
 
         expectSqlQueryCountsByType(upsert = 1)
         expectDomainChangedEvents().containsExactly(
-                aChildChangedEvent(
-                        noBefore = true,
-                        afterVersion = 1,
-                        afterParentNaturalId = parentNaturalId))
+            aChildChangedEvent(
+                noBefore = true,
+                afterVersion = 1,
+                afterParentNaturalId = parentNaturalId
+            )
+        )
 
         expect(parent.version).toBe(1)
 
@@ -219,11 +235,13 @@ internal class PersistedChildrenTest
         expect(currentPersistedParent().version).toBe(3)
 
         expectDomainChangedEvents().containsExactly(
-                aChildChangedEvent(
-                        beforeVersion = 1,
-                        beforeParentNaturalId = parentNaturalId,
-                        afterVersion = 2,
-                        afterParentNaturalId = null))
+            aChildChangedEvent(
+                beforeVersion = 1,
+                beforeParentNaturalId = parentNaturalId,
+                afterVersion = 2,
+                afterParentNaturalId = null
+            )
+        )
     }
 
     @Test
@@ -238,11 +256,13 @@ internal class PersistedChildrenTest
         expect(currentPersistedChild().otherNaturalId).toBe(other.naturalId)
 
         expectDomainChangedEvents().containsExactly(
-                aChildChangedEvent(
-                        beforeVersion = 1,
-                        beforeOtherNaturalId = null,
-                        afterVersion = 2,
-                        afterOtherNaturalId = otherNaturalId))
+            aChildChangedEvent(
+                beforeVersion = 1,
+                beforeOtherNaturalId = null,
+                afterVersion = 2,
+                afterOtherNaturalId = otherNaturalId
+            )
+        )
 
         child.unassignAnyOther()
         child.save()
@@ -251,10 +271,12 @@ internal class PersistedChildrenTest
         expect(currentPersistedChild().otherNaturalId).toBe(null)
 
         expectDomainChangedEvents().containsExactly(
-                aChildChangedEvent(
-                        beforeVersion = 2,
-                        beforeOtherNaturalId = otherNaturalId,
-                        afterVersion = 3,
-                        afterOtherNaturalId = null))
+            aChildChangedEvent(
+                beforeVersion = 2,
+                beforeOtherNaturalId = otherNaturalId,
+                afterVersion = 3,
+                afterOtherNaturalId = null
+            )
+        )
     }
 }

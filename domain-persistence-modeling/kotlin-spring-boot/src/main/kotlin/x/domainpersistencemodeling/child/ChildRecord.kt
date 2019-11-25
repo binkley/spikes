@@ -11,25 +11,28 @@ import java.util.TreeSet
 
 @Table("child")
 data class ChildRecord(
-        @Id var id: Long?,
-        override var naturalId: String,
-        override var otherNaturalId: String?,
-        override var parentNaturalId: String?,
-        override var state: String,
-        override var at: OffsetDateTime, // UTC
-        override var value: String?,
-        override var sideValues: MutableSet<String>,
-        override var defaultSideValues: MutableSet<String>,
-        override var version: Int)
-    : MutableChildSimpleDetails,
-        UpsertableRecord<ChildRecord> {
+    @Id var id: Long?,
+    override var naturalId: String,
+    override var otherNaturalId: String?,
+    override var parentNaturalId: String?,
+    override var state: String,
+    override var at: OffsetDateTime, // UTC
+    override var value: String?,
+    override var sideValues: MutableSet<String>,
+    override var defaultSideValues: MutableSet<String>,
+    override var version: Int
+) : MutableChildSimpleDetails,
+    UpsertableRecord<ChildRecord> {
     internal constructor(naturalId: String)
-            : this(null, naturalId, null, null, ENABLED.name,
-            OffsetDateTime.ofInstant(
-                    Instant.EPOCH,
-                    ZoneOffset.UTC), null,
-            mutableSetOf(),
-            mutableSetOf(), 0)
+            : this(
+        null, naturalId, null, null, ENABLED.name,
+        OffsetDateTime.ofInstant(
+            Instant.EPOCH,
+            ZoneOffset.UTC
+        ), null,
+        mutableSetOf(),
+        mutableSetOf(), 0
+    )
 
     override fun upsertedWith(upserted: ChildRecord): ChildRecord {
         id = upserted.id
@@ -41,7 +44,8 @@ data class ChildRecord(
         value = upserted.value
         sideValues = TreeSet(upserted.sideValues)
         defaultSideValues = TreeSet(
-                upserted.defaultSideValues)
+            upserted.defaultSideValues
+        )
         version = upserted.version
         return this
     }

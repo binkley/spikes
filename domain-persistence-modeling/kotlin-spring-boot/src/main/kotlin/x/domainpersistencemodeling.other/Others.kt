@@ -5,9 +5,10 @@ import x.domainpersistencemodeling.PersistableDomain
 import x.domainpersistencemodeling.ScopedMutable
 
 data class OtherSnapshot(
-        val naturalId: String,
-        val value: String?,
-        val version: Int)
+    val naturalId: String,
+    val value: String?,
+    val version: Int
+)
 
 interface OtherFactory {
     fun all(): Sequence<Other>
@@ -23,7 +24,7 @@ interface OtherSimpleDetails
     val version: Int
 
     override fun compareTo(other: OtherSimpleDetails) =
-            naturalId.compareTo(other.naturalId)
+        naturalId.compareTo(other.naturalId)
 }
 
 interface OtherDependentDetails
@@ -36,15 +37,15 @@ interface MutableOtherDependentDetails : OtherDependentDetails
 
 interface Other
     : OtherSimpleDetails,
-        OtherDependentDetails,
-        ScopedMutable<MutableOther>,
-        PersistableDomain<OtherSnapshot, Other>
+    OtherDependentDetails,
+    ScopedMutable<MutableOther>,
+    PersistableDomain<OtherSnapshot, Other>
 
 interface MutableOther
     : MutableOtherSimpleDetails,
-        MutableOtherDependentDetails
+    MutableOtherDependentDetails
 
 data class OtherChangedEvent(
-        val before: OtherSnapshot?,
-        val after: OtherSnapshot?)
-    : DomainChangedEvent<OtherSnapshot>(before, after)
+    val before: OtherSnapshot?,
+    val after: OtherSnapshot?
+) : DomainChangedEvent<OtherSnapshot>(before, after)

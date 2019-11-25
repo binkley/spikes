@@ -32,13 +32,13 @@ class SqlQueries
     }
 
     fun <V> expectNextByType(toValue: (List<String>) -> V) =
-            expect(queries.groupBy {
-                bucket(it)
-            }.map {
-                it.key to toValue(it.value)
-            }.toMap()).also {
-                reset()
-            }
+        expect(queries.groupBy {
+            bucket(it)
+        }.map {
+            it.key to toValue(it.value)
+        }.toMap()).also {
+            reset()
+        }
 
     fun reset() = queries.clear()
 
@@ -47,7 +47,7 @@ class SqlQueries
 
     private inner class Appender : AppenderBase<ILoggingEvent>() {
         private val logger =
-                getLogger(JdbcTemplate::class.java.name) as Logger
+            getLogger(JdbcTemplate::class.java.name) as Logger
         private val oldLevel = logger.level
         private val oldAdditive = logger.isAdditive
 
@@ -79,15 +79,16 @@ class SqlQueries
 }
 
 private val queryOnly = Pattern.compile(
-        "^Executing prepared SQL statement \\[(.*)]$")!!
+    "^Executing prepared SQL statement \\[(.*)]$"
+)!!
 private val upsert = Pattern.compile("^SELECT \\* FROM upsert_.*$")
 
 private fun bucket(query: String) = try {
     val matcher = upsert.matcher(query)
     if (matcher.find()) "UPSERT"
     else parse(query).javaClass.simpleName
-            .replace("Statement", "")
-            .toUpperCase(Locale.US) // TODO: What is ASCII upcase?
+        .replace("Statement", "")
+        .toUpperCase(Locale.US) // TODO: What is ASCII upcase?
 } catch (e: JSQLParserException) {
     "INVALID"
 }

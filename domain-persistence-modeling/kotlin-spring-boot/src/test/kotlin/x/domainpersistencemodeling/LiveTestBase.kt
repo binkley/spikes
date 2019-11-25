@@ -74,14 +74,15 @@ internal abstract class LiveTestBase {
 
     internal fun expectSqlQueries() = sqlQueries.expectNext
     internal fun <V> expectSqlQueriesByType(toValue: (List<String>) -> V) =
-            sqlQueries.expectNextByType(toValue)
+        sqlQueries.expectNextByType(toValue)
 
     internal fun expectSqlQueryCountsByType(
-            delete: Int = 0,
-            insert: Int = 0,
-            select: Int = 0,
-            update: Int = 0,
-            upsert: Int = 0) {
+        delete: Int = 0,
+        insert: Int = 0,
+        select: Int = 0,
+        update: Int = 0,
+        upsert: Int = 0
+    ) {
         val expected = mutableMapOf<String, Int>()
         if (0 != delete) expected["DELETE"] = delete
         if (0 != insert) expected["INSERT"] = insert
@@ -100,7 +101,7 @@ internal abstract class LiveTestBase {
     }
 
     internal fun newUnsavedOther(naturalId: String = otherNaturalId) =
-            others.createNew(naturalId)
+        others.createNew(naturalId)
 
     internal fun newSavedOther(): Other {
         val saved = newUnsavedOther().save()
@@ -112,16 +113,16 @@ internal abstract class LiveTestBase {
     }
 
     internal fun currentPersistedOther(naturalId: String = otherNaturalId) =
-            others.findExisting(naturalId)!!.also {
-                sqlQueries.reset()
-            }
+        others.findExisting(naturalId)!!.also {
+            sqlQueries.reset()
+        }
 
     internal fun expectAllParents() = expect(parents.all().toList()).also {
         sqlQueries.reset()
     }
 
     internal fun newUnsavedParent(naturalId: String = parentNaturalId) =
-            parents.createNew(naturalId)
+        parents.createNew(naturalId)
 
     internal fun newSavedParent(): Parent {
         val saved = newUnsavedParent().save()
@@ -133,9 +134,9 @@ internal abstract class LiveTestBase {
     }
 
     internal fun currentPersistedParent(naturalId: String = parentNaturalId) =
-            parents.findExisting(naturalId)!!.also {
-                sqlQueries.reset()
-            }
+        parents.findExisting(naturalId)!!.also {
+            sqlQueries.reset()
+        }
 
     internal fun expectAllChildren() = expect(children.all().toList()).also {
         sqlQueries.reset()
@@ -151,83 +152,97 @@ internal abstract class LiveTestBase {
     }
 
     internal fun currentPersistedChild(
-            naturalId: String = childNaturalId) =
-            children.findExisting(naturalId)!!.also {
-                sqlQueries.reset()
-            }
+        naturalId: String = childNaturalId
+    ) =
+        children.findExisting(naturalId)!!.also {
+            sqlQueries.reset()
+        }
 
     internal fun newUnsavedUnassignedChild(
-            naturalId: String = childNaturalId) =
-            children.createNewUnassigned(naturalId)
-                    as PersistedUnassignedChild
+        naturalId: String = childNaturalId
+    ) =
+        children.createNewUnassigned(naturalId)
+                as PersistedUnassignedChild
 }
 
 internal fun anOtherChangedEvent( // TODO: Tie defaults to record defaults
-        noBefore: Boolean = false,
-        beforeValue: String? = null,
-        beforeOtherVersion: Int = 0,
-        noAfter: Boolean = false,
-        afterValue: String? = null,
-        afterVersion: Int = 0) =
-        OtherChangedEvent(
-                if (noBefore) null else OtherSnapshot(
-                        otherNaturalId, beforeValue,
-                        beforeOtherVersion),
-                if (noAfter) null else OtherSnapshot(
-                        otherNaturalId, afterValue,
-                        afterVersion))
+    noBefore: Boolean = false,
+    beforeValue: String? = null,
+    beforeOtherVersion: Int = 0,
+    noAfter: Boolean = false,
+    afterValue: String? = null,
+    afterVersion: Int = 0
+) =
+    OtherChangedEvent(
+        if (noBefore) null else OtherSnapshot(
+            otherNaturalId, beforeValue,
+            beforeOtherVersion
+        ),
+        if (noAfter) null else OtherSnapshot(
+            otherNaturalId, afterValue,
+            afterVersion
+        )
+    )
 
 internal fun aParentChangedEvent( // TODO: Tie defaults to record defaults
-        noBefore: Boolean = false,
-        beforeOtherNaturalId: String? = null,
-        beforeState: String = ENABLED.name,
-        beforeAt: OffsetDateTime? = null,
-        beforeValue: String? = null,
-        beforeSideValues: Set<String> = setOf(),
-        beforeVersion: Int = 0,
-        noAfter: Boolean = false,
-        afterOtherNaturalId: String? = null,
-        afterState: String = ENABLED.name,
-        afterAt: OffsetDateTime? = null,
-        afterValue: String? = null,
-        afterSideValues: Set<String> = setOf(),
-        afterVersion: Int = 0) =
-        ParentChangedEvent(
-                if (noBefore) null else ParentSnapshot(
-                        parentNaturalId,
-                        beforeOtherNaturalId, beforeState, beforeAt,
-                        beforeValue,
-                        beforeSideValues, beforeVersion),
-                if (noAfter) null else ParentSnapshot(
-                        parentNaturalId,
-                        afterOtherNaturalId, afterState, afterAt, afterValue,
-                        afterSideValues, afterVersion))
+    noBefore: Boolean = false,
+    beforeOtherNaturalId: String? = null,
+    beforeState: String = ENABLED.name,
+    beforeAt: OffsetDateTime? = null,
+    beforeValue: String? = null,
+    beforeSideValues: Set<String> = setOf(),
+    beforeVersion: Int = 0,
+    noAfter: Boolean = false,
+    afterOtherNaturalId: String? = null,
+    afterState: String = ENABLED.name,
+    afterAt: OffsetDateTime? = null,
+    afterValue: String? = null,
+    afterSideValues: Set<String> = setOf(),
+    afterVersion: Int = 0
+) =
+    ParentChangedEvent(
+        if (noBefore) null else ParentSnapshot(
+            parentNaturalId,
+            beforeOtherNaturalId, beforeState, beforeAt,
+            beforeValue,
+            beforeSideValues, beforeVersion
+        ),
+        if (noAfter) null else ParentSnapshot(
+            parentNaturalId,
+            afterOtherNaturalId, afterState, afterAt, afterValue,
+            afterSideValues, afterVersion
+        )
+    )
 
 internal fun aChildChangedEvent( // TODO: Tie defaults to record defaults
-        noBefore: Boolean = false,
-        beforeOtherNaturalId: String? = null,
-        beforeParentNaturalId: String? = null,
-        beforeState: String = ENABLED.name,
-        beforeAt: OffsetDateTime = atZero,
-        beforeValue: String? = null,
-        beforeSideValues: Set<String> = setOf(),
-        beforeVersion: Int = 0,
-        noAfter: Boolean = false,
-        afterOtherNaturalId: String? = null,
-        afterParentNaturalId: String? = null,
-        afterState: String = ENABLED.name,
-        afterAt: OffsetDateTime = atZero,
-        afterValue: String? = null,
-        afterSideValues: Set<String> = setOf(),
-        afterVersion: Int = 0) =
-        ChildChangedEvent(
-                if (noBefore) null else ChildSnapshot(
-                        childNaturalId,
-                        beforeOtherNaturalId, beforeParentNaturalId,
-                        beforeState,
-                        beforeAt, beforeValue, beforeSideValues,
-                        beforeVersion),
-                if (noAfter) null else ChildSnapshot(
-                        childNaturalId,
-                        afterOtherNaturalId, afterParentNaturalId, afterState,
-                        afterAt, afterValue, afterSideValues, afterVersion))
+    noBefore: Boolean = false,
+    beforeOtherNaturalId: String? = null,
+    beforeParentNaturalId: String? = null,
+    beforeState: String = ENABLED.name,
+    beforeAt: OffsetDateTime = atZero,
+    beforeValue: String? = null,
+    beforeSideValues: Set<String> = setOf(),
+    beforeVersion: Int = 0,
+    noAfter: Boolean = false,
+    afterOtherNaturalId: String? = null,
+    afterParentNaturalId: String? = null,
+    afterState: String = ENABLED.name,
+    afterAt: OffsetDateTime = atZero,
+    afterValue: String? = null,
+    afterSideValues: Set<String> = setOf(),
+    afterVersion: Int = 0
+) =
+    ChildChangedEvent(
+        if (noBefore) null else ChildSnapshot(
+            childNaturalId,
+            beforeOtherNaturalId, beforeParentNaturalId,
+            beforeState,
+            beforeAt, beforeValue, beforeSideValues,
+            beforeVersion
+        ),
+        if (noAfter) null else ChildSnapshot(
+            childNaturalId,
+            afterOtherNaturalId, afterParentNaturalId, afterState,
+            afterAt, afterValue, afterSideValues, afterVersion
+        )
+    )

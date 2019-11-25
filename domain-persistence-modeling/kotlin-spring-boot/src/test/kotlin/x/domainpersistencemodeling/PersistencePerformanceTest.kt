@@ -10,7 +10,7 @@ internal class PersistencePerformanceTest
         val parent = newSavedParent()
         for (i in 1..10) {
             val uniqueUnassignedChild =
-                    children.createNewUnassigned("c$i")
+                children.createNewUnassigned("c$i")
             parent.assign(uniqueUnassignedChild)
         }
         parent.save()

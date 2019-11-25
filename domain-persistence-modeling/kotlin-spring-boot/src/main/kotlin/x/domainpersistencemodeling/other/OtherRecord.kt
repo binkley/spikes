@@ -6,12 +6,12 @@ import x.domainpersistencemodeling.UpsertableRecord
 
 @Table("other")
 data class OtherRecord(
-        @Id var id: Long?,
-        override var naturalId: String,
-        override var value: String?,
-        override var version: Int)
-    : MutableOtherSimpleDetails,
-        UpsertableRecord<OtherRecord> {
+    @Id var id: Long?,
+    override var naturalId: String,
+    override var value: String?,
+    override var version: Int
+) : MutableOtherSimpleDetails,
+    UpsertableRecord<OtherRecord> {
     internal constructor(naturalId: String)
             : this(null, naturalId, null, 0)
 
