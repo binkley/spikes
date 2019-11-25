@@ -15,8 +15,7 @@ internal class PersistedOthersTest
     : LiveTestBase() {
     @Test
     fun `should create new`() {
-        val found = others.findExistingOrCreateNew(
-                otherNaturalId)
+        val found = others.findExistingOrCreateNew(otherNaturalId)
 
         expect(found).toBe(newUnsavedOther())
 
@@ -28,8 +27,7 @@ internal class PersistedOthersTest
     fun `should find existing`() {
         val saved = newSavedOther()
 
-        val found = others.findExistingOrCreateNew(
-                otherNaturalId)
+        val found = others.findExistingOrCreateNew(otherNaturalId)
 
         expect(found).toBe(saved)
 
