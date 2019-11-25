@@ -23,8 +23,8 @@ internal class ParentRepository(
             it.fix()
         }
 
-    fun upsert(entity: ParentRecord): Optional<ParentRecord> {
-        val upserted = repository.upsert(
+    fun upsert(entity: ParentRecord) =
+        repository.upsert(
             entity.naturalId,
             entity.otherNaturalId,
             entity.state,
@@ -33,12 +33,8 @@ internal class ParentRepository(
             entity.version
         ).map {
             it.fix()
-        }
-        upserted.ifPresent {
             entity.upsertedWith(it)
         }
-        return upserted
-    }
 
     fun delete(entity: ParentRecord) {
         repository.delete(entity)

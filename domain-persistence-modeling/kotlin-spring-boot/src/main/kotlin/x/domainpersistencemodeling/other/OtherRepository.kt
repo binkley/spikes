@@ -30,14 +30,11 @@ interface OtherRepository : CrudRepository<OtherRecord, Long> {
             : Optional<OtherRecord>
 }
 
-fun OtherRepository.upsert(entity: OtherRecord): Optional<OtherRecord> {
-    val upserted = upsert(
+fun OtherRepository.upsert(entity: OtherRecord) =
+    upsert(
         entity.naturalId,
         entity.value,
         entity.version
-    )
-    upserted.ifPresent {
+    ).map {
         entity.upsertedWith(it)
     }
-    return upserted
-}

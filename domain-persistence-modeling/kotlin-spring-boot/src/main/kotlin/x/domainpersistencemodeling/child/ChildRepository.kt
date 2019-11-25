@@ -53,8 +53,8 @@ interface ChildRepository : CrudRepository<ChildRecord, Long> {
             : Optional<ChildRecord>
 }
 
-fun ChildRepository.upsert(entity: ChildRecord): Optional<ChildRecord> {
-    val upserted = upsert(
+fun ChildRepository.upsert(entity: ChildRecord) =
+    upsert(
         entity.naturalId,
         entity.otherNaturalId,
         entity.parentNaturalId,
@@ -64,9 +64,6 @@ fun ChildRepository.upsert(entity: ChildRecord): Optional<ChildRecord> {
         entity.sideValues.workAroundArrayTypeForPostgresWrite(),
         entity.defaultSideValues.workAroundArrayTypeForPostgresWrite(),
         entity.version
-    )
-    upserted.ifPresent {
+    ).map {
         entity.upsertedWith(it)
     }
-    return upserted
-}

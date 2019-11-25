@@ -28,8 +28,8 @@ internal class ChildRepository(private val repository: InternalChildRepository) 
             it.fix()
         }
 
-    fun upsert(entity: ChildRecord): Optional<ChildRecord> {
-        val upserted = repository.upsert(
+    fun upsert(entity: ChildRecord) =
+        repository.upsert(
             entity.naturalId,
             entity.otherNaturalId,
             entity.parentNaturalId,
@@ -41,12 +41,8 @@ internal class ChildRepository(private val repository: InternalChildRepository) 
             entity.version
         ).map {
             it.fix()
-        }
-        upserted.ifPresent {
             entity.upsertedWith(it)
         }
-        return upserted
-    }
 
     fun delete(entity: ChildRecord) {
         repository.delete(entity)
