@@ -6,7 +6,7 @@ import x.domainpersistencemodeling.UpsertableRecord
 import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneOffset.UTC
-import java.util.*
+import java.util.TreeSet
 import javax.persistence.Entity
 import javax.persistence.Id
 import javax.persistence.Table
@@ -16,24 +16,26 @@ import javax.persistence.Transient
 @Introspected
 @Table(name = "child")
 data class ChildRecord(
-        @Id var id: Long?,
-        override var naturalId: String,
-        override var otherNaturalId: String?,
-        override var parentNaturalId: String?,
-        override var state: String,
-        override var at: OffsetDateTime, // UTC
-        override var value: String?,
-        override var sideValues: MutableSet<String>,
-        override var defaultSideValues: MutableSet<String>,
-        override var version: Int)
-    : MutableChildSimpleDetails,
-        UpsertableRecord<ChildRecord> {
+    @Id var id: Long?,
+    override var naturalId: String,
+    override var otherNaturalId: String?,
+    override var parentNaturalId: String?,
+    override var state: String,
+    override var at: OffsetDateTime, // UTC
+    override var value: String?,
+    override var sideValues: MutableSet<String>,
+    override var defaultSideValues: MutableSet<String>,
+    override var version: Int
+) : MutableChildSimpleDetails,
+    UpsertableRecord<ChildRecord> {
     internal constructor(naturalId: String)
-            : this(null, naturalId, null, null, ENABLED.name,
-            OffsetDateTime.ofInstant(Instant.EPOCH, UTC),
-            null,
-            mutableSetOf(),
-            mutableSetOf(), 0)
+            : this(
+        null, naturalId, null, null, ENABLED.name,
+        OffsetDateTime.ofInstant(Instant.EPOCH, UTC),
+        null,
+        mutableSetOf(),
+        mutableSetOf(), 0
+    )
 
     @get:Transient
     override val assigned: Boolean

@@ -8,30 +8,36 @@ import java.util.Optional
 
 @JdbcRepository(dialect = POSTGRES)
 interface OtherRepository : CrudRepository<OtherRecord, Long> {
-    @Query("""
+    @Query(
+        """
         SELECT *
         FROM other
         WHERE natural_id = :naturalId
-        """)
+        """
+    )
     fun findByNaturalId(naturalId: String)
             : Optional<OtherRecord>
 
-    @Query("""
+    @Query(
+        """
         SELECT *
         FROM upsert_other(:naturalId, :value, :version)
-        """)
+        """
+    )
     fun upsert(
-            naturalId: String,
-            value: String?,
-            version: Int)
+        naturalId: String,
+        value: String?,
+        version: Int
+    )
             : Optional<OtherRecord>
 }
 
 fun OtherRepository.upsert(entity: OtherRecord): Optional<OtherRecord> {
     val upserted = upsert(
-            entity.naturalId,
-            entity.value,
-            entity.version)
+        entity.naturalId,
+        entity.value,
+        entity.version
+    )
     upserted.ifPresent {
         entity.upsertedWith(it)
     }

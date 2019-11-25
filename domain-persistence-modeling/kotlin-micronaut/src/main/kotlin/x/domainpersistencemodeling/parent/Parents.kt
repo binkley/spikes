@@ -10,13 +10,14 @@ import x.domainpersistencemodeling.other.Other
 import java.time.OffsetDateTime
 
 data class ParentSnapshot(
-        val naturalId: String,
-        val otherNaturalId: String?,
-        val state: String,
-        val at: OffsetDateTime?,
-        val value: String?,
-        val sideValues: Set<String>, // Sorted
-        val version: Int)
+    val naturalId: String,
+    val otherNaturalId: String?,
+    val state: String,
+    val at: OffsetDateTime?,
+    val value: String?,
+    val sideValues: Set<String>, // Sorted
+    val version: Int
+)
 
 interface ParentFactory {
     fun all(): Sequence<Parent>
@@ -35,7 +36,7 @@ interface ParentSimpleDetails
     val version: Int
 
     override fun compareTo(other: ParentSimpleDetails) =
-            naturalId.compareTo(other.naturalId)
+        naturalId.compareTo(other.naturalId)
 }
 
 interface ParentDependentDetails {
@@ -57,9 +58,9 @@ interface MutableParentDependentDetails
 
 interface Parent
     : ParentSimpleDetails,
-        ParentDependentDetails,
-        ScopedMutable<MutableParent>,
-        PersistableDomain<ParentSnapshot, Parent> {
+    ParentDependentDetails,
+    ScopedMutable<MutableParent>,
+    PersistableDomain<ParentSnapshot, Parent> {
     override val children: Set<AssignedChild>
 
     /** Assigns [other] to this parent, a mutable operation. */
@@ -77,9 +78,9 @@ interface Parent
 
 interface MutableParent
     : MutableParentSimpleDetails,
-        MutableParentDependentDetails
+    MutableParentDependentDetails
 
 data class ParentChangedEvent(
-        val before: ParentSnapshot?,
-        val after: ParentSnapshot?)
-    : DomainChangedEvent<ParentSnapshot>(before, after)
+    val before: ParentSnapshot?,
+    val after: ParentSnapshot?
+) : DomainChangedEvent<ParentSnapshot>(before, after)

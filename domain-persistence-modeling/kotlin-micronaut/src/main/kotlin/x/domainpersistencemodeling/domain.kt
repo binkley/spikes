@@ -25,13 +25,15 @@ internal class PersistedDomain<Snapshot,
         Factory : PersistedFactory<Snapshot, Record, Dependent>,
         Domain : PersistableDomain<Snapshot, Domain>,
         Mutable>(
-        private val factory: Factory,
-        private var snapshot: Snapshot?,
-        private var currentRecord: Record?,
-        internal val dependent: Dependent,
-        private val toDomain: (PersistedDomain
-        <Snapshot, Record, Dependent, Factory, Domain, Mutable>) -> Domain)
-    : PersistableDomain<Snapshot, Domain> {
+    private val factory: Factory,
+    private var snapshot: Snapshot?,
+    private var currentRecord: Record?,
+    internal val dependent: Dependent,
+    private val toDomain: (
+        PersistedDomain
+        <Snapshot, Record, Dependent, Factory, Domain, Mutable>
+    ) -> Domain
+) : PersistableDomain<Snapshot, Domain> {
     override val naturalId: String
         get() = record.naturalId
     override val version: Int
@@ -52,8 +54,8 @@ internal class PersistedDomain<Snapshot,
         // Save ourselves first, so children have a valid parent
         val before = snapshot
         var result =
-                if (changed) factory.save(record)
-                else UpsertedRecordResult(record, false)
+            if (changed) factory.save(record)
+            else UpsertedRecordResult(record, false)
         currentRecord = result.record
 
         if (dependent.saveMutated()) {
@@ -96,5 +98,5 @@ internal class PersistedDomain<Snapshot,
     override fun hashCode() = hash(snapshot, currentRecord, dependent)
 
     override fun toString() =
-            "{snapshot=${snapshot}, record=${currentRecord}, dependent=${dependent}}"
+        "{snapshot=${snapshot}, record=${currentRecord}, dependent=${dependent}}"
 }

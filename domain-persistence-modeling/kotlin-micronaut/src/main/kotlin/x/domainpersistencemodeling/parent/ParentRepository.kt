@@ -6,30 +6,32 @@ import io.micronaut.data.model.query.builder.sql.Dialect.POSTGRES
 import io.micronaut.data.repository.CrudRepository
 import x.domainpersistencemodeling.workAroundArrayTypeForPostgresRead
 import x.domainpersistencemodeling.workAroundArrayTypeForPostgresWrite
-import java.util.*
+import java.util.Optional
 import javax.inject.Singleton
 
 @Singleton
 internal class ParentRepository(
-        private val repository: InternalParentRepository) {
+    private val repository: InternalParentRepository
+) {
     fun findAll(): Iterable<ParentRecord> =
-            repository.findAll().map {
-                it.fix()
-            }
+        repository.findAll().map {
+            it.fix()
+        }
 
     fun findByNaturalId(naturalId: String): Optional<ParentRecord> =
-            repository.findByNaturalId(naturalId).map {
-                it.fix()
-            }
+        repository.findByNaturalId(naturalId).map {
+            it.fix()
+        }
 
     fun upsert(entity: ParentRecord): Optional<ParentRecord> {
         val upserted = repository.upsert(
-                entity.naturalId,
-                entity.otherNaturalId,
-                entity.state,
-                entity.value,
-                entity.sideValues.workAroundArrayTypeForPostgresWrite(),
-                entity.version).map {
+            entity.naturalId,
+            entity.otherNaturalId,
+            entity.state,
+            entity.value,
+            entity.sideValues.workAroundArrayTypeForPostgresWrite(),
+            entity.version
+        ).map {
             it.fix()
         }
         upserted.ifPresent {
@@ -50,24 +52,29 @@ internal class ParentRepository(
 
 @JdbcRepository(dialect = POSTGRES)
 interface InternalParentRepository : CrudRepository<ParentRecord, Long> {
-    @Query("""
+    @Query(
+        """
         SELECT *
         FROM parent
         WHERE natural_id = :naturalId
-        """)
+        """
+    )
     fun findByNaturalId(naturalId: String)
             : Optional<ParentRecord>
 
-    @Query("""
+    @Query(
+        """
         SELECT *
         FROM upsert_parent(:naturalId, :otherNaturalId, :state, :value, :sideValues, :version)
-        """)
+        """
+    )
     fun upsert(
-            naturalId: String,
-            otherNaturalId: String?,
-            state: String,
-            value: String?,
-            sideValues: String,
-            version: Int)
+        naturalId: String,
+        otherNaturalId: String?,
+        state: String,
+        value: String?,
+        sideValues: String,
+        version: Int
+    )
             : Optional<ParentRecord>
 }

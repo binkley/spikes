@@ -7,37 +7,39 @@ import io.micronaut.data.repository.CrudRepository
 import x.domainpersistencemodeling.workAroundArrayTypeForPostgresRead
 import x.domainpersistencemodeling.workAroundArrayTypeForPostgresWrite
 import java.time.OffsetDateTime
-import java.util.*
+import java.util.Optional
 import javax.inject.Singleton
 
 @Singleton
 internal class ChildRepository(private val repository: InternalChildRepository) {
     fun findAll(): Iterable<ChildRecord> =
-            repository.findAll().map {
-                it.fix()
-            }
+        repository.findAll().map {
+            it.fix()
+        }
 
     fun findByNaturalId(naturalId: String): Optional<ChildRecord> =
-            repository.findByNaturalId(naturalId).map {
-                it.fix()
-            }
+        repository.findByNaturalId(naturalId).map {
+            it.fix()
+        }
 
     fun findByParentNaturalId(parentNaturalId: String)
             : Iterable<ChildRecord> =
-            repository.findByParentNaturalId(parentNaturalId).map {
-                it.fix()
-            }
+        repository.findByParentNaturalId(parentNaturalId).map {
+            it.fix()
+        }
 
     fun upsert(entity: ChildRecord): Optional<ChildRecord> {
-        val upserted = repository.upsert(entity.naturalId,
-                entity.otherNaturalId,
-                entity.parentNaturalId,
-                entity.state,
-                entity.at,
-                entity.value,
-                entity.sideValues.workAroundArrayTypeForPostgresWrite(),
-                entity.defaultSideValues.workAroundArrayTypeForPostgresWrite(),
-                entity.version).map {
+        val upserted = repository.upsert(
+            entity.naturalId,
+            entity.otherNaturalId,
+            entity.parentNaturalId,
+            entity.state,
+            entity.at,
+            entity.value,
+            entity.sideValues.workAroundArrayTypeForPostgresWrite(),
+            entity.defaultSideValues.workAroundArrayTypeForPostgresWrite(),
+            entity.version
+        ).map {
             it.fix()
         }
         upserted.ifPresent {
@@ -52,43 +54,51 @@ internal class ChildRepository(private val repository: InternalChildRepository) 
 
     private fun ChildRecord.fix(): ChildRecord {
         sideValues = sideValues.workAroundArrayTypeForPostgresRead()
-        defaultSideValues = defaultSideValues.workAroundArrayTypeForPostgresRead()
+        defaultSideValues =
+            defaultSideValues.workAroundArrayTypeForPostgresRead()
         return this
     }
 }
 
 @JdbcRepository(dialect = POSTGRES)
 interface InternalChildRepository : CrudRepository<ChildRecord, Long> {
-    @Query("""
+    @Query(
+        """
         SELECT *
         FROM child
         WHERE natural_id = :naturalId
-        """)
+        """
+    )
     fun findByNaturalId(naturalId: String)
             : Optional<ChildRecord>
 
-    @Query("""
+    @Query(
+        """
         SELECT *
         FROM child
         WHERE parent_natural_id = :parentNaturalId
-        """)
+        """
+    )
     fun findByParentNaturalId(parentNaturalId: String)
             : Iterable<ChildRecord>
 
-    @Query("""
+    @Query(
+        """
         SELECT *
         FROM upsert_child(:naturalId, :otherNaturalId, :parentNaturalId,
         :state, :at, :value, :sideValues, :defaultSideValues, :version)
-        """)
+        """
+    )
     fun upsert(
-            naturalId: String,
-            otherNaturalId: String?,
-            parentNaturalId: String?,
-            state: String,
-            at: OffsetDateTime, // UTC
-            value: String?,
-            sideValues: String,
-            defaultSideValues: String,
-            version: Int)
+        naturalId: String,
+        otherNaturalId: String?,
+        parentNaturalId: String?,
+        state: String,
+        at: OffsetDateTime, // UTC
+        value: String?,
+        sideValues: String,
+        defaultSideValues: String,
+        version: Int
+    )
             : Optional<ChildRecord>
 }

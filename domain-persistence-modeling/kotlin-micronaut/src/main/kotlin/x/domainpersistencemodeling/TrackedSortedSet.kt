@@ -3,10 +3,10 @@ package x.domainpersistencemodeling
 import java.util.TreeSet
 
 internal class TrackedSortedSet<T : Comparable<T>>(
-        initial: Collection<T>,
-        private val added: (T, MutableSet<T>) -> Unit,
-        private val removed: (T, MutableSet<T>) -> Unit)
-    : AbstractMutableSet<T>() {
+    initial: Collection<T>,
+    private val added: (T, MutableSet<T>) -> Unit,
+    private val removed: (T, MutableSet<T>) -> Unit
+) : AbstractMutableSet<T>() {
     private val sorted: MutableSet<T> = TreeSet(initial)
 
     override val size: Int

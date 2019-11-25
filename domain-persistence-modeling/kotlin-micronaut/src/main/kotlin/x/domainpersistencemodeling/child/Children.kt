@@ -8,14 +8,15 @@ import x.domainpersistencemodeling.other.Other
 import java.time.OffsetDateTime
 
 data class ChildSnapshot(
-        val naturalId: String,
-        val otherNaturalId: String?,
-        val parentNaturalId: String?,
-        val state: String,
-        val at: OffsetDateTime, // UTC
-        val value: String?,
-        val sideValues: Set<String>, // Sorted
-        val version: Int)
+    val naturalId: String,
+    val otherNaturalId: String?,
+    val parentNaturalId: String?,
+    val state: String,
+    val at: OffsetDateTime, // UTC
+    val value: String?,
+    val sideValues: Set<String>, // Sorted
+    val version: Int
+)
 
 interface ChildFactory {
     fun all(): Sequence<Child<*>>
@@ -44,7 +45,7 @@ interface ChildSimpleDetails
         get() = KnownState.forName(state)?.relevant ?: true
 
     override operator fun compareTo(other: ChildSimpleDetails) =
-            naturalId.compareTo(other.naturalId)
+        naturalId.compareTo(other.naturalId)
 }
 
 interface ChildDependentDetails
@@ -63,9 +64,9 @@ interface MutableChildDependentDetails : ChildDependentDetails
 
 interface Child<C : Child<C>>
     : ChildSimpleDetails,
-        ChildDependentDetails,
-        ScopedMutable<MutableChild>,
-        PersistableDomain<ChildSnapshot, C> {
+    ChildDependentDetails,
+    ScopedMutable<MutableChild>,
+    PersistableDomain<ChildSnapshot, C> {
     /** Assigns [other] to this child, a mutable operation. */
     fun assign(other: Other)
 
@@ -75,13 +76,13 @@ interface Child<C : Child<C>>
 
 interface MutableChild
     : MutableChildSimpleDetails,
-        MutableChildDependentDetails
+    MutableChildDependentDetails
 
 interface UnassignedChild : Child<UnassignedChild>
 
 interface AssignedChild : Child<AssignedChild>
 
 data class ChildChangedEvent(
-        val before: ChildSnapshot?,
-        val after: ChildSnapshot?)
-    : DomainChangedEvent<ChildSnapshot>(before, after)
+    val before: ChildSnapshot?,
+    val after: ChildSnapshot?
+) : DomainChangedEvent<ChildSnapshot>(before, after)
