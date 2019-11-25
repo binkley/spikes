@@ -9,7 +9,7 @@ Spikes are not to be considered stable.
 * Implementations
   * [Java Spring Boot](java-spring-boot/)
   * [Kotlin Spring Boot](kotlin-spring-boot/) (most up-to-date spike)
-  * [Kotlin Micronaut](kotlin-micronaut/) (currently broken)
+  * [Kotlin Micronaut](kotlin-micronaut/) (most up-to-date spike)
 * [Goals](#goals)
 * [Concepts](#concepts)
   * [Separation of concerns](#separation-of-concerns)

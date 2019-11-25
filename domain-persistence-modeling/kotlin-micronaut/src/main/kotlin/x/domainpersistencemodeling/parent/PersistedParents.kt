@@ -58,8 +58,13 @@ internal class PersistedParentFactory(
         repository.delete(record)
     }
 
-    override fun refreshRecord(naturalId: String): ParentRecord =
-            repository.findByNaturalId(naturalId).orElseThrow()
+    override fun refreshRecord(naturalId: String): ParentRecord {
+        val record = repository.findByNaturalId(naturalId).orElseThrow()
+
+        fix(record)
+        
+        return record
+    }
 
     override fun toSnapshot(record: ParentRecord,
             dependent: PersistedParentDependentDetails) =
@@ -76,15 +81,18 @@ internal class PersistedParentFactory(
         val dependent = PersistedParentDependentDetails(
                 children.findAssignedFor(record.naturalId))
 
-        val fixedRecord = record.copy()
-        fixedRecord.sideValues = fixedRecord.sideValues.workAroundArrayTypeForPostgresRead()
+        fix(record)
 
         return PersistedParent(PersistedDomain(
                 this,
-                toSnapshot(fixedRecord, dependent),
-                fixedRecord,
+                toSnapshot(record, dependent),
+                record,
                 dependent,
                 ::PersistedParent))
+    }
+
+    private fun fix(record: ParentRecord) {
+        record.sideValues = record.sideValues.workAroundArrayTypeForPostgresRead()
     }
 }
 
