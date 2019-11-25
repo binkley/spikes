@@ -17,7 +17,6 @@ import x.domainpersistencemodeling.child.UnassignedChild
 import x.domainpersistencemodeling.other.Other
 import x.domainpersistencemodeling.uncurryFirst
 import x.domainpersistencemodeling.uncurrySecond
-import x.domainpersistencemodeling.workAroundArrayTypeForPostgresRead
 import java.time.OffsetDateTime
 import java.util.*
 import java.util.stream.Collectors.toCollection
@@ -58,13 +57,8 @@ internal class PersistedParentFactory(
         repository.delete(record)
     }
 
-    override fun refreshRecord(naturalId: String): ParentRecord {
-        val record = repository.findByNaturalId(naturalId).orElseThrow()
-
-        fix(record)
-        
-        return record
-    }
+    override fun refreshRecord(naturalId: String) =
+            repository.findByNaturalId(naturalId).orElseThrow()
 
     override fun toSnapshot(record: ParentRecord,
             dependent: PersistedParentDependentDetails) =
@@ -81,18 +75,12 @@ internal class PersistedParentFactory(
         val dependent = PersistedParentDependentDetails(
                 children.findAssignedFor(record.naturalId))
 
-        fix(record)
-
         return PersistedParent(PersistedDomain(
                 this,
                 toSnapshot(record, dependent),
                 record,
                 dependent,
                 ::PersistedParent))
-    }
-
-    private fun fix(record: ParentRecord) {
-        record.sideValues = record.sideValues.workAroundArrayTypeForPostgresRead()
     }
 }
 

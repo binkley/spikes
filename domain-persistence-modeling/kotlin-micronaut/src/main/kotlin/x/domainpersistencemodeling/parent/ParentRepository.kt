@@ -7,9 +7,49 @@ import io.micronaut.data.repository.CrudRepository
 import x.domainpersistencemodeling.workAroundArrayTypeForPostgresRead
 import x.domainpersistencemodeling.workAroundArrayTypeForPostgresWrite
 import java.util.*
+import javax.inject.Singleton
+
+@Singleton
+internal class ParentRepository(
+        private val repository: InternalParentRepository) {
+    fun findAll(): Iterable<ParentRecord> =
+            repository.findAll().map {
+                it.fix()
+            }
+
+    fun findByNaturalId(naturalId: String): Optional<ParentRecord> =
+            repository.findByNaturalId(naturalId).map {
+                it.fix()
+            }
+
+    fun upsert(entity: ParentRecord): Optional<ParentRecord> {
+        val upserted = repository.upsert(
+                entity.naturalId,
+                entity.otherNaturalId,
+                entity.state,
+                entity.value,
+                entity.sideValues.workAroundArrayTypeForPostgresWrite(),
+                entity.version).map {
+            it.fix()
+        }
+        upserted.ifPresent {
+            entity.upsertedWith(it)
+        }
+        return upserted
+    }
+
+    fun delete(entity: ParentRecord) {
+        repository.delete(entity)
+    }
+
+    private fun ParentRecord.fix(): ParentRecord {
+        sideValues = sideValues.workAroundArrayTypeForPostgresRead()
+        return this
+    }
+}
 
 @JdbcRepository(dialect = POSTGRES)
-interface ParentRepository : CrudRepository<ParentRecord, Long> {
+interface InternalParentRepository : CrudRepository<ParentRecord, Long> {
     @Query("""
         SELECT *
         FROM parent
@@ -30,19 +70,4 @@ interface ParentRepository : CrudRepository<ParentRecord, Long> {
             sideValues: String,
             version: Int)
             : Optional<ParentRecord>
-}
-
-fun ParentRepository.upsert(entity: ParentRecord): Optional<ParentRecord> {
-    val upserted = upsert(
-            entity.naturalId,
-            entity.otherNaturalId,
-            entity.state,
-            entity.value,
-            entity.sideValues.workAroundArrayTypeForPostgresWrite(),
-            entity.version)
-    upserted.ifPresent {
-        it.sideValues = it.sideValues.workAroundArrayTypeForPostgresRead()
-        entity.upsertedWith(it)
-    }
-    return upserted
 }

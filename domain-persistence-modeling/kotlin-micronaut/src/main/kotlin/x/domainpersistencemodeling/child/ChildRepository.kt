@@ -8,9 +8,57 @@ import x.domainpersistencemodeling.workAroundArrayTypeForPostgresRead
 import x.domainpersistencemodeling.workAroundArrayTypeForPostgresWrite
 import java.time.OffsetDateTime
 import java.util.*
+import javax.inject.Singleton
+
+@Singleton
+internal class ChildRepository(private val repository: InternalChildRepository) {
+    fun findAll(): Iterable<ChildRecord> =
+            repository.findAll().map {
+                it.fix()
+            }
+
+    fun findByNaturalId(naturalId: String): Optional<ChildRecord> =
+            repository.findByNaturalId(naturalId).map {
+                it.fix()
+            }
+
+    fun findByParentNaturalId(parentNaturalId: String)
+            : Iterable<ChildRecord> =
+            repository.findByParentNaturalId(parentNaturalId).map {
+                it.fix()
+            }
+
+    fun upsert(entity: ChildRecord): Optional<ChildRecord> {
+        val upserted = repository.upsert(entity.naturalId,
+                entity.otherNaturalId,
+                entity.parentNaturalId,
+                entity.state,
+                entity.at,
+                entity.value,
+                entity.sideValues.workAroundArrayTypeForPostgresWrite(),
+                entity.defaultSideValues.workAroundArrayTypeForPostgresWrite(),
+                entity.version).map {
+            it.fix()
+        }
+        upserted.ifPresent {
+            entity.upsertedWith(it)
+        }
+        return upserted
+    }
+
+    fun delete(entity: ChildRecord) {
+        repository.delete(entity)
+    }
+
+    private fun ChildRecord.fix(): ChildRecord {
+        sideValues = sideValues.workAroundArrayTypeForPostgresRead()
+        defaultSideValues = defaultSideValues.workAroundArrayTypeForPostgresRead()
+        return this
+    }
+}
 
 @JdbcRepository(dialect = POSTGRES)
-interface ChildRepository : CrudRepository<ChildRecord, Long> {
+interface InternalChildRepository : CrudRepository<ChildRecord, Long> {
     @Query("""
         SELECT *
         FROM child
@@ -43,22 +91,4 @@ interface ChildRepository : CrudRepository<ChildRecord, Long> {
             defaultSideValues: String,
             version: Int)
             : Optional<ChildRecord>
-}
-
-fun ChildRepository.upsert(entity: ChildRecord): Optional<ChildRecord> {
-    val upserted = upsert(entity.naturalId,
-            entity.otherNaturalId,
-            entity.parentNaturalId,
-            entity.state,
-            entity.at,
-            entity.value,
-            entity.sideValues.workAroundArrayTypeForPostgresWrite(),
-            entity.defaultSideValues.workAroundArrayTypeForPostgresWrite(),
-            entity.version)
-    upserted.ifPresent {
-        it.sideValues = it.sideValues.workAroundArrayTypeForPostgresRead()
-        it.defaultSideValues = it.defaultSideValues.workAroundArrayTypeForPostgresRead()
-        entity.upsertedWith(it)
-    }
-    return upserted
 }
