@@ -46,7 +46,7 @@ internal class PersistedParentFactory(
                 this,
                 null,
                 ParentRecord(naturalId),
-                PersistedParentDependentDetails(emptySequence()),
+                PersistedParentDependentDetails(emptySet()),
                 ::PersistedParent
             )
         )
@@ -81,7 +81,7 @@ internal class PersistedParentFactory(
 
     private fun toDomain(record: ParentRecord): PersistedParent {
         val dependent = PersistedParentDependentDetails(
-            children.findAssignedFor(record.naturalId)
+            children.findAssignedFor(record.naturalId).toSortedSet()
         )
 
         return PersistedParent(
@@ -97,7 +97,7 @@ internal class PersistedParentFactory(
 }
 
 internal class PersistedParentDependentDetails(
-    initialChildren: Sequence<AssignedChild>
+    private var initialChildren: Set<AssignedChild>
 ) : ParentDependentDetails,
     PersistedDependentDetails {
     override fun saveMutated() = saveMutatedChildren()
@@ -105,10 +105,8 @@ internal class PersistedParentDependentDetails(
     override val at: OffsetDateTime?
         get() = children.at
 
-    private var initialChildren: Set<AssignedChild> =
-        initialChildren.toSortedSet()
     private var currentChildren: MutableSet<AssignedChild> =
-        TreeSet(this.initialChildren)
+        TreeSet(initialChildren)
 
     override val children: Set<AssignedChild>
         get() = currentChildren
