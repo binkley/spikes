@@ -154,26 +154,26 @@ internal class PersistedParentDependentDetails(
             mutated = true
         }
 
-        if (mutated) initialChildren = TreeSet(children)
+        if (mutated) initialChildren = TreeSet(currentChildren)
 
         return mutated
     }
 
     private fun assignedChildren(): Set<AssignedChild> {
-        val assigned = TreeSet(children)
+        val assigned = TreeSet(currentChildren)
         assigned.removeAll(initialChildren)
         return assigned
     }
 
     private fun unassignedChildren(): Set<AssignedChild> {
         val unassigned = TreeSet(initialChildren)
-        unassigned.removeAll(children)
+        unassigned.removeAll(currentChildren)
         return unassigned
     }
 
     private fun changedChildren(): Set<AssignedChild> {
         val changed = TreeSet(initialChildren)
-        changed.retainAll(children)
+        changed.retainAll(currentChildren)
         return changed.stream()
             .filter { it.changed }
             .collect(toCollection(::TreeSet))
@@ -267,9 +267,9 @@ internal open class PersistedParent(
 
 internal data class PersistedMutableParent(
     private val record: ParentRecord,
-    private val initial: Set<AssignedChild>,
-    private val added: (AssignedChild, MutableSet<AssignedChild>) -> Unit,
-    private val removed: (AssignedChild, MutableSet<AssignedChild>) -> Unit
+    private val initialChildren: Set<AssignedChild>,
+    private val addChild: (AssignedChild, MutableSet<AssignedChild>) -> Unit,
+    private val removeChild: (AssignedChild, MutableSet<AssignedChild>) -> Unit
 ) : MutableParent,
     MutableParentSimpleDetails by record {
     override val at: OffsetDateTime?
@@ -282,7 +282,7 @@ internal data class PersistedMutableParent(
         )
     override val children =
         TrackedSortedSet(
-            initial, added, removed
+            initialChildren, addChild, removeChild
         )
 
     private fun replaceSideValues(all: MutableSet<String>) {
