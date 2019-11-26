@@ -103,22 +103,29 @@ internal class PersistedParentFactory(
 }
 
 internal class PersistedParentDependentDetails(
-    private val initialOther: Other?,
+    initialOther: Other?,
     initialChildren: Set<AssignedChild>
 ) : ParentDependentDetails,
     PersistedDependentDetails {
-    override fun saveMutated() = saveMutatedChildren()
+    override fun saveMutated() = sequenceOf(
+        _other.saveMutated(),
+        _children.saveMutated()
+    ).fold(false) { a, b ->
+        a || b
+    }
 
     override val at: OffsetDateTime?
         get() = _children.at
 
-    private var currentOther: Other? = initialOther
+    private val _other = TrackedSortedSet(
+        if (null == initialOther) emptySet() else setOf(initialOther),
+        { _, _ -> }, { _, _ -> })
     override val other: Other?
-        get() = currentOther
+        get() = _other.firstOrNull()
 
     private val _children = TrackedSortedSet(
         initialChildren,
-        { one, all -> }, { one, all -> }
+        { _, _ -> }, { _, _ -> }
     )
     override val children: Set<AssignedChild>
         get() = _children
@@ -127,19 +134,18 @@ internal class PersistedParentDependentDetails(
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
         other as PersistedParentDependentDetails
-        return initialOther == other.initialOther
-                && currentOther == other.currentOther
+        return _other == other._other
                 && _children == other._children
     }
 
-    override fun hashCode() =
-        hash(initialOther, currentOther, _children)
+    override fun hashCode() = hash(_other, _children)
 
     override fun toString() =
-        "${super.toString()}{initialOther=$initialOther, currentOther=$currentOther, _children=$_children}"
+        "${super.toString()}{_other=$_other, _children=$_children}"
 
     internal fun setOther(other: Other?) {
-        currentOther = other
+        _other.clear()
+        other?.run { _other.add(other) }
     }
 
     internal fun addChild(child: AssignedChild) {
@@ -148,30 +154,6 @@ internal class PersistedParentDependentDetails(
 
     internal fun removeChild(child: AssignedChild) {
         _children.remove(child)
-    }
-
-    private fun saveMutatedChildren(): Boolean {
-        // TODO: Gross function
-        var mutated = false
-        val assignedChildren = _children.added()
-        if (assignedChildren.isNotEmpty()) {
-            assignedChildren.forEach { it.save() }
-            mutated = true
-        }
-        val unassignedChildren = _children.removed()
-        if (unassignedChildren.isNotEmpty()) {
-            unassignedChildren.forEach { it.save() }
-            mutated = true
-        }
-        val changedChildren = _children.changed { it.changed }
-        if (changedChildren.isNotEmpty()) {
-            changedChildren.forEach { it.save() }
-            mutated = true
-        }
-
-        if (mutated) _children.reset()
-
-        return mutated
     }
 }
 
@@ -303,4 +285,37 @@ internal data class PersistedMutableParent(
     private fun replaceSideValues(all: MutableSet<String>) {
         record.sideValues = all
     }
+}
+
+private fun Boolean.ifTrue(run: () -> Unit): Boolean {
+    val isTrue = this
+    if (isTrue) run()
+    return isTrue
+}
+
+private fun <Snapshot, Domain> TrackedSortedSet<Domain>.saveMutated()
+        : Boolean
+        where Domain : PersistableDomain<Snapshot, Domain>,
+              Domain : Comparable<Domain> {
+    var mutated = false
+
+    added {
+        it.save()
+        true
+    }.ifTrue { mutated = true }
+
+    removed {
+        it.save()
+        true
+    }.ifTrue { mutated = true }
+
+    changed {
+        it.changed.ifTrue {
+            it.save()
+        }
+    }.ifTrue { mutated = true }
+
+    if (mutated) reset()
+
+    return mutated
 }

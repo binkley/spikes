@@ -32,23 +32,24 @@ internal class TrackedSortedSet<T : Comparable<T>>(
         initial = TreeSet(current)
     }
 
-    fun added() = added { true }
-    fun added(mutated: (T) -> Boolean): Set<T> {
+    fun added(mutator: (T) -> Boolean): Boolean {
         val added = TreeSet(current)
         added.removeAll(initial)
-        return added.filter(mutated).toSortedSet()
+        return added.mutated(mutator)
     }
 
-    fun removed() = removed { true }
-    fun removed(mutated: (T) -> Boolean): Set<T> {
+    fun removed(mutator: (T) -> Boolean): Boolean {
         val removed = TreeSet(initial)
         removed.removeAll(current)
-        return removed.filter(mutated).toSortedSet()
+        return removed.mutated(mutator)
     }
 
-    fun changed(mutated: (T) -> Boolean): Set<T> {
+    fun changed(mutator: (T) -> Boolean): Boolean {
         val changed = TreeSet(initial)
         changed.retainAll(current)
-        return changed.filter(mutated).toSortedSet()
+        return changed.mutated(mutator)
     }
 }
+
+private fun <T> Set<T>.mutated(mutated: (T) -> Boolean) =
+    map(mutated).fold(false) { a, b -> a || b }
