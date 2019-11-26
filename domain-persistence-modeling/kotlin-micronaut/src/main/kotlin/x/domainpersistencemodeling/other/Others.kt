@@ -15,6 +15,7 @@ interface OtherFactory {
     fun findExisting(naturalId: String): Other?
     fun createNew(naturalId: String): Other
     fun findExistingOrCreateNew(naturalId: String): Other
+    fun findAssignedTo(parentOrChildNaturalId: String): Other?
 }
 
 interface OtherSimpleDetails

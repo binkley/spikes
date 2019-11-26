@@ -23,7 +23,7 @@ interface ChildFactory {
     fun findExisting(naturalId: String): Child<*>?
     fun createNewUnassigned(naturalId: String): UnassignedChild
     fun findExistingOrCreateNewUnassigned(naturalId: String): Child<*>
-    fun findAssignedFor(parentNaturalId: String): Sequence<AssignedChild>
+    fun findAssignedTo(parentNaturalId: String): Sequence<AssignedChild>
 }
 
 interface ChildSimpleDetails

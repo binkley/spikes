@@ -38,8 +38,8 @@ internal class PersistedParentsTest
         expect(found).toBe(saved)
         expect(found.children).isEmpty()
 
-        // 1 == parent, 2 == children (none)
-        expectSqlQueryCountsByType(select = 2)
+        // #1 == parent, #2 == other (none), #3 == children (none)
+        expectSqlQueryCountsByType(select = 3)
         expectDomainChangedEvents().isEmpty()
     }
 

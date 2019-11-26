@@ -40,7 +40,7 @@ internal class PersistedChildFactory(
     override fun findExistingOrCreateNewUnassigned(naturalId: String) =
         findExisting(naturalId) ?: createNewUnassigned(naturalId)
 
-    override fun findAssignedFor(parentNaturalId: String)
+    override fun findAssignedTo(parentNaturalId: String)
             : Sequence<AssignedChild> =
         repository.findByParentNaturalId(parentNaturalId).map {
             createNew(

@@ -15,10 +15,11 @@ import x.domainpersistencemodeling.child.PersistedAssignedChild
 import x.domainpersistencemodeling.child.PersistedUnassignedChild
 import x.domainpersistencemodeling.child.UnassignedChild
 import x.domainpersistencemodeling.other.Other
+import x.domainpersistencemodeling.other.OtherFactory
 import x.domainpersistencemodeling.uncurryFirst
 import x.domainpersistencemodeling.uncurrySecond
 import java.time.OffsetDateTime
-import java.util.Objects
+import java.util.Objects.hash
 import java.util.TreeSet
 import java.util.stream.Collectors.toCollection
 import javax.inject.Singleton
@@ -26,6 +27,7 @@ import javax.inject.Singleton
 @Singleton
 internal class PersistedParentFactory(
     private val repository: ParentRepository,
+    private val others: OtherFactory,
     private val children: ChildFactory,
     private val publisher: ApplicationEventPublisher
 ) : ParentFactory,
@@ -46,7 +48,7 @@ internal class PersistedParentFactory(
                 this,
                 null,
                 ParentRecord(naturalId),
-                PersistedParentDependentDetails(emptySet()),
+                PersistedParentDependentDetails(null, emptySet()),
                 ::PersistedParent
             )
         )
@@ -69,9 +71,13 @@ internal class PersistedParentFactory(
         dependent: PersistedParentDependentDetails
     ) =
         ParentSnapshot(
-            record.naturalId, record.otherNaturalId,
-            record.state, dependent.at, record.value,
-            record.sideValues, record.version
+            record.naturalId,
+            record.otherNaturalId,
+            record.state,
+            dependent.at,
+            record.value,
+            record.sideValues,
+            record.version
         )
 
     override fun notifyChanged(
@@ -81,7 +87,8 @@ internal class PersistedParentFactory(
 
     private fun toDomain(record: ParentRecord): PersistedParent {
         val dependent = PersistedParentDependentDetails(
-            children.findAssignedFor(record.naturalId).toSortedSet()
+            others.findAssignedTo(record.naturalId),
+            children.findAssignedTo(record.naturalId).toSortedSet()
         )
 
         return PersistedParent(
@@ -97,6 +104,7 @@ internal class PersistedParentFactory(
 }
 
 internal class PersistedParentDependentDetails(
+    private val initialOther: Other?,
     private var initialChildren: Set<AssignedChild>
 ) : ParentDependentDetails,
     PersistedDependentDetails {
@@ -105,8 +113,13 @@ internal class PersistedParentDependentDetails(
     override val at: OffsetDateTime?
         get() = children.at
 
+    private var currentOther: Other? = initialOther
+
     private var currentChildren: MutableSet<AssignedChild> =
         TreeSet(initialChildren)
+
+    override val other: Other?
+        get() = currentOther
 
     override val children: Set<AssignedChild>
         get() = currentChildren
@@ -115,15 +128,21 @@ internal class PersistedParentDependentDetails(
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
         other as PersistedParentDependentDetails
-        return initialChildren == other.initialChildren
+        return initialOther == other.initialOther
+                && currentOther == other.currentOther
+                && initialChildren == other.initialChildren
                 && currentChildren == other.currentChildren
     }
 
     override fun hashCode() =
-        Objects.hash(initialChildren, currentChildren)
+        hash(initialOther, currentOther, initialChildren, currentChildren)
 
     override fun toString() =
-        "${super.toString()}{snapshotChildren=$initialChildren, currentChildren=$currentChildren}"
+        "${super.toString()}{initialOther=$initialOther, currentOther=$currentOther, snapshotChildren=$initialChildren, currentChildren=$currentChildren}"
+
+    internal fun setOther(other: Other?) {
+        currentOther = other
+    }
 
     internal fun addChild(child: AssignedChild) {
         currentChildren.add(child)
@@ -179,7 +198,12 @@ internal class PersistedParentDependentDetails(
 }
 
 internal open class PersistedParent(
-    private val persisted: PersistedDomain<ParentSnapshot, ParentRecord, PersistedParentDependentDetails, PersistedParentFactory, Parent, MutableParent>
+    private val persisted: PersistedDomain<ParentSnapshot,
+            ParentRecord,
+            PersistedParentDependentDetails,
+            PersistedParentFactory,
+            Parent,
+            MutableParent>
 ) : Parent,
     PersistableDomain<ParentSnapshot, Parent> by persisted {
     override val otherNaturalId: String?
@@ -192,6 +216,8 @@ internal open class PersistedParent(
         get() = persisted.record.value
     override val sideValues: Set<String> // Sorted
         get() = TreeSet(persisted.record.sideValues)
+    override val other: Other?
+        get() = persisted.dependent.other
     override val children: Set<AssignedChild>
         get() = persisted.dependent.children
 
@@ -237,11 +263,12 @@ internal open class PersistedParent(
     override fun <R> update(block: MutableParent.() -> R): R =
         PersistedMutableParent(
             persisted.record,
+            persisted.dependent.other,
+            ::setOther,
             persisted.dependent.children,
             ::addChild.uncurryFirst(),
             ::removeChild.uncurryFirst()
-        )
-            .let(block)
+        ).let(block)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -254,6 +281,10 @@ internal open class PersistedParent(
 
     override fun toString() = "${super.toString()}$persisted"
 
+    private fun setOther(other: Other?) {
+        persisted.dependent.setOther(other)
+    }
+
     private fun addChild(child: AssignedChild) {
         persisted.dependent.addChild(child)
     }
@@ -265,9 +296,13 @@ internal open class PersistedParent(
 
 internal data class PersistedMutableParent(
     private val record: ParentRecord,
+    private var currentOther: Other?,
+    private val setOther: (Other?) -> Unit,
     private val initialChildren: Set<AssignedChild>,
-    private val addChild: (AssignedChild, MutableSet<AssignedChild>) -> Unit,
-    private val removeChild: (AssignedChild, MutableSet<AssignedChild>) -> Unit
+    private val addChild:
+        (AssignedChild, MutableSet<AssignedChild>) -> Unit,
+    private val removeChild:
+        (AssignedChild, MutableSet<AssignedChild>) -> Unit
 ) : MutableParent,
     MutableParentSimpleDetails by record {
     override val at: OffsetDateTime?
@@ -278,10 +313,14 @@ internal data class PersistedMutableParent(
             ::replaceSideValues.uncurrySecond(),
             ::replaceSideValues.uncurrySecond()
         )
+    override var other: Other?
+        get() = currentOther
+        set(value) {
+            currentOther = value
+            setOther(value)
+        }
     override val children =
-        TrackedSortedSet(
-            initialChildren, addChild, removeChild
-        )
+        TrackedSortedSet(initialChildren, addChild, removeChild)
 
     private fun replaceSideValues(all: MutableSet<String>) {
         record.sideValues = all

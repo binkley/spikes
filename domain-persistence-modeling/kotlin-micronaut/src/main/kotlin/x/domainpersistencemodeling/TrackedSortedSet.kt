@@ -3,7 +3,7 @@ package x.domainpersistencemodeling
 import java.util.TreeSet
 
 internal class TrackedSortedSet<T : Comparable<T>>(
-    initial: Collection<T>,
+    private val initial: Collection<T>,
     private val addOne: (T, MutableSet<T>) -> Unit,
     private val removeOne: (T, MutableSet<T>) -> Unit
 ) : AbstractMutableSet<T>() {
@@ -27,4 +27,24 @@ internal class TrackedSortedSet<T : Comparable<T>>(
     }
 
     override fun iterator() = current.iterator()
+
+    fun added() = added { true }
+    fun added(mutated: (T) -> Boolean): Set<T> {
+        val added = TreeSet(current)
+        added.removeAll(initial)
+        return added.filter(mutated).toSortedSet()
+    }
+
+    fun removed() = removed { true }
+    fun removed(mutated: (T) -> Boolean): Set<T> {
+        val removed = TreeSet(initial)
+        removed.removeAll(current)
+        return removed.filter(mutated).toSortedSet()
+    }
+
+    fun changed(mutated: (T) -> Boolean): Set<T> {
+        val changed = TreeSet(initial)
+        changed.retainAll(current)
+        return changed.filter(mutated).toSortedSet()
+    }
 }

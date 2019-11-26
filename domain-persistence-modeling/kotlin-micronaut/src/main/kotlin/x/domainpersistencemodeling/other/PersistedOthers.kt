@@ -38,6 +38,11 @@ internal class PersistedOtherFactory(
     override fun findExistingOrCreateNew(naturalId: String) =
         findExisting(naturalId) ?: createNew(naturalId)
 
+    override fun findAssignedTo(parentOrChildNaturalId: String) =
+        repository.findByParentOrChildNaturalId(parentOrChildNaturalId).map {
+            toDomain(it)
+        }.orElse(null)
+
     override fun save(record: OtherRecord) =
         UpsertedRecordResult(record, repository.upsert(record))
 

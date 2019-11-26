@@ -20,6 +20,22 @@ interface OtherRepository : CrudRepository<OtherRecord, Long> {
 
     @Query(
         """
+        SELECT other.*
+        FROM other
+        JOIN parent ON other.natural_id = parent.other_natural_id
+        WHERE parent.natural_id = :parentOrChildNaturalId
+        UNION
+        SELECT other.*
+        FROM other
+        JOIN child ON other.natural_id = child.other_natural_id
+        WHERE child.natural_id = :parentOrChildNaturalId
+        """
+    )
+    fun findByParentOrChildNaturalId(parentOrChildNaturalId: String)
+            : Optional<OtherRecord>
+
+    @Query(
+        """
         SELECT *
         FROM upsert_other(:naturalId, :value, :version)
         """

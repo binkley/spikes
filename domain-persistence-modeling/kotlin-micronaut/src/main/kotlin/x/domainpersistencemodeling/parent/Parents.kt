@@ -7,6 +7,7 @@ import x.domainpersistencemodeling.child.AssignedChild
 import x.domainpersistencemodeling.child.ChildSimpleDetails
 import x.domainpersistencemodeling.child.UnassignedChild
 import x.domainpersistencemodeling.other.Other
+import x.domainpersistencemodeling.other.OtherSimpleDetails
 import java.time.OffsetDateTime
 
 data class ParentSnapshot(
@@ -40,6 +41,7 @@ interface ParentSimpleDetails
 }
 
 interface ParentDependentDetails {
+    val other: OtherSimpleDetails?
     val children: Set<ChildSimpleDetails>
     val at: OffsetDateTime?
 }
@@ -53,6 +55,7 @@ interface MutableParentSimpleDetails : ParentSimpleDetails {
 
 interface MutableParentDependentDetails
     : ParentDependentDetails {
+    override var other: Other?
     override val children: MutableSet<AssignedChild>
 }
 
@@ -61,6 +64,7 @@ interface Parent
     ParentDependentDetails,
     ScopedMutable<MutableParent>,
     PersistableDomain<ParentSnapshot, Parent> {
+    override val other: Other?
     override val children: Set<AssignedChild>
 
     /** Assigns [other] to this parent, a mutable operation. */
