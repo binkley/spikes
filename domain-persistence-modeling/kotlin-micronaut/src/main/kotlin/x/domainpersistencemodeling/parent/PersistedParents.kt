@@ -21,7 +21,6 @@ import x.domainpersistencemodeling.uncurrySecond
 import java.time.OffsetDateTime
 import java.util.Objects.hash
 import java.util.TreeSet
-import java.util.stream.Collectors.toCollection
 import javax.inject.Singleton
 
 @Singleton
@@ -105,24 +104,24 @@ internal class PersistedParentFactory(
 
 internal class PersistedParentDependentDetails(
     private val initialOther: Other?,
-    private var initialChildren: Set<AssignedChild>
+    initialChildren: Set<AssignedChild>
 ) : ParentDependentDetails,
     PersistedDependentDetails {
     override fun saveMutated() = saveMutatedChildren()
 
     override val at: OffsetDateTime?
-        get() = children.at
+        get() = _children.at
 
     private var currentOther: Other? = initialOther
-
-    private var currentChildren: MutableSet<AssignedChild> =
-        TreeSet(initialChildren)
-
     override val other: Other?
         get() = currentOther
 
+    private val _children = TrackedSortedSet(
+        initialChildren,
+        { one, all -> }, { one, all -> }
+    )
     override val children: Set<AssignedChild>
-        get() = currentChildren
+        get() = _children
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -130,70 +129,49 @@ internal class PersistedParentDependentDetails(
         other as PersistedParentDependentDetails
         return initialOther == other.initialOther
                 && currentOther == other.currentOther
-                && initialChildren == other.initialChildren
-                && currentChildren == other.currentChildren
+                && _children == other._children
     }
 
     override fun hashCode() =
-        hash(initialOther, currentOther, initialChildren, currentChildren)
+        hash(initialOther, currentOther, _children)
 
     override fun toString() =
-        "${super.toString()}{initialOther=$initialOther, currentOther=$currentOther, snapshotChildren=$initialChildren, currentChildren=$currentChildren}"
+        "${super.toString()}{initialOther=$initialOther, currentOther=$currentOther, _children=$_children}"
 
     internal fun setOther(other: Other?) {
         currentOther = other
     }
 
     internal fun addChild(child: AssignedChild) {
-        currentChildren.add(child)
+        _children.add(child)
     }
 
     internal fun removeChild(child: AssignedChild) {
-        currentChildren.remove(child)
+        _children.remove(child)
     }
 
     private fun saveMutatedChildren(): Boolean {
         // TODO: Gross function
         var mutated = false
-        val assignedChildren = assignedChildren()
+        val assignedChildren = _children.added()
         if (assignedChildren.isNotEmpty()) {
             assignedChildren.forEach { it.save() }
             mutated = true
         }
-        val unassignedChildren = unassignedChildren()
+        val unassignedChildren = _children.removed()
         if (unassignedChildren.isNotEmpty()) {
             unassignedChildren.forEach { it.save() }
             mutated = true
         }
-        val changedChildren = changedChildren()
+        val changedChildren = _children.changed { it.changed }
         if (changedChildren.isNotEmpty()) {
             changedChildren.forEach { it.save() }
             mutated = true
         }
 
-        if (mutated) initialChildren = TreeSet(currentChildren)
+        if (mutated) _children.reset()
 
         return mutated
-    }
-
-    private fun assignedChildren(): Set<AssignedChild> {
-        val assigned = TreeSet(currentChildren)
-        assigned.removeAll(initialChildren)
-        return assigned
-    }
-
-    private fun unassignedChildren(): Set<AssignedChild> {
-        val unassigned = TreeSet(initialChildren)
-        unassigned.removeAll(currentChildren)
-        return unassigned
-    }
-
-    private fun changedChildren(): Set<AssignedChild> {
-        val changed = TreeSet(initialChildren)
-        changed.retainAll(currentChildren)
-        return changed.stream()
-            .filter { it.changed }
-            .collect(toCollection(::TreeSet))
     }
 }
 
