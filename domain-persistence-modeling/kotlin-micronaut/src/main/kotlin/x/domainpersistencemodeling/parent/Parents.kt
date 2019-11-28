@@ -38,7 +38,6 @@ interface ParentFactory {
 interface ParentSimpleDetails
     : Comparable<ParentSimpleDetails> {
     val naturalId: String
-    val otherNaturalId: String?
     val state: String
     val value: String?
     val sideValues: Set<String> // Sorted
@@ -55,7 +54,6 @@ interface ParentDependentDetails {
 }
 
 interface MutableParentSimpleDetails : ParentSimpleDetails {
-    override var otherNaturalId: String?
     override var state: String
     override var value: String?
     override val sideValues: MutableSet<String> // Sorted

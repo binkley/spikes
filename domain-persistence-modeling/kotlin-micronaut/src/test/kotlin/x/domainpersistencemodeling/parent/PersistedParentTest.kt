@@ -1,10 +1,6 @@
 package x.domainpersistencemodeling.parent
 
-import ch.tutteli.atrium.api.cc.en_GB.containsExactly
-import ch.tutteli.atrium.api.cc.en_GB.hasSize
-import ch.tutteli.atrium.api.cc.en_GB.isEmpty
-import ch.tutteli.atrium.api.cc.en_GB.toBe
-import ch.tutteli.atrium.api.cc.en_GB.toThrow
+import ch.tutteli.atrium.api.cc.en_GB.*
 import ch.tutteli.atrium.verbs.expect
 import org.junit.jupiter.api.Test
 import x.domainpersistencemodeling.DomainException
@@ -330,8 +326,8 @@ internal class PersistedParentsTest
         parent.assign(other)
         parent.save()
 
-        expectSqlQueryCountsByType(upsert = 1)
-        expect(currentPersistedParent().otherNaturalId).toBe(other.naturalId)
+        expectSqlQueryCountsByType(select = 1, upsert = 1)
+        expect(currentPersistedParent().other).toBe(other)
 
         expectDomainChangedEvents().containsExactly(
             aParentChangedEvent(
@@ -345,8 +341,8 @@ internal class PersistedParentsTest
         parent.unassignAnyOther()
         parent.save()
 
-        expectSqlQueryCountsByType(upsert = 1)
-        expect(currentPersistedParent().otherNaturalId).toBe(null)
+        expectSqlQueryCountsByType(select = 1, upsert = 1)
+        expect(currentPersistedParent().other).toBe(null)
 
         expectDomainChangedEvents().containsExactly(
             aParentChangedEvent(

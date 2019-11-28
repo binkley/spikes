@@ -92,7 +92,6 @@ private fun parentHavingSideValues(
 ) =
     object : TestParent {
         override val naturalId = "a"
-        override val otherNaturalId: String? = null
         override val state = ENABLED.name
         override val value: String? = null
         override val sideValues = sideValues

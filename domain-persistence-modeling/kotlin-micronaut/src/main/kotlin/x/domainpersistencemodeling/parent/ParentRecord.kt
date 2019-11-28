@@ -14,7 +14,7 @@ import javax.persistence.Table
 data class ParentRecord(
     @Id var id: Long?,
     override var naturalId: String,
-    override var otherNaturalId: String?,
+    var otherNaturalId: String?,
     override var state: String,
     override var value: String?,
     override var sideValues: MutableSet<String>,
