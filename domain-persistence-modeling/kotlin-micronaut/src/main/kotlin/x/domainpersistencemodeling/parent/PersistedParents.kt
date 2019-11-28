@@ -1,26 +1,14 @@
 package x.domainpersistencemodeling.parent
 
 import io.micronaut.context.event.ApplicationEventPublisher
-import x.domainpersistencemodeling.DomainException
-import x.domainpersistencemodeling.PersistableDomain
-import x.domainpersistencemodeling.PersistedDependentDetails
-import x.domainpersistencemodeling.PersistedDomain
-import x.domainpersistencemodeling.PersistedFactory
-import x.domainpersistencemodeling.TrackedSortedSet
+import x.domainpersistencemodeling.*
 import x.domainpersistencemodeling.UpsertableRecord.UpsertedRecordResult
-import x.domainpersistencemodeling.at
-import x.domainpersistencemodeling.child.AssignedChild
-import x.domainpersistencemodeling.child.ChildFactory
-import x.domainpersistencemodeling.child.PersistedAssignedChild
-import x.domainpersistencemodeling.child.PersistedUnassignedChild
-import x.domainpersistencemodeling.child.UnassignedChild
+import x.domainpersistencemodeling.child.*
 import x.domainpersistencemodeling.other.Other
 import x.domainpersistencemodeling.other.OtherFactory
-import x.domainpersistencemodeling.uncurryFirst
-import x.domainpersistencemodeling.uncurrySecond
 import java.time.OffsetDateTime
+import java.util.*
 import java.util.Objects.hash
-import java.util.TreeSet
 import javax.inject.Singleton
 
 @Singleton
@@ -285,37 +273,4 @@ internal data class PersistedMutableParent(
     private fun replaceSideValues(all: MutableSet<String>) {
         record.sideValues = all
     }
-}
-
-private fun Boolean.ifTrue(run: () -> Unit): Boolean {
-    val isTrue = this
-    if (isTrue) run()
-    return isTrue
-}
-
-private fun <Snapshot, Domain> TrackedSortedSet<Domain>.saveMutated()
-        : Boolean
-        where Domain : PersistableDomain<Snapshot, Domain>,
-              Domain : Comparable<Domain> {
-    var mutated = false
-
-    added {
-        it.save()
-        true
-    }.ifTrue { mutated = true }
-
-    removed {
-        it.save()
-        true
-    }.ifTrue { mutated = true }
-
-    changed {
-        it.changed.ifTrue {
-            it.save()
-        }
-    }.ifTrue { mutated = true }
-
-    if (mutated) reset()
-
-    return mutated
 }

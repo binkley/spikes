@@ -1,6 +1,6 @@
 package x.domainpersistencemodeling
 
-import java.util.TreeSet
+import java.util.*
 
 internal class TrackedSortedSet<T : Comparable<T>>(
     private var initial: Set<T>,
@@ -26,7 +26,23 @@ internal class TrackedSortedSet<T : Comparable<T>>(
         return true
     }
 
-    override fun iterator() = current.iterator()
+    override fun iterator() = object : MutableIterator<T> {
+        private val it = current.iterator()
+        private var last: T? = null
+
+        override fun hasNext() = it.hasNext()
+
+        override fun next(): T {
+            val next = it.next()
+            last = next
+            return next
+        }
+
+        override fun remove() {
+            it.remove()
+            removeOne(last!!, current)
+        }
+    }
 
     fun reset() {
         initial = TreeSet(current)
@@ -50,6 +66,3 @@ internal class TrackedSortedSet<T : Comparable<T>>(
         return changed.mutated(mutator)
     }
 }
-
-private fun <T> Set<T>.mutated(mutated: (T) -> Boolean) =
-    map(mutated).fold(false) { a, b -> a || b }
