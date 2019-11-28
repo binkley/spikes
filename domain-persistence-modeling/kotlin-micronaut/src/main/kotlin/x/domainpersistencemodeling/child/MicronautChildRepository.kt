@@ -11,24 +11,26 @@ import java.util.Optional
 import javax.inject.Singleton
 
 @Singleton
-internal class ChildRepository(private val repository: InternalChildRepository) {
-    fun findAll(): Iterable<ChildRecord> =
+internal class MicronautChildRepository
+    (private val repository: InternalChildRepository)
+    : ChildRepository {
+    override fun findAll(): Iterable<ChildRecord> =
         repository.findAll().map {
             it.fix()
         }
 
-    fun findByNaturalId(naturalId: String): Optional<ChildRecord> =
+    override fun findByNaturalId(naturalId: String): Optional<ChildRecord> =
         repository.findByNaturalId(naturalId).map {
             it.fix()
         }
 
-    fun findByParentNaturalId(parentNaturalId: String)
+    override fun findByParentNaturalId(parentNaturalId: String)
             : Iterable<ChildRecord> =
         repository.findByParentNaturalId(parentNaturalId).map {
             it.fix()
         }
 
-    fun upsert(entity: ChildRecord) =
+    override fun upsert(entity: ChildRecord) =
         repository.upsert(
             entity.naturalId,
             entity.otherNaturalId,
@@ -44,7 +46,7 @@ internal class ChildRepository(private val repository: InternalChildRepository) 
             entity.upsertedWith(it)
         }
 
-    fun delete(entity: ChildRecord) {
+    override fun delete(entity: ChildRecord) {
         repository.delete(entity)
     }
 

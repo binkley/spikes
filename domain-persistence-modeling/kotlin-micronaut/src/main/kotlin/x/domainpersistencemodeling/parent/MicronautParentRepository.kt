@@ -10,20 +10,20 @@ import java.util.Optional
 import javax.inject.Singleton
 
 @Singleton
-internal class ParentRepository(
+internal class MicornautParentRepository(
     private val repository: InternalParentRepository
-) {
-    fun findAll(): Iterable<ParentRecord> =
+) : ParentRepository {
+    override fun findAll(): Iterable<ParentRecord> =
         repository.findAll().map {
             it.fix()
         }
 
-    fun findByNaturalId(naturalId: String): Optional<ParentRecord> =
+    override fun findByNaturalId(naturalId: String): Optional<ParentRecord> =
         repository.findByNaturalId(naturalId).map {
             it.fix()
         }
 
-    fun upsert(entity: ParentRecord) =
+    override fun upsert(entity: ParentRecord) =
         repository.upsert(
             entity.naturalId,
             entity.otherNaturalId,
@@ -36,7 +36,7 @@ internal class ParentRepository(
             entity.upsertedWith(it)
         }
 
-    fun delete(entity: ParentRecord) {
+    override fun delete(entity: ParentRecord) {
         repository.delete(entity)
     }
 

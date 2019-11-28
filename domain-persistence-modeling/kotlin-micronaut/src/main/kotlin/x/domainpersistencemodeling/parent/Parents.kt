@@ -9,6 +9,7 @@ import x.domainpersistencemodeling.child.UnassignedChild
 import x.domainpersistencemodeling.other.Other
 import x.domainpersistencemodeling.other.OtherSimpleDetails
 import java.time.OffsetDateTime
+import java.util.*
 
 data class ParentSnapshot(
     val naturalId: String,
@@ -19,6 +20,13 @@ data class ParentSnapshot(
     val sideValues: Set<String>, // Sorted
     val version: Int
 )
+
+interface ParentRepository {
+    fun findAll(): Iterable<ParentRecord>
+    fun findByNaturalId(naturalId: String): Optional<ParentRecord>
+    fun upsert(entity: ParentRecord): Optional<ParentRecord>
+    fun delete(entity: ParentRecord)
+}
 
 interface ParentFactory {
     fun all(): Sequence<Parent>

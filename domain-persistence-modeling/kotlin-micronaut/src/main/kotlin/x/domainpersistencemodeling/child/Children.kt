@@ -6,6 +6,7 @@ import x.domainpersistencemodeling.PersistableDomain
 import x.domainpersistencemodeling.ScopedMutable
 import x.domainpersistencemodeling.other.Other
 import java.time.OffsetDateTime
+import java.util.*
 
 data class ChildSnapshot(
     val naturalId: String,
@@ -17,6 +18,16 @@ data class ChildSnapshot(
     val sideValues: Set<String>, // Sorted
     val version: Int
 )
+
+interface ChildRepository {
+    fun findAll(): Iterable<ChildRecord>
+    fun findByNaturalId(naturalId: String): Optional<ChildRecord>
+    fun findByParentNaturalId(parentNaturalId: String)
+            : Iterable<ChildRecord>
+
+    fun upsert(entity: ChildRecord): Optional<ChildRecord>
+    fun delete(entity: ChildRecord)
+}
 
 interface ChildFactory {
     fun all(): Sequence<Child<*>>
