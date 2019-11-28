@@ -97,13 +97,13 @@ internal class PersistedParentDependentDetails(
     PersistedDependentDetails {
     override fun saveMutated() = sequenceOf(
         _other.saveMutated(),
-        _children.saveMutated()
+        children.saveMutated()
     ).fold(false) { a, b ->
         a || b
     }
 
     override val at: OffsetDateTime?
-        get() = _children.at
+        get() = children.at
 
     private val _other = TrackedSortedSet(
         if (null == initialOther) emptySet() else setOf(initialOther),
@@ -111,37 +111,26 @@ internal class PersistedParentDependentDetails(
     override val other: Other?
         get() = _other.firstOrNull()
 
-    private val _children = TrackedSortedSet(
+    override val children = TrackedSortedSet(
         initialChildren,
-        { _, _ -> }, { _, _ -> }
-    )
-    override val children: Set<AssignedChild>
-        get() = _children
+        { _, _ -> }, { _, _ -> })
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
         other as PersistedParentDependentDetails
         return _other == other._other
-                && _children == other._children
+                && children == other.children
     }
 
-    override fun hashCode() = hash(_other, _children)
+    override fun hashCode() = hash(_other, children)
 
     override fun toString() =
-        "${super.toString()}{_other=$_other, _children=$_children}"
+        "${super.toString()}{_other=$_other, _children=$children}"
 
     internal fun setOther(other: Other?) {
         _other.clear()
         other?.run { _other.add(other) }
-    }
-
-    internal fun addChild(child: AssignedChild) {
-        _children.add(child)
-    }
-
-    internal fun removeChild(child: AssignedChild) {
-        _children.remove(child)
     }
 }
 
@@ -213,9 +202,7 @@ internal open class PersistedParent(
             persisted.record,
             persisted.dependent.other,
             ::setOther,
-            persisted.dependent.children,
-            ::addChild.uncurryFirst(),
-            ::removeChild.uncurryFirst()
+            persisted.dependent.children
         ).let(block)
 
     override fun equals(other: Any?): Boolean {
@@ -232,25 +219,13 @@ internal open class PersistedParent(
     private fun setOther(other: Other?) {
         persisted.dependent.setOther(other)
     }
-
-    private fun addChild(child: AssignedChild) {
-        persisted.dependent.addChild(child)
-    }
-
-    private fun removeChild(child: AssignedChild) {
-        persisted.dependent.removeChild(child)
-    }
 }
 
 internal data class PersistedMutableParent(
     private val record: ParentRecord,
     private var currentOther: Other?,
     private val setOther: (Other?) -> Unit,
-    private val initialChildren: Set<AssignedChild>,
-    private val addChild:
-        (AssignedChild, MutableSet<AssignedChild>) -> Unit,
-    private val removeChild:
-        (AssignedChild, MutableSet<AssignedChild>) -> Unit
+    override val children: MutableSet<AssignedChild>
 ) : MutableParent,
     MutableParentSimpleDetails by record {
     override val at: OffsetDateTime?
@@ -267,8 +242,6 @@ internal data class PersistedMutableParent(
             currentOther = value
             setOther(value)
         }
-    override val children =
-        TrackedSortedSet(initialChildren, addChild, removeChild)
 
     private fun replaceSideValues(all: MutableSet<String>) {
         record.sideValues = all
