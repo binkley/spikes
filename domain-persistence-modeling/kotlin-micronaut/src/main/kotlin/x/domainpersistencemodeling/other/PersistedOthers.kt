@@ -81,8 +81,9 @@ internal class PersistedOtherFactory(
 internal data class PersistedOtherDependentDetails(
     private val saveMutated: Boolean = false
 ) : OtherDependentDetails,
-    PersistedDependentDetails {
+    PersistedDependentDetails<OtherRecord> {
     override fun saveMutated() = saveMutated
+    override fun updateBackPointer(refreshedRecord: OtherRecord) = Unit
 }
 
 internal class PersistedOther(

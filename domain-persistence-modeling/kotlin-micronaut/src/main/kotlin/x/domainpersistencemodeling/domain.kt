@@ -6,7 +6,7 @@ import java.util.Objects.hash
 
 internal interface PersistedFactory<Snapshot,
         Record : UpsertableRecord<Record>,
-        Dependent : PersistedDependentDetails> {
+        Dependent : PersistedDependentDetails<Record>> {
     fun save(record: Record): UpsertedRecordResult<Record>
     fun delete(record: Record)
     fun refreshRecord(naturalId: String): Record
@@ -15,13 +15,16 @@ internal interface PersistedFactory<Snapshot,
     fun toSnapshot(record: Record, dependent: Dependent): Snapshot
 }
 
-internal interface PersistedDependentDetails {
+internal interface PersistedDependentDetails<
+        Record : UpsertableRecord<Record>> {
     fun saveMutated(): Boolean
+    // TODO: Big old smell, ick
+    fun updateBackPointer(refreshedRecord: Record)
 }
 
 internal class PersistedDomain<Snapshot,
         Record : UpsertableRecord<Record>,
-        Dependent : PersistedDependentDetails,
+        Dependent : PersistedDependentDetails<Record>,
         Factory : PersistedFactory<Snapshot, Record, Dependent>,
         Domain : PersistableDomain<Snapshot, Domain>,
         Mutable>(
@@ -34,6 +37,10 @@ internal class PersistedDomain<Snapshot,
         <Snapshot, Record, Dependent, Factory, Domain, Mutable>
     ) -> Domain
 ) : PersistableDomain<Snapshot, Domain> {
+    init {
+        dependent.updateBackPointer(record)
+    }
+
     override val naturalId: String
         get() = record.naturalId
     override val version: Int
@@ -60,7 +67,9 @@ internal class PersistedDomain<Snapshot,
 
         if (dependent.saveMutated()) {
             // Refresh the version
-            currentRecord = factory.refreshRecord(naturalId)
+            val refreshedRecord = factory.refreshRecord(naturalId)
+            currentRecord = refreshedRecord
+            dependent.updateBackPointer(refreshedRecord)
             result = UpsertedRecordResult(record, true)
         }
 

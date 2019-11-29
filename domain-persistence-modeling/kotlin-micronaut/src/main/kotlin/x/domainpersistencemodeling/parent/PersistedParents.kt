@@ -29,22 +29,16 @@ internal class PersistedParentFactory(
         }.orElse(null)
     }
 
-    override fun createNew(naturalId: String): PersistedParent {
-        val currentRecord = ParentRecord(naturalId)
-        return PersistedParent(
+    override fun createNew(naturalId: String): Parent =
+        PersistedParent(
             PersistedDomain(
                 this,
                 null,
-                currentRecord,
-                PersistedParentDependentDetails(
-                    null, {
-                        currentRecord.otherNaturalId = it?.naturalId
-                    }, emptySet()
-                ),
+                ParentRecord(naturalId),
+                PersistedParentDependentDetails(null, emptySet()),
                 ::PersistedParent
             )
         )
-    }
 
     override fun findExistingOrCreateNew(naturalId: String) =
         findExisting(naturalId) ?: createNew(naturalId)
@@ -81,7 +75,6 @@ internal class PersistedParentFactory(
     private fun toDomain(record: ParentRecord): PersistedParent {
         val dependent = PersistedParentDependentDetails(
             others.findAssignedTo(record.naturalId),
-            { record.otherNaturalId = it?.naturalId },
             children.findAssignedTo(record.naturalId).toSortedSet()
         )
 
@@ -99,10 +92,11 @@ internal class PersistedParentFactory(
 
 internal class PersistedParentDependentDetails(
     initialOther: Other?,
-    private val _setOther: (Other?) -> Unit,
     initialChildren: Set<AssignedChild>
 ) : ParentDependentDetails,
-    PersistedDependentDetails {
+    PersistedDependentDetails<ParentRecord> {
+    private var backPointer: ParentRecord? = null
+
     override fun saveMutated() = sequenceOf(
         _other.saveMutated(),
         children.saveMutated()
@@ -110,22 +104,26 @@ internal class PersistedParentDependentDetails(
         a || b
     }
 
+    override fun updateBackPointer(refreshedRecord: ParentRecord) {
+        backPointer = refreshedRecord
+    }
+
     override val at: OffsetDateTime?
         get() = children.at
 
+    private fun _setOther(other: Other?) {
+        // TODO: BUG: currentRecord not refreshed on save
+        backPointer!!.otherNaturalId = other?.naturalId
+    }
+
+    // TODO: Blend into a ctor for TrackedSortedSet
     private val _other = TrackedSortedSet(
         if (null == initialOther) emptySet() else setOf(initialOther),
         { other, _ -> _setOther(other) }, { _, _ -> _setOther(null) })
-    override var other: Other?
-        get() = _other.firstOrNull()
-        set(other) {
-            _other.clear()
-            other?.run { _other.add(other) }
-        }
+    override var other: Other? by _other
 
     override val children = TrackedSortedSet(
-        initialChildren,
-        { _, _ -> }, { _, _ -> })
+        initialChildren, { _, _ -> }, { _, _ -> })
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

@@ -1,7 +1,9 @@
 package x.domainpersistencemodeling
 
 import java.util.*
+import kotlin.reflect.KProperty
 
+// TODO: Teach arity, so this can check for bugs
 internal class TrackedSortedSet<T : Comparable<T>>(
     private var initial: Set<T>,
     private val addOne: (T, MutableSet<T>) -> Unit,
@@ -64,5 +66,21 @@ internal class TrackedSortedSet<T : Comparable<T>>(
         val changed = TreeSet(initial)
         changed.retainAll(current)
         return changed.mutated(mutator)
+    }
+
+    operator fun getValue(
+        thisRef: Any?,
+        property: KProperty<*>
+    ): T? {
+        return current.firstOrNull()
+    }
+
+    operator fun setValue(
+        thisRef: Any?,
+        property: KProperty<*>,
+        value: T?
+    ) {
+        clear()
+        value?.run { add(value) }
     }
 }
