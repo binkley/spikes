@@ -41,7 +41,7 @@ The key concepts are:
 - [_Scoped mutation_](#scoped-mutation)
 - [_Reversal of roles_](#reversal-of-roles)
 
-## Separation of concerns
+### Separation of concerns
 
 A classic programming thought, _separation of concerns_ is important for clean
 code, often expressed in the OOP community as the
@@ -58,7 +58,7 @@ That entails dividing properties of an entity at different levels:
 I want to make changes in the right places, and have confidence of no surprise
 side effects.
 
-## Scoped mutation
+### Scoped mutation
 
 Goals:
 
@@ -91,7 +91,7 @@ itself:
 * `Parent.assign(Child)` mutates both parent and child, but does not persist
 * `Parent.unassign(Child)` mutates both parent and child, but does not persist
 
-## Reversal of roles
+### Reversal of roles
 
 Commonly domain objects refer to objects from other domains, however, at the
 persistence level, the relationship represented differently.  In this code,
@@ -160,6 +160,15 @@ operations.
 
 In this **contrary** persistence representation, saving a parent bears this
 cost even when updating satellite data on the parent record.
+
+#### Illustrating
+
+For relationships formally exposed on the `Parent` domain:
+
+| Relationship        |                                    | Parent domain property type | Persistence and field type    |
+|---------------------|------------------------------------|-----------------------------|-------------------------------|
+| Many-to-one         | Parent **&#8666;** Child<em>*</em> | `Set<Child>`                | Child record, parent ID field |
+| One-to-optional-one | Parent **&rarr;** Other<em>?</em>  | `Other?`                    | Parent record, other ID field |
 
 ## Distinct types
 
