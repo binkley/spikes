@@ -99,7 +99,8 @@ internal class PersistedParentDependentDetails(
     initialChildren: Set<AssignedChild>,
     private val holder: RecordHolder<ParentRecord>
 ) : ParentDependentDetails,
-    PersistedDependentDetails<ParentRecord> {
+    PersistedDependentDetails<ParentRecord>,
+    MutableParentDependentDetails {
     override fun saveMutated() = sequenceOf(
         _other.saveMutated(),
         children.saveMutated()
@@ -220,7 +221,8 @@ internal data class PersistedMutableParent(
     private val record: ParentRecord,
     private val persistence: PersistedParentDependentDetails
 ) : MutableParent,
-    MutableParentSimpleDetails by record {
+    MutableParentSimpleDetails by record,
+    MutableParentDependentDetails by persistence {
     override val at: OffsetDateTime?
         get() = children.at
     override val sideValues =
@@ -229,13 +231,6 @@ internal data class PersistedMutableParent(
             ::replaceSideValues.uncurrySecond(),
             ::replaceSideValues.uncurrySecond()
         )
-    override var other: Other?
-        get() = persistence.other
-        set(value) {
-            persistence.other = value
-        }
-    override val children: MutableSet<AssignedChild>
-        get() = persistence.children
 
     private fun replaceSideValues(all: MutableSet<String>) {
         record.sideValues = all
