@@ -101,24 +101,16 @@ internal class PersistedParentDependentDetails(
 ) : ParentDependentDetails,
     PersistedDependentDetails<ParentRecord>,
     MutableParentDependentDetails {
-    override fun saveMutated() = sequenceOf(
-        _other.saveMutated(),
-        children.saveMutated()
-    ).fold(false) { a, b ->
-        a || b
-    }
+    override fun saveMutated() =
+        _other.saveMutated() or children.saveMutated()
 
     override val at: OffsetDateTime?
         get() = children.at
 
-    private fun _setOther(other: Other?) {
-        holder.record!!.otherNaturalId = other?.naturalId
-    }
-
-    // TODO: Blend into a ctor for TrackedSortedSet
     private val _other = TrackedSortedSet(
         if (null == initialOther) emptySet() else setOf(initialOther),
-        { other, _ -> _setOther(other) }, { _, _ -> _setOther(null) })
+        { other, _ -> updateRecord(other) },
+        { _, _ -> updateRecord(null) })
     override var other: Other? by _other
 
     override val children = TrackedSortedSet(
@@ -136,6 +128,10 @@ internal class PersistedParentDependentDetails(
 
     override fun toString() =
         "${super.toString()}{_other=$_other, _children=$children}"
+
+    private fun updateRecord(other: Other?) {
+        holder.record!!.otherNaturalId = other?.naturalId
+    }
 }
 
 internal open class PersistedParent(
