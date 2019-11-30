@@ -11,7 +11,6 @@ internal interface PersistedFactory<Snapshot,
     fun delete(record: Record)
     fun refreshPersistence(naturalId: String): Record
     fun notifyChanged(before: Snapshot?, after: Snapshot?)
-
     fun toSnapshot(record: Record, dependent: Dependent): Snapshot
 }
 
