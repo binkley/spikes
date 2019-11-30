@@ -14,7 +14,7 @@
         <atrium.version>0.8.0</atrium.version>
         <exec.mainClass>x.Application</exec.mainClass>
         <!-- TODO: Jackson 2.10.0 -->
-        <jackson.version>2.9.10</jackson.version>
+        <jackson.version>2.10.1</jackson.version>
         <java.version>11</java.version>
         <jsqlparser.version>3.1</jsqlparser.version>
         <junit.version>5.5.2</junit.version>
@@ -38,7 +38,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <snapshot-repository.url>https://oss.sonatype.org/content/repositories/snapshots</snapshot-repository.url>
-        <test-containers.version>1.12.2</test-containers.version>
+        <test-containers.version>1.12.4</test-containers.version>
         <!-- @formatter:on -->
     </properties>
 
