@@ -53,7 +53,7 @@ internal class PersistedChildFactory(
     override fun delete(record: ChildRecord) =
         repository.delete(record)
 
-    override fun refreshRecord(naturalId: String): ChildRecord =
+    override fun refreshPersistence(naturalId: String): ChildRecord =
         repository.findByNaturalId(naturalId).orElseThrow()
 
     override fun notifyChanged(

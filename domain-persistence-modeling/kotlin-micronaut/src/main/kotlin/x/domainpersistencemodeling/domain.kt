@@ -9,7 +9,7 @@ internal interface PersistedFactory<Snapshot,
         Dependent : PersistedDependentDetails<Record>> {
     fun save(record: Record): UpsertedRecordResult<Record>
     fun delete(record: Record)
-    fun refreshRecord(naturalId: String): Record
+    fun refreshPersistence(naturalId: String): Record
     fun notifyChanged(before: Snapshot?, after: Snapshot?)
 
     fun toSnapshot(record: Record, dependent: Dependent): Snapshot
@@ -65,7 +65,7 @@ internal class PersistedDomain<Snapshot,
 
         if (dependent.saveMutated()) {
             // Refresh the version
-            val refreshedRecord = factory.refreshRecord(naturalId)
+            val refreshedRecord = factory.refreshPersistence(naturalId)
             holder.record = refreshedRecord
             result = UpsertedRecordResult(record, true)
         }

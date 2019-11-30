@@ -52,7 +52,7 @@ internal class PersistedParentFactory(
         repository.delete(record)
     }
 
-    override fun refreshRecord(naturalId: String): ParentRecord =
+    override fun refreshPersistence(naturalId: String): ParentRecord =
         repository.findByNaturalId(naturalId).orElseThrow()
 
     override fun toSnapshot(

@@ -47,7 +47,7 @@ internal class PersistedOtherFactory(
         repository.delete(record)
     }
 
-    override fun refreshRecord(naturalId: String): OtherRecord =
+    override fun refreshPersistence(naturalId: String): OtherRecord =
         repository.findByNaturalId(naturalId).orElseThrow()
 
     override fun notifyChanged(
