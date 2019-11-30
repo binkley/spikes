@@ -79,8 +79,6 @@ internal class PersistedDomain<Snapshot,
      * references by children are valid.
      */
     override fun delete() {
-        if (changed) throw DomainException("Deleting after mutating: $this")
-
         val before = snapshot
         dependent.saveMutated()
         factory.delete(record)
