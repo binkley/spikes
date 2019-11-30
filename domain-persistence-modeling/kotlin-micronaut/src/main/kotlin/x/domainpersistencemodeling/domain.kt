@@ -35,8 +35,7 @@ internal class PersistedDomain<Snapshot,
     private val holder: RecordHolder<Record>,
     internal val dependent: Dependent,
     private val toDomain: (
-        PersistedDomain
-        <Snapshot, Record, Dependent, Factory, Domain, Mutable>
+        PersistedDomain<Snapshot, Record, Dependent, Factory, Domain, Mutable>
     ) -> Domain
 ) : PersistableDomain<Snapshot, Domain> {
     override val naturalId: String
@@ -51,35 +50,33 @@ internal class PersistedDomain<Snapshot,
         get() = holder.record ?: throw DomainException("Deleted: $this")
 
     /**
-     * Notice that when **saving**, save the other _first_, so added
+     * Notice that when **saving**, save ourselves _first_, so added
      * children have a valid FK reference.
      */
-    @Suppress("UNCHECKED_CAST")
     override fun save(): UpsertedDomainResult<Snapshot, Domain> {
-        // Save ourselves first, so children have a valid parent
         val before = snapshot
-        var result =
+        var recordResult =
             if (changed) factory.save(record)
             else UpsertedRecordResult(record, false)
-        holder.record = result.record
+        holder.record = recordResult.record
 
         if (dependent.saveMutated()) {
-            // Refresh the version
+            // Refresh our version since children mutated in the DB
             val refreshedRecord = factory.refreshPersistence(naturalId)
             holder.record = refreshedRecord
-            result = UpsertedRecordResult(record, true)
+            recordResult = UpsertedRecordResult(record, true)
         }
 
         val after = factory.toSnapshot(record, dependent)
         snapshot = after
         if (after != before)
             factory.notifyChanged(before, after)
-        return UpsertedDomainResult(toDomain(this), result.changed)
+        return UpsertedDomainResult(toDomain(this), recordResult.changed)
     }
 
     /**
-     * Notice that when **deleting**, save the other _last_, so that FK
-     * references get cleared.
+     * Notice that when **deleting**, save ourselves _last_, so that FK
+     * references by children are valid.
      */
     override fun delete() {
         val before = snapshot
