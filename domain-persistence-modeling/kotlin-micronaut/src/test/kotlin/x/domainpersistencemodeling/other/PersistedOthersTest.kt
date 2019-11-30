@@ -1,13 +1,12 @@
 package x.domainpersistencemodeling.other
 
-import ch.tutteli.atrium.api.cc.en_GB.containsExactly
-import ch.tutteli.atrium.api.cc.en_GB.hasSize
-import ch.tutteli.atrium.api.cc.en_GB.isEmpty
-import ch.tutteli.atrium.api.cc.en_GB.toBe
+import ch.tutteli.atrium.api.cc.en_GB.*
 import ch.tutteli.atrium.verbs.expect
 import org.junit.jupiter.api.Test
+import x.domainpersistencemodeling.*
 import x.domainpersistencemodeling.LiveTestBase
 import x.domainpersistencemodeling.PersistableDomain.UpsertedDomainResult
+import x.domainpersistencemodeling.aChildChangedEvent
 import x.domainpersistencemodeling.anOtherChangedEvent
 import x.domainpersistencemodeling.otherNaturalId
 
@@ -95,10 +94,29 @@ internal class PersistedOthersTest
 
         expectDomainChangedEvents().containsExactly(
             anOtherChangedEvent(
-                beforeOtherVersion = 1,
+                beforeVersion = 1,
                 beforeValue = null,
                 afterVersion = 2,
                 afterValue = value
+            )
+        )
+    }
+
+    @Test
+    fun `should delete`() {
+        val existing = newSavedOther()
+
+        existing.delete()
+
+        expectSqlQueryCountsByType(delete = 1)
+        expect {
+            existing.version
+        }.toThrow<DomainException> { }
+
+        expectDomainChangedEvents().containsExactly(
+            anOtherChangedEvent(
+                beforeVersion = 1,
+                noAfter = true
             )
         )
     }

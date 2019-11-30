@@ -21,7 +21,7 @@ import x.domainpersistencemodeling.parent.ParentSnapshot
 import java.time.Instant.EPOCH
 import java.time.OffsetDateTime
 import java.time.ZoneOffset.UTC
-import java.util.TimeZone
+import java.util.*
 import javax.inject.Inject
 
 internal const val otherNaturalId = "o"
@@ -168,7 +168,7 @@ internal abstract class LiveTestBase {
 internal fun anOtherChangedEvent( // TODO: Tie defaults to record defaults
     noBefore: Boolean = false,
     beforeValue: String? = null,
-    beforeOtherVersion: Int = 0,
+    beforeVersion: Int = 0,
     noAfter: Boolean = false,
     afterValue: String? = null,
     afterVersion: Int = 0
@@ -176,7 +176,7 @@ internal fun anOtherChangedEvent( // TODO: Tie defaults to record defaults
     OtherChangedEvent(
         if (noBefore) null else OtherSnapshot(
             otherNaturalId, beforeValue,
-            beforeOtherVersion
+            beforeVersion
         ),
         if (noAfter) null else OtherSnapshot(
             otherNaturalId, afterValue,
