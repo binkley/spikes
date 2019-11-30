@@ -72,7 +72,7 @@ internal class PersistedDomain<Snapshot,
 
         val after = factory.toSnapshot(record, dependent)
         snapshot = after
-        if (result.changed) // Trust the database
+        if (after != before)
             factory.notifyChanged(before, after)
         return UpsertedDomainResult(toDomain(this), result.changed)
     }
