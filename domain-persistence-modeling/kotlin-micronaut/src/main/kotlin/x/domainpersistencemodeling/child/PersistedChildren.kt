@@ -1,17 +1,11 @@
 package x.domainpersistencemodeling.child
 
 import io.micronaut.context.event.ApplicationEventPublisher
-import x.domainpersistencemodeling.PersistableDomain
-import x.domainpersistencemodeling.PersistedDependentDetails
-import x.domainpersistencemodeling.PersistedDomain
-import x.domainpersistencemodeling.PersistedFactory
-import x.domainpersistencemodeling.TrackedSortedSet
+import x.domainpersistencemodeling.*
 import x.domainpersistencemodeling.UpsertableRecord.UpsertedRecordResult
 import x.domainpersistencemodeling.other.Other
-import x.domainpersistencemodeling.uncurrySecond
 import java.time.OffsetDateTime
-import java.util.Objects
-import java.util.TreeSet
+import java.util.*
 import javax.inject.Singleton
 
 @Singleton
@@ -96,14 +90,15 @@ internal class PersistedChildFactory(
         snapshot: ChildSnapshot?,
         record: ChildRecord,
         toDomain: (PersistedDomain<ChildSnapshot, ChildRecord, PersistedChildDependentDetails, PersistedChildFactory, C, MutableChild>) -> C
-    ) =
-        toDomain(
-            PersistedDomain(
-                this, snapshot, record,
-                PersistedChildDependentDetails(),
-                toDomain
-            )
+    ) = toDomain(
+        PersistedDomain(
+            this,
+            snapshot,
+            RecordHolder(record),
+            PersistedChildDependentDetails(),
+            toDomain
         )
+    )
 }
 
 internal data class PersistedChildDependentDetails(
@@ -111,7 +106,6 @@ internal data class PersistedChildDependentDetails(
 ) : ChildDependentDetails,
     PersistedDependentDetails<ChildRecord> {
     override fun saveMutated() = saveMutated
-    override fun updateBackPointer(refreshedRecord: ChildRecord) = Unit
 }
 
 /**

@@ -1,10 +1,7 @@
 package x.domainpersistencemodeling.other
 
 import io.micronaut.context.event.ApplicationEventPublisher
-import x.domainpersistencemodeling.PersistableDomain
-import x.domainpersistencemodeling.PersistedDependentDetails
-import x.domainpersistencemodeling.PersistedDomain
-import x.domainpersistencemodeling.PersistedFactory
+import x.domainpersistencemodeling.*
 import x.domainpersistencemodeling.UpsertableRecord.UpsertedRecordResult
 import javax.inject.Singleton
 
@@ -29,7 +26,7 @@ internal class PersistedOtherFactory(
             PersistedDomain(
                 this,
                 null,
-                OtherRecord(naturalId),
+                RecordHolder(OtherRecord(naturalId)),
                 PersistedOtherDependentDetails(),
                 ::PersistedOther
             )
@@ -70,7 +67,7 @@ internal class PersistedOtherFactory(
             PersistedDomain(
                 this,
                 toSnapshot(record, dependent),
-                record,
+                RecordHolder(record),
                 dependent,
                 ::PersistedOther
             )
@@ -83,7 +80,6 @@ internal data class PersistedOtherDependentDetails(
 ) : OtherDependentDetails,
     PersistedDependentDetails<OtherRecord> {
     override fun saveMutated() = saveMutated
-    override fun updateBackPointer(refreshedRecord: OtherRecord) = Unit
 }
 
 internal class PersistedOther(

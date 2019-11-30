@@ -29,16 +29,18 @@ internal class PersistedParentFactory(
         }.orElse(null)
     }
 
-    override fun createNew(naturalId: String): Parent =
-        PersistedParent(
+    override fun createNew(naturalId: String): Parent {
+        val holder = RecordHolder(ParentRecord(naturalId))
+        return PersistedParent(
             PersistedDomain(
                 this,
                 null,
-                ParentRecord(naturalId),
-                PersistedParentDependentDetails(null, emptySet()),
+                holder,
+                PersistedParentDependentDetails(null, emptySet(), holder),
                 ::PersistedParent
             )
         )
+    }
 
     override fun findExistingOrCreateNew(naturalId: String) =
         findExisting(naturalId) ?: createNew(naturalId)
@@ -73,16 +75,18 @@ internal class PersistedParentFactory(
         publisher.publishEvent(ParentChangedEvent(before, after))
 
     private fun toDomain(record: ParentRecord): PersistedParent {
+        val holder = RecordHolder(record)
         val dependent = PersistedParentDependentDetails(
             others.findAssignedTo(record.naturalId),
-            children.findAssignedTo(record.naturalId).toSortedSet()
+            children.findAssignedTo(record.naturalId).toSortedSet(),
+            holder
         )
 
         return PersistedParent(
             PersistedDomain(
                 this,
                 toSnapshot(record, dependent),
-                record,
+                holder,
                 dependent,
                 ::PersistedParent
             )
@@ -92,11 +96,10 @@ internal class PersistedParentFactory(
 
 internal class PersistedParentDependentDetails(
     initialOther: Other?,
-    initialChildren: Set<AssignedChild>
+    initialChildren: Set<AssignedChild>,
+    private val holder: RecordHolder<ParentRecord>
 ) : ParentDependentDetails,
     PersistedDependentDetails<ParentRecord> {
-    private var backPointer: ParentRecord? = null
-
     override fun saveMutated() = sequenceOf(
         _other.saveMutated(),
         children.saveMutated()
@@ -104,16 +107,11 @@ internal class PersistedParentDependentDetails(
         a || b
     }
 
-    override fun updateBackPointer(refreshedRecord: ParentRecord) {
-        backPointer = refreshedRecord
-    }
-
     override val at: OffsetDateTime?
         get() = children.at
 
     private fun _setOther(other: Other?) {
-        // TODO: BUG: currentRecord not refreshed on save
-        backPointer!!.otherNaturalId = other?.naturalId
+        holder.record!!.otherNaturalId = other?.naturalId
     }
 
     // TODO: Blend into a ctor for TrackedSortedSet
