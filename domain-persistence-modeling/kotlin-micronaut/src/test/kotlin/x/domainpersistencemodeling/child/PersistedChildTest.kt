@@ -120,6 +120,19 @@ internal class PersistedChildrenTest
     @Test
     fun `should delete`() {
         val existing = newSavedUnassignedChild()
+        val originalValue = existing.value
+
+        existing.update {
+            value = "BOB"
+        }
+
+        expect {
+            existing.delete()
+        }.toThrow<DomainException> {  }
+
+        existing.update {
+            value = originalValue
+        }
 
         existing.delete()
 

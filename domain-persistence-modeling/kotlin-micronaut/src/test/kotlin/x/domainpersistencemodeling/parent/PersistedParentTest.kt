@@ -161,6 +161,19 @@ internal class PersistedParentsTest
     @Test
     fun `should delete`() {
         val existing = newSavedParent()
+        val originalValue = existing.value
+
+        existing.update {
+            value = "BOB"
+        }
+
+        expect {
+            existing.delete()
+        }.toThrow<DomainException> {  }
+
+        existing.update {
+            value = originalValue
+        }
 
         existing.delete()
 
@@ -262,58 +275,6 @@ internal class PersistedParentsTest
                 beforeAt = atZero,
                 afterVersion = 3,
                 afterAt = null
-            )
-        )
-    }
-
-    @Test
-    fun `should persist mutated but unassigned children`() {
-        val parent = newSavedParent()
-        val unassigned = newSavedUnassignedChild()
-        val assigned = parent.assign(unassigned)
-
-        parent.save()
-
-        expectSqlQueryCountsByType(select = 1, upsert = 2)
-        expectDomainChangedEvents().containsExactly(
-            aChildChangedEvent(
-                beforeVersion = 1,
-                beforeParentNaturalId = null,
-                afterVersion = 2,
-                afterParentNaturalId = parentNaturalId
-            ),
-            aParentChangedEvent(
-                beforeVersion = 1,
-                beforeAt = null,
-                afterVersion = 2,
-                afterAt = atZero
-            )
-        )
-
-        val value = "PQR"
-        unassigned.update {
-            this.value = value
-        }
-
-        parent.unassign(assigned)
-        parent.delete()
-
-        expect(currentPersistedChild().value).toBe(value)
-
-        expectSqlQueries().isEmpty()
-        expectDomainChangedEvents().containsExactly(
-            aChildChangedEvent(
-                beforeVersion = 2,
-                beforeParentNaturalId = parentNaturalId,
-                beforeValue = null,
-                afterVersion = 3,
-                afterParentNaturalId = null,
-                afterValue = value
-            ),
-            aParentChangedEvent(
-                beforeVersion = 2,
-                beforeAt = atZero,
-                noAfter = true
             )
         )
     }

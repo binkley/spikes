@@ -3,6 +3,7 @@ package x.domainpersistencemodeling.other
 import ch.tutteli.atrium.api.cc.en_GB.*
 import ch.tutteli.atrium.verbs.expect
 import org.junit.jupiter.api.Test
+import org.testcontainers.shaded.com.fasterxml.jackson.module.jaxb.deser.DomElementJsonDeserializer
 import x.domainpersistencemodeling.*
 import x.domainpersistencemodeling.LiveTestBase
 import x.domainpersistencemodeling.PersistableDomain.UpsertedDomainResult
@@ -105,6 +106,19 @@ internal class PersistedOthersTest
     @Test
     fun `should delete`() {
         val existing = newSavedOther()
+        val originalValue = existing.value
+
+        existing.update {
+            value = "BOB"
+        }
+
+        expect {
+            existing.delete()
+        }.toThrow<DomainException> {  }
+
+        existing.update {
+            value = originalValue
+        }
 
         existing.delete()
 
