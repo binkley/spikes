@@ -3,6 +3,7 @@ package x.domainpersistencemodeling.other
 import io.micronaut.context.event.ApplicationEventPublisher
 import x.domainpersistencemodeling.*
 import x.domainpersistencemodeling.UpsertableRecord.UpsertedRecordResult
+import java.util.*
 import javax.inject.Singleton
 
 @Singleton
@@ -82,12 +83,22 @@ internal class PersistedOtherFactory(
     }
 }
 
-internal data class PersistedOtherDependentDetails(
-    private val saveMutated: Boolean = false
-) : OtherDependentDetails,
+internal class PersistedOtherDependentDetails
+    : OtherDependentDetails,
     PersistedDependentDetails<OtherRecord>,
     MutableOtherDependentDetails {
-    override fun saveMutated() = saveMutated
+    override fun saveMutated() = false
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        other as PersistedOtherDependentDetails
+        return true
+    }
+
+    override fun hashCode() = Objects.hash(this::class)
+
+    override fun toString() = "${super.toString()}{}"
 }
 
 internal class PersistedOther(
