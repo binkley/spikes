@@ -16,6 +16,7 @@ Spikes are not to be considered stable.
   * [Scoped mutation](#scoped-mutation)
   * [Reversal of roles](#reversal-of-roles)
   * [Distinct types](#distinct-types)
+* [Implementation](#implementation)
 * [Open questions](#open-questions)
 * [Spring-recommended documentation](#spring-recommended-documentation)
   * [Reference documentation](#reference-documentation)
@@ -170,7 +171,7 @@ For relationships formally exposed on the `Parent` domain:
 | Many-to-one         | Parent **&#8666;** Child<em>*</em> | `Set<Child>`                | Child record, parent ID field |
 | One-to-optional-one | Parent **&rarr;** Other<em>?</em>  | `Other?`                    | Parent record, other ID field |
 
-## Distinct types
+### Distinct types
 
 (Only expressed in Kotlin Spring Data example, for now.)
 
@@ -187,6 +188,30 @@ common base type as conversion creates a new object.
 One downside: This violates the rule that only `update` mutates objects.
 Rather, for children, `update`, `assignTo`, and `unassignFromAny` all mutate.
 
+## Implementation
+
+The general pattern for a domain type is:
+
+1. A _Factory_ type, responsible for creating instances, and coordinating with
+   other factories and external dependencies (_e.g._, the framework
+   application event publisher)
+2. A _Record_ type, representing persisted data
+3. A _Repository_ type, representing interactions with persistence (generally
+   queries for records, and deletion)
+4. A _Snapshot_ type, representing domain state as of creation
+
+The _Domain_ type knows **only** about (directly or indirectly):
+
+* Its factory
+* Its record
+* Its snapshot (and _Domain_ does not use the snapshot, but hands it back to
+  the _Factory_ or helper methods as needed)
+
+(There may be other details, but this is the general approach.)
+
+A goal here is to minimize coupling, and follow an easily reproduced pattern
+without falling back to a full-on ORM (like Hibernate).
+
 ## Open questions
 
 1. Should snapshots be deep or shallow?
@@ -194,24 +219,6 @@ Rather, for children, `update`, `assignTo`, and `unassignFromAny` all mutate.
    domain representation?  If snapshots are purely implementation
    representations, it makes more sense to follow persistence, and let another
    layer translate (eg, REST)
-3. How should the domain hide simple details that are replaced with
-   corresponding domain representations?
-4. Micronaut Data re-port in progress: It now matches the Spring Boot code,
-   however it still has some specific issues
-
-An example using "parent" details:
-
-- `naturalId` (key) - common to all
-- `otherNaturalId` (key) - only persistence; snapshot should choose between
-  this or `other`
-- `other` (domain) - only domain
-- `children` (domain) - only domain; snapshot does not provide this but could
-- `state` (string) - common to all
-- `at` (date-time) - only dependent details and snapshot
-- `value` (string) - common to all
-- `sideValues` (set of string) - common to all, but contrast with
-  representation in the DB
-- `version` (number) - common to all
 
 ## Spring-recommended documentation
 
