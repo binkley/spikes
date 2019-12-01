@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test
 import x.domainpersistencemodeling.KnownState.DISABLED
 import x.domainpersistencemodeling.KnownState.ENABLED
 import x.domainpersistencemodeling.child.ChildSimpleDetails
+import x.domainpersistencemodeling.other.Other
 import x.domainpersistencemodeling.parent.ParentDependentDetails
 import x.domainpersistencemodeling.parent.ParentSimpleDetails
 import java.time.OffsetDateTime
@@ -96,7 +97,7 @@ private fun parentHavingSideValues(
         override val value: String? = null
         override val sideValues = sideValues
         override val version = 1
-        override val other = null
+        override val other = null as Other?
         override val children = children
         override val at: OffsetDateTime? = null
     }

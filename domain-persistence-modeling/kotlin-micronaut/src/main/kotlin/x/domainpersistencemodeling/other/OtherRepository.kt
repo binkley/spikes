@@ -4,7 +4,7 @@ import io.micronaut.data.annotation.Query
 import io.micronaut.data.jdbc.annotation.JdbcRepository
 import io.micronaut.data.model.query.builder.sql.Dialect.POSTGRES
 import io.micronaut.data.repository.CrudRepository
-import java.util.Optional
+import java.util.*
 
 @JdbcRepository(dialect = POSTGRES)
 interface OtherRepository : CrudRepository<OtherRecord, Long> {
@@ -48,7 +48,7 @@ interface OtherRepository : CrudRepository<OtherRecord, Long> {
             : Optional<OtherRecord>
 }
 
-fun OtherRepository.upsert(entity: OtherRecord) =
+fun OtherRepository.upsert(entity: OtherRecord): Optional<OtherRecord> =
     upsert(
         entity.naturalId,
         entity.value,

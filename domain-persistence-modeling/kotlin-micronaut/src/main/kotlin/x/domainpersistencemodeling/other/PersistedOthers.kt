@@ -35,7 +35,7 @@ internal class PersistedOtherFactory(
     override fun findExistingOrCreateNew(naturalId: String) =
         findExisting(naturalId) ?: createNew(naturalId)
 
-    override fun findAssignedTo(parentOrChildNaturalId: String) =
+    override fun findAssignedTo(parentOrChildNaturalId: String): Other? =
         repository.findByParentOrChildNaturalId(parentOrChildNaturalId).map {
             toDomain(it)
         }.orElse(null)

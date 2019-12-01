@@ -6,11 +6,11 @@ import io.micronaut.data.model.query.builder.sql.Dialect.POSTGRES
 import io.micronaut.data.repository.CrudRepository
 import x.domainpersistencemodeling.workAroundArrayTypeForPostgresRead
 import x.domainpersistencemodeling.workAroundArrayTypeForPostgresWrite
-import java.util.Optional
+import java.util.*
 import javax.inject.Singleton
 
 @Singleton
-internal class MicornautParentRepository(
+internal class MicronautParentRepository(
     private val repository: InternalParentRepository
 ) : ParentRepository {
     override fun findAll(): Iterable<ParentRecord> =
@@ -23,7 +23,7 @@ internal class MicornautParentRepository(
             it.fix()
         }
 
-    override fun upsert(entity: ParentRecord) =
+    override fun upsert(entity: ParentRecord): Optional<ParentRecord> =
         repository.upsert(
             entity.naturalId,
             entity.otherNaturalId,

@@ -7,13 +7,12 @@ import io.micronaut.data.repository.CrudRepository
 import x.domainpersistencemodeling.workAroundArrayTypeForPostgresRead
 import x.domainpersistencemodeling.workAroundArrayTypeForPostgresWrite
 import java.time.OffsetDateTime
-import java.util.Optional
+import java.util.*
 import javax.inject.Singleton
 
 @Singleton
 internal class MicronautChildRepository
-    (private val repository: InternalChildRepository)
-    : ChildRepository {
+    (private val repository: InternalChildRepository) : ChildRepository {
     override fun findAll(): Iterable<ChildRecord> =
         repository.findAll().map {
             it.fix()
@@ -30,7 +29,7 @@ internal class MicronautChildRepository
             it.fix()
         }
 
-    override fun upsert(entity: ChildRecord) =
+    override fun upsert(entity: ChildRecord): Optional<ChildRecord> =
         repository.upsert(
             entity.naturalId,
             entity.otherNaturalId,
