@@ -37,14 +37,7 @@ internal class PersistedChildFactory(
     override fun findAssignedTo(parentNaturalId: String)
             : Sequence<AssignedChild> =
         repository.findByParentNaturalId(parentNaturalId).map {
-            createNew(
-                toSnapshot(
-                    it,
-                    PersistedChildDependentDetails()
-                ),
-                it,
-                ::PersistedAssignedChild
-            )
+            toDomain(it) as AssignedChild
         }.asSequence()
 
     override fun save(record: ChildRecord) =
