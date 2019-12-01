@@ -54,7 +54,8 @@ interface ParentDependentDetails {
     val at: OffsetDateTime?
 }
 
-interface MutableParentSimpleDetails : ParentSimpleDetails {
+interface MutableParentSimpleDetails
+    : ParentSimpleDetails {
     override var state: String
     override var value: String?
     override val sideValues: MutableSet<String> // Sorted

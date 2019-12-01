@@ -4,13 +4,16 @@ import io.micronaut.context.event.ApplicationEventPublisher
 import x.domainpersistencemodeling.*
 import x.domainpersistencemodeling.UpsertableRecord.UpsertedRecordResult
 import x.domainpersistencemodeling.other.Other
+import x.domainpersistencemodeling.other.OtherFactory
 import java.time.OffsetDateTime
 import java.util.*
+import java.util.Objects.hash
 import javax.inject.Singleton
 
 @Singleton
 internal class PersistedChildFactory(
     private val repository: ChildRepository,
+    private val others: OtherFactory,
     private val publisher: ApplicationEventPublisher
 ) : ChildFactory,
     PersistedFactory<ChildSnapshot, ChildRecord, PersistedChildDependentDetails> {
@@ -24,12 +27,18 @@ internal class PersistedChildFactory(
             toDomain(it)
         }
 
-    override fun createNewUnassigned(naturalId: String) =
-        createNew(
-            null,
-            ChildRecord(naturalId),
-            ::PersistedUnassignedChild
+    override fun createNewUnassigned(naturalId: String): UnassignedChild {
+        val holder = RecordHolder(ChildRecord(naturalId))
+        return PersistedUnassignedChild(
+            PersistedDomain(
+                this,
+                null,
+                holder,
+                PersistedChildDependentDetails(null, holder),
+                ::PersistedUnassignedChild
+            )
         )
+    }
 
     override fun findExistingOrCreateNewUnassigned(naturalId: String) =
         findExisting(naturalId) ?: createNewUnassigned(naturalId)
@@ -70,49 +79,61 @@ internal class PersistedChildFactory(
         )
 
     private fun toDomain(record: ChildRecord): Child<*> {
-        val dependent = PersistedChildDependentDetails()
+        val holder = RecordHolder(record)
+        val dependent = PersistedChildDependentDetails(
+            others.findAssignedTo(record.naturalId),
+            holder
+        )
 
-        return if (null == record.parentNaturalId)
-            createNew(
-                toSnapshot(record, dependent), record,
+        return if (null == record.parentNaturalId) PersistedUnassignedChild(
+            PersistedDomain(
+                this,
+                toSnapshot(record, dependent),
+                holder,
+                dependent,
                 ::PersistedUnassignedChild
             )
-        else
-            createNew(
-                toSnapshot(record, dependent), record,
+        ) else PersistedAssignedChild(
+            PersistedDomain(
+                this,
+                toSnapshot(record, dependent),
+                holder,
+                dependent,
                 ::PersistedAssignedChild
             )
-    }
-
-    private fun <C : Child<C>> createNew(
-        snapshot: ChildSnapshot?,
-        record: ChildRecord,
-        toDomain: (
-            PersistedDomain<
-                    ChildSnapshot,
-                    ChildRecord,
-                    PersistedChildDependentDetails,
-                    PersistedChildFactory,
-                    C,
-                    MutableChild>
-        ) -> C
-    ) = toDomain(
-        PersistedDomain(
-            this,
-            snapshot,
-            RecordHolder(record),
-            PersistedChildDependentDetails(),
-            toDomain
         )
-    )
+    }
 }
 
-internal data class PersistedChildDependentDetails(
-    private val saveMutated: Boolean = false
+internal class PersistedChildDependentDetails(
+    initialOther: Other?,
+    private val holder: RecordHolder<ChildRecord>
 ) : ChildDependentDetails,
     PersistedDependentDetails<ChildRecord>,
     MutableChildDependentDetails {
-    override fun saveMutated() = saveMutated
+    override fun saveMutated() = _other.saveMutated()
+
+    private val _other = TrackedSortedSet(
+        if (null == initialOther) emptySet() else setOf(initialOther),
+        { other, _ -> updateRecord(other) },
+        { _, _ -> updateRecord(null) })
+    override var other: Other? by _other
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+        other as PersistedChildDependentDetails
+        return _other == other._other
+    }
+
+    override fun hashCode() = hash(_other)
+
+    override fun toString() =
+        "${super.toString()}{_other=$_other}"
+
+    private fun updateRecord(other: Other?) {
+        holder.record!!.otherNaturalId = other?.naturalId
+    }
 }
 
 /**
@@ -131,8 +152,6 @@ internal open class PersistedChild<C : Child<C>>(
             MutableChild>
 ) : Child<C>,
     PersistableDomain<ChildSnapshot, C> by persisted {
-    override val otherNaturalId: String?
-        get() = persisted.record.otherNaturalId
     override val parentNaturalId: String?
         get() = persisted.record.parentNaturalId
     override val state: String
@@ -145,6 +164,8 @@ internal open class PersistedChild<C : Child<C>>(
         get() = TreeSet(persisted.record.sideValues)
     override val defaultSideValues: Set<String> // Sorted
         get() = TreeSet(persisted.record.defaultSideValues)
+    override val other: Other?
+        get() = persisted.dependent.other
 
     override fun <R> update(block: MutableChild.() -> R): R =
         PersistedMutableChild(
@@ -153,11 +174,11 @@ internal open class PersistedChild<C : Child<C>>(
         ).let(block)
 
     override fun assign(other: Other) = update {
-        otherNaturalId = other.naturalId
+        persisted.dependent.other = other
     }
 
     override fun unassignAnyOther() = update {
-        otherNaturalId = null
+        persisted.dependent.other = null
     }
 
     override fun equals(other: Any?): Boolean {
@@ -233,8 +254,7 @@ internal class PersistedAssignedChild(
 internal class PersistedMutableChild(
     private val record: ChildRecord,
     private val persistence: PersistedChildDependentDetails
-) :
-    MutableChild,
+) : MutableChild,
     MutableChildSimpleDetails by record,
     MutableChildDependentDetails by persistence {
     override val sideValues: MutableSet<String>
@@ -251,7 +271,7 @@ internal class PersistedMutableChild(
         return record == other.record
     }
 
-    override fun hashCode() = Objects.hash(record)
+    override fun hashCode() = hash(record)
 
     override fun toString() =
         "${super.toString()}{record=$record}"

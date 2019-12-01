@@ -2,6 +2,7 @@ package x.domainpersistencemodeling.child
 
 import x.domainpersistencemodeling.*
 import x.domainpersistencemodeling.other.Other
+import x.domainpersistencemodeling.other.OtherSimpleDetails
 import java.time.OffsetDateTime
 import java.util.*
 
@@ -37,7 +38,6 @@ interface ChildFactory {
 interface ChildSimpleDetails
     : Comparable<ChildSimpleDetails> {
     val naturalId: String
-    val otherNaturalId: String?
     val parentNaturalId: String?
     val state: String
     val at: OffsetDateTime // UTC
@@ -56,10 +56,12 @@ interface ChildSimpleDetails
         naturalId.compareTo(other.naturalId)
 }
 
-interface ChildDependentDetails
+interface ChildDependentDetails {
+    val other: OtherSimpleDetails?
+}
 
-interface MutableChildSimpleDetails : ChildSimpleDetails {
-    override var otherNaturalId: String?
+interface MutableChildSimpleDetails
+    : ChildSimpleDetails {
     override var parentNaturalId: String?
     override var state: String
     override var at: OffsetDateTime // UTC
@@ -68,13 +70,18 @@ interface MutableChildSimpleDetails : ChildSimpleDetails {
     override val defaultSideValues: MutableSet<String> // Sorted
 }
 
-interface MutableChildDependentDetails : ChildDependentDetails
+interface MutableChildDependentDetails
+    : ChildDependentDetails {
+    override var other: Other?
+}
 
 interface Child<C : Child<C>>
     : ChildSimpleDetails,
     ChildDependentDetails,
     ScopedMutable<MutableChild>,
     PersistableDomain<ChildSnapshot, C> {
+    override val other: Other?
+
     /** Assigns [other] to this child, a mutable operation. */
     fun assign(other: Other)
 

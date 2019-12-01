@@ -3,14 +3,8 @@ package x.domainpersistencemodeling.child
 import ch.tutteli.atrium.api.cc.en_GB.*
 import ch.tutteli.atrium.verbs.expect
 import org.junit.jupiter.api.Test
-import x.domainpersistencemodeling.DomainException
-import x.domainpersistencemodeling.LiveTestBase
+import x.domainpersistencemodeling.*
 import x.domainpersistencemodeling.PersistableDomain.UpsertedDomainResult
-import x.domainpersistencemodeling.aChildChangedEvent
-import x.domainpersistencemodeling.atZero
-import x.domainpersistencemodeling.childNaturalId
-import x.domainpersistencemodeling.otherNaturalId
-import x.domainpersistencemodeling.parentNaturalId
 
 internal class PersistedChildrenTest
     : LiveTestBase() {
@@ -34,7 +28,7 @@ internal class PersistedChildrenTest
         expect(found).toBe(saved)
         expect(found.existing).toBe(true)
 
-        expectSqlQueryCountsByType(select = 1)
+        expectSqlQueryCountsByType(select = 2) // Other, this
         expectDomainChangedEvents().isEmpty()
     }
 
@@ -256,8 +250,8 @@ internal class PersistedChildrenTest
         child.assign(other)
         child.save()
 
-        expectSqlQueryCountsByType(upsert = 1)
-        expect(currentPersistedChild().otherNaturalId).toBe(other.naturalId)
+        expectSqlQueryCountsByType(select = 1, upsert = 1)
+        expect(currentPersistedChild().other).toBe(other)
 
         expectDomainChangedEvents().containsExactly(
             aChildChangedEvent(
@@ -271,8 +265,8 @@ internal class PersistedChildrenTest
         child.unassignAnyOther()
         child.save()
 
-        expectSqlQueryCountsByType(upsert = 1)
-        expect(currentPersistedChild().otherNaturalId).toBe(null)
+        expectSqlQueryCountsByType(select = 1, upsert = 1)
+        expect(currentPersistedChild().other).toBe(null)
 
         expectDomainChangedEvents().containsExactly(
             aChildChangedEvent(

@@ -6,7 +6,7 @@ import x.domainpersistencemodeling.UpsertableRecord
 import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneOffset.UTC
-import java.util.TreeSet
+import java.util.*
 import javax.persistence.Entity
 import javax.persistence.Id
 import javax.persistence.Table
@@ -18,7 +18,7 @@ import javax.persistence.Transient
 data class ChildRecord(
     @Id var id: Long?,
     override var naturalId: String,
-    override var otherNaturalId: String?,
+    var otherNaturalId: String?,
     override var parentNaturalId: String?,
     override var state: String,
     override var at: OffsetDateTime, // UTC

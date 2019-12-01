@@ -77,7 +77,6 @@ private fun childHavingSideValues(
 ) =
     object : ChildSimpleDetails {
         override val naturalId = "a"
-        override val otherNaturalId: String? = null
         override val parentNaturalId = "b"
         override val state = state
         override val at = atZero
