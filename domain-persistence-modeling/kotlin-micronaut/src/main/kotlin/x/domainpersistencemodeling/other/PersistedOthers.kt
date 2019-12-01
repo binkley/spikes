@@ -62,7 +62,11 @@ internal class PersistedOtherFactory(
         record: OtherRecord,
         dependent: PersistedOtherDependentDetails
     ) =
-        OtherSnapshot(record.naturalId, record.value, record.version)
+        OtherSnapshot(
+            record.naturalId,
+            record.value,
+            record.version
+        )
 
     private fun toDomain(record: OtherRecord): PersistedOther {
         val dependent = PersistedOtherDependentDetails()

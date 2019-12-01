@@ -59,9 +59,14 @@ internal class PersistedChildFactory(
         dependent: PersistedChildDependentDetails
     ) =
         ChildSnapshot(
-            record.naturalId, record.otherNaturalId,
-            record.parentNaturalId, record.state, record.at,
-            record.value, record.sideValues, record.version
+            record.naturalId,
+            record.otherNaturalId,
+            record.parentNaturalId,
+            record.state,
+            record.at,
+            record.value,
+            record.sideValues,
+            record.version
         )
 
     private fun toDomain(record: ChildRecord): Child<*> {
