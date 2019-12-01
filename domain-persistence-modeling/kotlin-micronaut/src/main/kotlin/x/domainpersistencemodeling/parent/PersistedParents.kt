@@ -18,7 +18,10 @@ internal class PersistedParentFactory(
     private val children: ChildFactory,
     private val publisher: ApplicationEventPublisher
 ) : ParentFactory,
-    PersistedFactory<ParentSnapshot, ParentRecord, PersistedParentDependentDetails> {
+    PersistedFactory<
+            ParentSnapshot,
+            ParentRecord,
+            PersistedParentDependentDetails> {
     override fun all() = repository.findAll().map {
         toDomain(it)
     }.asSequence()

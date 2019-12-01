@@ -82,7 +82,13 @@ internal class PersistedChildFactory(
     private fun <C : Child<C>> createNew(
         snapshot: ChildSnapshot?,
         record: ChildRecord,
-        toDomain: (PersistedDomain<ChildSnapshot, ChildRecord, PersistedChildDependentDetails, PersistedChildFactory, C, MutableChild>) -> C
+        toDomain: (PersistedDomain<
+                ChildSnapshot,
+                ChildRecord,
+                PersistedChildDependentDetails,
+                PersistedChildFactory,
+                C,
+                MutableChild>) -> C
     ) = toDomain(
         PersistedDomain(
             this,
@@ -108,7 +114,13 @@ internal data class PersistedChildDependentDetails(
  * its factory methods, and downcasting to narrow is safe.
  */
 internal open class PersistedChild<C : Child<C>>(
-    protected val persisted: PersistedDomain<ChildSnapshot, ChildRecord, PersistedChildDependentDetails, PersistedChildFactory, C, MutableChild>
+    protected val persisted: PersistedDomain<
+            ChildSnapshot,
+            ChildRecord,
+            PersistedChildDependentDetails,
+            PersistedChildFactory,
+            C,
+            MutableChild>
 ) : Child<C>,
     PersistableDomain<ChildSnapshot, C> by persisted {
     override val otherNaturalId: String?
@@ -150,7 +162,13 @@ internal open class PersistedChild<C : Child<C>>(
 }
 
 internal class PersistedUnassignedChild(
-    persisted: PersistedDomain<ChildSnapshot, ChildRecord, PersistedChildDependentDetails, PersistedChildFactory, UnassignedChild, MutableChild>
+    persisted: PersistedDomain<
+            ChildSnapshot,
+            ChildRecord,
+            PersistedChildDependentDetails,
+            PersistedChildFactory,
+            UnassignedChild,
+            MutableChild>
 ) : PersistedChild<UnassignedChild>(persisted),
     UnassignedChild {
     /** Assigns this child to a parent, a mutable operation. */
@@ -161,13 +179,25 @@ internal class PersistedUnassignedChild(
         }
 
         PersistedAssignedChild(
-            persisted as PersistedDomain<ChildSnapshot, ChildRecord, PersistedChildDependentDetails, PersistedChildFactory, AssignedChild, MutableChild>
+            persisted as PersistedDomain<
+                    ChildSnapshot,
+                    ChildRecord,
+                    PersistedChildDependentDetails,
+                    PersistedChildFactory,
+                    AssignedChild,
+                    MutableChild>
         )
     }
 }
 
 internal class PersistedAssignedChild(
-    persisted: PersistedDomain<ChildSnapshot, ChildRecord, PersistedChildDependentDetails, PersistedChildFactory, AssignedChild, MutableChild>
+    persisted: PersistedDomain<
+            ChildSnapshot,
+            ChildRecord,
+            PersistedChildDependentDetails,
+            PersistedChildFactory,
+            AssignedChild,
+            MutableChild>
 ) : PersistedChild<AssignedChild>(persisted),
     AssignedChild {
     /** Unassigns this child from any parent, a mutable operation. */
@@ -178,7 +208,13 @@ internal class PersistedAssignedChild(
         }
 
         PersistedUnassignedChild(
-            persisted as PersistedDomain<ChildSnapshot, ChildRecord, PersistedChildDependentDetails, PersistedChildFactory, UnassignedChild, MutableChild>
+            persisted as PersistedDomain<
+                    ChildSnapshot,
+                    ChildRecord,
+                    PersistedChildDependentDetails,
+                    PersistedChildFactory,
+                    UnassignedChild,
+                    MutableChild>
         )
     }
 }

@@ -10,7 +10,10 @@ internal class PersistedOtherFactory(
     private val repository: OtherRepository,
     private val publisher: ApplicationEventPublisher
 ) : OtherFactory,
-    PersistedFactory<OtherSnapshot, OtherRecord, PersistedOtherDependentDetails> {
+    PersistedFactory<
+            OtherSnapshot,
+            OtherRecord,
+            PersistedOtherDependentDetails> {
     override fun all() = repository.findAll().map {
         toDomain(it)
     }.asSequence()
@@ -83,7 +86,13 @@ internal data class PersistedOtherDependentDetails(
 }
 
 internal class PersistedOther(
-    private val persisted: PersistedDomain<OtherSnapshot, OtherRecord, PersistedOtherDependentDetails, PersistedOtherFactory, Other, MutableOther>
+    private val persisted: PersistedDomain<
+            OtherSnapshot,
+            OtherRecord,
+            PersistedOtherDependentDetails,
+            PersistedOtherFactory,
+            Other,
+            MutableOther>
 ) : Other,
     PersistableDomain<OtherSnapshot, Other> by persisted {
     override val value: String?
