@@ -9,7 +9,7 @@ import x.domainpersistencemodeling.PersistableDomain.UpsertedDomainResult
 import x.domainpersistencemodeling.anOtherChangedEvent
 import x.domainpersistencemodeling.otherNaturalId
 
-internal class PersistedOthersTest
+internal class PersistedOtherTest
     : LiveTestBase() {
     @Test
     fun `should create new`() {
