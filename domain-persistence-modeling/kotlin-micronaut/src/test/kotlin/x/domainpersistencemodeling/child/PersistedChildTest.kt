@@ -145,9 +145,8 @@ internal class PersistedChildrenTest
 
         expectSqlQueryCountsByType(delete = 1)
 
+        testListener.reset() // Order of listeners not predictable
         expect(existing.changed).toBe(false)
-        // Order of listeners not predictable
-        testListener.reset()
     }
 
     @Test

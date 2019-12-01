@@ -102,6 +102,30 @@ internal class PersistedOtherTest
     }
 
     @Test
+    fun `should not revert on failed save until implemented`() {
+        val existing = newSavedOther()
+        val originalValue = existing.value
+
+        val mutatedValue = originalValue + "X"
+        existing.update {
+            value = mutatedValue
+        }
+
+        programmableListener.fail = true
+
+        expect {
+            existing.save()
+        }.toThrow<DomainException> { }
+
+        expectSqlQueryCountsByType(upsert = 1)
+
+        testListener.reset() // Order of listeners not predictable
+        // TODO: Reverting failed saves
+        expect(existing.changed).toBe(true)
+        expect(existing.value).toBe(mutatedValue)
+    }
+
+    @Test
     fun `should delete`() {
         val existing = newSavedOther()
 
@@ -132,8 +156,7 @@ internal class PersistedOtherTest
 
         expectSqlQueryCountsByType(delete = 1)
 
+        testListener.reset() // Order of listeners not predictable
         expect(existing.changed).toBe(false)
-        // Order of listeners not predictable
-        testListener.reset()
     }
 }

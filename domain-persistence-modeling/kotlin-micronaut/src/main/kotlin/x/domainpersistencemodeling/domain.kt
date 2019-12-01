@@ -54,7 +54,7 @@ internal class PersistedDomain<Snapshot,
      */
     override fun save(): UpsertedDomainResult<Snapshot, Domain> {
         val before = snapshot
-        val revertRecord = record
+        // TODO: val revertRecord = computed from snapshot?
 
         var recordResult =
             if (changed) factory.save(record)
@@ -72,7 +72,7 @@ internal class PersistedDomain<Snapshot,
             factory.notifyChanged(before, after)
         } catch (e: DomainException) {
             snapshot = before
-            holder.record = revertRecord
+            // TODO: holder.record = revertRecord
             throw e
         }
 
