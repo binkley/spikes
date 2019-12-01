@@ -55,10 +55,10 @@ internal class PersistedDomain<Snapshot,
     override fun save(): UpsertedDomainResult<Snapshot, Domain> {
         val before = snapshot
         val revertRecord = record
+
         var recordResult =
             if (changed) factory.save(record)
             else UpsertedRecordResult(record, false)
-
         // Refresh our version since children mutated in the DB
         if (dependent.saveMutated()) recordResult = UpsertedRecordResult(
             factory.refreshPersistence(naturalId), true
@@ -67,6 +67,7 @@ internal class PersistedDomain<Snapshot,
         val after = factory.toSnapshot(recordResult.record, dependent)
         snapshot = after
         holder.record = recordResult.record
+
         if (after != before) try {
             factory.notifyChanged(before, after)
         } catch (e: DomainException) {
@@ -74,6 +75,7 @@ internal class PersistedDomain<Snapshot,
             holder.record = revertRecord
             throw e
         }
+
         return UpsertedDomainResult(toDomain(this), recordResult.changed)
     }
 
@@ -84,12 +86,14 @@ internal class PersistedDomain<Snapshot,
     override fun delete() {
         val before = snapshot
         val revertRecord = record
+
         dependent.saveMutated()
         factory.delete(record)
 
         val after = null as Snapshot?
         snapshot = after
         holder.record = null
+
         try {
             factory.notifyChanged(before, after)
         } catch (e: DomainException) {
