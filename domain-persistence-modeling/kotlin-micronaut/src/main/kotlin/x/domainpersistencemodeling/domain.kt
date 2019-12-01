@@ -54,22 +54,26 @@ internal class PersistedDomain<Snapshot,
      */
     override fun save(): UpsertedDomainResult<Snapshot, Domain> {
         val before = snapshot
+        val revertRecord = record
         var recordResult =
             if (changed) factory.save(record)
             else UpsertedRecordResult(record, false)
-        holder.record = recordResult.record
 
-        if (dependent.saveMutated()) {
-            // Refresh our version since children mutated in the DB
-            val refreshedRecord = factory.refreshPersistence(naturalId)
-            holder.record = refreshedRecord
-            recordResult = UpsertedRecordResult(record, true)
-        }
+        // Refresh our version since children mutated in the DB
+        if (dependent.saveMutated()) recordResult = UpsertedRecordResult(
+            factory.refreshPersistence(naturalId), true
+        )
 
-        val after = factory.toSnapshot(record, dependent)
+        val after = factory.toSnapshot(recordResult.record, dependent)
         snapshot = after
-        if (after != before)
+        holder.record = recordResult.record
+        if (after != before) try {
             factory.notifyChanged(before, after)
+        } catch (e: DomainException) {
+            snapshot = before
+            holder.record = revertRecord
+            throw e
+        }
         return UpsertedDomainResult(toDomain(this), recordResult.changed)
     }
 
@@ -79,13 +83,20 @@ internal class PersistedDomain<Snapshot,
      */
     override fun delete() {
         val before = snapshot
+        val revertRecord = record
         dependent.saveMutated()
         factory.delete(record)
 
         val after = null as Snapshot?
-        holder.record = null
         snapshot = after
-        factory.notifyChanged(before, after)
+        holder.record = null
+        try {
+            factory.notifyChanged(before, after)
+        } catch (e: DomainException) {
+            snapshot = before
+            holder.record = revertRecord
+            throw e
+        }
     }
 
     override fun equals(other: Any?): Boolean {

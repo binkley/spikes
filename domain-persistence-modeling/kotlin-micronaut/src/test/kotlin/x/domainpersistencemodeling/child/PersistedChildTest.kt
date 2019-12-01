@@ -1,10 +1,6 @@
 package x.domainpersistencemodeling.child
 
-import ch.tutteli.atrium.api.cc.en_GB.containsExactly
-import ch.tutteli.atrium.api.cc.en_GB.hasSize
-import ch.tutteli.atrium.api.cc.en_GB.isEmpty
-import ch.tutteli.atrium.api.cc.en_GB.toBe
-import ch.tutteli.atrium.api.cc.en_GB.toThrow
+import ch.tutteli.atrium.api.cc.en_GB.*
 import ch.tutteli.atrium.verbs.expect
 import org.junit.jupiter.api.Test
 import x.domainpersistencemodeling.DomainException
@@ -135,6 +131,23 @@ internal class PersistedChildrenTest
                 noAfter = true
             )
         )
+    }
+
+    @Test
+    fun `should revert on failed delete`() {
+        val existing = newSavedUnassignedChild()
+
+        programmableListener.fail = true
+
+        expect {
+            existing.delete()
+        }.toThrow<DomainException> { }
+
+        expectSqlQueryCountsByType(delete = 1)
+
+        expect(existing.changed).toBe(false)
+        // Order of listeners not predictable
+        testListener.reset()
     }
 
     @Test

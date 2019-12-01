@@ -3,10 +3,9 @@ package x.domainpersistencemodeling.other
 import ch.tutteli.atrium.api.cc.en_GB.*
 import ch.tutteli.atrium.verbs.expect
 import org.junit.jupiter.api.Test
-import x.domainpersistencemodeling.*
+import x.domainpersistencemodeling.DomainException
 import x.domainpersistencemodeling.LiveTestBase
 import x.domainpersistencemodeling.PersistableDomain.UpsertedDomainResult
-import x.domainpersistencemodeling.aChildChangedEvent
 import x.domainpersistencemodeling.anOtherChangedEvent
 import x.domainpersistencemodeling.otherNaturalId
 
@@ -119,5 +118,22 @@ internal class PersistedOthersTest
                 noAfter = true
             )
         )
+    }
+
+    @Test
+    fun `should revert on failed delete`() {
+        val existing = newSavedOther()
+
+        programmableListener.fail = true
+
+        expect {
+            existing.delete()
+        }.toThrow<DomainException> { }
+
+        expectSqlQueryCountsByType(delete = 1)
+
+        expect(existing.changed).toBe(false)
+        // Order of listeners not predictable
+        testListener.reset()
     }
 }

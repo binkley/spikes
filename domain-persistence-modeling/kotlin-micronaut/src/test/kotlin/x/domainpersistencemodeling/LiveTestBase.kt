@@ -5,6 +5,7 @@ import ch.tutteli.atrium.api.cc.en_GB.toBe
 import ch.tutteli.atrium.verbs.expect
 import io.micronaut.test.annotation.MicronautTest
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import x.domainpersistencemodeling.KnownState.ENABLED
 import x.domainpersistencemodeling.child.ChildChangedEvent
 import x.domainpersistencemodeling.child.ChildFactory
@@ -56,9 +57,16 @@ internal abstract class LiveTestBase {
     lateinit var sqlQueries: SqlQueries
     @Inject
     lateinit var testListener: TestListener<DomainChangedEvent<*>>
+    @Inject
+    lateinit var programmableListener: ProgrammableListener<DomainChangedEvent<*>>
 
     init {
         TimeZone.setDefault(TimeZone.getTimeZone(UTC))
+    }
+
+    @BeforeEach
+    internal fun beforeEach() {
+        programmableListener.fail = false
     }
 
     /**
@@ -67,7 +75,7 @@ internal abstract class LiveTestBase {
      * check.
      */
     @AfterEach
-    internal fun setUp() {
+    internal fun tearDown() {
         sqlQueries.expectNext.isEmpty()
         testListener.expectNext.isEmpty()
     }

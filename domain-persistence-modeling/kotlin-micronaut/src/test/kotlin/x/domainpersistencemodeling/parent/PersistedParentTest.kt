@@ -195,6 +195,23 @@ internal class PersistedParentsTest
     }
 
     @Test
+    fun `should revert on failed delete`() {
+        val existing = newSavedParent()
+
+        programmableListener.fail = true
+
+        expect {
+            existing.delete()
+        }.toThrow<DomainException> { }
+
+        expectSqlQueryCountsByType(delete = 1)
+
+        expect(existing.changed).toBe(false)
+        // Order of listeners not predictable
+        testListener.reset()
+    }
+
+    @Test
     fun `should not assign already assigned child`() {
         val parent = newSavedParent()
         val child = newSavedUnassignedChild()
