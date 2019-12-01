@@ -1,23 +1,20 @@
 package x.domainpersistencemodeling.child
 
-import x.domainpersistencemodeling.DomainChangedEvent
-import x.domainpersistencemodeling.KnownState
-import x.domainpersistencemodeling.PersistableDomain
-import x.domainpersistencemodeling.ScopedMutable
+import x.domainpersistencemodeling.*
 import x.domainpersistencemodeling.other.Other
 import java.time.OffsetDateTime
 import java.util.*
 
 data class ChildSnapshot(
-    val naturalId: String,
+    override val naturalId: String,
     val otherNaturalId: String?,
     val parentNaturalId: String?,
     val state: String,
     val at: OffsetDateTime, // UTC
     val value: String?,
     val sideValues: Set<String>, // Sorted
-    val version: Int
-)
+    override val version: Int
+) : DomainDetails
 
 interface ChildRepository {
     fun findAll(): Iterable<ChildRecord>

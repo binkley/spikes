@@ -4,6 +4,11 @@ import x.domainpersistencemodeling.PersistableDomain.UpsertedDomainResult
 import x.domainpersistencemodeling.UpsertableRecord.UpsertedRecordResult
 import java.util.Objects.hash
 
+internal interface DomainDetails {
+    val naturalId: String
+    val version: Int
+}
+
 internal interface PersistedFactory<Snapshot,
         Record : UpsertableRecord<Record>,
         Dependent : PersistedDependentDetails<Record>> {

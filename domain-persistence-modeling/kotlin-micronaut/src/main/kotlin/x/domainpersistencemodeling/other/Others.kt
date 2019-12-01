@@ -1,14 +1,15 @@
 package x.domainpersistencemodeling.other
 
 import x.domainpersistencemodeling.DomainChangedEvent
+import x.domainpersistencemodeling.DomainDetails
 import x.domainpersistencemodeling.PersistableDomain
 import x.domainpersistencemodeling.ScopedMutable
 
 data class OtherSnapshot(
-    val naturalId: String,
+    override val naturalId: String,
     val value: String?,
-    val version: Int
-)
+    override val version: Int
+) : DomainDetails
 
 interface OtherFactory {
     fun all(): Sequence<Other>

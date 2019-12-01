@@ -1,6 +1,7 @@
 package x.domainpersistencemodeling.parent
 
 import x.domainpersistencemodeling.DomainChangedEvent
+import x.domainpersistencemodeling.DomainDetails
 import x.domainpersistencemodeling.PersistableDomain
 import x.domainpersistencemodeling.ScopedMutable
 import x.domainpersistencemodeling.child.AssignedChild
@@ -12,14 +13,14 @@ import java.time.OffsetDateTime
 import java.util.*
 
 data class ParentSnapshot(
-    val naturalId: String,
+    override val naturalId: String,
     val otherNaturalId: String?,
     val state: String,
     val at: OffsetDateTime?,
     val value: String?,
     val sideValues: Set<String>, // Sorted
-    val version: Int
-)
+    override val version: Int
+) : DomainDetails
 
 interface ParentRepository {
     fun findAll(): Iterable<ParentRecord>
