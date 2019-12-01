@@ -13,7 +13,7 @@
         <!-- @formatter:off -->
         <atrium.version>0.8.0</atrium.version>
         <exec.mainClass>x.Application</exec.mainClass>
-        <!-- TODO: Jackson 2.10.0 -->
+        <flyway.version>6.1.0</flyway.version>
         <jackson.version>2.10.1</jackson.version>
         <java.version>11</java.version>
         <jsqlparser.version>3.1</jsqlparser.version>
@@ -102,6 +102,12 @@
         <dependency>
             <groupId>io.micronaut.configuration</groupId>
             <artifactId>micronaut-jdbc-hikari</artifactId>
+        </dependency>
+        <dependency>
+            <!-- TODO: Until micronaut-flyway catches up -->
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+            <version>${flyway.version}</version>
         </dependency>
         <dependency>
             <groupId>io.micronaut.configuration</groupId>
