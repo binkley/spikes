@@ -81,7 +81,8 @@ internal class PersistedOtherFactory(
 internal data class PersistedOtherDependentDetails(
     private val saveMutated: Boolean = false
 ) : OtherDependentDetails,
-    PersistedDependentDetails<OtherRecord> {
+    PersistedDependentDetails<OtherRecord>,
+    MutableOtherDependentDetails {
     override fun saveMutated() = saveMutated
 }
 
@@ -99,7 +100,10 @@ internal class PersistedOther(
         get() = persisted.record.value
 
     override fun <R> update(block: MutableOther.() -> R): R =
-        PersistedMutableOther(persisted.record).let(block)
+        PersistedMutableOther(
+            persisted.record,
+            persisted.dependent
+        ).let(block)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -114,6 +118,8 @@ internal class PersistedOther(
 }
 
 internal data class PersistedMutableOther(
-    private val record: OtherRecord
+    private val record: OtherRecord,
+    private val persistence: PersistedOtherDependentDetails
 ) : MutableOther,
-    MutableOtherSimpleDetails by record
+    MutableOtherSimpleDetails by record,
+    MutableOtherDependentDetails by persistence

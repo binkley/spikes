@@ -82,13 +82,15 @@ internal class PersistedChildFactory(
     private fun <C : Child<C>> createNew(
         snapshot: ChildSnapshot?,
         record: ChildRecord,
-        toDomain: (PersistedDomain<
-                ChildSnapshot,
-                ChildRecord,
-                PersistedChildDependentDetails,
-                PersistedChildFactory,
-                C,
-                MutableChild>) -> C
+        toDomain: (
+            PersistedDomain<
+                    ChildSnapshot,
+                    ChildRecord,
+                    PersistedChildDependentDetails,
+                    PersistedChildFactory,
+                    C,
+                    MutableChild>
+        ) -> C
     ) = toDomain(
         PersistedDomain(
             this,
@@ -103,7 +105,8 @@ internal class PersistedChildFactory(
 internal data class PersistedChildDependentDetails(
     private val saveMutated: Boolean = false
 ) : ChildDependentDetails,
-    PersistedDependentDetails<ChildRecord> {
+    PersistedDependentDetails<ChildRecord>,
+    MutableChildDependentDetails {
     override fun saveMutated() = saveMutated
 }
 
@@ -139,7 +142,10 @@ internal open class PersistedChild<C : Child<C>>(
         get() = TreeSet(persisted.record.defaultSideValues)
 
     override fun <R> update(block: MutableChild.() -> R): R =
-        PersistedMutableChild(persisted.record).let(block)
+        PersistedMutableChild(
+            persisted.record,
+            persisted.dependent
+        ).let(block)
 
     override fun assign(other: Other) = update {
         otherNaturalId = other.naturalId
@@ -219,9 +225,13 @@ internal class PersistedAssignedChild(
     }
 }
 
-internal class PersistedMutableChild(private val record: ChildRecord) :
+internal class PersistedMutableChild(
+    private val record: ChildRecord,
+    private val persistence: PersistedChildDependentDetails
+) :
     MutableChild,
-    MutableChildSimpleDetails by record {
+    MutableChildSimpleDetails by record,
+    MutableChildDependentDetails by persistence {
     override val sideValues: MutableSet<String>
         get() = TrackedSortedSet(
             record.sideValues,
