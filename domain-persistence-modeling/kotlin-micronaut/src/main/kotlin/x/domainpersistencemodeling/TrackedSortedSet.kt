@@ -1,15 +1,23 @@
 package x.domainpersistencemodeling
 
+import x.domainpersistencemodeling.TrackingArity.OPTIONAL_ONE
 import java.util.*
 import kotlin.reflect.KProperty
 
+enum class TrackingArity { OPTIONAL_ONE, MANY }
+
 // TODO: Teach arity, so this can check for bugs
 internal class TrackedSortedSet<T : Comparable<T>>(
+    private var arity: TrackingArity,
     private var initial: Set<T>,
     private val addOne: (T, MutableSet<T>) -> Unit,
     private val removeOne: (T, MutableSet<T>) -> Unit
 ) : AbstractMutableSet<T>() {
     private val current: MutableSet<T> = TreeSet(initial)
+
+    init {
+        checkArity()
+    }
 
     override val size: Int
         get() = current.size
@@ -18,6 +26,7 @@ internal class TrackedSortedSet<T : Comparable<T>>(
         if (!current.add(element))
             throw DomainException("Already present: $element")
         addOne(element, current)
+        checkArity()
         return true
     }
 
@@ -82,5 +91,10 @@ internal class TrackedSortedSet<T : Comparable<T>>(
     ) {
         clear()
         value?.run { add(value) }
+    }
+
+    private fun checkArity() {
+        if (OPTIONAL_ONE == arity && 1 < current.size)
+            throw IllegalStateException("Wrong initial for arity: $arity: $current")
     }
 }

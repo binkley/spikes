@@ -2,6 +2,8 @@ package x.domainpersistencemodeling.parent
 
 import io.micronaut.context.event.ApplicationEventPublisher
 import x.domainpersistencemodeling.*
+import x.domainpersistencemodeling.TrackingArity.MANY
+import x.domainpersistencemodeling.TrackingArity.OPTIONAL_ONE
 import x.domainpersistencemodeling.UpsertableRecord.UpsertedRecordResult
 import x.domainpersistencemodeling.child.*
 import x.domainpersistencemodeling.other.Other
@@ -111,12 +113,14 @@ internal class PersistedParentDependentDetails(
         get() = children.at
 
     private val _other = TrackedSortedSet(
+        OPTIONAL_ONE,
         if (null == initialOther) emptySet() else setOf(initialOther),
         { other, _ -> updateRecord(other) },
         { _, _ -> updateRecord(null) })
     override var other: Other? by _other
 
     override val children = TrackedSortedSet(
+        MANY,
         initialChildren, { _, _ -> }, { _, _ -> })
 
     override fun equals(other: Any?): Boolean {
@@ -226,6 +230,7 @@ internal data class PersistedMutableParent(
         get() = children.at
     override val sideValues =
         TrackedSortedSet(
+            MANY,
             record.sideValues,
             ::replaceSideValues.uncurrySecond(),
             ::replaceSideValues.uncurrySecond()
