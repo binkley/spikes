@@ -10,6 +10,22 @@ import java.util.*
 import java.util.Objects.hash
 import javax.inject.Singleton
 
+private typealias UnassignedChildPersistedDomain = PersistedDomain<
+        ChildSnapshot,
+        ChildRecord,
+        PersistedChildDependentDetails,
+        PersistedChildFactory,
+        UnassignedChild,
+        MutableChild>
+
+private typealias AssignedChildPersistedDomain = PersistedDomain<
+        ChildSnapshot,
+        ChildRecord,
+        PersistedChildDependentDetails,
+        PersistedChildFactory,
+        AssignedChild,
+        MutableChild>
+
 @Singleton
 internal class PersistedChildFactory(
     private val repository: ChildRepository,
@@ -194,13 +210,7 @@ internal open class PersistedChild<C : Child<C>>(
 }
 
 internal class PersistedUnassignedChild(
-    persisted: PersistedDomain<
-            ChildSnapshot,
-            ChildRecord,
-            PersistedChildDependentDetails,
-            PersistedChildFactory,
-            UnassignedChild,
-            MutableChild>
+    persisted: UnassignedChildPersistedDomain
 ) : PersistedChild<UnassignedChild>(persisted),
     UnassignedChild {
     /** Assigns this child to a parent, a mutable operation. */
@@ -210,26 +220,12 @@ internal class PersistedUnassignedChild(
             this.parentNaturalId = parentNaturalId
         }
 
-        PersistedAssignedChild(
-            persisted as PersistedDomain<
-                    ChildSnapshot,
-                    ChildRecord,
-                    PersistedChildDependentDetails,
-                    PersistedChildFactory,
-                    AssignedChild,
-                    MutableChild>
-        )
+        PersistedAssignedChild(persisted as AssignedChildPersistedDomain)
     }
 }
 
 internal class PersistedAssignedChild(
-    persisted: PersistedDomain<
-            ChildSnapshot,
-            ChildRecord,
-            PersistedChildDependentDetails,
-            PersistedChildFactory,
-            AssignedChild,
-            MutableChild>
+    persisted: AssignedChildPersistedDomain
 ) : PersistedChild<AssignedChild>(persisted),
     AssignedChild {
     /** Unassigns this child from any parent, a mutable operation. */
@@ -239,15 +235,7 @@ internal class PersistedAssignedChild(
             parentNaturalId = null
         }
 
-        PersistedUnassignedChild(
-            persisted as PersistedDomain<
-                    ChildSnapshot,
-                    ChildRecord,
-                    PersistedChildDependentDetails,
-                    PersistedChildFactory,
-                    UnassignedChild,
-                    MutableChild>
-        )
+        PersistedUnassignedChild(persisted as UnassignedChildPersistedDomain)
     }
 }
 
