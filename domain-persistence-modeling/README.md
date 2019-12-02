@@ -6,9 +6,9 @@
 
 Spikes are not to be considered stable.
 
-* Implementations
+* Ports
   * [Java Spring Boot](java-spring-boot/)
-  * [Kotlin Spring Boot](kotlin-spring-boot/) (most up-to-date spike)
+  * [Kotlin Spring Boot](kotlin-spring-boot/)
   * [Kotlin Micronaut](kotlin-micronaut/) (most up-to-date spike)
 * [Goals](#goals)
 * [Concepts](#concepts)
@@ -17,6 +17,8 @@ Spikes are not to be considered stable.
   * [Reversal of roles](#reversal-of-roles)
   * [Distinct types](#distinct-types)
 * [Implementation](#implementation)
+  * [Domain patterns](#domain-patterns)
+  * [Tracked sets](#tracked-sets)
 * [Open questions](#open-questions)
 * [Spring-recommended documentation](#spring-recommended-documentation)
   * [Reference documentation](#reference-documentation)
@@ -162,14 +164,15 @@ operations.
 In this **contrary** persistence representation, saving a parent bears this
 cost even when updating satellite data on the parent record.
 
-#### Illustrating
+#### Examples
 
-For relationships formally exposed on the `Parent` domain:
+For relationships formally exposed on the domain objects:
 
-| Relationship        |                                    | Parent domain property type | Persistence and field type    |
-|---------------------|------------------------------------|-----------------------------|-------------------------------|
-| Many-to-one         | Parent **&#8666;** Child<em>*</em> | `Set<Child>`                | Child record, parent ID field |
-| One-to-optional-one | Parent **&rarr;** Other<em>?</em>  | `Other?`                    | Parent record, other ID field |
+| Relationship |                                    | Domain property type | Persistence and field type    |
+|--------------|------------------------------------|----------------------|-------------------------------|
+| Many-to-one  | Parent **&#8666;** Child<em>*</em> | `Set<Child>`         | Child record, parent ID field |
+| Optional-one | Parent **&rarr;** Other<em>?</em>  | `Other?`             | Parent record, other ID field |
+| Optional-one | Child **&rarr;** Other<em>?</em>   | `Other?`             | Child record, other ID field  |
 
 ### Distinct types
 
@@ -189,6 +192,8 @@ One downside: This violates the rule that only `update` mutates objects.
 Rather, for children, `update`, `assignTo`, and `unassignFromAny` all mutate.
 
 ## Implementation
+
+### Domain patterns
 
 The general pattern for a domain type is:
 
@@ -211,6 +216,18 @@ The _Domain_ type knows **only** about (directly or indirectly):
 
 A goal here is to minimize coupling, and follow an easily reproduced pattern
 without falling back to a full-on ORM (like Hibernate).
+
+### Tracked sets
+
+A key data structure is the 
+[_Tracked Set_](kotlin-micronaut/src/main/kotlin/x/domainpersistencemodeling/TrackedSortedSet.kt).
+Tracked sets manage many-to-one (_eg_, children-to-parent) and optional-one
+(_eg_, parent-to-other and child-to-other) relationships.
+
+Essentially the tracked set has callbacks for adding/removing elements, so
+domain objects can react to changes in relationships.  It also has minimal
+bug-detection for misuse (_ie_, the tracked set for an optional-one
+relationship should contain exactly zero or one elements).
 
 ## Open questions
 
