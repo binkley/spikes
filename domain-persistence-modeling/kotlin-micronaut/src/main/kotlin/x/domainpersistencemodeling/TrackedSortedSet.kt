@@ -8,16 +8,19 @@ import kotlin.reflect.KProperty
 enum class TrackingArity { OPTIONAL_ONE, MANY }
 
 internal class TrackedManyToOne<T : Comparable<T>>(
-    private var initial: Set<T>,
-    private val addOne: (T, MutableSet<T>) -> Unit,
-    private val removeOne: (T, MutableSet<T>) -> Unit
+    initial: Set<T>,
+    addOne: (T, MutableSet<T>) -> Unit,
+    removeOne: (T, MutableSet<T>) -> Unit
 ) : TrackedSortedSet<T>(MANY, initial, addOne, removeOne)
 
 internal class TrackedOptionalOne<T : Comparable<T>>(
-    private var initial: Set<T>,
-    private val addOne: (T, MutableSet<T>) -> Unit,
-    private val removeOne: (T, MutableSet<T>) -> Unit
-) : TrackedSortedSet<T>(OPTIONAL_ONE, initial, addOne, removeOne) {
+    initial: T?,
+    addOne: (T, MutableSet<T>) -> Unit,
+    removeOne: (T, MutableSet<T>) -> Unit
+) : TrackedSortedSet<T>(
+    OPTIONAL_ONE,
+    if (null == initial) setOf() else setOf(initial), addOne, removeOne
+) {
     operator fun getValue(
         thisRef: Any?,
         property: KProperty<*>

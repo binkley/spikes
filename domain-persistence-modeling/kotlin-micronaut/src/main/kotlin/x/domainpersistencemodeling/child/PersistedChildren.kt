@@ -130,7 +130,7 @@ internal class PersistedChildDependentDetails(
     override fun saveMutated() = _other.saveMutated()
 
     private val _other = TrackedOptionalOne(
-        if (null == initialOther) emptySet() else setOf(initialOther),
+        initialOther,
         { other, _ -> updateRecord(other) },
         { _, _ -> updateRecord(null) })
     override var other: Other? by _other
