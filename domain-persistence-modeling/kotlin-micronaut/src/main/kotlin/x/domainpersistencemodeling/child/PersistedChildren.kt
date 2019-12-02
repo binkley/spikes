@@ -2,8 +2,6 @@ package x.domainpersistencemodeling.child
 
 import io.micronaut.context.event.ApplicationEventPublisher
 import x.domainpersistencemodeling.*
-import x.domainpersistencemodeling.TrackingArity.MANY
-import x.domainpersistencemodeling.TrackingArity.OPTIONAL_ONE
 import x.domainpersistencemodeling.UpsertableRecord.UpsertedRecordResult
 import x.domainpersistencemodeling.other.Other
 import x.domainpersistencemodeling.other.OtherFactory
@@ -115,8 +113,7 @@ internal class PersistedChildDependentDetails(
     MutableChildDependentDetails {
     override fun saveMutated() = _other.saveMutated()
 
-    private val _other = TrackedSortedSet(
-        OPTIONAL_ONE,
+    private val _other = TrackedOptionalOne(
         if (null == initialOther) emptySet() else setOf(initialOther),
         { other, _ -> updateRecord(other) },
         { _, _ -> updateRecord(null) })
@@ -261,8 +258,7 @@ internal class PersistedMutableChild(
     MutableChildSimpleDetails by record,
     MutableChildDependentDetails by persistence {
     override val sideValues: MutableSet<String>
-        get() = TrackedSortedSet(
-            MANY,
+        get() = TrackedManyToOne(
             record.sideValues,
             ::replaceSideValues.uncurrySecond(),
             ::replaceSideValues.uncurrySecond()

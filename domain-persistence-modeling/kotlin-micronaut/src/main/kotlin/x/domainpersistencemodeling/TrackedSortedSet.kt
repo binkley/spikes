@@ -1,13 +1,41 @@
 package x.domainpersistencemodeling
 
+import x.domainpersistencemodeling.TrackingArity.MANY
 import x.domainpersistencemodeling.TrackingArity.OPTIONAL_ONE
 import java.util.*
 import kotlin.reflect.KProperty
 
 enum class TrackingArity { OPTIONAL_ONE, MANY }
 
-// TODO: Teach arity, so this can check for bugs
-internal class TrackedSortedSet<T : Comparable<T>>(
+internal class TrackedManyToOne<T : Comparable<T>>(
+    private var initial: Set<T>,
+    private val addOne: (T, MutableSet<T>) -> Unit,
+    private val removeOne: (T, MutableSet<T>) -> Unit
+) : TrackedSortedSet<T>(MANY, initial, addOne, removeOne)
+
+internal class TrackedOptionalOne<T : Comparable<T>>(
+    private var initial: Set<T>,
+    private val addOne: (T, MutableSet<T>) -> Unit,
+    private val removeOne: (T, MutableSet<T>) -> Unit
+) : TrackedSortedSet<T>(OPTIONAL_ONE, initial, addOne, removeOne) {
+    operator fun getValue(
+        thisRef: Any?,
+        property: KProperty<*>
+    ): T? {
+        return firstOrNull()
+    }
+
+    operator fun setValue(
+        thisRef: Any?,
+        property: KProperty<*>,
+        value: T?
+    ) {
+        clear()
+        value?.run { add(value) }
+    }
+}
+
+internal abstract class TrackedSortedSet<T : Comparable<T>>(
     private var arity: TrackingArity,
     private var initial: Set<T>,
     private val addOne: (T, MutableSet<T>) -> Unit,
@@ -75,22 +103,6 @@ internal class TrackedSortedSet<T : Comparable<T>>(
         val changed = TreeSet(initial)
         changed.retainAll(current)
         return changed.mutated(mutator)
-    }
-
-    operator fun getValue(
-        thisRef: Any?,
-        property: KProperty<*>
-    ): T? {
-        return current.firstOrNull()
-    }
-
-    operator fun setValue(
-        thisRef: Any?,
-        property: KProperty<*>,
-        value: T?
-    ) {
-        clear()
-        value?.run { add(value) }
     }
 
     private fun checkArity() {
