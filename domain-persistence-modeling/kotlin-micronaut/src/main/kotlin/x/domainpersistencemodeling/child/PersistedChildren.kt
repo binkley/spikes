@@ -1,13 +1,21 @@
 package x.domainpersistencemodeling.child
 
 import io.micronaut.context.event.ApplicationEventPublisher
-import x.domainpersistencemodeling.*
+import x.domainpersistencemodeling.PersistableDomain
+import x.domainpersistencemodeling.PersistedDependentDetails
+import x.domainpersistencemodeling.PersistedDomain
+import x.domainpersistencemodeling.PersistedFactory
+import x.domainpersistencemodeling.RecordHolder
+import x.domainpersistencemodeling.TrackedManyToOne
+import x.domainpersistencemodeling.TrackedOptionalOne
 import x.domainpersistencemodeling.UpsertableRecord.UpsertedRecordResult
 import x.domainpersistencemodeling.other.Other
 import x.domainpersistencemodeling.other.OtherFactory
+import x.domainpersistencemodeling.saveMutated
+import x.domainpersistencemodeling.uncurrySecond
 import java.time.OffsetDateTime
-import java.util.*
 import java.util.Objects.hash
+import java.util.TreeSet
 import javax.inject.Singleton
 
 private typealias UnassignedChildPersistedDomain = PersistedDomain<
@@ -251,18 +259,6 @@ internal class PersistedMutableChild(
             ::replaceSideValues.uncurrySecond(),
             ::replaceSideValues.uncurrySecond()
         )
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-        other as PersistedMutableChild
-        return record == other.record
-    }
-
-    override fun hashCode() = hash(record)
-
-    override fun toString() =
-        "${super.toString()}{record=$record}"
 
     private fun replaceSideValues(all: MutableSet<String>) {
         record.sideValues = all
