@@ -1,5 +1,6 @@
 package x.domainpersistencemodeling.parent
 
+import lombok.Generated
 import x.domainpersistencemodeling.DomainChangedEvent
 import x.domainpersistencemodeling.DomainDetails
 import x.domainpersistencemodeling.PersistableDomain
@@ -10,8 +11,9 @@ import x.domainpersistencemodeling.child.UnassignedChild
 import x.domainpersistencemodeling.other.Other
 import x.domainpersistencemodeling.other.OtherSimpleDetails
 import java.time.OffsetDateTime
-import java.util.*
+import java.util.Optional
 
+@Generated // Lie to JaCoCo -- it misses that this is a data class
 data class ParentSnapshot(
     override val naturalId: String,
     val otherNaturalId: String?,
@@ -92,6 +94,7 @@ interface MutableParent
     : MutableParentSimpleDetails,
     MutableParentDependentDetails
 
+@Generated // Lie to JaCoCo -- it misses that this is a data class
 data class ParentChangedEvent(
     val before: ParentSnapshot?,
     val after: ParentSnapshot?

@@ -86,12 +86,17 @@ internal class PersistedParentsTest
         expect(original.changed).toBe(false)
 
         val value = "FOOBAR"
+        val sideValue = "ABC"
         original.update {
             this.value = value
+            this.sideValues += "FOO"
+            this.sideValues += sideValue
+            this.sideValues -= "FOO"
         }
 
         expect(original.changed).toBe(true)
         expect(original.value).toBe(value)
+        expect(original.sideValues).containsExactly(sideValue)
 
         expectSqlQueries().isEmpty()
         expectDomainChangedEvents().isEmpty()
@@ -106,8 +111,10 @@ internal class PersistedParentsTest
             aParentChangedEvent(
                 beforeVersion = 1,
                 beforeValue = null,
+                beforeSideValues = setOf(),
                 afterVersion = 2,
-                afterValue = value
+                afterValue = value,
+                afterSideValues = setOf(sideValue)
             )
         )
     }
@@ -249,6 +256,7 @@ internal class PersistedParentsTest
         val unassigned = newSavedUnassignedChild()
 
         expect(parent.children).isEmpty()
+        expect(unassigned.assigned).toBe(false)
 
         val assigned = parent.assign(unassigned)
         parent = parent.save().domain
@@ -259,6 +267,7 @@ internal class PersistedParentsTest
         expect(parent.version).toBe(2)
         expect(currentPersistedChild().parentNaturalId)
             .toBe(parentNaturalId)
+        expect(assigned.assigned).toBe(true)
 
         expectDomainChangedEvents().containsExactly(
             aChildChangedEvent(
@@ -283,6 +292,8 @@ internal class PersistedParentsTest
         expect(parent.children).isEmpty()
         expect(parent.version).toBe(3)
         expect(currentPersistedChild().parentNaturalId).toBe(null)
+        // TODO: Smell -- invalidate an AssignedChild without parent
+        expect(assigned.assigned).toBe(false)
 
         expectDomainChangedEvents().containsExactly(
             aChildChangedEvent(
@@ -386,5 +397,22 @@ internal class PersistedParentsTest
                 afterOtherNaturalId = null
             )
         )
+    }
+
+    @Test
+    fun `should inherit "at" from children`() {
+        val child = newUnsavedUnassignedChild()
+        val parent = newUnsavedParent()
+
+        child.update {
+            at = atZero
+        }
+        parent.assign(child)
+
+        parent.update {
+            expect(at).toBe(atZero)
+        }
+
+        expect(parent.at).toBe(atZero)
     }
 }

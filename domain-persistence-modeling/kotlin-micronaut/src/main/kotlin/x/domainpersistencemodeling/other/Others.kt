@@ -1,10 +1,12 @@
 package x.domainpersistencemodeling.other
 
+import lombok.Generated
 import x.domainpersistencemodeling.DomainChangedEvent
 import x.domainpersistencemodeling.DomainDetails
 import x.domainpersistencemodeling.PersistableDomain
 import x.domainpersistencemodeling.ScopedMutable
 
+@Generated // Lie to JaCoCo -- it misses that this is a data class
 data class OtherSnapshot(
     override val naturalId: String,
     val value: String?,
@@ -47,6 +49,7 @@ interface MutableOther
     : MutableOtherSimpleDetails,
     MutableOtherDependentDetails
 
+@Generated // Lie to JaCoCo -- it misses that this is a data class
 data class OtherChangedEvent(
     val before: OtherSnapshot?,
     val after: OtherSnapshot?

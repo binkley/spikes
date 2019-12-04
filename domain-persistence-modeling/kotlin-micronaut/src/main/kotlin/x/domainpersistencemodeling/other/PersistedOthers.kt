@@ -1,9 +1,14 @@
 package x.domainpersistencemodeling.other
 
 import io.micronaut.context.event.ApplicationEventPublisher
-import x.domainpersistencemodeling.*
+import lombok.Generated
+import x.domainpersistencemodeling.PersistableDomain
+import x.domainpersistencemodeling.PersistedDependentDetails
+import x.domainpersistencemodeling.PersistedDomain
+import x.domainpersistencemodeling.PersistedFactory
+import x.domainpersistencemodeling.RecordHolder
 import x.domainpersistencemodeling.UpsertableRecord.UpsertedRecordResult
-import java.util.*
+import java.util.Objects.hash
 import javax.inject.Singleton
 
 @Singleton
@@ -96,8 +101,9 @@ internal class PersistedOtherDependentDetails
         return true
     }
 
-    override fun hashCode() = Objects.hash(this::class)
+    override fun hashCode() = hash(this::class)
 
+    @Generated // Lie to JaCoCo -- why test code for debugging?
     override fun toString() = "${super.toString()}{}"
 }
 
@@ -127,8 +133,9 @@ internal class PersistedOther(
         return persisted == other.persisted
     }
 
-    override fun hashCode() = persisted.hashCode()
+    override fun hashCode() = hash(persisted)
 
+    @Generated // Lie to JaCoCo -- why test code for debugging?
     override fun toString() = "${super.toString()}$persisted"
 }
 

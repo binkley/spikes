@@ -1,5 +1,6 @@
 package x.domainpersistencemodeling
 
+import lombok.Generated
 import x.domainpersistencemodeling.PersistableDomain.UpsertedDomainResult
 import x.domainpersistencemodeling.UpsertableRecord.UpsertedRecordResult
 import java.util.Objects.hash
@@ -119,6 +120,7 @@ internal class PersistedDomain<Snapshot,
 
     override fun hashCode() = hash(snapshot, holder, dependent)
 
+    @Generated // Lie to JaCoCo -- why test code for debugging?
     override fun toString() =
         "{snapshot=${snapshot}, holder=${holder}, dependent=${dependent}}"
 }

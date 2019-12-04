@@ -1,6 +1,7 @@
 package x.domainpersistencemodeling.parent
 
 import io.micronaut.context.event.ApplicationEventPublisher
+import lombok.Generated
 import x.domainpersistencemodeling.DomainException
 import x.domainpersistencemodeling.PersistableDomain
 import x.domainpersistencemodeling.PersistedDependentDetails
@@ -144,6 +145,7 @@ internal class PersistedParentDependentDetails(
 
     override fun hashCode() = hash(_other, children)
 
+    @Generated // Lie to JaCoCo -- why test code for debugging?
     override fun toString() =
         "${super.toString()}{_other=$_other, _children=$children}"
 
@@ -226,8 +228,9 @@ internal open class PersistedParent(
         return persisted == other.persisted
     }
 
-    override fun hashCode() = persisted.hashCode()
+    override fun hashCode() = hash(persisted)
 
+    @Generated // Lie to JaCoCo -- why test code for debugging?
     override fun toString() = "${super.toString()}$persisted"
 }
 

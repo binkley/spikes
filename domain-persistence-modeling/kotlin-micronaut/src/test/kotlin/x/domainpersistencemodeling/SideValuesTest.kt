@@ -1,7 +1,7 @@
 package x.domainpersistencemodeling
 
+import ch.tutteli.atrium.api.cc.en_GB.containsExactly
 import ch.tutteli.atrium.api.cc.en_GB.isEmpty
-import ch.tutteli.atrium.api.cc.en_GB.toBe
 import ch.tutteli.atrium.verbs.expect
 import org.junit.jupiter.api.Test
 import x.domainpersistencemodeling.KnownState.DISABLED
@@ -15,33 +15,51 @@ import java.time.OffsetDateTime
 internal class SideValuesTest {
     @Test
     internal fun `should use defaults for children`() {
-        val child = childHavingSideValues(setOf("A"))
+        val child = childHavingSideValues(
+            defaultSideValues = setOf("A")
+        )
 
-        expect(child.currentSideValues).toBe(setOf("A"))
+        expect(child.currentSideValues).containsExactly("A")
     }
 
     @Test
     internal fun `should ignore defaults for disabled children`() {
         val child = childHavingSideValues(
-            setOf("A"), setOf(),
-            DISABLED.name
+            defaultSideValues = setOf("A"),
+            sideValues = setOf(),
+            state = DISABLED.name
         )
 
         expect(child.currentSideValues).isEmpty()
     }
 
     @Test
-    internal fun `should use overrides for children`() {
-        val child = childHavingSideValues(setOf("A"), setOf("B"))
+    internal fun `should use defaults for children in an unknown state`() {
+        val child = childHavingSideValues(
+            defaultSideValues = setOf("A"),
+            sideValues = setOf(),
+            state = "FUNKY"
+        )
 
-        expect(child.currentSideValues).toBe(setOf("B"))
+        expect(child.currentSideValues).containsExactly("A")
+    }
+
+    @Test
+    internal fun `should use overrides for children`() {
+        val child = childHavingSideValues(
+            defaultSideValues = setOf("A"),
+            sideValues = setOf("B")
+        )
+
+        expect(child.currentSideValues).containsExactly("B")
     }
 
     @Test
     internal fun `should ignore overrides for disabled children`() {
         val child = childHavingSideValues(
-            setOf("B"), setOf("A"),
-            DISABLED.name
+            defaultSideValues = setOf("B"),
+            sideValues = setOf("A"),
+            state = DISABLED.name
         )
 
         expect(child.currentSideValues).isEmpty()
@@ -50,23 +68,24 @@ internal class SideValuesTest {
     @Test
     internal fun `should use children's intersection for parents`() {
         val parent = parentHavingSideValues(
-            setOf(
+            children = setOf(
                 childHavingSideValues(setOf("A", "B")),
                 childHavingSideValues(setOf("A", "C")),
                 childHavingSideValues(setOf())
             )
         )
 
-        expect(parent.currentSideValues).toBe(setOf("A"))
+        expect(parent.currentSideValues).containsExactly("A")
     }
 
     @Test
     internal fun `should use overrides for parents`() {
         val parent = parentHavingSideValues(
-            setOf(childHavingSideValues(setOf("B"))), setOf("A")
+            children = setOf(childHavingSideValues(setOf("B"))),
+            sideValues = setOf("A")
         )
 
-        expect(parent.currentSideValues).toBe(setOf("A"))
+        expect(parent.currentSideValues).containsExactly("A")
     }
 }
 

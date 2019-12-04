@@ -1,6 +1,7 @@
 package x.domainpersistencemodeling.child
 
 import io.micronaut.context.event.ApplicationEventPublisher
+import lombok.Generated
 import x.domainpersistencemodeling.PersistableDomain
 import x.domainpersistencemodeling.PersistedDependentDetails
 import x.domainpersistencemodeling.PersistedDomain
@@ -152,8 +153,8 @@ internal class PersistedChildDependentDetails(
 
     override fun hashCode() = hash(_other)
 
-    override fun toString() =
-        "${super.toString()}{_other=$_other}"
+    @Generated // Lie to JaCoCo -- why test code for debugging?
+    override fun toString() = "${super.toString()}{_other=$_other}"
 
     private fun updateRecord(other: Other?) {
         holder.record!!.otherNaturalId = other?.naturalId
@@ -212,8 +213,9 @@ internal open class PersistedChild<C : Child<C>>(
         return persisted == other.persisted
     }
 
-    override fun hashCode() = persisted.hashCode()
+    override fun hashCode() = hash(persisted)
 
+    @Generated // Lie to JaCoCo -- why test code for debugging?
     override fun toString() = "${super.toString()}$persisted"
 }
 

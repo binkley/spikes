@@ -9,6 +9,8 @@ import ch.tutteli.atrium.api.cc.en_GB.toThrow
 import ch.tutteli.atrium.verbs.expect
 import org.junit.jupiter.api.Test
 import x.domainpersistencemodeling.DomainException
+import x.domainpersistencemodeling.KnownState.DISABLED
+import x.domainpersistencemodeling.KnownState.ENABLED
 import x.domainpersistencemodeling.LiveTestBase
 import x.domainpersistencemodeling.PersistableDomain.UpsertedDomainResult
 import x.domainpersistencemodeling.aChildChangedEvent
@@ -87,10 +89,12 @@ internal class PersistedChildrenTest
         expect(original.changed).toBe(false)
 
         // TODO: Adjusting nanos is acting flaky
+        val state = DISABLED.name
         val at = atZero.plusSeconds(1L)
         val value = "FOOBAR"
         val sideValue = "ABC"
         original.update {
+            this.state = state
             this.at = at
             this.value = value
             this.sideValues += "FOO"
@@ -99,6 +103,7 @@ internal class PersistedChildrenTest
         }
 
         expect(original.changed).toBe(true)
+        expect(original.state).toBe(state)
         expect(original.at).toBe(at)
         expect(original.value).toBe(value)
         expect(original.sideValues).containsExactly(sideValue)
@@ -114,10 +119,12 @@ internal class PersistedChildrenTest
         expectDomainChangedEvents().containsExactly(
             aChildChangedEvent(
                 beforeVersion = 1,
+                beforeState = ENABLED.name,
                 beforeAt = atZero,
                 beforeValue = null,
                 beforeSideValues = setOf(),
                 afterVersion = 2,
+                afterState = state,
                 afterAt = at,
                 afterValue = value,
                 afterSideValues = setOf(sideValue)
