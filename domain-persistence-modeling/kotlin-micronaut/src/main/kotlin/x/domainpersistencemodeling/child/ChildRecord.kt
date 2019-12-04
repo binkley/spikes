@@ -6,7 +6,7 @@ import x.domainpersistencemodeling.UpsertableRecord
 import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneOffset.UTC
-import java.util.*
+import java.util.TreeSet
 import javax.persistence.Entity
 import javax.persistence.Id
 import javax.persistence.Table
@@ -23,8 +23,8 @@ data class ChildRecord(
     override var state: String,
     override var at: OffsetDateTime, // UTC
     override var value: String?,
-    override var sideValues: MutableSet<String>,
     override var defaultSideValues: MutableSet<String>,
+    override var sideValues: MutableSet<String>,
     override var version: Int
 ) : MutableChildSimpleDetails,
     UpsertableRecord<ChildRecord> {
@@ -52,8 +52,8 @@ data class ChildRecord(
         state = upserted.state
         at = upserted.at
         value = upserted.value
-        sideValues = TreeSet(upserted.sideValues)
         defaultSideValues = TreeSet(upserted.defaultSideValues)
+        sideValues = TreeSet(upserted.sideValues)
         version = upserted.version
         return this
     }

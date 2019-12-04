@@ -7,7 +7,7 @@ import io.micronaut.data.repository.CrudRepository
 import x.domainpersistencemodeling.workAroundArrayTypeForPostgresRead
 import x.domainpersistencemodeling.workAroundArrayTypeForPostgresWrite
 import java.time.OffsetDateTime
-import java.util.*
+import java.util.Optional
 import javax.inject.Singleton
 
 @Singleton
@@ -37,8 +37,8 @@ internal class MicronautChildRepository
             entity.state,
             entity.at,
             entity.value,
-            entity.sideValues.workAroundArrayTypeForPostgresWrite(),
             entity.defaultSideValues.workAroundArrayTypeForPostgresWrite(),
+            entity.sideValues.workAroundArrayTypeForPostgresWrite(),
             entity.version
         ).map {
             it.fix()
@@ -50,9 +50,9 @@ internal class MicronautChildRepository
     }
 
     private fun ChildRecord.fix(): ChildRecord {
-        sideValues = sideValues.workAroundArrayTypeForPostgresRead()
         defaultSideValues =
             defaultSideValues.workAroundArrayTypeForPostgresRead()
+        sideValues = sideValues.workAroundArrayTypeForPostgresRead()
         return this
     }
 }
@@ -83,7 +83,7 @@ interface InternalChildRepository : CrudRepository<ChildRecord, Long> {
         """
         SELECT *
         FROM upsert_child(:naturalId, :otherNaturalId, :parentNaturalId,
-        :state, :at, :value, :sideValues, :defaultSideValues, :version)
+        :state, :at, :value, :defaultSideValues, :sideValues, :version)
         """
     )
     fun upsert(
@@ -93,8 +93,8 @@ interface InternalChildRepository : CrudRepository<ChildRecord, Long> {
         state: String,
         at: OffsetDateTime, // UTC
         value: String?,
-        sideValues: String,
         defaultSideValues: String,
+        sideValues: String,
         version: Int
     )
             : Optional<ChildRecord>

@@ -67,7 +67,7 @@ CREATE OR REPLACE FUNCTION upsert_parent(_natural_id parent.natural_id%TYPE,
                                          _other_natural_id parent.other_natural_id%TYPE,
                                          _state parent.state%TYPE,
                                          _value parent.value%TYPE,
-                                         _side_values parent.side_values%TYPE,
+                                         _side_values VARCHAR,
                                          _version parent.version%TYPE)
     RETURNS SETOF PARENT
     ROWS 1
@@ -96,8 +96,8 @@ CREATE OR REPLACE FUNCTION upsert_child(_natural_id child.natural_id%TYPE,
                                         _state child.state%TYPE,
                                         _at child.at%TYPE,
                                         _value child.value%TYPE,
-                                        _default_side_values child.default_side_values%TYPE,
-                                        _side_values child.side_values%TYPE,
+                                        _default_side_values VARCHAR,
+                                        _side_values VARCHAR,
                                         _version child.version%TYPE)
     RETURNS SETOF CHILD
     ROWS 1
@@ -108,20 +108,20 @@ BEGIN
     RETURN QUERY INSERT INTO child
         (natural_id, other_natural_id, parent_natural_id,
          state, at, value,
-         side_values,
-         default_side_values, version)
+         default_side_values,
+         side_values, version)
         VALUES (_natural_id, _other_natural_id, _parent_natural_id,
                 _state, _at, _value,
-                _side_values,
-                _default_side_values, _version)
+                _default_side_values,
+                _side_values, _version)
         ON CONFLICT (natural_id) DO UPDATE
             SET (other_natural_id, parent_natural_id, state, at, value,
-                 side_values,
-                 default_side_values, version)
+                 default_side_values,
+                 side_values, version)
                 = (excluded.other_natural_id, excluded.parent_natural_id,
                    excluded.state, excluded.at, excluded.value,
-                   excluded.side_values,
-                   excluded.default_side_values, excluded.version)
+                   excluded.default_side_values,
+                   excluded.side_values, excluded.version)
         RETURNING *;
 END;
 $$;

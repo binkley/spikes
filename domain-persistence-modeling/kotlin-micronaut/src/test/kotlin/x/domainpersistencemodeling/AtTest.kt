@@ -34,7 +34,7 @@ private fun childHavingAt(at: OffsetDateTime) =
         override val state = "IRRELEVANT"
         override val at = at
         override val value: String? = null
-        override val sideValues = setOf<String>()
         override val defaultSideValues = setOf<String>()
+        override val sideValues = setOf<String>()
         override val version = 1
     }

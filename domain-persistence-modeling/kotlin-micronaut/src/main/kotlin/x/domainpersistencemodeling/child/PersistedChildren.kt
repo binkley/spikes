@@ -184,10 +184,10 @@ internal open class PersistedChild<C : Child<C>>(
         get() = persisted.record.at
     override val value: String?
         get() = persisted.record.value
-    override val sideValues: Set<String> // Sorted
-        get() = TreeSet(persisted.record.sideValues)
     override val defaultSideValues: Set<String> // Sorted
         get() = TreeSet(persisted.record.defaultSideValues)
+    override val sideValues: Set<String> // Sorted
+        get() = TreeSet(persisted.record.sideValues)
     override val other: Other?
         get() = persisted.dependent.other
 
@@ -221,7 +221,10 @@ internal class PersistedUnassignedChild(
     persisted: UnassignedChildPersistedDomain
 ) : PersistedChild<UnassignedChild>(persisted),
     UnassignedChild {
-    /** Assigns this child to a parent, a mutable operation. */
+    /**
+     * Assigns this child to a parent, a mutable and _internal_
+     * operation called from the parent implementation.
+     */
     @Suppress("UNCHECKED_CAST")
     internal fun assignTo(parentNaturalId: String) = let {
         update {
@@ -236,9 +239,12 @@ internal class PersistedAssignedChild(
     persisted: AssignedChildPersistedDomain
 ) : PersistedChild<AssignedChild>(persisted),
     AssignedChild {
-    /** Unassigns this child from any parent, a mutable operation. */
+    /**
+     * Unassigns this child from any parent, a mutable and _internal_
+     * operation called from the parent implementation.
+     */
     @Suppress("UNCHECKED_CAST")
-    internal fun unassignFromAny() = let {
+    internal fun unassignFromAnyParent() = let {
         update {
             parentNaturalId = null
         }
@@ -253,8 +259,9 @@ internal class PersistedMutableChild(
 ) : MutableChild,
     MutableChildSimpleDetails by record,
     MutableChildDependentDetails by persistence {
-    override val sideValues: MutableSet<String>
-        get() = TrackedManyToOne(
+
+    override val sideValues: MutableSet<String> =
+        TrackedManyToOne(
             record.sideValues,
             ::replaceSideValues.uncurrySecond(),
             ::replaceSideValues.uncurrySecond()

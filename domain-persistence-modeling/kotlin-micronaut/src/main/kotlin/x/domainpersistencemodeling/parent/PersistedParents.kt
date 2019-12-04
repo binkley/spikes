@@ -1,14 +1,28 @@
 package x.domainpersistencemodeling.parent
 
 import io.micronaut.context.event.ApplicationEventPublisher
-import x.domainpersistencemodeling.*
+import x.domainpersistencemodeling.DomainException
+import x.domainpersistencemodeling.PersistableDomain
+import x.domainpersistencemodeling.PersistedDependentDetails
+import x.domainpersistencemodeling.PersistedDomain
+import x.domainpersistencemodeling.PersistedFactory
+import x.domainpersistencemodeling.RecordHolder
+import x.domainpersistencemodeling.TrackedManyToOne
+import x.domainpersistencemodeling.TrackedOptionalOne
 import x.domainpersistencemodeling.UpsertableRecord.UpsertedRecordResult
-import x.domainpersistencemodeling.child.*
+import x.domainpersistencemodeling.at
+import x.domainpersistencemodeling.child.AssignedChild
+import x.domainpersistencemodeling.child.ChildFactory
+import x.domainpersistencemodeling.child.PersistedAssignedChild
+import x.domainpersistencemodeling.child.PersistedUnassignedChild
+import x.domainpersistencemodeling.child.UnassignedChild
 import x.domainpersistencemodeling.other.Other
 import x.domainpersistencemodeling.other.OtherFactory
+import x.domainpersistencemodeling.saveMutated
+import x.domainpersistencemodeling.uncurrySecond
 import java.time.OffsetDateTime
-import java.util.*
 import java.util.Objects.hash
+import java.util.TreeSet
 import javax.inject.Singleton
 
 @Singleton
@@ -187,7 +201,7 @@ internal open class PersistedParent(
         update {
             children -= child
         }
-        child.unassignFromAny()
+        child.unassignFromAnyParent()
     }
 
     override fun delete() {
@@ -224,7 +238,8 @@ internal data class PersistedMutableParent(
     MutableParentDependentDetails by persistence {
     override val at: OffsetDateTime?
         get() = children.at
-    override val sideValues =
+
+    override val sideValues: MutableSet<String> =
         TrackedManyToOne(
             record.sideValues,
             ::replaceSideValues.uncurrySecond(),

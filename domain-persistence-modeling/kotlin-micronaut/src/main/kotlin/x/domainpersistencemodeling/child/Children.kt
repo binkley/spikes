@@ -1,10 +1,14 @@
 package x.domainpersistencemodeling.child
 
-import x.domainpersistencemodeling.*
+import x.domainpersistencemodeling.DomainChangedEvent
+import x.domainpersistencemodeling.DomainDetails
+import x.domainpersistencemodeling.KnownState
+import x.domainpersistencemodeling.PersistableDomain
+import x.domainpersistencemodeling.ScopedMutable
 import x.domainpersistencemodeling.other.Other
 import x.domainpersistencemodeling.other.OtherSimpleDetails
 import java.time.OffsetDateTime
-import java.util.*
+import java.util.Optional
 
 data class ChildSnapshot(
     override val naturalId: String,
@@ -42,8 +46,8 @@ interface ChildSimpleDetails
     val state: String
     val at: OffsetDateTime // UTC
     val value: String?
-    val sideValues: Set<String> // Sorted
     val defaultSideValues: Set<String> // Sorted
+    val sideValues: Set<String> // Sorted
     val version: Int
 
     val assigned: Boolean
@@ -66,8 +70,8 @@ interface MutableChildSimpleDetails
     override var state: String
     override var at: OffsetDateTime // UTC
     override var value: String?
-    override val sideValues: MutableSet<String> // Sorted
     override val defaultSideValues: MutableSet<String> // Sorted
+    override val sideValues: MutableSet<String> // Sorted
 }
 
 interface MutableChildDependentDetails

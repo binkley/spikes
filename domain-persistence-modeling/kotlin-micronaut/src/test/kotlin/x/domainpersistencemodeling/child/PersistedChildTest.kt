@@ -1,10 +1,20 @@
 package x.domainpersistencemodeling.child
 
-import ch.tutteli.atrium.api.cc.en_GB.*
+import ch.tutteli.atrium.api.cc.en_GB.containsExactly
+import ch.tutteli.atrium.api.cc.en_GB.hasSize
+import ch.tutteli.atrium.api.cc.en_GB.isEmpty
+import ch.tutteli.atrium.api.cc.en_GB.toBe
+import ch.tutteli.atrium.api.cc.en_GB.toThrow
 import ch.tutteli.atrium.verbs.expect
 import org.junit.jupiter.api.Test
-import x.domainpersistencemodeling.*
+import x.domainpersistencemodeling.DomainException
+import x.domainpersistencemodeling.LiveTestBase
 import x.domainpersistencemodeling.PersistableDomain.UpsertedDomainResult
+import x.domainpersistencemodeling.aChildChangedEvent
+import x.domainpersistencemodeling.atZero
+import x.domainpersistencemodeling.childNaturalId
+import x.domainpersistencemodeling.otherNaturalId
+import x.domainpersistencemodeling.parentNaturalId
 
 internal class PersistedChildrenTest
     : LiveTestBase() {
@@ -78,14 +88,19 @@ internal class PersistedChildrenTest
         // TODO: Adjusting nanos is acting flaky
         val at = atZero.plusSeconds(1L)
         val value = "FOOBAR"
+        val sideValue = "ABC"
         original.update {
             this.at = at
             this.value = value
+            this.sideValues += "FOO"
+            this.sideValues += sideValue
+            this.sideValues -= "FOO"
         }
 
         expect(original.changed).toBe(true)
         expect(original.at).toBe(at)
         expect(original.value).toBe(value)
+        expect(original.sideValues).containsExactly(sideValue)
 
         expectSqlQueries().isEmpty()
         expectDomainChangedEvents().isEmpty()
@@ -100,9 +115,11 @@ internal class PersistedChildrenTest
                 beforeVersion = 1,
                 beforeAt = atZero,
                 beforeValue = null,
+                beforeSideValues = setOf(),
                 afterVersion = 2,
                 afterAt = at,
-                afterValue = value
+                afterValue = value,
+                afterSideValues = setOf(sideValue)
             )
         )
     }
@@ -222,7 +239,7 @@ internal class PersistedChildrenTest
 
         expect(parent.version).toBe(1)
 
-        assigned.unassignFromAny()
+        assigned.unassignFromAnyParent()
         assigned.save()
 
         expectSqlQueryCountsByType(upsert = 1)
