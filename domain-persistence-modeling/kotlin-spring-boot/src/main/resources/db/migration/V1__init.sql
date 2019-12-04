@@ -105,20 +105,20 @@ BEGIN
     RETURN QUERY INSERT INTO child
         (natural_id, other_natural_id, parent_natural_id,
          state, at, value,
-         side_values,
-         default_side_values, version)
+         default_side_values,
+         side_values, version)
         VALUES (_natural_id, _other_natural_id, _parent_natural_id,
                 _state, _at, _value,
-                CAST(_side_values AS VARCHAR ARRAY),
-                CAST(_default_side_values AS VARCHAR ARRAY), _version)
+                CAST(_default_side_values AS VARCHAR ARRAY),
+                CAST(_side_values AS VARCHAR ARRAY), _version)
         ON CONFLICT (natural_id) DO UPDATE
             SET (other_natural_id, parent_natural_id, state, at, value,
-                 side_values,
-                 default_side_values, version)
+                 default_side_values,
+                 side_values, version)
                 = (excluded.other_natural_id, excluded.parent_natural_id,
                    excluded.state, excluded.at, excluded.value,
-                   excluded.side_values,
-                   excluded.default_side_values, excluded.version)
+                   excluded.default_side_values,
+                   excluded.side_values, excluded.version)
         RETURNING *;
 END;
 $$;
