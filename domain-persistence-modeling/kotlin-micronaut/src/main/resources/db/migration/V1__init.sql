@@ -67,7 +67,7 @@ CREATE OR REPLACE FUNCTION upsert_parent(_natural_id parent.natural_id%TYPE,
                                          _other_natural_id parent.other_natural_id%TYPE,
                                          _state parent.state%TYPE,
                                          _value parent.value%TYPE,
-                                         _side_values VARCHAR,
+                                         _side_values parent.side_values%TYPE,
                                          _version parent.version%TYPE)
     RETURNS SETOF PARENT
     ROWS 1
@@ -96,8 +96,8 @@ CREATE OR REPLACE FUNCTION upsert_child(_natural_id child.natural_id%TYPE,
                                         _state child.state%TYPE,
                                         _at child.at%TYPE,
                                         _value child.value%TYPE,
-                                        _default_side_values VARCHAR,
-                                        _side_values VARCHAR,
+                                        _default_side_values child.default_side_values%TYPE,
+                                        _side_values child.side_values%TYPE,
                                         _version child.version%TYPE)
     RETURNS SETOF CHILD
     ROWS 1
