@@ -136,10 +136,10 @@ internal open class PersistedChild<C : Child<C>>(
         get() = persisted.record.at
     override val value: String?
         get() = persisted.record.value
-    override val sideValues: Set<String> // Sorted
-        get() = TreeSet(persisted.record.sideValues)
     override val defaultSideValues: Set<String> // Sorted
         get() = TreeSet(persisted.record.defaultSideValues)
+    override val sideValues: Set<String> // Sorted
+        get() = TreeSet(persisted.record.sideValues)
 
     override fun <R> update(block: MutableChild.() -> R): R =
         PersistedMutableChild(persisted.record).let(block)

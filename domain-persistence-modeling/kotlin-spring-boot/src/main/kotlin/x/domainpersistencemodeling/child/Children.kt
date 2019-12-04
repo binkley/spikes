@@ -34,8 +34,8 @@ interface ChildSimpleDetails
     val state: String
     val at: OffsetDateTime // UTC
     val value: String?
-    val sideValues: Set<String> // Sorted
     val defaultSideValues: Set<String> // Sorted
+    val sideValues: Set<String> // Sorted
     val version: Int
 
     val assigned: Boolean
@@ -56,8 +56,8 @@ interface MutableChildSimpleDetails : ChildSimpleDetails {
     override var state: String
     override var at: OffsetDateTime // UTC
     override var value: String?
-    override val sideValues: MutableSet<String> // Sorted
     override val defaultSideValues: MutableSet<String> // Sorted
+    override val sideValues: MutableSet<String> // Sorted
 }
 
 interface MutableChildDependentDetails : ChildDependentDetails

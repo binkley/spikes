@@ -18,8 +18,8 @@ data class ChildRecord(
     override var state: String,
     override var at: OffsetDateTime, // UTC
     override var value: String?,
-    override var sideValues: MutableSet<String>,
     override var defaultSideValues: MutableSet<String>,
+    override var sideValues: MutableSet<String>,
     override var version: Int
 ) : MutableChildSimpleDetails,
     UpsertableRecord<ChildRecord> {
@@ -42,10 +42,8 @@ data class ChildRecord(
         state = upserted.state
         at = upserted.at
         value = upserted.value
+        defaultSideValues = TreeSet(upserted.defaultSideValues)
         sideValues = TreeSet(upserted.sideValues)
-        defaultSideValues = TreeSet(
-            upserted.defaultSideValues
-        )
         version = upserted.version
         return this
     }

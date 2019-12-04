@@ -81,8 +81,8 @@ private fun childHavingSideValues(
         override val state = state
         override val at = atZero
         override val value: String? = null
-        override val sideValues = sideValues
         override val defaultSideValues = defaultSideValues
+        override val sideValues = sideValues
         override val version = 1
     }
 

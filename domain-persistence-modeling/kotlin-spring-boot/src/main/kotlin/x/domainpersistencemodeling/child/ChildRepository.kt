@@ -36,7 +36,7 @@ interface ChildRepository : CrudRepository<ChildRecord, Long> {
         """
         SELECT *
         FROM upsert_child(:naturalId, :otherNaturalId, :parentNaturalId,
-        :state, :at, :value, :sideValues, :defaultSideValues, :version)
+        :state, :at, :value, :defaultSideValues, :sideValues, :version)
         """
     )
     fun upsert(
@@ -46,8 +46,8 @@ interface ChildRepository : CrudRepository<ChildRecord, Long> {
         @Param("state") state: String,
         @Param("at") at: OffsetDateTime, // UTC
         @Param("value") value: String?,
-        @Param("sideValues") sideValues: String,
         @Param("defaultSideValues") defaultSideValues: String,
+        @Param("sideValues") sideValues: String,
         @Param("version") version: Int
     )
             : Optional<ChildRecord>
@@ -61,8 +61,8 @@ fun ChildRepository.upsert(entity: ChildRecord) =
         entity.state,
         entity.at,
         entity.value,
-        entity.sideValues.workAroundArrayTypeForPostgresWrite(),
         entity.defaultSideValues.workAroundArrayTypeForPostgresWrite(),
+        entity.sideValues.workAroundArrayTypeForPostgresWrite(),
         entity.version
     ).map {
         entity.upsertedWith(it)
