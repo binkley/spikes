@@ -3,6 +3,7 @@ package x.domainpersistencemodeling.child
 import ch.tutteli.atrium.api.cc.en_GB.containsExactly
 import ch.tutteli.atrium.api.cc.en_GB.hasSize
 import ch.tutteli.atrium.api.cc.en_GB.isEmpty
+import ch.tutteli.atrium.api.cc.en_GB.isNotEmpty
 import ch.tutteli.atrium.api.cc.en_GB.toBe
 import ch.tutteli.atrium.api.cc.en_GB.toThrow
 import ch.tutteli.atrium.verbs.expect
@@ -142,6 +143,20 @@ internal class PersistedChildrenTest
                 noAfter = true
             )
         )
+    }
+
+    @Test
+    fun `should sort by natural id`() {
+        val a = children.findExistingOrCreateNewUnassigned(childNaturalId)
+        val b =
+            children.findExistingOrCreateNewUnassigned(childNaturalId + "X")
+        val set = sortedSetOf<Child<*>>()
+
+        set += b
+        set += a
+
+        expectSqlQueries().isNotEmpty()
+        expect(set).containsExactly(a, b)
     }
 
     @Test

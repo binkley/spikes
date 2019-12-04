@@ -1,6 +1,11 @@
 package x.domainpersistencemodeling.parent
 
-import ch.tutteli.atrium.api.cc.en_GB.*
+import ch.tutteli.atrium.api.cc.en_GB.containsExactly
+import ch.tutteli.atrium.api.cc.en_GB.hasSize
+import ch.tutteli.atrium.api.cc.en_GB.isEmpty
+import ch.tutteli.atrium.api.cc.en_GB.isNotEmpty
+import ch.tutteli.atrium.api.cc.en_GB.toBe
+import ch.tutteli.atrium.api.cc.en_GB.toThrow
 import ch.tutteli.atrium.verbs.expect
 import org.junit.jupiter.api.Test
 import x.domainpersistencemodeling.DomainException
@@ -192,6 +197,19 @@ internal class PersistedParentsTest
 
         expectSqlQueries().isEmpty()
         expectDomainChangedEvents().isEmpty()
+    }
+
+    @Test
+    fun `should sort by natural id`() {
+        val a = parents.findExistingOrCreateNew(parentNaturalId)
+        val b = parents.findExistingOrCreateNew(parentNaturalId + "X")
+        val set = sortedSetOf<Parent>()
+
+        set += b
+        set += a
+
+        expectSqlQueries().isNotEmpty()
+        expect(set).containsExactly(a, b)
     }
 
     @Test

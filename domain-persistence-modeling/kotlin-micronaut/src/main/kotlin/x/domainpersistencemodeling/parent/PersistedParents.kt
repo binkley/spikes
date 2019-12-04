@@ -19,6 +19,7 @@ import x.domainpersistencemodeling.child.UnassignedChild
 import x.domainpersistencemodeling.other.Other
 import x.domainpersistencemodeling.other.OtherFactory
 import x.domainpersistencemodeling.saveMutated
+import x.domainpersistencemodeling.uncurryFirst
 import x.domainpersistencemodeling.uncurrySecond
 import java.time.OffsetDateTime
 import java.util.Objects.hash
@@ -126,7 +127,7 @@ internal class PersistedParentDependentDetails(
 
     private val _other = TrackedOptionalOne(
         initialOther,
-        { other, _ -> updateRecord(other) },
+        ::updateRecord.uncurryFirst(),
         { _, _ -> updateRecord(null) })
     override var other: Other? by _other
 

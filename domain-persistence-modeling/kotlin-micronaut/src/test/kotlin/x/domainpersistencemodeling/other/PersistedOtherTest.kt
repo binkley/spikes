@@ -1,6 +1,11 @@
 package x.domainpersistencemodeling.other
 
-import ch.tutteli.atrium.api.cc.en_GB.*
+import ch.tutteli.atrium.api.cc.en_GB.containsExactly
+import ch.tutteli.atrium.api.cc.en_GB.hasSize
+import ch.tutteli.atrium.api.cc.en_GB.isEmpty
+import ch.tutteli.atrium.api.cc.en_GB.isNotEmpty
+import ch.tutteli.atrium.api.cc.en_GB.toBe
+import ch.tutteli.atrium.api.cc.en_GB.toThrow
 import ch.tutteli.atrium.verbs.expect
 import org.junit.jupiter.api.Test
 import x.domainpersistencemodeling.DomainException
@@ -142,6 +147,19 @@ internal class PersistedOtherTest
                 noAfter = true
             )
         )
+    }
+
+    @Test
+    fun `should sort by natural id`() {
+        val a = others.findExistingOrCreateNew(otherNaturalId)
+        val b = others.findExistingOrCreateNew(otherNaturalId + "X")
+        val set = sortedSetOf<Other>()
+
+        set += b
+        set += a
+
+        expectSqlQueries().isNotEmpty()
+        expect(set).containsExactly(a, b)
     }
 
     @Test
