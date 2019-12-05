@@ -121,7 +121,7 @@ internal class PersistedParentDependentDetails(
     PersistedDependentDetails<ParentRecord>,
     MutableParentDependentDetails {
     override fun saveMutated() =
-        _other.saveMutated() or children.saveMutated()
+        _other.saveMutated() or _children.saveMutated()
 
     override val at: OffsetDateTime?
         get() = children.at
@@ -132,8 +132,9 @@ internal class PersistedParentDependentDetails(
         { _, _ -> updateRecord(null) })
     override var other: Other? by _other
 
-    override val children = TrackedManyToOne(
+    private val _children = TrackedManyToOne(
         initialChildren, { _, _ -> }, { _, _ -> })
+    override val children = _children
 
     @Generated // Lie to JaCoCo -- why test code for testing?
     override fun equals(other: Any?): Boolean {
