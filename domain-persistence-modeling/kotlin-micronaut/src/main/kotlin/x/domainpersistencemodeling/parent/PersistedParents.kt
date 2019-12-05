@@ -135,6 +135,7 @@ internal class PersistedParentDependentDetails(
     override val children = TrackedManyToOne(
         initialChildren, { _, _ -> }, { _, _ -> })
 
+    @Generated // Lie to JaCoCo -- why test code for testing?
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -143,9 +144,10 @@ internal class PersistedParentDependentDetails(
                 && children == other.children
     }
 
+    @Generated // Lie to JaCoCo -- why test code for testing?
     override fun hashCode() = hash(_other, children)
 
-    @Generated // Lie to JaCoCo -- why test code for debugging?
+    @Generated // Lie to JaCoCo -- why test code for testing?
     override fun toString() =
         "${super.toString()}{_other=$_other, _children=$children}"
 
@@ -221,6 +223,7 @@ internal open class PersistedParent(
             persisted.dependent
         ).let(block)
 
+    @Generated // Lie to JaCoCo -- why test code for testing?
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -228,9 +231,10 @@ internal open class PersistedParent(
         return persisted == other.persisted
     }
 
+    @Generated // Lie to JaCoCo -- why test code for testing?
     override fun hashCode() = hash(persisted)
 
-    @Generated // Lie to JaCoCo -- why test code for debugging?
+    @Generated // Lie to JaCoCo -- why test code for testing?
     override fun toString() = "${super.toString()}$persisted"
 }
 

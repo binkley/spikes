@@ -29,3 +29,6 @@ val Set<ChildSimpleDetails>.at
     get() = map {
         it.at
     }.min()
+
+private val ChildSimpleDetails.relevant: Boolean
+    get() = KnownState.forName(this.state)?.relevant ?: true

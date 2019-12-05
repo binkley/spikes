@@ -3,7 +3,6 @@ package x.domainpersistencemodeling.child
 import lombok.Generated
 import x.domainpersistencemodeling.DomainChangedEvent
 import x.domainpersistencemodeling.DomainDetails
-import x.domainpersistencemodeling.KnownState
 import x.domainpersistencemodeling.PersistableDomain
 import x.domainpersistencemodeling.ScopedMutable
 import x.domainpersistencemodeling.other.Other
@@ -19,6 +18,7 @@ data class ChildSnapshot(
     val state: String,
     val at: OffsetDateTime, // UTC
     val value: String?,
+    val defaultSideValues: Set<String>, // Sorted
     val sideValues: Set<String>, // Sorted
     override val version: Int
 ) : DomainDetails
@@ -54,9 +54,6 @@ interface ChildSimpleDetails
 
     val assigned: Boolean
         get() = null != parentNaturalId
-
-    val relevant: Boolean
-        get() = KnownState.forName(state)?.relevant ?: true
 
     override operator fun compareTo(other: ChildSimpleDetails) =
         naturalId.compareTo(other.naturalId)

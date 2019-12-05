@@ -92,11 +92,15 @@ internal class PersistedChildrenTest
         val state = DISABLED.name
         val at = atZero.plusSeconds(1L)
         val value = "FOOBAR"
+        val defaultSideValue = "PQR"
         val sideValue = "ABC"
         original.update {
             this.state = state
             this.at = at
             this.value = value
+            this.defaultSideValues += "FOO"
+            this.defaultSideValues += defaultSideValue
+            this.defaultSideValues -= "FOO"
             this.sideValues += "FOO"
             this.sideValues += sideValue
             this.sideValues -= "FOO"
@@ -106,6 +110,7 @@ internal class PersistedChildrenTest
         expect(original.state).toBe(state)
         expect(original.at).toBe(at)
         expect(original.value).toBe(value)
+        expect(original.defaultSideValues).containsExactly(defaultSideValue)
         expect(original.sideValues).containsExactly(sideValue)
 
         expectSqlQueries().isEmpty()
@@ -122,11 +127,13 @@ internal class PersistedChildrenTest
                 beforeState = ENABLED.name,
                 beforeAt = atZero,
                 beforeValue = null,
+                beforeDefaultSideValues = setOf(),
                 beforeSideValues = setOf(),
                 afterVersion = 2,
                 afterState = state,
                 afterAt = at,
                 afterValue = value,
+                afterDefaultSideValues = setOf(defaultSideValue),
                 afterSideValues = setOf(sideValue)
             )
         )

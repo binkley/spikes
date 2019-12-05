@@ -23,11 +23,24 @@ internal class TrackedSortedSetTest {
     }
 
     @Test
-    fun `should complain on misuse`() {
+    fun `should complain on misuse for optional-one`() {
         val tracked = TrackedOptionalOne("ABC", doNothing, doNothing)
 
         expect {
             tracked.add("BOB")
-        }.toThrow<IllegalStateException> { }
+        }.toThrow<DomainException> { }
+    }
+
+    @Test
+    fun `should complain on misuse for many-to-one`() {
+        val tracked = TrackedManyToOne(setOf("BOB"), doNothing, doNothing)
+
+        expect {
+            tracked.add("BOB")
+        }.toThrow<DomainException> { }
+
+        expect {
+            tracked.remove("SALLY")
+        }.toThrow<DomainException> { }
     }
 }

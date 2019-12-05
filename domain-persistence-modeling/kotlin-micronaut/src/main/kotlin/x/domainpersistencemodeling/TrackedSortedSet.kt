@@ -2,10 +2,10 @@ package x.domainpersistencemodeling
 
 import x.domainpersistencemodeling.TrackingArity.MANY
 import x.domainpersistencemodeling.TrackingArity.OPTIONAL_ONE
-import java.util.*
+import java.util.TreeSet
 import kotlin.reflect.KProperty
 
-enum class TrackingArity { OPTIONAL_ONE, MANY }
+internal enum class TrackingArity { OPTIONAL_ONE, MANY }
 
 internal class TrackedManyToOne<T : Comparable<T>>(
     initial: Set<T>,
@@ -110,6 +110,6 @@ internal abstract class TrackedSortedSet<T : Comparable<T>>(
 
     private fun checkArity() {
         if (OPTIONAL_ONE == arity && 1 < current.size)
-            throw IllegalStateException("Wrong initial for arity: $arity: $current")
+            throw DomainException("Wrong initial for arity: $arity: $current")
     }
 }

@@ -22,7 +22,7 @@ import x.domainpersistencemodeling.parent.ParentSnapshot
 import java.time.Instant.EPOCH
 import java.time.OffsetDateTime
 import java.time.ZoneOffset.UTC
-import java.util.*
+import java.util.TimeZone
 import javax.inject.Inject
 
 internal const val otherNaturalId = "o"
@@ -229,6 +229,7 @@ internal fun aChildChangedEvent( // TODO: Tie defaults to record defaults
     beforeState: String = ENABLED.name,
     beforeAt: OffsetDateTime = atZero,
     beforeValue: String? = null,
+    beforeDefaultSideValues: Set<String> = setOf(),
     beforeSideValues: Set<String> = setOf(),
     beforeVersion: Int = 0,
     noAfter: Boolean = false,
@@ -237,20 +238,31 @@ internal fun aChildChangedEvent( // TODO: Tie defaults to record defaults
     afterState: String = ENABLED.name,
     afterAt: OffsetDateTime = atZero,
     afterValue: String? = null,
+    afterDefaultSideValues: Set<String> = setOf(),
     afterSideValues: Set<String> = setOf(),
     afterVersion: Int = 0
 ) =
     ChildChangedEvent(
         if (noBefore) null else ChildSnapshot(
             childNaturalId,
-            beforeOtherNaturalId, beforeParentNaturalId,
+            beforeOtherNaturalId,
+            beforeParentNaturalId,
             beforeState,
-            beforeAt, beforeValue, beforeSideValues,
+            beforeAt,
+            beforeValue,
+            beforeDefaultSideValues,
+            beforeSideValues,
             beforeVersion
         ),
         if (noAfter) null else ChildSnapshot(
             childNaturalId,
-            afterOtherNaturalId, afterParentNaturalId, afterState,
-            afterAt, afterValue, afterSideValues, afterVersion
+            afterOtherNaturalId,
+            afterParentNaturalId,
+            afterState,
+            afterAt,
+            afterValue,
+            afterDefaultSideValues,
+            afterSideValues,
+            afterVersion
         )
     )

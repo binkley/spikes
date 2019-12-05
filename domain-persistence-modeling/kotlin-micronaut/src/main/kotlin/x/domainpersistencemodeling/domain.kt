@@ -120,7 +120,7 @@ internal class PersistedDomain<Snapshot,
 
     override fun hashCode() = hash(snapshot, holder, dependent)
 
-    @Generated // Lie to JaCoCo -- why test code for debugging?
+    @Generated // Lie to JaCoCo -- why test code for testing?
     override fun toString() =
         "{snapshot=${snapshot}, holder=${holder}, dependent=${dependent}}"
 }

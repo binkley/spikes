@@ -99,6 +99,7 @@ internal class PersistedChildFactory(
             record.state,
             record.at,
             record.value,
+            record.defaultSideValues,
             record.sideValues,
             record.version
         )
@@ -144,6 +145,7 @@ internal class PersistedChildDependentDetails(
         { _, _ -> updateRecord(null) })
     override var other: Other? by _other
 
+    @Generated // Lie to JaCoCo -- why test code for testing?
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -151,9 +153,10 @@ internal class PersistedChildDependentDetails(
         return _other == other._other
     }
 
+    @Generated // Lie to JaCoCo -- why test code for testing?
     override fun hashCode() = hash(_other)
 
-    @Generated // Lie to JaCoCo -- why test code for debugging?
+    @Generated // Lie to JaCoCo -- why test code for testing?
     override fun toString() = "${super.toString()}{_other=$_other}"
 
     private fun updateRecord(other: Other?) {
@@ -206,6 +209,7 @@ internal open class PersistedChild<C : Child<C>>(
         persisted.dependent.other = null
     }
 
+    @Generated // Lie to JaCoCo -- why test code for testing?
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -213,9 +217,10 @@ internal open class PersistedChild<C : Child<C>>(
         return persisted == other.persisted
     }
 
+    @Generated // Lie to JaCoCo -- why test code for testing?
     override fun hashCode() = hash(persisted)
 
-    @Generated // Lie to JaCoCo -- why test code for debugging?
+    @Generated // Lie to JaCoCo -- why test code for testing?
     override fun toString() = "${super.toString()}$persisted"
 }
 
@@ -262,12 +267,23 @@ internal class PersistedMutableChild(
     MutableChildSimpleDetails by record,
     MutableChildDependentDetails by persistence {
 
+    override val defaultSideValues: MutableSet<String> =
+        TrackedManyToOne(
+            record.defaultSideValues,
+            ::replaceDefaultSideValues.uncurrySecond(),
+            ::replaceDefaultSideValues.uncurrySecond()
+        )
+
     override val sideValues: MutableSet<String> =
         TrackedManyToOne(
             record.sideValues,
             ::replaceSideValues.uncurrySecond(),
             ::replaceSideValues.uncurrySecond()
         )
+
+    private fun replaceDefaultSideValues(all: MutableSet<String>) {
+        record.defaultSideValues = all
+    }
 
     private fun replaceSideValues(all: MutableSet<String>) {
         record.sideValues = all

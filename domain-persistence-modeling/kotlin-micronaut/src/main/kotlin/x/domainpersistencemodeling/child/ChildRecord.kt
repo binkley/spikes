@@ -40,9 +40,6 @@ data class ChildRecord(
     @get:Transient
     override val assigned: Boolean
         get() = super.assigned
-    @get:Transient
-    override val relevant: Boolean
-        get() = super.relevant
 
     override fun upsertedWith(upserted: ChildRecord): ChildRecord {
         id = upserted.id
