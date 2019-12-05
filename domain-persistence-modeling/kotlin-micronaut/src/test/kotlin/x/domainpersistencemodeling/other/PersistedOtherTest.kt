@@ -52,7 +52,7 @@ internal class PersistedOtherTest
         expectAllOthers().hasSize(1)
         expect(unsaved.version).toBe(1)
         expect(saved).toBe(UpsertedDomainResult(unsaved, true))
-        expect(currentPersistedOther()).toBe(unsaved)
+        expect(currentPersistedOther()).toBe(saved.domain)
 
         expectDomainChangedEvents().containsExactly(
             anOtherChangedEvent(

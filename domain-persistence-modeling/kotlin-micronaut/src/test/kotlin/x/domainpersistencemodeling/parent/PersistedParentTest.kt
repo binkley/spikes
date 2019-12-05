@@ -58,7 +58,7 @@ internal class PersistedParentsTest
         expectAllParents().hasSize(1)
         expect(unsaved.version).toBe(1)
         expect(saved).toBe(UpsertedDomainResult(unsaved, true))
-        expect(currentPersistedParent()).toBe(unsaved)
+        expect(currentPersistedParent()).toBe(saved.domain)
 
         expectDomainChangedEvents().containsExactly(
             aParentChangedEvent(

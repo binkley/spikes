@@ -61,7 +61,7 @@ internal class PersistedChildrenTest
         expectAllChildren().hasSize(1)
         expect(unsaved.version).toBe(1)
         expect(saved).toBe(UpsertedDomainResult(unsaved, true))
-        expect(currentPersistedChild()).toBe(unsaved)
+        expect(currentPersistedChild()).toBe(saved.domain)
 
         expectDomainChangedEvents().containsExactly(
             aChildChangedEvent(
