@@ -28,7 +28,7 @@ internal class TrackedSortedSetTest {
 
         expect {
             tracked.add("BOB")
-        }.toThrow<DomainException> { }
+        }.toThrow<Bug> { }
     }
 
     @Test

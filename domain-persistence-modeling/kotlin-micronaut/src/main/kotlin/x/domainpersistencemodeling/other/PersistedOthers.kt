@@ -2,6 +2,7 @@ package x.domainpersistencemodeling.other
 
 import io.micronaut.context.event.ApplicationEventPublisher
 import lombok.Generated
+import x.domainpersistencemodeling.Bug
 import x.domainpersistencemodeling.PersistableDomain
 import x.domainpersistencemodeling.PersistedDependentDetails
 import x.domainpersistencemodeling.PersistedDomain
@@ -56,8 +57,9 @@ internal class PersistedOtherFactory(
         repository.delete(record)
     }
 
+    @Generated // Lie to JaCoCo -- no dependents to require refreshing
     override fun refreshPersistence(naturalId: String): OtherRecord =
-        repository.findByNaturalId(naturalId).orElseThrow()
+        throw Bug("No dependents to require refreshing")
 
     override fun notifyChanged(
         before: OtherSnapshot?, after: OtherSnapshot?

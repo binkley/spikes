@@ -110,6 +110,6 @@ internal abstract class TrackedSortedSet<T : Comparable<T>>(
 
     private fun checkArity() {
         if (OPTIONAL_ONE == arity && 1 < current.size)
-            throw DomainException("Wrong initial for arity: $arity: $current")
+            throw Bug("Wrong initial for arity: $arity: $current")
     }
 }
