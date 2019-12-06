@@ -111,21 +111,22 @@ internal class PersistedChildFactory(
             holder
         )
 
-        return if (null == record.parentNaturalId) PersistedUnassignedChild(
-            PersistedDomain(
-                this,
-                toSnapshot(record, dependent),
-                holder,
-                dependent,
-                ::PersistedUnassignedChild
-            )
-        ) else PersistedAssignedChild(
+        return if (record.assigned) PersistedAssignedChild(
             PersistedDomain(
                 this,
                 toSnapshot(record, dependent),
                 holder,
                 dependent,
                 ::PersistedAssignedChild
+            )
+        )
+        else PersistedUnassignedChild(
+            PersistedDomain(
+                this,
+                toSnapshot(record, dependent),
+                holder,
+                dependent,
+                ::PersistedUnassignedChild
             )
         )
     }
@@ -228,6 +229,10 @@ internal class PersistedUnassignedChild(
     persisted: UnassignedChildPersistedDomain
 ) : PersistedChild<UnassignedChild>(persisted),
     UnassignedChild {
+    init {
+        // TODO: require(!assigned)
+    }
+
     /**
      * Assigns this child to a parent, a mutable and _internal_
      * operation called from the parent implementation.
@@ -246,6 +251,10 @@ internal class PersistedAssignedChild(
     persisted: AssignedChildPersistedDomain
 ) : PersistedChild<AssignedChild>(persisted),
     AssignedChild {
+    init {
+        // TODO: require(assigned)
+    }
+
     /**
      * Unassigns this child from any parent, a mutable and _internal_
      * operation called from the parent implementation.

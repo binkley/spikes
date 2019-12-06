@@ -9,6 +9,7 @@ import ch.tutteli.atrium.api.cc.en_GB.toThrow
 import ch.tutteli.atrium.verbs.expect
 import org.junit.jupiter.api.Test
 import x.domainpersistencemodeling.DomainException
+import x.domainpersistencemodeling.KnownState.ENABLED
 import x.domainpersistencemodeling.LiveTestBase
 import x.domainpersistencemodeling.PersistableDomain.UpsertedDomainResult
 import x.domainpersistencemodeling.aChildChangedEvent
@@ -85,9 +86,11 @@ internal class PersistedParentsTest
 
         expect(original.changed).toBe(false)
 
+        val state = "FUNKY"
         val value = "FOOBAR"
         val sideValue = "ABC"
         original.update {
+            this.state = state
             this.value = value
             this.sideValues += "FOO"
             this.sideValues += sideValue
@@ -95,6 +98,7 @@ internal class PersistedParentsTest
         }
 
         expect(original.changed).toBe(true)
+        expect(original.state).toBe(state)
         expect(original.value).toBe(value)
         expect(original.sideValues).containsExactly(sideValue)
 
@@ -110,9 +114,11 @@ internal class PersistedParentsTest
         expectDomainChangedEvents().containsExactly(
             aParentChangedEvent(
                 beforeVersion = 1,
+                beforeState = ENABLED.name,
                 beforeValue = null,
                 beforeSideValues = setOf(),
                 afterVersion = 2,
+                afterState = state,
                 afterValue = value,
                 afterSideValues = setOf(sideValue)
             )
@@ -259,15 +265,17 @@ internal class PersistedParentsTest
         expect(unassigned.assigned).toBe(false)
 
         val assigned = parent.assign(unassigned)
+
+        expect(parent.children).containsExactly(assigned)
+        expect(assigned.assigned).toBe(true)
+
         parent = parent.save().domain
 
         expectSqlQueryCountsByType(select = 1, upsert = 2)
 
-        expect(parent.children).containsExactly(assigned)
         expect(parent.version).toBe(2)
         expect(currentPersistedChild().parentNaturalId)
             .toBe(parentNaturalId)
-        expect(assigned.assigned).toBe(true)
 
         expectDomainChangedEvents().containsExactly(
             aChildChangedEvent(
