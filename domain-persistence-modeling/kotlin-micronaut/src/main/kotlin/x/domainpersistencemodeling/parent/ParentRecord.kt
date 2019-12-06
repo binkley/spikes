@@ -23,7 +23,11 @@ data class ParentRecord(
     UpsertableRecord<ParentRecord> {
     internal constructor(naturalId: String)
             : this(
-        null, naturalId, null, ENABLED.name, null,
+        null,
+        naturalId,
+        null,
+        ENABLED.name,
+        null,
         mutableSetOf(),
         0
     )

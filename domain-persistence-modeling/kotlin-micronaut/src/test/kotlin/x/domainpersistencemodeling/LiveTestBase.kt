@@ -6,18 +6,20 @@ import ch.tutteli.atrium.verbs.expect
 import io.micronaut.test.annotation.MicronautTest
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
-import x.domainpersistencemodeling.KnownState.ENABLED
 import x.domainpersistencemodeling.child.ChildChangedEvent
 import x.domainpersistencemodeling.child.ChildFactory
+import x.domainpersistencemodeling.child.ChildRecord
 import x.domainpersistencemodeling.child.ChildSnapshot
 import x.domainpersistencemodeling.child.PersistedUnassignedChild
 import x.domainpersistencemodeling.other.Other
 import x.domainpersistencemodeling.other.OtherChangedEvent
 import x.domainpersistencemodeling.other.OtherFactory
+import x.domainpersistencemodeling.other.OtherRecord
 import x.domainpersistencemodeling.other.OtherSnapshot
 import x.domainpersistencemodeling.parent.Parent
 import x.domainpersistencemodeling.parent.ParentChangedEvent
 import x.domainpersistencemodeling.parent.ParentFactory
+import x.domainpersistencemodeling.parent.ParentRecord
 import x.domainpersistencemodeling.parent.ParentSnapshot
 import java.time.Instant.EPOCH
 import java.time.OffsetDateTime
@@ -173,13 +175,15 @@ internal abstract class LiveTestBase {
                 as PersistedUnassignedChild
 }
 
-internal fun anOtherChangedEvent( // TODO: Tie defaults to record defaults
+private val otherRecord = OtherRecord(otherNaturalId)
+
+internal fun anOtherChangedEvent(
     noBefore: Boolean = false,
-    beforeValue: String? = null,
-    beforeVersion: Int = 0,
+    beforeValue: String? = otherRecord.value,
+    beforeVersion: Int = otherRecord.version,
     noAfter: Boolean = false,
-    afterValue: String? = null,
-    afterVersion: Int = 0
+    afterValue: String? = otherRecord.value,
+    afterVersion: Int = otherRecord.version
 ) =
     OtherChangedEvent(
         if (noBefore) null else OtherSnapshot(
@@ -192,21 +196,23 @@ internal fun anOtherChangedEvent( // TODO: Tie defaults to record defaults
         )
     )
 
-internal fun aParentChangedEvent( // TODO: Tie defaults to record defaults
+private val parentRecord = ParentRecord(parentNaturalId)
+
+internal fun aParentChangedEvent(
     noBefore: Boolean = false,
-    beforeOtherNaturalId: String? = null,
-    beforeState: String = ENABLED.name,
-    beforeAt: OffsetDateTime? = null,
-    beforeValue: String? = null,
-    beforeSideValues: Set<String> = setOf(),
-    beforeVersion: Int = 0,
+    beforeOtherNaturalId: String? = parentRecord.otherNaturalId,
+    beforeState: String = parentRecord.state,
+    beforeAt: OffsetDateTime? = null, // TODO: Should parents have an "at"?
+    beforeValue: String? = parentRecord.value,
+    beforeSideValues: Set<String> = parentRecord.sideValues,
+    beforeVersion: Int = parentRecord.version,
     noAfter: Boolean = false,
-    afterOtherNaturalId: String? = null,
-    afterState: String = ENABLED.name,
-    afterAt: OffsetDateTime? = null,
-    afterValue: String? = null,
-    afterSideValues: Set<String> = setOf(),
-    afterVersion: Int = 0
+    afterOtherNaturalId: String? = parentRecord.otherNaturalId,
+    afterState: String = parentRecord.state,
+    afterAt: OffsetDateTime? = null, // TODO: Should parents have an "at"?
+    afterValue: String? = parentRecord.value,
+    afterSideValues: Set<String> = parentRecord.sideValues,
+    afterVersion: Int = parentRecord.version
 ) =
     ParentChangedEvent(
         if (noBefore) null else ParentSnapshot(
@@ -222,25 +228,27 @@ internal fun aParentChangedEvent( // TODO: Tie defaults to record defaults
         )
     )
 
-internal fun aChildChangedEvent( // TODO: Tie defaults to record defaults
+private val childRecord = ChildRecord(childNaturalId)
+
+internal fun aChildChangedEvent(
     noBefore: Boolean = false,
-    beforeOtherNaturalId: String? = null,
-    beforeParentNaturalId: String? = null,
-    beforeState: String = ENABLED.name,
-    beforeAt: OffsetDateTime = atZero,
-    beforeValue: String? = null,
-    beforeDefaultSideValues: Set<String> = setOf(),
-    beforeSideValues: Set<String> = setOf(),
-    beforeVersion: Int = 0,
+    beforeOtherNaturalId: String? = childRecord.otherNaturalId,
+    beforeParentNaturalId: String? = childRecord.parentNaturalId,
+    beforeState: String = childRecord.state,
+    beforeAt: OffsetDateTime = childRecord.at,
+    beforeValue: String? = childRecord.value,
+    beforeDefaultSideValues: Set<String> = childRecord.defaultSideValues,
+    beforeSideValues: Set<String> = childRecord.sideValues,
+    beforeVersion: Int = childRecord.version,
     noAfter: Boolean = false,
-    afterOtherNaturalId: String? = null,
-    afterParentNaturalId: String? = null,
-    afterState: String = ENABLED.name,
-    afterAt: OffsetDateTime = atZero,
-    afterValue: String? = null,
-    afterDefaultSideValues: Set<String> = setOf(),
-    afterSideValues: Set<String> = setOf(),
-    afterVersion: Int = 0
+    afterOtherNaturalId: String? = childRecord.otherNaturalId,
+    afterParentNaturalId: String? = childRecord.parentNaturalId,
+    afterState: String = childRecord.state,
+    afterAt: OffsetDateTime = childRecord.at,
+    afterValue: String? = childRecord.value,
+    afterDefaultSideValues: Set<String> = childRecord.defaultSideValues,
+    afterSideValues: Set<String> = childRecord.sideValues,
+    afterVersion: Int = childRecord.version
 ) =
     ChildChangedEvent(
         if (noBefore) null else ChildSnapshot(

@@ -87,9 +87,8 @@ internal class PersistedChildrenTest
 
         expect(original.changed).toBe(false)
 
-        // TODO: Adjusting nanos is acting flaky
         val state = DISABLED.name
-        val at = atZero.plusSeconds(1L)
+        val at = atZero.plusDays(1L)
         val value = "FOOBAR"
         val defaultSideValue = "PQR"
         val sideValue = "ABC"

@@ -137,8 +137,7 @@ internal class PersistedParentsTest
 
         expect(parent.at).toBe(child.at)
 
-        // TODO: Adjusting nanos is acting flaky
-        val at = atZero.plusSeconds(1L)
+        val at = atZero.plusDays(1L)
         val value = "FOOBAR"
         parent.update {
             children.forEach {

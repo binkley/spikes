@@ -86,7 +86,7 @@ private fun bucket(query: String) = try {
     if (matcher.find()) "UPSERT"
     else parse(query).javaClass.simpleName
         .replace("Statement", "")
-        .toUpperCase(Locale.US) // TODO: What is ASCII upcase?
+        .toUpperCase(Locale.US)
 } catch (e: JSQLParserException) {
     "INVALID"
 }
