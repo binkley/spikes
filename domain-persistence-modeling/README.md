@@ -7,9 +7,9 @@
 Spikes are not to be considered stable.
 
 * Ports
-  * [Java Spring Boot](java-spring-boot/)
-  * [Kotlin Spring Boot](kotlin-spring-boot/)
-  * [Kotlin Micronaut](kotlin-micronaut/) (most up-to-date spike)
+  * [Java Spring Boot](java-spring-boot)
+  * [Kotlin Spring Boot](kotlin-spring-boot)
+  * [Kotlin Micronaut](kotlin-micronaut) (most up-to-date spike)
 * [Goals](#goals)
 * [Concepts](#concepts)
   * [Separation of concerns](#separation-of-concerns)
@@ -19,6 +19,7 @@ Spikes are not to be considered stable.
 * [Implementation](#implementation)
   * [Domain patterns](#domain-patterns)
   * [Tracked sets](#tracked-sets)
+  * [Coverage](#coverage)
 * [Open questions](#open-questions)
 * [Spring-recommended documentation](#spring-recommended-documentation)
   * [Reference documentation](#reference-documentation)
@@ -228,6 +229,16 @@ Essentially the tracked set has callbacks for adding/removing elements, so
 domain objects can react to changes in relationships.  It also has minimal
 bug-detection for misuse (_ie_, the tracked set for an optional-one
 relationship should contain exactly zero or one elements).
+
+### Coverage
+
+Maintain _full_ test coverage (presently only the Kotlin Micronaut version).
+This has unexpected benefits:
+
+* Discovery and removal of "dead" (unused) code
+* Better design (_eg_, more discipline in inheritance _vs_ composition)
+* Cleaner production code (_eg_, fewer branches, more concise design)
+* Improved readability (_eg_, mark code used only in testing or debugging)
 
 ## Open questions
 
