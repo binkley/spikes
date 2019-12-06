@@ -219,6 +219,16 @@ The _Domain_ type knows **only** about (directly or indirectly):
 A goal here is to minimize coupling, and follow an easily reproduced pattern
 without falling back to a full-on ORM (like Hibernate).
 
+The domain type implementation itself is split:
+
+* Simple details
+* Dependent details
+
+_Simple_ details are those without dependencies, such as the database ID and
+version, or simple properties.  _Dependent_ details are those which interact
+with other domain types, such as _Parent_ and _Child_ relationships to
+ _Other_.
+
 ### Tracked sets
 
 A key data structure is the 
