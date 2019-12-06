@@ -11,8 +11,9 @@ import java.util.Optional
 import javax.inject.Singleton
 
 @Singleton
-internal class MicronautChildRepository
-    (private val repository: InternalChildRepository) : ChildRepository {
+internal class MicronautChildRepository(
+    private val repository: InternalChildRepository
+) : ChildRepository {
     override fun findAll(): Iterable<ChildRecord> =
         repository.findAll().map {
             it.fix()
