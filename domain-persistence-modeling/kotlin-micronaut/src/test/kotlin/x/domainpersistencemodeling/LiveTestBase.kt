@@ -6,11 +6,13 @@ import ch.tutteli.atrium.verbs.expect
 import io.micronaut.test.annotation.MicronautTest
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
+import x.domainpersistencemodeling.child.Child
 import x.domainpersistencemodeling.child.ChildChangedEvent
 import x.domainpersistencemodeling.child.ChildFactory
 import x.domainpersistencemodeling.child.ChildRecord
 import x.domainpersistencemodeling.child.ChildSnapshot
 import x.domainpersistencemodeling.child.PersistedUnassignedChild
+import x.domainpersistencemodeling.child.UnassignedChild
 import x.domainpersistencemodeling.other.Other
 import x.domainpersistencemodeling.other.OtherChangedEvent
 import x.domainpersistencemodeling.other.OtherFactory
@@ -110,7 +112,7 @@ internal abstract class LiveTestBase {
         sqlQueries.reset()
     }
 
-    internal fun newUnsavedOther(naturalId: String = otherNaturalId) =
+    internal fun newUnsavedOther(naturalId: String = otherNaturalId): Other =
         others.createNew(naturalId)
 
     internal fun newSavedOther(): Other {
@@ -122,7 +124,9 @@ internal abstract class LiveTestBase {
         return other
     }
 
-    internal fun currentPersistedOther(naturalId: String = otherNaturalId) =
+    internal fun currentPersistedOther(
+        naturalId: String = otherNaturalId
+    ): Other =
         others.findExisting(naturalId)!!.also {
             sqlQueries.reset()
         }
@@ -131,7 +135,9 @@ internal abstract class LiveTestBase {
         sqlQueries.reset()
     }
 
-    internal fun newUnsavedParent(naturalId: String = parentNaturalId) =
+    internal fun newUnsavedParent(
+        naturalId: String = parentNaturalId
+    ): Parent =
         parents.createNew(naturalId)
 
     internal fun newSavedParent(): Parent {
@@ -143,7 +149,9 @@ internal abstract class LiveTestBase {
         return parent
     }
 
-    internal fun currentPersistedParent(naturalId: String = parentNaturalId) =
+    internal fun currentPersistedParent(
+        naturalId: String = parentNaturalId
+    ): Parent =
         parents.findExisting(naturalId)!!.also {
             sqlQueries.reset()
         }
@@ -152,7 +160,7 @@ internal abstract class LiveTestBase {
         sqlQueries.reset()
     }
 
-    internal fun newSavedUnassignedChild(): PersistedUnassignedChild {
+    internal fun newSavedUnassignedChild(): UnassignedChild {
         val saved = newUnsavedUnassignedChild().save()
         expect(saved.changed).toBe(true)
         val child = saved.domain
@@ -163,14 +171,14 @@ internal abstract class LiveTestBase {
 
     internal fun currentPersistedChild(
         naturalId: String = childNaturalId
-    ) =
+    ): Child<*> =
         children.findExisting(naturalId)!!.also {
             sqlQueries.reset()
         }
 
     internal fun newUnsavedUnassignedChild(
         naturalId: String = childNaturalId
-    ) =
+    ): UnassignedChild =
         children.createNewUnassigned(naturalId)
                 as PersistedUnassignedChild
 }
