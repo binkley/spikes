@@ -97,12 +97,8 @@ internal class PersistedOtherDependentDetails
     override fun saveMutated() = false
 
     @Generated // Lie to JaCoCo -- why test code for testing?
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-        other as PersistedOtherDependentDetails
-        return true
-    }
+    override fun equals(other: Any?) = this === other
+            || other is PersistedOtherDependentDetails
 
     @Generated // Lie to JaCoCo -- why test code for testing?
     override fun hashCode() = hash(this::class)
@@ -131,18 +127,15 @@ internal class PersistedOther(
         ).let(block)
 
     @Generated // Lie to JaCoCo -- why test code for testing?
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-        other as PersistedOther
-        return persisted == other.persisted
-    }
+    override fun equals(other: Any?) = this === other
+            || other is PersistedOther
+            && persisted == other.persisted
 
     @Generated // Lie to JaCoCo -- why test code for testing?
     override fun hashCode() = hash(persisted)
 
     @Generated // Lie to JaCoCo -- why test code for testing?
-    override fun toString() = "${super.toString()}$persisted"
+    override fun toString() = "${super.toString()}{persisted=$persisted}"
 }
 
 internal data class PersistedMutableOther(

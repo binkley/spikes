@@ -137,20 +137,17 @@ internal class PersistedParentDependentDetails(
     override val children = _children
 
     @Generated // Lie to JaCoCo -- why test code for testing?
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-        other as PersistedParentDependentDetails
-        return _other == other._other
-                && children == other.children
-    }
+    override fun equals(other: Any?) = this === other
+            || other is PersistedParentDependentDetails
+            && _other == other._other
+            && _children == other._children
 
     @Generated // Lie to JaCoCo -- why test code for testing?
-    override fun hashCode() = hash(_other, children)
+    override fun hashCode() = hash(_other, _children)
 
     @Generated // Lie to JaCoCo -- why test code for testing?
     override fun toString() =
-        "${super.toString()}{_other=$_other, _children=$children}"
+        "${super.toString()}{_other=$_other, _children=$_children}"
 
     private fun updateRecord(other: Other?) {
         holder.record!!.otherNaturalId = other?.naturalId
@@ -225,18 +222,15 @@ internal open class PersistedParent(
         ).let(block)
 
     @Generated // Lie to JaCoCo -- why test code for testing?
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-        other as PersistedParent
-        return persisted == other.persisted
-    }
+    override fun equals(other: Any?) = this === other
+            || other is PersistedParent
+            && persisted == other.persisted
 
     @Generated // Lie to JaCoCo -- why test code for testing?
     override fun hashCode() = hash(persisted)
 
     @Generated // Lie to JaCoCo -- why test code for testing?
-    override fun toString() = "${super.toString()}$persisted"
+    override fun toString() = "${super.toString()}{persisted=$persisted}"
 }
 
 internal data class PersistedMutableParent(

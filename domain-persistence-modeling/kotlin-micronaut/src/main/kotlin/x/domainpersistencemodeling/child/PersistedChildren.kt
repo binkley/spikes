@@ -147,12 +147,9 @@ internal class PersistedChildDependentDetails(
     override var other: Other? by _other
 
     @Generated // Lie to JaCoCo -- why test code for testing?
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-        other as PersistedChildDependentDetails
-        return _other == other._other
-    }
+    override fun equals(other: Any?) = this === other
+            || other is PersistedChildDependentDetails
+            && _other == other._other
 
     @Generated // Lie to JaCoCo -- why test code for testing?
     override fun hashCode() = hash(_other)
@@ -211,18 +208,15 @@ internal open class PersistedChild<C : Child<C>>(
     }
 
     @Generated // Lie to JaCoCo -- why test code for testing?
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-        other as PersistedChild<*>
-        return persisted == other.persisted
-    }
+    override fun equals(other: Any?) = this === other
+            || other is PersistedChild<*>
+            && persisted == other.persisted
 
     @Generated // Lie to JaCoCo -- why test code for testing?
     override fun hashCode() = hash(persisted)
 
     @Generated // Lie to JaCoCo -- why test code for testing?
-    override fun toString() = "${super.toString()}$persisted"
+    override fun toString() = "${super.toString()}{persisted=$persisted}"
 }
 
 internal class PersistedUnassignedChild(
