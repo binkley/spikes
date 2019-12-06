@@ -56,7 +56,7 @@ internal class PersistedDomain<Snapshot,
 
     /**
      * Notice that when **saving**, save ourselves _first_, so added
-     * children have a valid FK reference.
+     * dependents have a valid FK reference.
      */
     override fun save(): UpsertedDomainResult<Snapshot, Domain> {
         val before = snapshot
@@ -65,7 +65,7 @@ internal class PersistedDomain<Snapshot,
         var recordResult =
             if (changed) factory.save(record)
             else UpsertedRecordResult(record, false)
-        // Refresh our version since children mutated in the DB
+        // Refresh our version since dependents mutated in the DB
         if (dependent.saveMutated()) recordResult = UpsertedRecordResult(
             factory.refreshPersistence(naturalId), true
         )
@@ -87,7 +87,7 @@ internal class PersistedDomain<Snapshot,
 
     /**
      * Notice that when **deleting**, save ourselves _last_, so that FK
-     * references by children are valid.
+     * references by dependents are valid.
      */
     override fun delete() {
         val before = snapshot
