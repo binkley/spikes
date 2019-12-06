@@ -10,6 +10,10 @@
         </encoder>
     </appender>
 
+    <!-- TRACE for Micronaut Data to support testing of queries;
+         output does *not* appear on console. -->
+    <logger name="io.micronaut.data" level="TRACE"/>
+
     <root level="WARN">
         <appender-ref ref="STDOUT"/>
     </root>
