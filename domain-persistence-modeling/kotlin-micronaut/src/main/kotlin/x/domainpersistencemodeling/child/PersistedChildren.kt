@@ -16,7 +16,6 @@ import x.domainpersistencemodeling.saveMutated
 import x.domainpersistencemodeling.uncurrySecond
 import java.time.OffsetDateTime
 import java.util.Objects.hash
-import java.util.TreeSet
 import javax.inject.Singleton
 
 private typealias UnassignedChildPersistedDomain = PersistedDomain<
@@ -187,9 +186,9 @@ internal open class PersistedChild<C : Child<C>>(
     override val value: String?
         get() = persisted.record.value
     override val defaultSideValues: Set<String> // Sorted
-        get() = TreeSet(persisted.record.defaultSideValues)
+        get() = persisted.record.defaultSideValues
     override val sideValues: Set<String> // Sorted
-        get() = TreeSet(persisted.record.sideValues)
+        get() = persisted.record.sideValues
     override val other: Other?
         get() = persisted.dependent.other
 

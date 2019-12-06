@@ -188,6 +188,30 @@ internal class PersistedChildrenTest
     }
 
     @Test
+    fun `should sort default side values`() {
+        val child = newUnsavedUnassignedChild()
+        val outOfOrder = listOf("DEF", "ABC")
+
+        child.update {
+            defaultSideValues += outOfOrder
+        }
+
+        expect(child.defaultSideValues).toBe(outOfOrder.toSortedSet())
+    }
+
+    @Test
+    fun `should sort side values`() {
+        val child = newUnsavedUnassignedChild()
+        val outOfOrder = listOf("DEF", "ABC")
+
+        child.update {
+            sideValues += outOfOrder
+        }
+
+        expect(child.sideValues).toBe(outOfOrder.toSortedSet())
+    }
+
+    @Test
     fun `should assign and unassign other`() {
         val child = newSavedUnassignedChild()
         val other = newSavedOther()

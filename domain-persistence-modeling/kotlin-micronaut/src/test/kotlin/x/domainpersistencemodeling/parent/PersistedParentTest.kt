@@ -241,6 +241,18 @@ internal class PersistedParentsTest
     }
 
     @Test
+    fun `should sort side values`() {
+        val parent = newUnsavedParent()
+        val outOfOrder = listOf("DEF", "ABC")
+
+        parent.update {
+            sideValues += outOfOrder
+        }
+
+        expect(parent.sideValues).toBe(outOfOrder.toSortedSet())
+    }
+
+    @Test
     fun `should not assign already assigned child`() {
         val parent = newSavedParent()
         val child = newSavedUnassignedChild()

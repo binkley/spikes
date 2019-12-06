@@ -24,7 +24,6 @@ import x.domainpersistencemodeling.uncurryFirst
 import x.domainpersistencemodeling.uncurrySecond
 import java.time.OffsetDateTime
 import java.util.Objects.hash
-import java.util.TreeSet
 import javax.inject.Singleton
 
 @Singleton
@@ -170,7 +169,7 @@ internal open class PersistedParent(
     override val value: String?
         get() = persisted.record.value
     override val sideValues: Set<String> // Sorted
-        get() = TreeSet(persisted.record.sideValues)
+        get() = persisted.record.sideValues
     override val other: Other?
         get() = persisted.dependent.other
     override val children: Set<AssignedChild>
