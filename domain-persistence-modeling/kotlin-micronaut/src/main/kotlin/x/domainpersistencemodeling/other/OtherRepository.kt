@@ -4,7 +4,7 @@ import io.micronaut.data.annotation.Query
 import io.micronaut.data.jdbc.annotation.JdbcRepository
 import io.micronaut.data.model.query.builder.sql.Dialect.POSTGRES
 import io.micronaut.data.repository.CrudRepository
-import java.util.*
+import java.util.Optional
 
 @JdbcRepository(dialect = POSTGRES)
 interface OtherRepository : CrudRepository<OtherRecord, Long> {

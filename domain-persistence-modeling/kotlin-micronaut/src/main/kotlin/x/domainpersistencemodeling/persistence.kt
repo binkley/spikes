@@ -1,6 +1,6 @@
 package x.domainpersistencemodeling
 
-import java.util.*
+import java.util.TreeSet
 
 internal fun Set<String>.workAroundArrayTypeForPostgresWrite()
         : String =

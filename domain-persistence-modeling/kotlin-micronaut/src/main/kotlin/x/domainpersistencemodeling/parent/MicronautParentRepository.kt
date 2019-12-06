@@ -6,7 +6,7 @@ import io.micronaut.data.model.query.builder.sql.Dialect.POSTGRES
 import io.micronaut.data.repository.CrudRepository
 import x.domainpersistencemodeling.workAroundArrayTypeForPostgresRead
 import x.domainpersistencemodeling.workAroundArrayTypeForPostgresWrite
-import java.util.*
+import java.util.Optional
 import javax.inject.Singleton
 
 @Singleton
