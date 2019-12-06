@@ -44,6 +44,7 @@ The key concepts are:
 - [_Separation of concerns_](#separation-of-concerns)
 - [_Scoped mutation_](#scoped-mutation)
 - [_Reversal of roles_](#reversal-of-roles)
+- [_Distinct types_](#distinct-types)
 
 ### Separation of concerns
 
@@ -177,7 +178,7 @@ For relationships formally exposed on the domain objects:
 
 ### Distinct types
 
-(Only expressed in Kotlin Spring Data example, for now.)
+(Only expressed in Kotlin ports, for now.)
 
 To aid in avoiding programming mistakes, and catch such errors in complilation
 rather than at runtime, we divide child domain objects into two types:
