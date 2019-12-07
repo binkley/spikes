@@ -14,6 +14,7 @@ Spikes are not to be considered stable.
 * [Layers in Kotlin](layers-kt/)
 * [Domain persistence modeling](domain-persistence-modeling/)
 * [Micronaut hello world](micronaut-hello-world/)
+* [Scratch](scratch/)
 * [Spring Boot async and Mockito spies](spring-boot-async-and-mockito-spies/)
 * [Spring Boot Etag support](spring-boot-etag-support/)
 * [Spring Boot JMS client](spring-boot-jms-client/)
