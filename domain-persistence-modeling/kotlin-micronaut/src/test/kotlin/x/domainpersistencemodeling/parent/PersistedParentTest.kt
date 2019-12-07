@@ -311,7 +311,6 @@ internal class PersistedParentsTest
         expect(parent.children).isEmpty()
         expect(parent.version).toBe(3)
         expect(currentPersistedChild().parentNaturalId).toBe(null)
-        // TODO: Smell -- invalidate an AssignedChild without parent
         expect(assigned.assigned).toBe(false)
 
         expectDomainChangedEvents().containsExactly(

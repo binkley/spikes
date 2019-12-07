@@ -8,18 +8,18 @@ internal class PersistencePerformanceTest
     @Test
     fun `should save only one mutated child`() {
         val parent = newSavedParent()
-        for (i in 1..10) {
+        for (i in 1..2) {
             val uniqueUnassignedChild =
                 children.createNewUnassigned("c$i")
             parent.assign(uniqueUnassignedChild)
         }
         parent.save()
 
-        expectSqlQueryCountsByType(select = 1, upsert = 11)
+        expectSqlQueryCountsByType(select = 1, upsert = 3)
         expectDomainChangedEvents().isNotEmpty()
 
         parent.children.first().update {
-            value = "ABC"
+            value += "X"
         }
 
         parent.save()
