@@ -1,9 +1,7 @@
 package x.scratch
 
-import lombok.Generated
 import kotlin.reflect.typeOf
 
-@Generated // Lie to JaCoCo
 @UseExperimental(ExperimentalStdlibApi::class)
 fun main() {
     val intType = typeOf<Int>()
