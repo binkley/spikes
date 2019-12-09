@@ -3,7 +3,12 @@ package x.scratch
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind.EXACTLY_ONCE
 import kotlin.contracts.contract
+import kotlin.reflect.jvm.javaField
 import kotlin.reflect.typeOf
+
+val a = 1
+
+class A(val p: Int)
 
 @UseExperimental(
     ExperimentalStdlibApi::class,
@@ -20,6 +25,12 @@ fun main() {
     val second = InlineClass(1)
     println(first == second)
     println(first::class)
+
+    println(::a.get())
+    println(::a.name)
+    println(::a.javaField)
+    println(A(p = 3)::p.get())
+    println(A(p = 5)::p.javaField)
 
     foo(second)
 
