@@ -26,6 +26,12 @@ fun main() {
     val x: UByte = 255u
 
     println("$x -> ${x.toByte()}")
+
+    val keys = 'a'..'f'
+    val map = keys.associateWith {
+        it.toString().capitalize().repeat(3)
+    }
+    println(map)
 }
 
 @UseExperimental(ExperimentalStdlibApi::class)
