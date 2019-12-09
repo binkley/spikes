@@ -100,6 +100,7 @@
                 <version>${kotlin.version}</version>
                 <configuration>
                     <args>
+                        <arg>-progressive</arg>
                         <arg>-Xjsr305=strict</arg>
                         <arg>-Xjvm-default=enable</arg>
                         <arg>-Xuse-experimental=kotlin.Experimental</arg>
