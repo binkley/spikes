@@ -19,6 +19,7 @@ Spikes are not to be considered stable.
 * [Implementation](#implementation)
   * [Domain patterns](#domain-patterns)
   * [Tracked sets](#tracked-sets)
+  * [Persistence](#persistence)
   * [Coverage](#coverage)
 * [Open questions](#open-questions)
 * [Spring-recommended documentation](#spring-recommended-documentation)
@@ -240,6 +241,15 @@ Essentially the tracked set has callbacks for adding/removing elements, so
 domain objects can react to changes in relationships.  It also has minimal
 bug-detection for misuse (_ie_, the tracked set for an optional-one
 relationship should contain exactly zero or one elements).
+
+### Persistence
+
+Intentionally avoid more complex persistence features (_eg_, 
+framework-managed relationships, lazy loading).  Expose most persistence
+details directly in Kotlin/Java code, or in SQL.
+
+The purpose of this spike is not to maximize framework usage, but to
+demonstrate code-side domain-persistence patterns.
 
 ### Coverage
 
