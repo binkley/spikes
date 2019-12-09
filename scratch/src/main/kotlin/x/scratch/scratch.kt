@@ -3,6 +3,7 @@ package x.scratch
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind.EXACTLY_ONCE
 import kotlin.contracts.contract
+import kotlin.reflect.jvm.javaConstructor
 import kotlin.reflect.jvm.javaField
 import kotlin.reflect.typeOf
 
@@ -31,6 +32,7 @@ fun main() {
     println(::a.javaField)
     println(A(p = 3)::p.get())
     println(A(p = 5)::p.javaField)
+    println(::A.javaConstructor)
 
     foo(second)
 
