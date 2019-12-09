@@ -23,13 +23,13 @@ data class ParentRecord(
     UpsertableRecord<ParentRecord> {
     internal constructor(naturalId: String)
             : this(
-        null,
-        naturalId,
-        null,
-        ENABLED.name,
-        null,
-        mutableSetOf(),
-        0
+        id = null,
+        naturalId = naturalId,
+        otherNaturalId = null,
+        state = ENABLED.name,
+        value = null,
+        sideValues = mutableSetOf(),
+        version = 0
     )
 
     override fun upsertedWith(upserted: ParentRecord): ParentRecord {

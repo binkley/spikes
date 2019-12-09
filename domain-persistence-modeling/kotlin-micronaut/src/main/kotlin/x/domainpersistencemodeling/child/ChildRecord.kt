@@ -30,16 +30,16 @@ data class ChildRecord(
     UpsertableRecord<ChildRecord> {
     internal constructor(naturalId: String)
             : this(
-        null,
-        naturalId,
-        null,
-        null,
-        ENABLED.name,
-        OffsetDateTime.ofInstant(EPOCH, UTC),
-        null,
-        mutableSetOf(),
-        mutableSetOf(),
-        0
+        id = null,
+        naturalId = naturalId,
+        otherNaturalId = null,
+        parentNaturalId = null,
+        state = ENABLED.name,
+        at = OffsetDateTime.ofInstant(EPOCH, UTC),
+        value = null,
+        defaultSideValues = mutableSetOf(),
+        sideValues = mutableSetOf(),
+        version = 0
     )
 
     @get:Transient

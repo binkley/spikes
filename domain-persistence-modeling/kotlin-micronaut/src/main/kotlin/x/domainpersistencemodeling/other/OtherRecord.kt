@@ -17,7 +17,12 @@ data class OtherRecord(
 ) : MutableOtherSimpleDetails,
     UpsertableRecord<OtherRecord> {
     internal constructor(naturalId: String)
-            : this(null, naturalId, null, 0)
+            : this(
+        id = null,
+        naturalId = naturalId,
+        value = null,
+        version = 0
+    )
 
     override fun upsertedWith(upserted: OtherRecord): OtherRecord {
         id = upserted.id
