@@ -60,25 +60,9 @@ internal class MicronautChildRepository(
 
 @JdbcRepository(dialect = POSTGRES)
 interface InternalChildRepository : CrudRepository<ChildRecord, Long> {
-    @Query(
-        """
-        SELECT *
-        FROM child
-        WHERE natural_id = :naturalId
-        """
-    )
-    fun findByNaturalId(naturalId: String)
-            : Optional<ChildRecord>
+    fun findByNaturalId(naturalId: String): Optional<ChildRecord>
 
-    @Query(
-        """
-        SELECT *
-        FROM child
-        WHERE parent_natural_id = :parentNaturalId
-        """
-    )
-    fun findByParentNaturalId(parentNaturalId: String)
-            : Iterable<ChildRecord>
+    fun findByParentNaturalId(parentNaturalId: String): Iterable<ChildRecord>
 
     @Query(
         """

@@ -8,15 +8,7 @@ import java.util.Optional
 
 @JdbcRepository(dialect = POSTGRES)
 interface OtherRepository : CrudRepository<OtherRecord, Long> {
-    @Query(
-        """
-        SELECT *
-        FROM other
-        WHERE natural_id = :naturalId
-        """
-    )
-    fun findByNaturalId(naturalId: String)
-            : Optional<OtherRecord>
+    fun findByNaturalId(naturalId: String): Optional<OtherRecord>
 
     @Query(
         """

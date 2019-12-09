@@ -48,15 +48,7 @@ internal class MicronautParentRepository(
 
 @JdbcRepository(dialect = POSTGRES)
 interface InternalParentRepository : CrudRepository<ParentRecord, Long> {
-    @Query(
-        """
-        SELECT *
-        FROM parent
-        WHERE natural_id = :naturalId
-        """
-    )
-    fun findByNaturalId(naturalId: String)
-            : Optional<ParentRecord>
+    fun findByNaturalId(naturalId: String): Optional<ParentRecord>
 
     @Query(
         """
