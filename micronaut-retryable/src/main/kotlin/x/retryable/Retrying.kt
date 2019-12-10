@@ -1,13 +1,16 @@
 package x.retryable
 
+import io.micronaut.http.annotation.Post
+import io.micronaut.http.client.annotation.Client
 import io.micronaut.retry.annotation.Retryable
 
-open class Retrying {
-    var retried = 0
+interface Retrying {
+    @Post
+    fun retryMe(): String
+}
 
-    @Retryable // default is 3 times
-    open fun retryMe() {
-        ++retried
-        throw IllegalStateException("I fail; please retry me")
-    }
+@Client("/retry-me")
+@Retryable // default is 3 times
+interface RetryingClient : Retrying {
+    override fun retryMe(): String
 }

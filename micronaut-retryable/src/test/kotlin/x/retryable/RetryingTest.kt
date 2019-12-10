@@ -1,19 +1,18 @@
 package x.retryable
 
-import ch.tutteli.atrium.api.cc.en_GB.toBe
-import ch.tutteli.atrium.api.cc.en_GB.toThrow
-import ch.tutteli.atrium.verbs.expect
+import io.micronaut.test.annotation.MicronautTest
 import org.junit.jupiter.api.Test
+import javax.inject.Inject
 
+@MicronautTest
 internal class RetryingTest {
+    @Inject
+    lateinit var retryingClient: RetryingClient
+
     @Test
     fun `should retry 3 times`() {
-        val retrying = Retrying()
-
-        expect {
-            retrying.retryMe()
-        }.toThrow<IllegalStateException> { }
-
-        expect(retrying.retried).toBe(3)
+        val x = retryingClient.retryMe()
+        println("HERE!")
+        println(x)
     }
 }
