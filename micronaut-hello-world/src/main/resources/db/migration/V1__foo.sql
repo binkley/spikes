@@ -1,5 +1,0 @@
-CREATE TABLE foo
-(
-    code VARCHAR NOT NULL PRIMARY KEY,
-    foo  VARCHAR NOT NULL
-);
