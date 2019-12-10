@@ -113,6 +113,9 @@ internal class PersistedParentFactory(
     }
 }
 
+private val doNothing: (AssignedChild, MutableSet<AssignedChild>) -> Unit =
+    { _, _ -> }
+
 internal class PersistedParentDependentDetails(
     initialOther: Other?,
     initialChildren: Set<AssignedChild>,
@@ -130,7 +133,10 @@ internal class PersistedParentDependentDetails(
     override var other: Other? by _other
 
     private val _children = TrackedManyToOne(
-        initialChildren, { _, _ -> }, { _, _ -> })
+        initialChildren,
+        doNothing,
+        doNothing
+    )
     override val children = _children
 
     override val due: OffsetDateTime?
