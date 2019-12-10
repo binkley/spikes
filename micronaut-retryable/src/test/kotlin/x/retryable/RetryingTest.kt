@@ -2,6 +2,10 @@ package x.retryable
 
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.read.ListAppender
+import ch.tutteli.atrium.api.cc.en_GB.hasSize
+import ch.tutteli.atrium.api.cc.en_GB.toThrow
+import ch.tutteli.atrium.verbs.expect
+import io.micronaut.http.client.exceptions.HttpClientException
 import io.micronaut.retry.intercept.DefaultRetryInterceptor
 import io.micronaut.test.annotation.MicronautTest
 import org.junit.jupiter.api.Test
@@ -21,10 +25,12 @@ internal class RetryingTest {
         listAppender.start()
         retryingLogger.addAppender(listAppender)
 
-        retrying.retryMe()
+        expect {
+            retrying.retryMe()
+        }.toThrow<HttpClientException> { }
 
-        listAppender.list.forEach {
-            println(it)
-        }
+        expect(listAppender.list.filter {
+            it.message.startsWith("Retrying")
+        }).hasSize(3)
     }
 }

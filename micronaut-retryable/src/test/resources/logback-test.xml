@@ -13,6 +13,8 @@
     <!-- TRACE for Micronaut Data to support testing of queries;
          output does *not* appear on console. -->
     <logger name="io.micronaut.data" level="TRACE"/>
+    <logger name="io.micronaut.iop" level="TRACE"/>
+    <logger name="io.micronaut.retry.intercept" level="TRACE"/>
 
     <root level="WARN">
         <appender-ref ref="STDOUT"/>
