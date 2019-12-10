@@ -1,0 +1,16 @@
+datasources:
+  default:
+    dialect: POSTGRES
+    driverClassName: org.postgresql.Driver
+    password: ""
+    url: jdbc:postgresql:postgres
+    username: postgres
+
+flyway:
+  datasources:
+    default:
+      locations: classpath:db/migration
+
+micronaut:
+  application:
+    name: micronaut-domain-persistence-modeling
