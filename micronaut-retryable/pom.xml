@@ -33,7 +33,6 @@
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <micronaut.version>1.2.7</micronaut.version>
-        <mockk.version>1.9.3</mockk.version>
         <project.build.sourceEncoding>${java.charset}</project.build.sourceEncoding>
         <project.reporting.outputEncoding>${java.charset}</project.reporting.outputEncoding>
         <snapshot-repository.url>https://oss.sonatype.org/content/repositories/snapshots</snapshot-repository.url>
