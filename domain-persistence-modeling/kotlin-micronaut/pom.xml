@@ -13,7 +13,7 @@
         <!-- @formatter:off -->
         <atrium.version>0.8.0</atrium.version>
         <exec.mainClass>x.Application</exec.mainClass>
-        <flyway.version>6.1.0</flyway.version>
+        <flyway.version>6.1.1</flyway.version>
         <jackson.version>2.10.1</jackson.version>
         <jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
         <jacoco-minimum-coverage>100%</jacoco-minimum-coverage>
