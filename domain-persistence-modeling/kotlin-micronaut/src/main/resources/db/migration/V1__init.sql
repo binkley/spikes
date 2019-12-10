@@ -15,8 +15,9 @@ CREATE TABLE parent
     natural_id       VARCHAR NOT NULL UNIQUE,
     other_natural_id VARCHAR REFERENCES other (natural_id), -- Nullable
     state            VARCHAR NOT NULL,
+    at               TIMESTAMPTZ,                           -- Nullable
     value            VARCHAR,
-    -- TODO: side_values      VARCHAR ARRAY NOT NULL,
+    -- TODO: side_values VARCHAR ARRAY NOT NULL,
     side_values      VARCHAR NOT NULL,
     -- DB controls Audit columns, not caller
     version          INT,

@@ -18,6 +18,7 @@ data class ParentSnapshot(
     override val naturalId: String,
     val otherNaturalId: String?,
     val state: String,
+    val due: OffsetDateTime?,
     val at: OffsetDateTime?,
     val value: String?,
     val sideValues: Set<String>, // Sorted
@@ -42,6 +43,7 @@ interface ParentSimpleDetails
     : Comparable<ParentSimpleDetails> {
     val naturalId: String
     val state: String
+    val at: OffsetDateTime?
     val value: String?
     val sideValues: Set<String> // Sorted
     val version: Int
@@ -53,12 +55,13 @@ interface ParentSimpleDetails
 interface ParentDependentDetails {
     val other: OtherSimpleDetails?
     val children: Set<ChildSimpleDetails>
-    val at: OffsetDateTime?
+    val due: OffsetDateTime?
 }
 
 interface MutableParentSimpleDetails
     : ParentSimpleDetails {
     override var state: String
+    override var at: OffsetDateTime?
     override var value: String?
     override val sideValues: MutableSet<String> // Sorted
 }

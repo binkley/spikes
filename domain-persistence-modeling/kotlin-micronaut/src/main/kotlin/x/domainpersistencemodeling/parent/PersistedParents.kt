@@ -11,12 +11,12 @@ import x.domainpersistencemodeling.RecordHolder
 import x.domainpersistencemodeling.TrackedManyToOne
 import x.domainpersistencemodeling.TrackedOptionalOne
 import x.domainpersistencemodeling.UpsertableRecord.UpsertedRecordResult
-import x.domainpersistencemodeling.at
 import x.domainpersistencemodeling.child.AssignedChild
 import x.domainpersistencemodeling.child.ChildFactory
 import x.domainpersistencemodeling.child.PersistedAssignedChild
 import x.domainpersistencemodeling.child.PersistedUnassignedChild
 import x.domainpersistencemodeling.child.UnassignedChild
+import x.domainpersistencemodeling.computeDue
 import x.domainpersistencemodeling.other.Other
 import x.domainpersistencemodeling.other.OtherFactory
 import x.domainpersistencemodeling.saveMutated
@@ -81,7 +81,8 @@ internal class PersistedParentFactory(
             record.naturalId,
             record.otherNaturalId,
             record.state,
-            dependent.at,
+            dependent.due,
+            record.at,
             record.value,
             record.sideValues,
             record.version
@@ -122,9 +123,6 @@ internal class PersistedParentDependentDetails(
     override fun saveMutated() =
         _other.saveMutated() or _children.saveMutated()
 
-    override val at: OffsetDateTime?
-        get() = children.at
-
     private val _other = TrackedOptionalOne(
         initialOther,
         ::updateRecord.uncurryFirst(),
@@ -134,6 +132,9 @@ internal class PersistedParentDependentDetails(
     private val _children = TrackedManyToOne(
         initialChildren, { _, _ -> }, { _, _ -> })
     override val children = _children
+
+    override val due: OffsetDateTime?
+        get() = computeDue(holder.record!!, _children)
 
     @Generated // Lie to JaCoCo -- why test code for testing?
     override fun equals(other: Any?) = this === other
@@ -164,8 +165,10 @@ internal open class PersistedParent(
     PersistableDomain<ParentSnapshot, Parent> by persisted {
     override val state: String
         get() = persisted.record.state
+    override val due: OffsetDateTime?
+        get() = persisted.dependent.due
     override val at: OffsetDateTime?
-        get() = persisted.dependent.at
+        get() = persisted.record.at
     override val value: String?
         get() = persisted.record.value
     override val sideValues: Set<String> // Sorted
@@ -238,9 +241,6 @@ internal data class PersistedMutableParent(
 ) : MutableParent,
     MutableParentSimpleDetails by record,
     MutableParentDependentDetails by persistence {
-    override val at: OffsetDateTime?
-        get() = children.at
-
     override val sideValues: MutableSet<String> =
         TrackedManyToOne(
             record.sideValues,

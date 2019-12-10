@@ -3,6 +3,7 @@ package x.domainpersistencemodeling.parent
 import io.micronaut.core.annotation.Introspected
 import x.domainpersistencemodeling.KnownState.ENABLED
 import x.domainpersistencemodeling.UpsertableRecord
+import java.time.OffsetDateTime
 import java.util.TreeSet
 import javax.persistence.Entity
 import javax.persistence.Id
@@ -16,6 +17,7 @@ data class ParentRecord(
     override var naturalId: String,
     var otherNaturalId: String?,
     override var state: String,
+    override var at: OffsetDateTime?,
     override var value: String?,
     override var sideValues: MutableSet<String>,
     override var version: Int
@@ -27,6 +29,7 @@ data class ParentRecord(
         naturalId = naturalId,
         otherNaturalId = null,
         state = ENABLED.name,
+        at = null,
         value = null,
         sideValues = mutableSetOf(),
         version = 0

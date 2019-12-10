@@ -3,9 +3,8 @@ package x.domainpersistencemodeling.child
 import io.micronaut.core.annotation.Introspected
 import x.domainpersistencemodeling.KnownState.ENABLED
 import x.domainpersistencemodeling.UpsertableRecord
-import java.time.Instant.EPOCH
+import x.domainpersistencemodeling.atZero
 import java.time.OffsetDateTime
-import java.time.ZoneOffset.UTC
 import java.util.TreeSet
 import javax.persistence.Entity
 import javax.persistence.Id
@@ -35,7 +34,7 @@ data class ChildRecord(
         otherNaturalId = null,
         parentNaturalId = null,
         state = ENABLED.name,
-        at = OffsetDateTime.ofInstant(EPOCH, UTC),
+        at = atZero,
         value = null,
         defaultSideValues = mutableSetOf(),
         sideValues = mutableSetOf(),

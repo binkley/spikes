@@ -129,13 +129,13 @@ internal class PersistedParentsTest
     fun `should mutate children`() {
         val parent = newSavedParent()
 
-        expect(parent.at).toBe(null)
+        expect(parent.due).toBe(null)
 
         val child = newSavedUnassignedChild()
 
         parent.assign(child)
 
-        expect(parent.at).toBe(child.at)
+        expect(parent.due).toBe(child.at)
 
         val at = atZero.plusDays(1L)
         val value = "FOOBAR"
@@ -153,7 +153,7 @@ internal class PersistedParentsTest
 
         expect(currentPersistedChild().at).toBe(at)
         expect(currentPersistedChild().value).toBe(value)
-        expect(currentPersistedParent().at).toBe(at)
+        expect(currentPersistedParent().due).toBe(at)
 
         expectDomainChangedEvents().containsExactly(
             aChildChangedEvent(
@@ -168,9 +168,9 @@ internal class PersistedParentsTest
             ),
             aParentChangedEvent(
                 beforeVersion = 1,
-                beforeAt = null,
+                beforeDue = null,
                 afterVersion = 2,
-                afterAt = at
+                afterDue = at
             )
         )
     }
@@ -297,9 +297,9 @@ internal class PersistedParentsTest
             ),
             aParentChangedEvent(
                 beforeVersion = 1,
-                beforeAt = null,
+                beforeDue = null,
                 afterVersion = 2,
-                afterAt = atZero
+                afterDue = atZero
             )
         )
 
@@ -322,9 +322,9 @@ internal class PersistedParentsTest
             ),
             aParentChangedEvent(
                 beforeVersion = 2,
-                beforeAt = atZero,
+                beforeDue = atZero,
                 afterVersion = 3,
-                afterAt = null
+                afterDue = null
             )
         )
     }
@@ -347,9 +347,9 @@ internal class PersistedParentsTest
             ),
             aParentChangedEvent(
                 beforeVersion = 1,
-                beforeAt = null,
+                beforeDue = null,
                 afterVersion = 2,
-                afterAt = atZero
+                afterDue = atZero
             )
         )
 
@@ -375,7 +375,7 @@ internal class PersistedParentsTest
             ),
             aParentChangedEvent(
                 beforeVersion = 2,
-                beforeAt = atZero,
+                beforeDue = atZero,
                 noAfter = true
             )
         )
@@ -422,15 +422,16 @@ internal class PersistedParentsTest
         val child = newUnsavedUnassignedChild()
         val parent = newUnsavedParent()
 
+        val due = atZero.plusDays(1L)
         child.update {
-            at = atZero
+            at = due
         }
         parent.assign(child)
 
         parent.update {
-            expect(at).toBe(atZero)
+            expect(this.due).toBe(due)
         }
 
-        expect(parent.at).toBe(atZero)
+        expect(parent.due).toBe(due)
     }
 }

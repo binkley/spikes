@@ -23,7 +23,6 @@ import x.domainpersistencemodeling.parent.ParentChangedEvent
 import x.domainpersistencemodeling.parent.ParentFactory
 import x.domainpersistencemodeling.parent.ParentRecord
 import x.domainpersistencemodeling.parent.ParentSnapshot
-import java.time.Instant.EPOCH
 import java.time.OffsetDateTime
 import java.time.ZoneOffset.UTC
 import java.util.TimeZone
@@ -32,7 +31,6 @@ import javax.inject.Inject
 internal const val otherNaturalId = "o"
 internal const val parentNaturalId = "p"
 internal const val childNaturalId = "c"
-internal val atZero = EPOCH.atOffset(UTC)
 
 /**
  * Provides testing help for the full stack application with a Dockerized
@@ -210,14 +208,18 @@ internal fun aParentChangedEvent(
     noBefore: Boolean = false,
     beforeOtherNaturalId: String? = parentRecord.otherNaturalId,
     beforeState: String = parentRecord.state,
-    beforeAt: OffsetDateTime? = null, // TODO: Should parents have an "at"?
+    // TODO: Can we avoid computing here?
+    beforeDue: OffsetDateTime? = computeDue(parentRecord, setOf()),
+    beforeAt: OffsetDateTime? = parentRecord.at,
     beforeValue: String? = parentRecord.value,
     beforeSideValues: Set<String> = parentRecord.sideValues,
     beforeVersion: Int = parentRecord.version,
     noAfter: Boolean = false,
     afterOtherNaturalId: String? = parentRecord.otherNaturalId,
     afterState: String = parentRecord.state,
-    afterAt: OffsetDateTime? = null, // TODO: Should parents have an "at"?
+    // TODO: Can we avoid computing here?
+    afterDue: OffsetDateTime? = computeDue(parentRecord, setOf()),
+    afterAt: OffsetDateTime? = parentRecord.at,
     afterValue: String? = parentRecord.value,
     afterSideValues: Set<String> = parentRecord.sideValues,
     afterVersion: Int = parentRecord.version
@@ -225,14 +227,23 @@ internal fun aParentChangedEvent(
     ParentChangedEvent(
         if (noBefore) null else ParentSnapshot(
             parentNaturalId,
-            beforeOtherNaturalId, beforeState, beforeAt,
+            beforeOtherNaturalId,
+            beforeState,
+            beforeDue,
+            beforeAt,
             beforeValue,
-            beforeSideValues, beforeVersion
+            beforeSideValues,
+            beforeVersion
         ),
         if (noAfter) null else ParentSnapshot(
             parentNaturalId,
-            afterOtherNaturalId, afterState, afterAt, afterValue,
-            afterSideValues, afterVersion
+            afterOtherNaturalId,
+            afterState,
+            afterDue,
+            afterAt,
+            afterValue,
+            afterSideValues,
+            afterVersion
         )
     )
 

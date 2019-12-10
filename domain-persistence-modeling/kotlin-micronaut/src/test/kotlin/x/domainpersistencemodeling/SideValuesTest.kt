@@ -117,6 +117,7 @@ private fun parentHavingSideValues(
         override val version = 1
         override val other = null as Other?
         override val children = children
+        override val due: OffsetDateTime? = null
         override val at: OffsetDateTime? = null
     }
 
