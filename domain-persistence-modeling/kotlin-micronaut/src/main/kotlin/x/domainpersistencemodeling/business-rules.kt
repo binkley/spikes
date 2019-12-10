@@ -17,7 +17,7 @@ internal fun computeDue(
     val childrenAt = children.at
     return when {
         null == at -> childrenAt
-        at <= childrenAt -> at
+        null == childrenAt || at <= childrenAt -> at
         else -> throw DomainException("Parent \"at\" after children \"at\"")
     }
 }

@@ -68,11 +68,9 @@ internal class SideValuesTest {
     @Test
     internal fun `should use children's intersection for parents`() {
         val parent = parentHavingSideValues(
-            children = setOf(
-                childHavingSideValues(setOf("A", "B")),
-                childHavingSideValues(setOf("A", "C")),
-                childHavingSideValues(setOf())
-            )
+            childHavingSideValues(setOf("A", "B")),
+            childHavingSideValues(setOf("A", "C")),
+            childHavingSideValues(setOf())
         )
 
         expect(parent.currentSideValues).containsExactly("A")
@@ -81,7 +79,7 @@ internal class SideValuesTest {
     @Test
     internal fun `should use overrides for parents`() {
         val parent = parentHavingSideValues(
-            children = setOf(childHavingSideValues(setOf("B"))),
+            childHavingSideValues(setOf("B")),
             sideValues = setOf("A")
         )
 
@@ -106,21 +104,21 @@ private fun childHavingSideValues(
     }
 
 private fun parentHavingSideValues(
-    children: Set<ChildSimpleDetails>,
+    vararg children: ChildSimpleDetails,
     sideValues: Set<String> = setOf()
 ) =
-    object : TestParent {
+    object : TestParentForSideValues {
         override val naturalId = "a"
         override val state = ENABLED.name
         override val value: String? = null
         override val sideValues = sideValues
         override val version = 1
         override val other = null as Other?
-        override val children = children
+        override val children = children.toSet()
         override val due: OffsetDateTime? = null
         override val at: OffsetDateTime? = null
     }
 
-interface TestParent
+private interface TestParentForSideValues
     : ParentSimpleDetails,
     ParentDependentDetails
