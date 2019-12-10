@@ -9,7 +9,7 @@ interface Retrying {
     fun retryMe(): String
 }
 
-@Client("/retry-me")
+@Client("https://no-where/retry-me")
 @Retryable // default is 3 times
 interface RetryingClient : Retrying {
     override fun retryMe(): String
