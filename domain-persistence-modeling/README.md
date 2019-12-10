@@ -268,6 +268,11 @@ This has unexpected benefits:
    domain representation?  If snapshots are purely implementation
    representations, it makes more sense to follow persistence, and let another
    layer translate (eg, REST)
+3. It is hard or confusing to add new functionality to domain objects.
+   Ideally, one could edit extension functions, test them separately, etc.,
+   however, that does not address interface implementation concerns.  And the
+   programmer needs to decide between "simple" and "dependent
+   "functionalities".
 
 ## Spring-recommended documentation
 
