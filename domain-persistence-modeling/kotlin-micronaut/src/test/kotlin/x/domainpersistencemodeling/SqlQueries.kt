@@ -7,9 +7,7 @@ import ch.qos.logback.core.AppenderBase
 import ch.tutteli.atrium.creating.ReportingAssertionPlant
 import ch.tutteli.atrium.verbs.expect
 import io.micronaut.data.runtime.config.DataSettings.QUERY_LOG
-import net.sf.jsqlparser.JSQLParserException
 import net.sf.jsqlparser.parser.CCJSqlParserUtil.parse
-import java.util.ArrayList
 import java.util.Locale
 import java.util.regex.Pattern
 import javax.inject.Singleton
@@ -17,8 +15,8 @@ import javax.inject.Singleton
 @Singleton
 class SqlQueries
     : AutoCloseable {
-    private val queries: MutableList<String> = ArrayList()
-    private val appender = Appender()
+    private val queries = mutableListOf<String>()
+    private val appender = SqlAppender()
 
     /** Creates a `List` expectation for Atrium, and resets the listener. */
     val expectNext: ReportingAssertionPlant<List<String>>
@@ -44,7 +42,8 @@ class SqlQueries
     @Suppress("unused")
     fun dump() = println(queries)
 
-    private inner class Appender : AppenderBase<ILoggingEvent>() {
+    private inner class SqlAppender : AppenderBase<ILoggingEvent>() {
+        // Happily Micronaut Data exposes its logger!
         private val logger = QUERY_LOG as Logger
         private val oldLevel = logger.level
         private val oldAdditive = logger.isAdditive
@@ -76,17 +75,11 @@ class SqlQueries
     }
 }
 
-private val queryOnly = Pattern.compile(
-    "^Executing Query: (.*)$"
-)!!
+private val queryOnly = Pattern.compile("^Executing Query: (.*)$")!!
 private val upsert = Pattern.compile("^SELECT \\* FROM upsert_.*$")
 
-private fun bucket(query: String) = try {
-    val matcher = upsert.matcher(query)
-    if (matcher.find()) "UPSERT"
+private fun bucket(query: String) =
+    if (upsert.matcher(query).find()) "UPSERT"
     else parse(query).javaClass.simpleName
         .replace("Statement", "")
         .toUpperCase(Locale.US)
-} catch (e: JSQLParserException) {
-    "INVALID"
-}
