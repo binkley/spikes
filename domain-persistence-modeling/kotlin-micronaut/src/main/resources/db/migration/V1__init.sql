@@ -36,7 +36,7 @@ CREATE TABLE child
     value               VARCHAR,
     -- TODO: default_side_values VARCHAR ARRAY NOT NULL,
     default_side_values VARCHAR     NOT NULL,
-    -- TODO: side_values         VARCHAR ARRAY NOT NULL,
+    -- TODO: side_values VARCHAR ARRAY NOT NULL,
     side_values         VARCHAR     NOT NULL,
     -- DB controls Audit columns, not caller
     version             INT,
