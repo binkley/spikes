@@ -18,7 +18,7 @@ internal class RetryingTest {
     lateinit var retrying: RetryingClient
 
     @Test
-    fun `should retry 3 times`() {
+    fun `should retry 3 times`() { // No, not really :)
         val retryingLogger = getLogger(DefaultRetryInterceptor::class.java)
                 as ch.qos.logback.classic.Logger
         val listAppender = ListAppender<ILoggingEvent>()
@@ -31,6 +31,6 @@ internal class RetryingTest {
 
         expect(listAppender.list.filter {
             it.message.startsWith("Retrying")
-        }).hasSize(3)
+        }).hasSize(RetryingClient.attempts.toInt())
     }
 }
