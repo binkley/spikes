@@ -222,7 +222,9 @@ DECLARE
     old_hash VARCHAR;
     new_hash VARCHAR;
 BEGIN
+    -- noinspection SqlResolve
     old_hash := md5(CAST((old.*) AS TEXT));
+    -- noinspection SqlResolve
     new_hash := md5(CAST((new.*) AS TEXT));
 
     IF (old_hash = new_hash) THEN
