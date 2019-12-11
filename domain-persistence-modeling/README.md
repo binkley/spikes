@@ -11,6 +11,7 @@ Spikes are not to be considered stable.
   * [Kotlin Spring Boot](kotlin-spring-boot)
   * [Kotlin Micronaut](kotlin-micronaut) (most up-to-date spike)
 * [Goals](#goals)
+  * [Non-goals](#non-goals)
 * [Concepts](#concepts)
   * [Separation of concerns](#separation-of-concerns)
   * [Scoped mutation](#scoped-mutation)
@@ -36,7 +37,12 @@ persistence operations.
 2. Reasoning: I can reason about the code, and make changes with
    understanding.
 3. Clean: The code is readable, concise, and I can make changes with
-   confidence. 
+   confidence.
+   
+## Non-goals
+
+- The tests define the code; more effort required to run this code in
+  production.
 
 ## Concepts
 
