@@ -21,6 +21,8 @@ internal class RetryingTest {
     fun `should retry 3 times`() { // No, not really :)
         val retryingLogger = getLogger(DefaultRetryInterceptor::class.java)
                 as ch.qos.logback.classic.Logger
+        // TODO: Consider a more specific appender for the task
+        //  See: https://github.com/binkley/spikes/blob/master/domain-persistence-modeling/kotlin-micronaut/src/test/kotlin/x/domainpersistencemodeling/SqlQueries.kt
         val listAppender = ListAppender<ILoggingEvent>()
         listAppender.start()
         retryingLogger.addAppender(listAppender)
