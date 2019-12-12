@@ -7,7 +7,7 @@ import kotlin.reflect.jvm.javaConstructor
 import kotlin.reflect.jvm.javaField
 import kotlin.reflect.typeOf
 
-val a = 1
+const val a = 1
 
 class A(val p: Int)
 
