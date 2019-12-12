@@ -3,6 +3,7 @@ package x.retryable
 import ch.tutteli.atrium.api.cc.en_GB.hasSize
 import ch.tutteli.atrium.api.cc.en_GB.toThrow
 import ch.tutteli.atrium.verbs.expect
+import io.micronaut.context.env.Environment
 import io.micronaut.http.client.exceptions.HttpClientException
 import io.micronaut.test.annotation.MicronautTest
 import org.junit.jupiter.api.AfterEach
@@ -15,6 +16,8 @@ internal class RetryingTest {
     lateinit var retrying: RetryingClient
     @Inject
     lateinit var testRetryEventListener: TestRetryEventListener
+    @Inject
+    lateinit var env: Environment
 
     @AfterEach
     fun tearDown() {
@@ -23,6 +26,9 @@ internal class RetryingTest {
 
     @Test
     fun `should retry 3 times in logging`() { // No, not really :)
+        val attempts =
+            env.getProperty("retrying.attempts", String::class.java)
+                .orElseThrow().toInt()
         val testRetryAppender = TestRetryAppender()
 
         expect {
@@ -31,16 +37,20 @@ internal class RetryingTest {
 
         expect(testRetryAppender.events.filter {
             it.message.startsWith("Retrying")
-        }).hasSize(RetryingClient.attempts.toInt())
+        }).hasSize(attempts)
     }
 
     @Test
     fun `should retry 3 times in events`() {
+        val attempts =
+            env.getProperty("retrying.attempts", String::class.java)
+                .orElseThrow().toInt()
+
         expect {
             retrying.retryMe()
         }.toThrow<HttpClientException> { }
 
         expect(testRetryEventListener.events)
-            .hasSize(RetryingClient.attempts.toInt())
+            .hasSize(attempts)
     }
 }
