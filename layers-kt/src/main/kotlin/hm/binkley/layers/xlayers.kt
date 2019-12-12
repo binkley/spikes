@@ -24,7 +24,17 @@ abstract class XLayers<
 
     // TODO: Simplify
     fun asMap(): Map<String, Any> =
-        applied().asReversed().toMap().toSortedMap()
+        _layers.asReversed().flatMap {
+            it.entries
+        }.filter {
+            null != it.value.rule
+        }.map {
+            val key = it.key
+            @Suppress("UNCHECKED_CAST")
+            val rule = it.value.rule as Rule<Any>
+            val value = rule(RuleContext(key, this))
+            key to value
+        }.asReversed().toMap().toSortedMap()
 
     /** Please call as part of child class `init` block. */
     protected fun init() {
@@ -47,7 +57,6 @@ abstract class XLayers<
         return current
     }
 
-    @Suppress("UNCHECKED_CAST")
     override fun <T> appliedValueFor(key: String) =
         _layers.asReversed().flatMap {
             it.entries
@@ -56,6 +65,7 @@ abstract class XLayers<
         }.first {
             null != it.value.rule
         }.let {
+            @Suppress("UNCHECKED_CAST")
             (it.value.rule!! as Rule<T>)(RuleContext(key, this))
         }
 
@@ -67,18 +77,6 @@ abstract class XLayers<
         }.mapNotNull {
             it.value
         } as List<T>
-
-    @Suppress("UNCHECKED_CAST")
-    private fun applied() = _layers.asReversed().flatMap {
-        it.entries
-    }.filter {
-        null != it.value.rule
-    }.map {
-        val key = it.key
-        val rule = it.value.rule as Rule<Any>
-        val value = rule(RuleContext(key, this))
-        key to value
-    }
 
     @Suppress("UNCHECKED_CAST", "LeakingThis")
     private val self = this as LS

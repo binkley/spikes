@@ -21,9 +21,18 @@ class PersistedLayers(
 
     // TODO: Simplify
     override fun asMap(): Map<String, Any> =
-        applied().asReversed().toMap().toSortedMap()
+        topDownLayers.flatMap {
+            it.entries
+        }.filter {
+            null != it.value.rule
+        }.map {
+            val key = it.key
+            @Suppress("UNCHECKED_CAST")
+            val rule = it.value.rule as Rule<Any>
+            val value = rule(RuleContext(key, this))
+            key to value
+        }.asReversed().toMap().toSortedMap()
 
-    @Suppress("UNCHECKED_CAST")
     override fun <T> appliedValueFor(key: String) = topDownLayers.flatMap {
         it.entries
     }.filter {
@@ -31,6 +40,7 @@ class PersistedLayers(
     }.first {
         null != it.value.rule
     }.let {
+        @Suppress("UNCHECKED_CAST")
         (it.value.rule!! as Rule<T>)(RuleContext(key, this))
     }
 
@@ -41,18 +51,6 @@ class PersistedLayers(
     }.mapNotNull {
         it.value
     } as List<T>
-
-    @Suppress("UNCHECKED_CAST")
-    private fun applied() = topDownLayers.flatMap {
-        it.entries
-    }.filter {
-        null != it.value.rule
-    }.map {
-        val key = it.key
-        val rule = it.value.rule as Rule<Any>
-        val value = rule(RuleContext(key, this))
-        key to value
-    }
 
     private val topDownLayers: List<Layer>
         get() = _layers.filter {
