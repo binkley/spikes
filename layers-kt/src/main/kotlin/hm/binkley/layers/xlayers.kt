@@ -4,11 +4,19 @@ import lombok.Generated
 import java.util.AbstractMap.SimpleEntry
 import java.util.Objects
 
-abstract class XLayers<ML : XMutableLayer<ML, L>, L : XLayer<ML, L>, LS : XLayers<ML, L, LS>>(
+abstract class XLayers<
+        L : XLayer<L, ML, LC, LS>,
+        ML : XMutableLayer<L, ML, LC, LS>,
+        LC : XLayerCommitter<L, ML, LC, LS>,
+        LS : XLayers<L, ML, LC, LS>>(
     private val _layers: MutableList<L> = mutableListOf()
 ) : LayersForRuleContext {
     val layers: List<L>
         get() = _layers
+    val current: L
+        get() = layers[0]
+
+    abstract fun commit(): L
 
     fun asList(): List<Map<String, Any>> = _layers
 
@@ -54,9 +62,15 @@ abstract class XLayers<ML : XMutableLayer<ML, L>, L : XLayer<ML, L>, LS : XLayer
     }
 }
 
-abstract class XLayer<ML : XMutableLayer<ML, L>, L : XLayer<ML, L>>(
+abstract class XLayer<
+        L : XLayer<L, ML, LC, LS>,
+        ML : XMutableLayer<L, ML, LC, LS>,
+        LC : XLayerCommitter<L, ML, LC, LS>,
+        LS : XLayers<L, ML, LC, LS>>(
     val slot: Int,
+    private val layers: LS,
     private val asMutable: (L, MutableMap<String, Value<*>>) -> ML,
+    private val asCommitter: (L, LS) -> LC,
     private val contents: MutableMap<String, Value<*>> = sortedMapOf()
 ) : Diffable,
     Map<String, Value<*>> by contents {
@@ -66,6 +80,12 @@ abstract class XLayer<ML : XMutableLayer<ML, L>, L : XLayer<ML, L>>(
         asMutable(layer, contents).block()
     } as L
 
+    @Suppress("UNCHECKED_CAST")
+    fun commit(): L = let {
+        val layer = this as L
+        asCommitter(layer, layers).commit()
+    } as L
+
     override fun toDiff() = contents.entries.joinToString("\n") {
         val (key, value) = it
         "$key: ${value.toDiff()}"
@@ -73,7 +93,7 @@ abstract class XLayer<ML : XMutableLayer<ML, L>, L : XLayer<ML, L>>(
 
     @Generated // Lie to JaCoCo -- why test code for testing?
     override fun equals(other: Any?) = this === other
-            || other is XLayer<*, *>
+            || other is XLayer<*, *, *, *>
             && slot == other.slot
             && contents == other.contents
 
@@ -85,11 +105,26 @@ abstract class XLayer<ML : XMutableLayer<ML, L>, L : XLayer<ML, L>>(
         "${super.toString()}{slot=$slot, contents=$contents}"
 }
 
-abstract class XMutableLayer<ML : XMutableLayer<ML, L>, L : XLayer<ML, L>>(
+abstract class XMutableLayer<
+        L : XLayer<L, ML, LC, LS>,
+        ML : XMutableLayer<L, ML, LC, LS>,
+        LC : XLayerCommitter<L, ML, LC, LS>,
+        LS : XLayers<L, ML, LC, LS>>(
     private val layer: L,
     private val contents: MutableMap<String, Value<*>>
 ) : MutableMap<String, Value<*>> by contents {
     operator fun <T> set(key: String, value: T) {
         contents[key] = if (value is Value<*>) value else value(value)
     }
+}
+
+abstract class XLayerCommitter<
+        L : XLayer<L, ML, LC, LS>,
+        ML : XMutableLayer<L, ML, LC, LS>,
+        LC : XLayerCommitter<L, ML, LC, LS>,
+        LS : XLayers<L, ML, LC, LS>>(
+    private val layer: L,
+    private val layers: LS
+) {
+    abstract fun commit()
 }
