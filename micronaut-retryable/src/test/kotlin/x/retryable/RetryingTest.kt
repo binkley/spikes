@@ -38,7 +38,7 @@ internal class RetryingTest {
     }
 
     @Test
-    fun `should retry 3 times in events`() {
+    fun `should retry 3 times in events`() { // No, not really :)
         expect {
             retrying.retryMe()
         }.toThrow<HttpClientException> { }
