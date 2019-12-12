@@ -1,7 +1,6 @@
 package hm.binkley.layers
 
 import lombok.Generated
-import java.util.AbstractMap.SimpleEntry
 import java.util.Objects
 
 typealias MutableValueMap = MutableMap<String, Value<*>>
@@ -24,12 +23,8 @@ abstract class XLayers<
     fun asList(): List<Map<String, Any>> = _layers
 
     // TODO: Simplify
-    fun asMap(): Map<String, Any> = object : AbstractMap<String, Any>() {
-        override val entries: Set<Map.Entry<String, Any>> =
-            applied().toSortedSet(compareBy {
-                it.key
-            })
-    }
+    fun asMap(): Map<String, Any> =
+        applied().asReversed().toMap().toSortedMap()
 
     /** Please call as part of child class `init` block. */
     protected fun init() {
@@ -82,7 +77,7 @@ abstract class XLayers<
         val key = it.key
         val rule = it.value.rule as Rule<Any>
         val value = rule(RuleContext(key, this))
-        SimpleEntry(key, value)
+        key to value
     }
 
     @Suppress("UNCHECKED_CAST", "LeakingThis")

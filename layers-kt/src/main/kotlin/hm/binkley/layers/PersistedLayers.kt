@@ -1,10 +1,8 @@
 package hm.binkley.layers
 
 import org.eclipse.jgit.api.Git
-import java.util.AbstractMap.SimpleEntry
 import java.util.Objects.hash
 import javax.script.ScriptEngine
-import kotlin.collections.Map.Entry
 
 class PersistedLayers(
     private val persistence: Persistence,
@@ -21,14 +19,9 @@ class PersistedLayers(
 
     override fun asList(): List<Map<String, Any>> = _layers
 
+    // TODO: Simplify
     override fun asMap(): Map<String, Any> =
-        // TODO: Simplify
-        object : AbstractMap<String, Any>() {
-            override val entries: Set<Entry<String, Any>>
-                get() = applied().toSortedSet(compareBy {
-                    it.key
-                })
-        }
+        applied().asReversed().toMap().toSortedMap()
 
     @Suppress("UNCHECKED_CAST")
     override fun <T> appliedValueFor(key: String) = topDownLayers.flatMap {
@@ -58,7 +51,7 @@ class PersistedLayers(
         val key = it.key
         val rule = it.value.rule as Rule<Any>
         val value = rule(RuleContext(key, this))
-        SimpleEntry(key, value)
+        key to value
     }
 
     private val topDownLayers: List<Layer>
