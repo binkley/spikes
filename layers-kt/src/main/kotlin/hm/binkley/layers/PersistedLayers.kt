@@ -86,16 +86,11 @@ class PersistedLayers(
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as PersistedLayers
-
-        return persistence == other.persistence
-                && scripting == other.scripting
-                && _layers == other._layers
-    }
+    override fun equals(other: Any?) = this === other
+            || other is PersistedLayers
+            && persistence == other.persistence
+            && scripting == other.scripting
+            && _layers == other._layers
 
     override fun hashCode() = hash(persistence, scripting, _layers)
 

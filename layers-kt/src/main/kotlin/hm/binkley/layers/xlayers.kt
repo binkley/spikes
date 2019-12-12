@@ -31,7 +31,7 @@ abstract class XLayers<
             })
     }
 
-    /** Please calls as part of child class `init` block. */
+    /** Please call as part of child class `init` block. */
     protected fun init() {
         // Cannot use `init`: child not yet initialized
         val layer = asCreation(self).new()
