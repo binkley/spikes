@@ -26,9 +26,6 @@ internal class RetryingTest {
 
     @Test
     fun `should retry 3 times in logging`() { // No, not really :)
-        val attempts =
-            env.getProperty("retrying.attempts", String::class.java)
-                .orElseThrow().toInt()
         val testRetryAppender = TestRetryAppender()
 
         expect {
@@ -42,10 +39,6 @@ internal class RetryingTest {
 
     @Test
     fun `should retry 3 times in events`() {
-        val attempts =
-            env.getProperty("retrying.attempts", String::class.java)
-                .orElseThrow().toInt()
-
         expect {
             retrying.retryMe()
         }.toThrow<HttpClientException> { }
@@ -53,4 +46,9 @@ internal class RetryingTest {
         expect(testRetryEventListener.events)
             .hasSize(attempts)
     }
+
+    // TODO: Would be nicer with @Property or @Value
+    private val attempts: Int
+        get() = env.getProperty("retrying.attempts", String::class.java)
+            .orElseThrow().toInt()
 }
