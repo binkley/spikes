@@ -1,6 +1,6 @@
 package x.retryable
 
-import ch.qos.logback.classic.Level
+import ch.qos.logback.classic.Level.DEBUG
 import ch.qos.logback.classic.Logger
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.AppenderBase
@@ -31,7 +31,7 @@ internal class TestRetryAppender : AppenderBase<ILoggingEvent>() {
     }
 
     init {
-        logger.level = Level.DEBUG
+        logger.level = DEBUG
         logger.isAdditive = false // Avoid extra DEBUG console logging
         logger.addAppender(this)
         start()
