@@ -12,7 +12,7 @@
     <properties>
         <!-- @formatter:off -->
         <atrium.version>0.8.0</atrium.version>
-        <exec.mainClass>x.Application</exec.mainClass>
+        <exec.mainClass>x.domainpersistencemodeling.DemoApplication</exec.mainClass>
         <flyway.version>6.1.1</flyway.version>
         <generateBackupPoms>false</generateBackupPoms>
         <jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
