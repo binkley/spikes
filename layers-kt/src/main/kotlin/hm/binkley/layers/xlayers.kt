@@ -154,9 +154,7 @@ abstract class XLayerPersistence<
         LC : XLayerCreation<L, LC, LM, LP, LS>,
         LM : XLayerMutation<L, LC, LM, LP, LS>,
         LP : XLayerPersistence<L, LC, LM, LP, LS>,
-        LS : XLayers<L, LC, LM, LP, LS>>(
-    protected val layers: LS
-) {
+        LS : XLayers<L, LC, LM, LP, LS>> {
     abstract fun commit(layer: L)
     abstract fun rollback(layer: L)
 }

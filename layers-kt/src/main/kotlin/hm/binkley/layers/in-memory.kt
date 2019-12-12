@@ -29,10 +29,8 @@ class InMemoryLayerMutation(layer: InMemoryLayer, contents: MutableValueMap) :
         contents
     )
 
-class InMemoryLayerPersistence(layers: InMemoryLayers) :
-    XLayerPersistence<InMemoryLayer, InMemoryLayerCreation, InMemoryLayerMutation, InMemoryLayerPersistence, InMemoryLayers>(
-        layers
-    ) {
+class InMemoryLayerPersistence :
+    XLayerPersistence<InMemoryLayer, InMemoryLayerCreation, InMemoryLayerMutation, InMemoryLayerPersistence, InMemoryLayers>() {
     override fun commit(layer: InMemoryLayer) = Unit
     override fun rollback(layer: InMemoryLayer) = Unit
 }
