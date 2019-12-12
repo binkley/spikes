@@ -1,3 +1,8 @@
 micronaut:
   application:
     name: kotlin-micronaut-retryable
+
+# TODO: How can I teach @Retryable to use these values?
+retrying:
+  attempts: 2
+  delay: 1ms
