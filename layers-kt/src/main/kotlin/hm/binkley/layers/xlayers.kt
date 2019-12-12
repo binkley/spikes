@@ -12,7 +12,7 @@ abstract class XLayers<
         LP : XLayerPersistence<L, LC, LM, LP, LS>,
         LS : XLayers<L, LC, LM, LP, LS>>(
     private val asCreation: (LS) -> LC,
-    private val asPersistence: (L, LS) -> LP,
+    private val asPersistence: (LS) -> LP,
     private val _layers: MutableList<L> = mutableListOf()
 ) : LayersForRuleContext {
     val layers: List<L>
@@ -39,19 +39,19 @@ abstract class XLayers<
     /** Please call as part of child class `init` block. */
     protected fun init() {
         // Cannot use `init`: child not yet initialized
-        val layer = asCreation(self).new()
+        val layer = asCreation(self).new(0)
         _layers += layer
     }
 
     fun commit(): L {
-        asPersistence(current, self).commit()
-        val layer = asCreation(self).new()
+        asPersistence(self).commit(current)
+        val layer = asCreation(self).new(_layers.size)
         _layers += layer
         return current
     }
 
     fun rollback(): L {
-        asPersistence(current, self).rollback()
+        asPersistence(self).rollback(current)
         _layers.removeAt(_layers.lastIndex)
         if (_layers.isEmpty()) init()
         return current
@@ -129,9 +129,10 @@ abstract class XLayerCreation<
         LM : XLayerMutation<L, LC, LM, LP, LS>,
         LP : XLayerPersistence<L, LC, LM, LP, LS>,
         LS : XLayers<L, LC, LM, LP, LS>>(
-    private val layers: LS
+    protected val layers: LS,
+    protected val asMutation: (L, MutableValueMap) -> LM
 ) {
-    abstract fun new(): L
+    abstract fun new(slot: Int): L
 }
 
 abstract class XLayerMutation<
@@ -140,8 +141,8 @@ abstract class XLayerMutation<
         LM : XLayerMutation<L, LC, LM, LP, LS>,
         LP : XLayerPersistence<L, LC, LM, LP, LS>,
         LS : XLayers<L, LC, LM, LP, LS>>(
-    private val layer: L,
-    private val contents: MutableValueMap
+    protected val layer: L,
+    protected val contents: MutableValueMap
 ) : MutableValueMap by contents {
     operator fun <T> set(key: String, value: T) {
         contents[key] = if (value is Value<*>) value else value(value)
@@ -154,9 +155,8 @@ abstract class XLayerPersistence<
         LM : XLayerMutation<L, LC, LM, LP, LS>,
         LP : XLayerPersistence<L, LC, LM, LP, LS>,
         LS : XLayers<L, LC, LM, LP, LS>>(
-    private val layer: L,
-    private val layers: LS
+    protected val layers: LS
 ) {
-    abstract fun commit()
-    abstract fun rollback()
+    abstract fun commit(layer: L)
+    abstract fun rollback(layer: L)
 }
