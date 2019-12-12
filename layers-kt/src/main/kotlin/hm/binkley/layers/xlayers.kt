@@ -4,14 +4,16 @@ import lombok.Generated
 import java.util.AbstractMap.SimpleEntry
 import java.util.Objects
 
+typealias MutableValueMap = MutableMap<String, Value<*>>
+
 abstract class XLayers<
-        L : XLayer<L, LB, ML, LC, LS>,
-        LB : XLayerBuilder<L, LB, ML, LC, LS>,
-        ML : XMutableLayer<L, LB, ML, LC, LS>,
-        LC : XLayerCommitter<L, LB, ML, LC, LS>,
-        LS : XLayers<L, LB, ML, LC, LS>>(
-    private val asCommitter: (L, LS) -> LC,
-    private val newLayer: (LS) -> LB,
+        L : XLayer<L, LC, LM, LP, LS>,
+        LC : XLayerCreation<L, LC, LM, LP, LS>,
+        LM : XLayerMutation<L, LC, LM, LP, LS>,
+        LP : XLayerPersistence<L, LC, LM, LP, LS>,
+        LS : XLayers<L, LC, LM, LP, LS>>(
+    private val asCreation: (LS) -> LC,
+    private val asPersistence: (L, LS) -> LP,
     private val _layers: MutableList<L> = mutableListOf()
 ) : LayersForRuleContext {
     val layers: List<L>
@@ -32,19 +34,19 @@ abstract class XLayers<
     /** Please calls as part of child class `init` block. */
     protected fun init() {
         // Cannot use `init`: child not yet initialized
-        val layer = newLayer(self).new()
+        val layer = asCreation(self).new()
         _layers += layer
     }
 
     fun commit(): L {
-        asCommitter(current, self).commit()
-        val layer = newLayer(self).new()
+        asPersistence(current, self).commit()
+        val layer = asCreation(self).new()
         _layers += layer
         return current
     }
 
     fun rollback(): L {
-        asCommitter(current, self).rollback()
+        asPersistence(current, self).rollback()
         _layers.removeAt(_layers.lastIndex)
         if (_layers.isEmpty()) init()
         return current
@@ -88,21 +90,21 @@ abstract class XLayers<
 }
 
 abstract class XLayer<
-        L : XLayer<L, LB, ML, LC, LS>,
-        LB : XLayerBuilder<L, LB, ML, LC, LS>,
-        ML : XMutableLayer<L, LB, ML, LC, LS>,
-        LC : XLayerCommitter<L, LB, ML, LC, LS>,
-        LS : XLayers<L, LB, ML, LC, LS>>(
+        L : XLayer<L, LC, LM, LP, LS>,
+        LC : XLayerCreation<L, LC, LM, LP, LS>,
+        LM : XLayerMutation<L, LC, LM, LP, LS>,
+        LP : XLayerPersistence<L, LC, LM, LP, LS>,
+        LS : XLayers<L, LC, LM, LP, LS>>(
     val slot: Int,
     private val layers: LS,
-    private val asMutable: (L, MutableMap<String, Value<*>>) -> ML,
-    private val contents: MutableMap<String, Value<*>> = sortedMapOf()
+    private val asMutation: (L, MutableValueMap) -> LM,
+    private val contents: MutableValueMap = sortedMapOf()
 ) : Diffable,
     Map<String, Value<*>> by contents {
     @Suppress("UNCHECKED_CAST")
-    fun edit(block: ML.() -> Unit): L = apply {
+    fun edit(block: LM.() -> Unit): L = apply {
         val layer = this as L
-        asMutable(layer, contents).block()
+        asMutation(layer, contents).block()
     } as L
 
     fun commit() = layers.commit()
@@ -128,37 +130,37 @@ abstract class XLayer<
         "${super.toString()}{slot=$slot, contents=$contents}"
 }
 
-abstract class XLayerBuilder<
-        L : XLayer<L, LB, ML, LC, LS>,
-        LB : XLayerBuilder<L, LB, ML, LC, LS>,
-        ML : XMutableLayer<L, LB, ML, LC, LS>,
-        LC : XLayerCommitter<L, LB, ML, LC, LS>,
-        LS : XLayers<L, LB, ML, LC, LS>>(
+abstract class XLayerCreation<
+        L : XLayer<L, LC, LM, LP, LS>,
+        LC : XLayerCreation<L, LC, LM, LP, LS>,
+        LM : XLayerMutation<L, LC, LM, LP, LS>,
+        LP : XLayerPersistence<L, LC, LM, LP, LS>,
+        LS : XLayers<L, LC, LM, LP, LS>>(
     private val layers: LS
 ) {
     abstract fun new(): L
 }
 
-abstract class XMutableLayer<
-        L : XLayer<L, LB, ML, LC, LS>,
-        LB : XLayerBuilder<L, LB, ML, LC, LS>,
-        ML : XMutableLayer<L, LB, ML, LC, LS>,
-        LC : XLayerCommitter<L, LB, ML, LC, LS>,
-        LS : XLayers<L, LB, ML, LC, LS>>(
+abstract class XLayerMutation<
+        L : XLayer<L, LC, LM, LP, LS>,
+        LC : XLayerCreation<L, LC, LM, LP, LS>,
+        LM : XLayerMutation<L, LC, LM, LP, LS>,
+        LP : XLayerPersistence<L, LC, LM, LP, LS>,
+        LS : XLayers<L, LC, LM, LP, LS>>(
     private val layer: L,
-    private val contents: MutableMap<String, Value<*>>
-) : MutableMap<String, Value<*>> by contents {
+    private val contents: MutableValueMap
+) : MutableValueMap by contents {
     operator fun <T> set(key: String, value: T) {
         contents[key] = if (value is Value<*>) value else value(value)
     }
 }
 
-abstract class XLayerCommitter<
-        L : XLayer<L, LB, ML, LC, LS>,
-        LB : XLayerBuilder<L, LB, ML, LC, LS>,
-        ML : XMutableLayer<L, LB, ML, LC, LS>,
-        LC : XLayerCommitter<L, LB, ML, LC, LS>,
-        LS : XLayers<L, LB, ML, LC, LS>>(
+abstract class XLayerPersistence<
+        L : XLayer<L, LC, LM, LP, LS>,
+        LC : XLayerCreation<L, LC, LM, LP, LS>,
+        LM : XLayerMutation<L, LC, LM, LP, LS>,
+        LP : XLayerPersistence<L, LC, LM, LP, LS>,
+        LS : XLayers<L, LC, LM, LP, LS>>(
     private val layer: L,
     private val layers: LS
 ) {

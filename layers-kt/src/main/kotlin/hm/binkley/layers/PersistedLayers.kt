@@ -9,7 +9,7 @@ import kotlin.collections.Map.Entry
 class PersistedLayers(
     private val persistence: Persistence,
     private val scripting: Scripting,
-    private val layerList: MutableList<PersistedLayer> = mutableListOf()
+    private val _layers: MutableList<PersistedLayer> = mutableListOf()
 ) : Layers,
     LayersForRuleContext,
     AutoCloseable by persistence {
@@ -17,9 +17,9 @@ class PersistedLayers(
         refresh()
     }
 
-    override val layers: List<Layer> = layerList
+    override val layers: List<Layer> = _layers
 
-    override fun asList(): List<Map<String, Any>> = layerList
+    override fun asList(): List<Map<String, Any>> = _layers
 
     override fun asMap(): Map<String, Any> =
         // TODO: Simplify
@@ -62,7 +62,7 @@ class PersistedLayers(
     }
 
     private val topDownLayers: List<Layer>
-        get() = layerList.filter {
+        get() = _layers.filter {
             it.enabled
         }.asReversed()
 
@@ -94,15 +94,15 @@ class PersistedLayers(
 
         return persistence == other.persistence
                 && scripting == other.scripting
-                && layerList == other.layerList
+                && _layers == other._layers
     }
 
-    override fun hashCode() = hash(persistence, scripting, layerList)
+    override fun hashCode() = hash(persistence, scripting, _layers)
 
     override fun toString() =
-        "${this::class.simpleName}{persistence=$persistence, scripting=$scripting, layersList=$layerList}"
+        "${this::class.simpleName}{persistence=$persistence, scripting=$scripting, layersList=$_layers}"
 
-    internal fun toSourceCode() = layerList.map {
+    internal fun toSourceCode() = _layers.map {
         it.toSourceCode()
     }
 
@@ -131,8 +131,8 @@ class PersistedLayers(
         }
 
     internal fun commit(script: String): PersistedLayer =
-        PersistedLayer(this, layerList.size).also {
-            layerList.add(it)
+        PersistedLayer(this, _layers.size).also {
+            _layers.add(it)
             it.include(script)
         }
 
