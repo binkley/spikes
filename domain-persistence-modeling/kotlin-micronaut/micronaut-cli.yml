@@ -1,5 +1,0 @@
-profile: service
-defaultPackage: x
----
-testFramework: kotlintest
-sourceLanguage: kotlin
