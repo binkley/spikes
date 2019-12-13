@@ -21,15 +21,10 @@ kotlin {
         }
     }
 
-    linuxX64 {
-        binaries {
-            executable {
-                baseName = "hello-from-kotlin-native"
-            }
-        }
-    }
+    val linuxX64 = linuxX64()
+    val macosX64 = macosX64()
 
-    macosX64 {
+    configure(listOf(linuxX64, macosX64)) {
         binaries {
             executable {
                 baseName = "hello-from-kotlin-native"
