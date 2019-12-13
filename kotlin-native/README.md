@@ -9,3 +9,11 @@
 
 * Install `libncurses5`, else there is a link error for `libtinfo.so.5`.  See
   [libtinfo.so.5: cannot open shared object file: No such file or directory](https://github.com/msink/kotlin-libui/issues/27)
+
+## It works
+
+Run `./build/bin/native/releaseExecutable/kotlin-native.kexe`:
+
+```
+Hello Kotlin/Native!
+```
