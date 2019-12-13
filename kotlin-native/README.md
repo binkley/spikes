@@ -21,7 +21,7 @@ Run `./build/bin/native/releaseExecutable/kotlin-native.kexe`:
 Hello Kotlin/Native!
 ```
 
-Checking what system calls are made using `strace`:
+Using `strace` to see what system calls the binary makes:
 
 ```
 execve("./build/bin/native/releaseExecutable/kotlin-native.kexe", ["./build/bin/native/releaseExecut"...], 0x7ffee970b690 /* 55 vars */) = 0
