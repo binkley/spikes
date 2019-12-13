@@ -1,6 +1,6 @@
 # Kotlin native spike
 
-- Linux
+- Linux, MacOS
 - [A Basic Kotlin/Native Application](https://kotlinlang.org/docs/tutorials/native/basic-kotlin-native-app.html)
 - Gradle 6.0.1
 - Kotlin 1.3.61
