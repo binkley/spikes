@@ -7,14 +7,14 @@ repositories {
 }
 
 kotlin {
-  linuxX64("native") {
-    binaries {
-      executable()
+    linuxX64("native") {
+        binaries {
+            executable()
+        }
     }
-  }
 }
 
 tasks.withType<Wrapper> {
-  gradleVersion = "6.0.1"
-  distributionType = Wrapper.DistributionType.ALL
+    gradleVersion = "6.0.1"
+    distributionType = Wrapper.DistributionType.ALL
 }
