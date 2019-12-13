@@ -10,10 +10,12 @@ kotlin {
     sourceSets {
         val commonMain by getting {}
 
+        @Suppress("UNUSED_VARIABLE")
         val linuxX64Main by creating {
             dependsOn(commonMain)
         }
 
+        @Suppress("UNUSED_VARIABLE")
         val macosX64Main by creating {
             dependsOn(commonMain)
         }
