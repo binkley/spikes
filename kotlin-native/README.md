@@ -19,6 +19,9 @@
 * Gradle has an annoying 3-file solution for keeping plugin and dependency
   versions in one place.  See
   [Plugin Version Management](https://docs.gradle.org/current/userguide/plugins.html#sec:plugin_version_management).
+* This is _not_ a multi-platform build in that it will not build MacOS on a
+  Linux box, etc.  It does however not complain if you simply build on Linux,
+  and are happy with getting only a Linux binary.
 
 ## It works
 
