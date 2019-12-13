@@ -1,5 +1,9 @@
+import org.gradle.api.tasks.wrapper.Wrapper.DistributionType.ALL
+
+val gradleWrapperVersion: String by project
+
 plugins {
-    kotlin("multiplatform") version "1.3.61"
+    kotlin("multiplatform")
 }
 
 repositories {
@@ -38,6 +42,6 @@ kotlin {
 }
 
 tasks.withType<Wrapper> {
-    gradleVersion = "6.0.1"
-    distributionType = Wrapper.DistributionType.ALL
+    gradleVersion = gradleWrapperVersion
+    distributionType = ALL
 }
