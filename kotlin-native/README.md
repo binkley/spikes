@@ -24,6 +24,7 @@
   and are happy with getting only a Linux binary.
 * Demonstrate example Kotlin/Native limitation from
   [_Why the Kotlin/Native memory model cannot hold._](https://itnext.io/why-the-kotlin-native-memory-model-cannot-hold-ae1631d80cf6)
+  (See [this commit](https://github.com/binkley/spikes/commit/77e39d4c09592eb868c98a9ad059522fa6fa2c58)).
 
 ## It works
 
