@@ -7,6 +7,18 @@ repositories {
 }
 
 kotlin {
+    sourceSets {
+        val commonMain by getting {}
+
+        val linuxX64Main by creating {
+            dependsOn(commonMain)
+        }
+
+        val macosX64Main by creating {
+            dependsOn(commonMain)
+        }
+    }
+
     linuxX64 {
         binaries {
             executable()
