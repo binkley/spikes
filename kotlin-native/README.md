@@ -8,7 +8,10 @@
 ## Gotchas
 
 * Install `libncurses5`, else there is a link error for `libtinfo.so.5`.  See
-  [libtinfo.so.5: cannot open shared object file: No such file or directory](https://github.com/msink/kotlin-libui/issues/27)
+  [libtinfo.so.5: cannot open shared object file: No such file or directory](https://github.com/msink/kotlin-libui/issues/27).
+* Setting up `build.gradle.kts` for multiple native platforms is a challenge.
+  See [Building Multiplatform Projects with Gradle](https://kotlinlang.org/docs/reference/building-mpp-with-gradle.html#adding-dependencies)
+  for hints.
 
 ## It works
 
