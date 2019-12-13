@@ -8,7 +8,11 @@ repositories {
 
 kotlin {
     sourceSets {
-        val commonMain by getting {}
+        val commonMain by getting {
+            dependencies {
+                implementation(kotlin("stdlib-common"))
+            }
+        }
 
         @Suppress("UNUSED_VARIABLE")
         val linuxX64Main by creating {
