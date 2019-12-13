@@ -15,7 +15,7 @@
 
 ## It works
 
-Run `./build/bin/native/releaseExecutable/kotlin-native.kexe`:
+Run `./build/bin/linuxX64/releaseExecutable/kotlin-native.kexe`:
 
 ```
 Hello Kotlin/Native!
