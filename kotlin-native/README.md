@@ -1,7 +1,7 @@
 # Kotlin native spike
 
 - Linux, MacOS
-- [A Basic Kotlin/Native Application](https://kotlinlang.org/docs/tutorials/native/basic-kotlin-native-app.html)
+- [_A Basic Kotlin/Native Application_](https://kotlinlang.org/docs/tutorials/native/basic-kotlin-native-app.html)
 - Gradle 6.0.1
 - Kotlin 1.3.61
 
@@ -11,17 +11,19 @@
   `libtinfo.so.5`.  See
   [libtinfo.so.5: cannot open shared object file: No such file or directory](https://github.com/msink/kotlin-libui/issues/27).
 * Setting up `build.gradle.kts` for multiple native platforms is a challenge.
-  See [Building Multiplatform Projects with Gradle](https://kotlinlang.org/docs/reference/building-mpp-with-gradle.html#adding-dependencies)
+  See [_Building Multiplatform Projects with Gradle_](https://kotlinlang.org/docs/reference/building-mpp-with-gradle.html#adding-dependencies)
   for hints.
 
 ## Warts
 
 * Gradle has an annoying 3-file solution for keeping plugin and dependency
   versions in one place.  See
-  [Plugin Version Management](https://docs.gradle.org/current/userguide/plugins.html#sec:plugin_version_management).
+  [_Plugin Version Management_](https://docs.gradle.org/current/userguide/plugins.html#sec:plugin_version_management).
 * This is _not_ a multi-platform build in that it will not build MacOS on a
   Linux box, etc.  It does however not complain if you simply build on Linux,
   and are happy with getting only a Linux binary.
+* Demonstrate example Kotlin/Native limitation from
+  [_Why the Kotlin/Native memory model cannot hold._](https://itnext.io/why-the-kotlin-native-memory-model-cannot-hold-ae1631d80cf6)
 
 ## It works
 
