@@ -23,13 +23,17 @@ kotlin {
 
     linuxX64 {
         binaries {
-            executable()
+            executable {
+                baseName = "hello-from-kotlin-native"
+            }
         }
     }
 
     macosX64 {
         binaries {
-            executable()
+            executable {
+                baseName = "hello-from-kotlin-native"
+            }
         }
     }
 }

@@ -15,7 +15,7 @@
 
 ## It works
 
-Run `./build/bin/linuxX64/releaseExecutable/kotlin-native.kexe`:
+Run `./build/bin/linuxX64/releaseExecutable/hello-from-kotlin-native`:
 
 ```
 Hello Kotlin/Native!
@@ -24,7 +24,7 @@ Hello Kotlin/Native!
 Using `strace` to see what system calls the binary makes:
 
 ```
-execve("./build/bin/native/releaseExecutable/kotlin-native.kexe", ["./build/bin/native/releaseExecut"...], 0x7ffee970b690 /* 55 vars */) = 0
+execve("./build/bin/linuxX64/releaseExecutable/hello-from-kotlin-native.kexe", ["./build/bin/linuxX64/releaseExecut"...], 0x7ffee970b690 /* 55 vars */) = 0
 brk(NULL)                               = 0x3b8000
 arch_prctl(0x3001 /* ARCH_??? */, 0x7fff714a3530) = -1 EINVAL (Invalid argument)
 access("/etc/ld.so.preload", R_OK)      = -1 ENOENT (No such file or directory)
