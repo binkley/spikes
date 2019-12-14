@@ -28,7 +28,7 @@ fn main() {
     println!("Now {:?} will print!", Deep(Structure(7)));
 
     let very_long: u128 = std::u128::MAX;
-    println!("{}", very_long);
+    println!("{} vs 0b{:b}", very_long, very_long);
     println!("{:?}", very_long);
     let nada = ();
     // No default formatter -- println!("{}", nada);
@@ -37,4 +37,9 @@ fn main() {
     let way1: u8 = 123;
     let way2 = 123u8;
     println!("{} vs {}", way1, way2);
+
+    let b = true;
+    println!("This is a smell");
+    let b = false;
+    println!("Why permit redeclaration within the same scope?");
 }
