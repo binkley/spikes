@@ -48,4 +48,7 @@ fn main() {
     println!("Why permit redeclaration within the same scope? {}", b);
     let _b = true;
     println!("Yes, the whole \"don't worry\" ignore warnings needed to port software :)");
+
+    let (a, b, c) = ('a', "b", 0xC);
+    println!("Destructured: {}, {}, and {}.", a, b, c);
 }
