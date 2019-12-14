@@ -33,4 +33,8 @@ fn main() {
     let nada = ();
     // No default formatter -- println!("{}", nada);
     println!("{:?}", nada);
+
+    let way1: u8 = 123;
+    let way2 = 123u8;
+    println!("{} vs {}", way1, way2);
 }
