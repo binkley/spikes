@@ -37,9 +37,11 @@ fn main() {
     let way1: u8 = 123;
     let way2 = 123u8;
     println!("{} vs {}", way1, way2);
+    // Way 2 helps with coercing expressions to the right type
+    println!("{}", 120u8 + 3);
 
     let b = true;
-    println!("This is a smell");
+    println!("This is a smell: {}", b);
     let b = false;
-    println!("Why permit redeclaration within the same scope?");
+    println!("Why permit redeclaration within the same scope? {}", b);
 }
