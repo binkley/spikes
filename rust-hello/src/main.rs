@@ -1,3 +1,5 @@
+#![deny(warnings)]
+
 use std::fmt;
 use std::io::{stdout, BufWriter};
 
@@ -44,4 +46,6 @@ fn main() {
     println!("This is a smell: {}", b);
     let b = false;
     println!("Why permit redeclaration within the same scope? {}", b);
+    let _b = true;
+    println!("Yes, the whole \"don't worry\" ignore warnings needed to port software :)");
 }
