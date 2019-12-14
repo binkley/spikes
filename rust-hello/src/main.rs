@@ -1,6 +1,7 @@
 #![deny(warnings)]
 
 use std::fmt;
+use std::fmt::Display;
 use std::io::{stdout, BufWriter};
 
 use ferris_says::say;
@@ -16,6 +17,18 @@ impl fmt::Display for Structure {
 
 #[derive(Debug)]
 struct Deep(Structure);
+
+fn longest_with_an_announcement<'a, T>(x: &'a str, y: &'a str, ann: T) -> &'a str
+where
+    T: Display,
+{
+    println!("Announcement! {}", ann);
+    if x.len() > y.len() {
+        x
+    } else {
+        y
+    }
+}
 
 fn main() {
     let stdout = stdout();
@@ -51,4 +64,10 @@ fn main() {
 
     let (a, b, c) = ('a', "b", 0xC);
     println!("Destructured: {}, {}, and {}.", a, b, c);
+
+    let string1 = String::from("abcd");
+    let string2 = "xyz";
+
+    let result = longest_with_an_announcement(string1.as_str(), string2, "Hey Dol, Merry dol!");
+    println!("The longest string is {}", result);
 }
