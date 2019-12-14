@@ -28,5 +28,9 @@ fn main() {
     println!("Now {:?} will print!", Deep(Structure(7)));
 
     let very_long: u128 = std::u128::MAX;
-    println!("{}", very_long)
+    println!("{}", very_long);
+    println!("{:?}", very_long);
+    let nada = ();
+    // No default formatter -- println!("{}", nada);
+    println!("{:?}", nada);
 }
