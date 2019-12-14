@@ -26,4 +26,7 @@ fn main() {
     println!("Now {} will print!", Structure(2));
     println!("Now {:?} will print!", Structure(3));
     println!("Now {:?} will print!", Deep(Structure(7)));
+
+    let very_long: u128 = std::u128::MAX;
+    println!("{}", very_long)
 }
