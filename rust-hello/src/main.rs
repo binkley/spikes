@@ -30,6 +30,28 @@ where
     }
 }
 
+fn whack(x: u64) -> u64 {
+    if 0 == x % 2 {
+        x / 2
+    } else {
+        x * 3 + 1
+    }
+}
+
+fn print_whack(x: u64) {
+    let mut w = x;
+    print!("{}", w);
+    loop {
+        if 1 == w {
+            println!();
+            break;
+        } else {
+            w = whack(w);
+            print!(" {}", w);
+        }
+    }
+}
+
 fn main() {
     let stdout = stdout();
     let out = b"Hello fellow Rustaceans!";
@@ -70,4 +92,6 @@ fn main() {
 
     let result = longest_with_an_announcement(string1.as_str(), string2, "Hey Dol, Merry dol!");
     println!("The longest string is {}", result);
+
+    print_whack(122);
 }
