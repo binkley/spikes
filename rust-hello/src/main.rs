@@ -30,7 +30,7 @@ where
     }
 }
 
-fn whack(x: u64) -> u64 {
+fn collatz(x: u64) -> u64 {
     if 0 == x % 2 {
         x / 2
     } else {
@@ -38,7 +38,7 @@ fn whack(x: u64) -> u64 {
     }
 }
 
-fn print_whack(x: u64) {
+fn print_collatz(x: u64) {
     let mut w = x;
     print!("{}", w);
     loop {
@@ -46,7 +46,7 @@ fn print_whack(x: u64) {
             println!();
             break;
         } else {
-            w = whack(w);
+            w = collatz(w);
             print!(" {}", w);
         }
     }
@@ -93,5 +93,5 @@ fn main() {
     let result = longest_with_an_announcement(string1.as_str(), string2, "Hey Dol, Merry dol!");
     println!("The longest string is {}", result);
 
-    print_whack(122);
+    print_collatz(122);
 }
