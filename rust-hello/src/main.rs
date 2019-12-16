@@ -6,7 +6,7 @@ use std::io::{stdout, BufWriter};
 
 use ferris_says::say;
 
-use hello_rust::math;
+use hello_rust::math::collatz;
 
 #[derive(Debug)]
 struct Structure(i32);
@@ -29,20 +29,6 @@ where
         x
     } else {
         y
-    }
-}
-
-fn print_collatz(x: u64) {
-    let mut w = x;
-    print!("{}", w);
-    loop {
-        if 1 == w {
-            println!();
-            break;
-        } else {
-            w = math::collatz(w);
-            print!(" {}", w);
-        }
     }
 }
 
@@ -87,5 +73,5 @@ fn main() {
     let result = longest_with_an_announcement(string1.as_str(), string2, "Hey Dol, Merry dol!");
     println!("The longest string is {}", result);
 
-    print_collatz(122);
+    println!("{}", collatz(123))
 }

@@ -11,7 +11,7 @@ mod tests {
 
         let result = math::collatz(13);
 
-        assert_eq!(result, 40);
+        assert_eq!(result, 9);
     }
 
     #[test]
@@ -20,16 +20,25 @@ mod tests {
 
         let result = math::collatz(12);
 
-        assert_eq!(result, 6);
+        assert_eq!(result, 9);
     }
 }
 
 pub mod math {
-    pub fn collatz(x: u64) -> u64 {
-        if 0 == x % 2 {
-            x / 2
-        } else {
-            x * 3 + 1
+    // TODO: generic `Unsigned`, u128
+    pub fn collatz(x: u64) -> u32 {
+        let mut c = x;
+        let mut n = 0;
+        loop {
+            if 1 == c {
+                break n;
+            }
+            n += 1;
+            if 0 == c % 2 {
+                c = c / 2
+            } else {
+                c = c * 3 + 1
+            }
         }
     }
 }
