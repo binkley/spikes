@@ -6,6 +6,8 @@ use std::io::{stdout, BufWriter};
 
 use ferris_says::say;
 
+use hello_rust::math;
+
 #[derive(Debug)]
 struct Structure(i32);
 
@@ -30,14 +32,6 @@ where
     }
 }
 
-fn collatz(x: u64) -> u64 {
-    if 0 == x % 2 {
-        x / 2
-    } else {
-        x * 3 + 1
-    }
-}
-
 fn print_collatz(x: u64) {
     let mut w = x;
     print!("{}", w);
@@ -46,7 +40,7 @@ fn print_collatz(x: u64) {
             println!();
             break;
         } else {
-            w = collatz(w);
+            w = math::collatz(w);
             print!(" {}", w);
         }
     }
