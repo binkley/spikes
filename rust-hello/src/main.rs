@@ -90,14 +90,12 @@ fn main() {
     say_hello!();
 
     let mut p = Layers::new();
-    let mut a = Layer::new();
+    let a = p.new_layer();
     a.contents.insert("a", 0);
     a.contents.insert("b", 1);
-    p.layers.push(a);
-    let mut b = Layer::new();
+    let b = p.new_layer();
     b.contents.insert("a", 2);
     b.contents.insert("c", 3);
-    p.layers.push(b);
     println!("{:?}", p);
 }
 
@@ -122,5 +120,10 @@ struct Layers<'a> {
 impl<'a> Layers<'a> {
     fn new() -> Layers<'a> {
         Layers { layers: Vec::new() }
+    }
+
+    fn new_layer(&mut self) -> &mut Layer<'a> {
+        self.layers.push(Layer::new());
+        self.layers.last_mut().unwrap()
     }
 }
