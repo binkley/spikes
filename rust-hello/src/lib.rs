@@ -46,3 +46,40 @@ pub mod math {
         }
     }
 }
+
+pub mod layers {
+    use std::collections::HashMap;
+
+    #[derive(Debug)]
+    pub struct Layer<'a> {
+        contents: HashMap<&'a str, i32>,
+    }
+
+    impl<'a> Layer<'a> {
+        pub fn new() -> Layer<'a> {
+            Layer {
+                contents: HashMap::new(),
+            }
+        }
+
+        pub fn insert(&mut self, k: &'a str, v: i32) {
+            self.contents.insert(k, v);
+        }
+    }
+
+    #[derive(Debug)]
+    pub struct Layers<'a> {
+        layers: Vec<Layer<'a>>,
+    }
+
+    impl<'a> Layers<'a> {
+        pub fn new() -> Layers<'a> {
+            Layers { layers: Vec::new() }
+        }
+
+        pub fn new_layer(&mut self) -> &mut Layer<'a> {
+            self.layers.push(Layer::new());
+            self.layers.last_mut().unwrap()
+        }
+    }
+}

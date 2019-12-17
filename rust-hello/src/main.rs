@@ -1,12 +1,12 @@
 #![deny(warnings)]
 
-use std::collections::HashMap;
 use std::fmt;
 use std::fmt::Display;
 use std::io::{stdout, BufWriter};
 
 use ferris_says::say;
 
+use hello_rust::layers::Layers;
 use hello_rust::math::collatz;
 
 #[derive(Debug)]
@@ -91,39 +91,10 @@ fn main() {
 
     let mut p = Layers::new();
     let a = p.new_layer();
-    a.contents.insert("a", 0);
-    a.contents.insert("b", 1);
+    a.insert("a", 0);
+    a.insert("b", 1);
     let b = p.new_layer();
-    b.contents.insert("a", 2);
-    b.contents.insert("c", 3);
+    b.insert("a", 2);
+    b.insert("c", 3);
     println!("{:?}", p);
-}
-
-#[derive(Debug)]
-struct Layer<'a> {
-    contents: HashMap<&'a str, i32>,
-}
-
-impl<'a> Layer<'a> {
-    fn new() -> Layer<'a> {
-        Layer {
-            contents: HashMap::new(),
-        }
-    }
-}
-
-#[derive(Debug)]
-struct Layers<'a> {
-    layers: Vec<Layer<'a>>,
-}
-
-impl<'a> Layers<'a> {
-    fn new() -> Layers<'a> {
-        Layers { layers: Vec::new() }
-    }
-
-    fn new_layer(&mut self) -> &mut Layer<'a> {
-        self.layers.push(Layer::new());
-        self.layers.last_mut().unwrap()
-    }
 }
