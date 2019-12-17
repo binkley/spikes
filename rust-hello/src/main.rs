@@ -95,7 +95,7 @@ fn main() {
     a["b"] = Value::number(1);
     a["p"] = Value::text("Hello");
     let x = &a["a"];
-    println!("By bracket lookup --> {:?}", x);
+    println!("By bracket lookup --> {}", x);
     let b = p.new_layer();
     b["a"] = Value::number(2);
     b["c"] = Value::number(3);

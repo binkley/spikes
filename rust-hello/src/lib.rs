@@ -49,10 +49,12 @@ pub mod math {
 
 pub mod layers {
     use std::collections::HashMap;
+    use std::fmt::{Display, Error, Formatter};
     use std::ops::{Index, IndexMut};
 
     #[derive(Debug)]
     pub enum Value {
+        // TODO: struct and extension rather than discriminated union?
         Text(String),
         Number(i32),
         Amount(f32),
@@ -71,6 +73,16 @@ pub mod layers {
 
         pub fn amount(amount: f32) -> Value {
             Value::Amount(amount)
+        }
+    }
+
+    impl Display for Value {
+        fn fmt(&self, f: &mut Formatter<'_>) -> Result<(), Error> {
+            match self {
+                Self::Text(text) => text.fmt(f),
+                Self::Number(number) => number.fmt(f),
+                Self::Amount(amount) => amount.fmt(f),
+            }
         }
     }
 
