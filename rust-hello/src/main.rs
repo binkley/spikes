@@ -20,10 +20,7 @@ impl Display for Structure {
 #[derive(Debug)]
 struct Deep(Structure);
 
-fn longest_with_an_announcement<'a, T>(x: &'a str, y: &'a str, ann: T) -> &'a str
-where
-    T: Display,
-{
+fn longest_with_an_announcement<'a, T: Display>(x: &'a str, y: &'a str, ann: T) -> &'a str {
     println!("Announcement! {}", ann);
     if x.len() > y.len() {
         x
