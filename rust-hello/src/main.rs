@@ -6,7 +6,7 @@ use std::io::{stdout, BufWriter};
 
 use ferris_says::say;
 
-use hello_rust::layers::Layers;
+use hello_rust::layers::{Layers, Value};
 use hello_rust::math::collatz;
 
 #[derive(Debug)]
@@ -91,13 +91,15 @@ fn main() {
 
     let mut p = Layers::new();
     let a = p.new_layer();
-    a["a"] = 0;
-    a["b"] = 1;
-    let x = a["a"];
-    println!("By bracket lookup --> {}", x);
+    a["a"] = Value::Number(0);
+    a["b"] = Value::Number(1);
+    a["p"] = Value::Text(String::from("Hello"));
+    let x = &a["a"];
+    println!("By bracket lookup --> {:?}", x);
     let b = p.new_layer();
-    b["a"] = 2;
-    b["c"] = 3;
+    b["a"] = Value::Number(2);
+    b["c"] = Value::Number(3);
+    b["q"] = Value::Text(String::from("Goodbye"));
     println!("{:?}", p);
     println!("{:?}", p.to_hashmap());
 

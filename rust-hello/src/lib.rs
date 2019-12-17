@@ -52,8 +52,15 @@ pub mod layers {
     use std::ops::{Index, IndexMut};
 
     #[derive(Debug)]
+    pub enum Value {
+        Text(String),
+        Number(i32),
+        Amount(f32),
+    }
+
+    #[derive(Debug)]
     pub struct Layer<'a> {
-        contents: HashMap<&'a str, i32>,
+        contents: HashMap<&'a str, Value>,
     }
 
     impl<'a> Layer<'a> {
@@ -63,25 +70,25 @@ pub mod layers {
             }
         }
 
-        pub fn insert(&mut self, k: &'a str, v: i32) {
+        pub fn insert(&mut self, k: &'a str, v: Value) {
             self.contents.insert(k, v);
         }
     }
 
     impl<'a> Index<&'a str> for Layer<'a> {
-        type Output = i32;
+        type Output = Value;
 
         #[inline]
-        fn index(&self, key: &'a str) -> &i32 {
+        fn index(&self, key: &'a str) -> &Value {
             self.contents.get(key).expect("no entry found for key")
         }
     }
 
     impl<'a> IndexMut<&'a str> for Layer<'a> {
         #[inline]
-        fn index_mut(&mut self, key: &'a str) -> &mut i32 {
+        fn index_mut(&mut self, key: &'a str) -> &mut Value {
             if !self.contents.contains_key(key) {
-                self.contents.insert(key, 0);
+                self.contents.insert(key, Value::Number(0));
             }
             self.contents.get_mut(key).expect("no entry found for key")
         }
@@ -102,11 +109,12 @@ pub mod layers {
             self.layers.last_mut().unwrap()
         }
 
-        pub fn to_hashmap(&self) -> HashMap<&str, i32> {
+        pub fn to_hashmap(&self) -> HashMap<&str, &Value> {
             let mut map = HashMap::new();
-
             for layer in &self.layers {
-                map.extend(&layer.contents);
+                for (k, v) in &layer.contents {
+                    map.insert(*k, v);
+                }
             }
             map
         }
