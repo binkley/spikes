@@ -91,15 +91,15 @@ fn main() {
 
     let mut p = Layers::new();
     let a = p.new_layer();
-    a["a"] = Value::Number(0);
-    a["b"] = Value::Number(1);
-    a["p"] = Value::Text(String::from("Hello"));
+    a["a"] = Value::number(0);
+    a["b"] = Value::number(1);
+    a["p"] = Value::text("Hello");
     let x = &a["a"];
     println!("By bracket lookup --> {:?}", x);
     let b = p.new_layer();
-    b["a"] = Value::Number(2);
-    b["c"] = Value::Number(3);
-    b["q"] = Value::Text(String::from("Goodbye"));
+    b["a"] = Value::number(2);
+    b["c"] = Value::number(3);
+    b["q"] = Value::text("Goodbye");
     println!("{:?}", p);
     println!("{:?}", p.to_hashmap());
 

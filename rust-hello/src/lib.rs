@@ -58,6 +58,22 @@ pub mod layers {
         Amount(f32),
     }
 
+    impl Value {
+        // TODO: How to name all these just `new`?
+
+        pub fn text(text: &str) -> Value {
+            Value::Text(String::from(text))
+        }
+
+        pub fn number(number: i32) -> Value {
+            Value::Number(number)
+        }
+
+        pub fn amount(amount: f32) -> Value {
+            Value::Amount(amount)
+        }
+    }
+
     #[derive(Debug)]
     pub struct Layer<'a> {
         contents: HashMap<&'a str, Value>,
