@@ -89,18 +89,38 @@ fn main() {
 
     say_hello!();
 
-    let mut x = HashMap::new();
-    x.insert("a", 0);
-    x.insert("b", 1);
-    println!("{:?}", x);
+    let mut p = Layers::new();
+    let mut a = Layer::new();
+    a.contents.insert("a", 0);
+    a.contents.insert("b", 1);
+    p.layers.push(a);
+    let mut b = Layer::new();
+    b.contents.insert("a", 2);
+    b.contents.insert("c", 3);
+    p.layers.push(b);
+    println!("{:?}", p);
+}
 
-    let mut y = HashMap::new();
-    y.insert("a", 2);
-    y.insert("c", 3);
-    println!("{:?}", y);
+#[derive(Debug)]
+struct Layer<'a> {
+    contents: HashMap<&'a str, i32>,
+}
 
-    let mut z = Vec::new();
-    z.push(x);
-    z.push(y);
-    println!("{:?}", z);
+impl<'a> Layer<'a> {
+    fn new() -> Layer<'a> {
+        Layer {
+            contents: HashMap::new(),
+        }
+    }
+}
+
+#[derive(Debug)]
+struct Layers<'a> {
+    layers: Vec<Layer<'a>>,
+}
+
+impl<'a> Layers<'a> {
+    fn new() -> Layers<'a> {
+        Layers { layers: Vec::new() }
+    }
 }
