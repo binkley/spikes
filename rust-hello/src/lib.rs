@@ -1,26 +1,30 @@
 #[cfg(test)]
 mod tests {
     #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
+    fn collatz_me_base_case() {
+        use crate::math;
+
+        let result = math::collatz(1);
+
+        assert_eq!(result, 0);
     }
 
     #[test]
     fn collatz_me_odd() {
         use crate::math;
 
-        let result = math::collatz(13);
+        let result = math::collatz(2);
 
-        assert_eq!(result, 9);
+        assert_eq!(result, 1);
     }
 
     #[test]
     fn collatz_me_even() {
         use crate::math;
 
-        let result = math::collatz(12);
+        let result = math::collatz(3);
 
-        assert_eq!(result, 9);
+        assert_eq!(result, 7);
     }
 }
 
