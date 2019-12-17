@@ -99,4 +99,5 @@ fn main() {
     b["a"] = 2;
     b["c"] = 3;
     println!("{:?}", p);
+    println!("{:?}", p.to_hashmap());
 }

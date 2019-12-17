@@ -101,5 +101,14 @@ pub mod layers {
             self.layers.push(Layer::new());
             self.layers.last_mut().unwrap()
         }
+
+        pub fn to_hashmap(&self) -> HashMap<&str, i32> {
+            let mut map = HashMap::new();
+
+            for layer in &self.layers {
+                map.extend(&layer.contents);
+            }
+            map
+        }
     }
 }
