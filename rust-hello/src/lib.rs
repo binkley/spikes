@@ -111,4 +111,13 @@ pub mod layers {
             map
         }
     }
+
+    impl<'a> IntoIterator for &'a Layers<'a> {
+        type Item = &'a Layer<'a>;
+        type IntoIter = std::slice::Iter<'a, Layer<'a>>;
+
+        fn into_iter(self) -> Self::IntoIter {
+            self.layers.iter()
+        }
+    }
 }

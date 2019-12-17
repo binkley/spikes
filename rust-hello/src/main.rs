@@ -100,4 +100,8 @@ fn main() {
     b["c"] = 3;
     println!("{:?}", p);
     println!("{:?}", p.to_hashmap());
+
+    for layer in &p {
+        println!("{:?}", layer);
+    }
 }
