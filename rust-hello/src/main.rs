@@ -91,10 +91,12 @@ fn main() {
 
     let mut p = Layers::new();
     let a = p.new_layer();
-    a.insert("a", 0);
-    a.insert("b", 1);
+    a["a"] = 0;
+    a["b"] = 1;
+    let x = a["a"];
+    println!("By bracket lookup --> {}", x);
     let b = p.new_layer();
-    b.insert("a", 2);
-    b.insert("c", 3);
+    b["a"] = 2;
+    b["c"] = 3;
     println!("{:?}", p);
 }
