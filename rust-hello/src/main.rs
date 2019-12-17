@@ -1,5 +1,6 @@
 #![deny(warnings)]
 
+use std::collections::HashMap;
 use std::fmt;
 use std::fmt::Display;
 use std::io::{stdout, BufWriter};
@@ -87,4 +88,19 @@ fn main() {
     println!("{}", collatz(123));
 
     say_hello!();
+
+    let mut x = HashMap::new();
+    x.insert("a", 0);
+    x.insert("b", 1);
+    println!("{:?}", x);
+
+    let mut y = HashMap::new();
+    y.insert("a", 2);
+    y.insert("c", 3);
+    println!("{:?}", y);
+
+    let mut z = Vec::new();
+    z.push(x);
+    z.push(y);
+    println!("{:?}", z);
 }
