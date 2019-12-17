@@ -29,6 +29,14 @@ fn longest_with_an_announcement<'a, T: Display>(x: &'a str, y: &'a str, ann: T) 
     }
 }
 
+macro_rules! say_hello {
+    // `()` indicates that the macro takes no argument.
+    () => {
+        // The macro will expand into the contents of this block.
+        println!("Hello!");
+    };
+}
+
 fn main() {
     let stdout = stdout();
     let out = b"Hello fellow Rustaceans!";
@@ -70,5 +78,7 @@ fn main() {
     let result = longest_with_an_announcement(string1.as_str(), string2, "Hey Dol, Merry dol!");
     println!("The longest string is {}", result);
 
-    println!("{}", collatz(123))
+    println!("{}", collatz(123));
+
+    say_hello!();
 }
