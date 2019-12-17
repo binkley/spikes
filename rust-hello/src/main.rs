@@ -17,6 +17,12 @@ impl Display for Structure {
     }
 }
 
+impl Drop for Structure {
+    fn drop(&mut self) {
+        println!("Done, done, done: {:?}", self);
+    }
+}
+
 #[derive(Debug)]
 struct Deep(Structure);
 
