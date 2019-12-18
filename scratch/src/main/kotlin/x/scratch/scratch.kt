@@ -45,6 +45,10 @@ fun main() {
         it.toString().capitalize().repeat(3)
     }
     println(map)
+
+    val ic = WrappedInt(3)
+
+    println(ic * 2)
 }
 
 @UseExperimental(ExperimentalStdlibApi::class)
@@ -72,4 +76,8 @@ fun foo(lock: Any) {
     }
     println(x) // Compiler knows that lambda will be definitely called, performing
     // initialization, so 'x' is considered to be initialized here
+}
+
+inline class WrappedInt(val value: Int) {
+    operator fun times(b: Int) = WrappedInt(value * b)
 }
