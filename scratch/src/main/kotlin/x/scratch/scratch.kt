@@ -9,7 +9,9 @@ import kotlin.reflect.jvm.javaField
 import kotlin.reflect.typeOf
 import kotlin.time.ExperimentalTime
 import kotlin.time.MonoClock
+import kotlin.time.TestClock
 import kotlin.time.measureTimedValue
+import kotlin.time.seconds
 
 const val a = 1
 
@@ -82,10 +84,14 @@ fun main() {
     println("$mark1 -> ${mark1.elapsedNow()}")
 
     val (result, duration) = clock.measureTimedValue {
-        for (i in 1..100);
         "zippo"
     }
     println("$result took $duration")
+
+    val tc = TestClock()
+    val tm = tc.markNow()
+    tc.plusAssign(1.seconds)
+    println("Test clock advanced since mark by ${tm.elapsedNow()}")
 }
 
 @UseExperimental(ExperimentalStdlibApi::class)
