@@ -92,6 +92,8 @@ fun main() {
     val tm = tc.markNow()
     tc.plusAssign(1.seconds)
     println("Test clock advanced since mark by ${tm.elapsedNow()}")
+
+    println(Bob(3).aaa(listOf("fruits")))
 }
 
 @UseExperimental(ExperimentalStdlibApi::class)
@@ -127,4 +129,17 @@ inline class WrappedInt(val value: Int) {
 
 class ViewMapAsProperties(map: MutableMap<String, Any?>) {
     var a: String by map
+}
+
+interface Listy {
+    // This extends List only within scope of implementers of the interface
+    fun <T> List<T>.doodah() {
+        println("Howdy, there, pardner!")
+    }
+}
+
+data class Bob(val a: Int) : Listy {
+    fun <T> aaa(list: List<T>) {
+        list.doodah()
+    }
 }
