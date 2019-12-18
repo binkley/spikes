@@ -3,6 +3,7 @@ package x.scratch
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind.EXACTLY_ONCE
 import kotlin.contracts.contract
+import kotlin.reflect.full.superclasses
 import kotlin.reflect.jvm.javaConstructor
 import kotlin.reflect.jvm.javaField
 import kotlin.reflect.typeOf
@@ -65,6 +66,11 @@ fun main() {
 
     val dotdot = 1..2
     println("$dotdot -> ${dotdot::class}")
+
+    val xs = String::class.supertypes
+    println("$xs, ie, ${xs.first()::class}")
+    val xxs = String::class.superclasses
+    println("$xxs, ie, ${xxs.first()::class}")
 }
 
 @UseExperimental(ExperimentalStdlibApi::class)
