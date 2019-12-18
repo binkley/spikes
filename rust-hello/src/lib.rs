@@ -57,6 +57,18 @@ pub mod boxy {
         pub fn iter_mut(&mut self) -> IterMut<'_, K, V> {
             self.map.iter_mut()
         }
+
+        pub fn len(&self) -> usize {
+            self.map.len()
+        }
+
+        pub fn is_empty(&self) -> bool {
+            self.map.is_empty()
+        }
+
+        pub fn insert(&mut self, k: K, v: V) -> Option<V> {
+            self.map.insert(k, v)
+        }
     }
 
     impl<K, V> PartialEq for MapBox<K, V>

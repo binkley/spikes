@@ -6,6 +6,7 @@ use std::io::{stdout, BufWriter};
 
 use ferris_says::say;
 
+use hello_rust::boxy::MapBox;
 use hello_rust::layers::{Layers, Value};
 use hello_rust::math::collatz;
 
@@ -106,4 +107,15 @@ fn main() {
     for layer in &p {
         println!("{:?}", layer);
     }
+
+    let mut mb = MapBox::new();
+    mb.insert("a", 1);
+    println!("{:?}", mb);
+    let x: Vec<_> = mb
+        .iter()
+        .map(|pair| {
+            return (pair.0, 2 * pair.1);
+        })
+        .collect();
+    println!("{:?}", x);
 }
