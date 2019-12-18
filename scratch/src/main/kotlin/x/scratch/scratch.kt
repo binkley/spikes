@@ -16,6 +16,13 @@ class A(val p: Int)
     ExperimentalUnsignedTypes::class
 )
 fun main() {
+    val a: UByte = 3u
+    val b: UByte = 5u
+    println(a.and(b))
+    println(a.or(b))
+    println(a.inv())
+    println(a.xor(b))
+
     val intType = typeOf<Int>()
     println(intType)
 
@@ -27,9 +34,10 @@ fun main() {
     println(first == second)
     println(first::class)
 
-    println(::a.get())
-    println(::a.name)
-    println(::a.javaField)
+    // TODO: Why did this stop working?
+//    println(::a.get())
+//    println(::a.name)
+//    println(::a.javaField)
     println(A(p = 3)::p.get())
     println(A(p = 5)::p.javaField)
     println(::A.javaConstructor)
