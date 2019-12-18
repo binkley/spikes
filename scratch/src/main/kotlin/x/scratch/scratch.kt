@@ -7,6 +7,9 @@ import kotlin.reflect.full.superclasses
 import kotlin.reflect.jvm.javaConstructor
 import kotlin.reflect.jvm.javaField
 import kotlin.reflect.typeOf
+import kotlin.time.ExperimentalTime
+import kotlin.time.MonoClock
+import kotlin.time.measureTimedValue
 
 const val a = 1
 
@@ -14,6 +17,7 @@ class A(val p: Int)
 
 @UseExperimental(
     ExperimentalStdlibApi::class,
+    ExperimentalTime::class,
     ExperimentalUnsignedTypes::class
 )
 fun main() {
@@ -71,6 +75,17 @@ fun main() {
     println("$xs, ie, ${xs.first()::class}")
     val xxs = String::class.superclasses
     println("$xxs, ie, ${xxs.first()::class}")
+
+    val clock = MonoClock
+    val mark1 = clock.markNow()
+    val mark2 = clock.markNow()
+    println("$mark1 -> ${mark1.elapsedNow()}")
+
+    val (result, duration) = clock.measureTimedValue {
+        for (i in 1..100);
+        "zippo"
+    }
+    println("$result took $duration")
 }
 
 @UseExperimental(ExperimentalStdlibApi::class)
