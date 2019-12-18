@@ -57,6 +57,11 @@ fun main() {
     val ic = WrappedInt(3)
 
     println(ic * 2)
+
+    val mappy = ViewMapAsProperties(mutableMapOf("a" to "apple"))
+    println(mappy.a)
+    mappy.a = "aardvark"
+    println(mappy.a)
 }
 
 @UseExperimental(ExperimentalStdlibApi::class)
@@ -88,4 +93,8 @@ fun foo(lock: Any) {
 
 inline class WrappedInt(val value: Int) {
     operator fun times(b: Int) = WrappedInt(value * b)
+}
+
+class ViewMapAsProperties(map: MutableMap<String, Any?>) {
+    var a: String by map
 }
