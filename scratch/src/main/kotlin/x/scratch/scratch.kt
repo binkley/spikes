@@ -62,6 +62,9 @@ fun main() {
     println(mappy.a)
     mappy.a = "aardvark"
     println(mappy.a)
+
+    val dotdot = 1..2
+    println("$dotdot -> ${dotdot::class}")
 }
 
 @UseExperimental(ExperimentalStdlibApi::class)
