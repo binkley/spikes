@@ -111,11 +111,6 @@ fn main() {
     let mut mb = MapBox::new();
     mb.insert("a", 1);
     println!("{:?}", mb);
-    let x: Vec<_> = mb
-        .iter()
-        .map(|pair| {
-            return (pair.0, 2 * pair.1);
-        })
-        .collect();
+    let x: Vec<_> = mb.iter().map(|pair| (pair.0, 2 * pair.1)).collect();
     println!("{:?}", x);
 }

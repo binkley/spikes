@@ -170,7 +170,7 @@ pub mod math {
             }
             n += 1;
             if 0 == c % 2 {
-                c = c / 2
+                c /= 2
             } else {
                 c = c * 3 + 1
             }
