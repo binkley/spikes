@@ -13,7 +13,7 @@
     <exec.mainClass>micronaut.features.Application</exec.mainClass>
     <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
     <maven-failsafe-plugin.version>2.22.2</maven-failsafe-plugin.version>
-    <kotlinVersion>1.3.50</kotlinVersion>
+    <kotlinVersion>1.3.61</kotlinVersion>
   </properties>
   <repositories>
     <repository>
