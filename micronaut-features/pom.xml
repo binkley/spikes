@@ -4,16 +4,17 @@
   <artifactId>micronaut-features</artifactId>
   <version>0.1</version>
   <properties>
-    <micronaut.version>1.3.0.M2</micronaut.version>
+    <exec.mainClass>micronaut.features.Application</exec.mainClass>
+    <generateBackupPoms>false</generateBackupPoms>
     <jdk.version>11</jdk.version>
-    <maven.compiler.target>${jdk.version}</maven.compiler.target>
+    <kotlinVersion>1.3.61</kotlinVersion>
     <maven.compiler.source>${jdk.version}</maven.compiler.source>
+    <maven.compiler.target>${jdk.version}</maven.compiler.target>
+    <maven-failsafe-plugin.version>2.22.2</maven-failsafe-plugin.version>
+    <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
+    <micronaut.version>1.3.0.M2</micronaut.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <exec.mainClass>micronaut.features.Application</exec.mainClass>
-    <maven-surefire-plugin.version>2.22.2</maven-surefire-plugin.version>
-    <maven-failsafe-plugin.version>2.22.2</maven-failsafe-plugin.version>
-    <kotlinVersion>1.3.61</kotlinVersion>
   </properties>
   <repositories>
     <repository>
