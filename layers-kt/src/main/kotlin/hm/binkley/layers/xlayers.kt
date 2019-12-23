@@ -5,6 +5,16 @@ import java.util.Objects
 
 typealias MutableValueMap = MutableMap<String, Value<*>>
 
+/**
+ * To ensure an initial, fresh layer, implementing classes should:
+ * ```
+ * init {
+ *     init()
+ * }
+ * ```
+ *
+ * @see init()
+ */
 abstract class XLayers<
         L : XLayer<L, LC, LM, LP, LS>,
         LC : XLayerCreation<L, LC, LM, LP, LS>,
