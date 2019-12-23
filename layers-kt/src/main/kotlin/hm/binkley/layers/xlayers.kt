@@ -89,7 +89,7 @@ abstract class XLayer<
         LP : XLayerPersistence<L, LC, LM, LP, LS>,
         LS : XLayers<L, LC, LM, LP, LS>>(
     val slot: Int,
-    private val layers: LS,
+    private val factory: LS,
     private val asMutation: (L, MutableValueMap) -> LM,
     private val contents: MutableValueMap = sortedMapOf()
 ) : Diffable,
@@ -100,9 +100,9 @@ abstract class XLayer<
         asMutation(layer, contents).block()
     } as L
 
-    fun commit() = layers.commit()
+    fun commit() = factory.commit()
 
-    fun rollback() = layers.rollback()
+    fun rollback() = factory.rollback()
 
     override fun toDiff() = contents.entries.joinToString("\n") {
         val (key, value) = it
@@ -129,7 +129,7 @@ abstract class XLayerCreation<
         LM : XLayerMutation<L, LC, LM, LP, LS>,
         LP : XLayerPersistence<L, LC, LM, LP, LS>,
         LS : XLayers<L, LC, LM, LP, LS>>(
-    protected val layers: LS,
+    protected val factory: LS,
     protected val asMutation: (L, MutableValueMap) -> LM
 ) {
     abstract fun new(slot: Int): L

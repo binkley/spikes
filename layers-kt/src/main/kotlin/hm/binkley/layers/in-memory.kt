@@ -19,7 +19,7 @@ class InMemoryLayerCreation(layers: InMemoryLayers) :
     override fun new(
         slot: Int
     ): InMemoryLayer {
-        return InMemoryLayer(slot, layers, asMutation)
+        return InMemoryLayer(slot, factory, asMutation)
     }
 }
 
