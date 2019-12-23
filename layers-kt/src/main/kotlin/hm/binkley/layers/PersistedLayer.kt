@@ -12,7 +12,7 @@ class PersistedLayer(
 ) : Map<String, Value<*>> by contents,
     Layer {
     private val _meta: MutableMap<String, String> = mutableMapOf()
-    private val included = ArrayList<String>()
+    private val included = mutableListOf<String>()
 
     fun toSourceCode() = map {
         "this[\"${it.key}\"] = ${it.value.toSourceCode()}"

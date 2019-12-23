@@ -18,7 +18,7 @@ class Scripting {
         return true
     }
 
-    override fun hashCode() = 0
+    override fun hashCode() = this::class.hashCode()
 
     override fun toString() = "${this::class.simpleName}{}"
 }

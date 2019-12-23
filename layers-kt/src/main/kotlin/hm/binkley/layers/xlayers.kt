@@ -99,7 +99,7 @@ abstract class XLayer<
         LP : XLayerPersistence<L, LC, LM, LP, LS>,
         LS : XLayers<L, LC, LM, LP, LS>>(
     val slot: Int,
-    private val factory: LS,
+    protected val factory: LS,
     private val asMutation: (L, MutableValueMap) -> LM,
     private val contents: MutableValueMap = sortedMapOf()
 ) : Diffable,
