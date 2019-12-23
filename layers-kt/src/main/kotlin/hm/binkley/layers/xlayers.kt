@@ -1,7 +1,7 @@
 package hm.binkley.layers
 
 import lombok.Generated
-import java.util.Objects
+import java.util.Objects.hash
 
 typealias MutableValueMap = MutableMap<String, Value<*>>
 
@@ -126,7 +126,7 @@ abstract class XLayer<
             && contents == other.contents
 
     @Generated // Lie to JaCoCo -- why test code for testing?
-    override fun hashCode() = Objects.hash(slot, contents)
+    override fun hashCode() = hash(slot, contents)
 
     @Generated // Lie to JaCoCo -- why test code for testing?
     override fun toString() =

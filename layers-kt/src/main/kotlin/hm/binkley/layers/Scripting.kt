@@ -9,14 +9,8 @@ class Scripting {
     internal fun <R> letEngine(block: (ScriptEngine) -> R) =
         engine.let(block)
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as Scripting
-
-        return true
-    }
+    override fun equals(other: Any?) = this === other
+            || other is Scripting
 
     override fun hashCode() = this::class.hashCode()
 

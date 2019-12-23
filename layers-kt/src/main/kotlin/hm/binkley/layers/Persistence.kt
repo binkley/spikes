@@ -28,14 +28,9 @@ class Persistence(private val repository: String) : AutoCloseable {
         return File("$scriptsDirFile/$fileName")
     }
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as Persistence
-
-        return repository == other.repository
-    }
+    override fun equals(other: Any?) = this === other
+            || other is Persistence
+            && repository == other.repository
 
     override fun hashCode() = hash(repository)
 

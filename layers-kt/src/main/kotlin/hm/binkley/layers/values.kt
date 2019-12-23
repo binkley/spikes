@@ -1,6 +1,6 @@
 package hm.binkley.layers
 
-import java.util.Objects
+import java.util.Objects.hash
 
 typealias Rule<T> = (RuleContext<T>) -> T
 
@@ -18,18 +18,12 @@ open class Value<T>(val rule: Rule<T>?, val value: T?) : Diffable {
     //  the type non-nullable
     override fun toDiff() = if (null == rule) "$value" else "$this"
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
+    override fun equals(other: Any?) = this === other
+            || other is Value<*>
+            && rule == other.rule
+            && value == other.value
 
-        other as Value<*>
-
-        return rule == other.rule
-                && value == other.value
-    }
-
-    override fun hashCode() =
-        Objects.hash(rule, value)
+    override fun hashCode() = hash(rule, value)
 
     override fun toString() =
         "${this::class.simpleName}{rule=$rule, value=$value}"
@@ -41,19 +35,13 @@ open class RuleValue<T>(val name: String, val default: T, rule: Rule<T>) :
         return rule.toString()
     }
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
+    override fun equals(other: Any?) = this === other
+            || other is RuleValue<*>
+            && name == other.name
+            && default == other.default
+            && rule == other.rule
 
-        other as RuleValue<*>
-
-        return name == other.name
-                && default == other.default
-                && rule == other.rule
-    }
-
-    override fun hashCode() =
-        Objects.hash(name, default, rule)
+    override fun hashCode() = hash(name, default, rule)
 
     override fun toString() =
         "${this::class.simpleName}<rule: $name[=$default]>"
