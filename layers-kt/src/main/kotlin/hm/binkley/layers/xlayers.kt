@@ -21,12 +21,10 @@ abstract class XLayers<
         LM : XLayerMutation<L, LC, LM, LP, LS>,
         LP : XLayerPersistence<L, LC, LM, LP, LS>,
         LS : XLayers<L, LC, LM, LP, LS>>(
-    init: () -> MutableList<L>,
     private val asCreation: (LS) -> LC,
-    private val asPersistence: (LS) -> LP
+    private val asPersistence: (LS) -> LP,
+    private val _layers: MutableList<L> = mutableListOf()
 ) : LayersForRuleContext {
-    private val _layers = init()
-
     val layers: List<L>
         get() = _layers
     val current: L
@@ -51,7 +49,7 @@ abstract class XLayers<
     /** Please call as part of child class `init` block. */
     protected fun init() {
         // Cannot use `init`: child not yet initialized
-        val layer = asCreation(self).new(_layers.size)
+        val layer = asCreation(self).new(0)
         _layers += layer
     }
 

@@ -37,12 +37,13 @@ class InMemoryLayerPersistence :
 
 class InMemoryLayers(
     asCreation: (InMemoryLayers) -> InMemoryLayerCreation,
-    asPersistence: (InMemoryLayers) -> InMemoryLayerPersistence
+    asPersistence: (InMemoryLayers) -> InMemoryLayerPersistence,
+    _layers: MutableList<InMemoryLayer>
 ) :
     XLayers<InMemoryLayer, InMemoryLayerCreation, InMemoryLayerMutation, InMemoryLayerPersistence, InMemoryLayers>(
-        { mutableListOf() },
         asCreation,
-        asPersistence
+        asPersistence,
+        _layers
     ) {
     init {
         init()
