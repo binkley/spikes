@@ -14,7 +14,7 @@ class WithKotlinAndGitLayer(
     slot: Int,
     factory: WithKotlinAndGitLayers,
     asMutation: WithKotlinAndGitMutation
-) : KotlinScriptedLayer<
+) : XLayer<
         WithKotlinAndGitLayer,
         WithKotlinAndGitLayerCreation,
         WithKotlinAndGitLayerMutation,
@@ -23,18 +23,20 @@ class WithKotlinAndGitLayer(
     slot,
     factory,
     asMutation
-)
+),
+    ScriptedLayer by KotlinScriptedLayer(factory)
 
-class WithKotlinAndGitLayerCreation(layers: WithKotlinAndGitLayers) :
-    KotlinScriptedLayerCreation<
-            WithKotlinAndGitLayer,
-            WithKotlinAndGitLayerCreation,
-            WithKotlinAndGitLayerMutation,
-            WithKotlinAndGitLayerPersistence,
-            WithKotlinAndGitLayers>(
-        layers,
-        ::WithKotlinAndGitLayerMutation
-    ) {
+class WithKotlinAndGitLayerCreation(
+    layers: WithKotlinAndGitLayers
+) : XLayerCreation<
+        WithKotlinAndGitLayer,
+        WithKotlinAndGitLayerCreation,
+        WithKotlinAndGitLayerMutation,
+        WithKotlinAndGitLayerPersistence,
+        WithKotlinAndGitLayers>(
+    layers,
+    ::WithKotlinAndGitLayerMutation
+) {
     override fun new(
         slot: Int
     ): WithKotlinAndGitLayer {
@@ -45,19 +47,19 @@ class WithKotlinAndGitLayerCreation(layers: WithKotlinAndGitLayers) :
 class WithKotlinAndGitLayerMutation(
     layer: WithKotlinAndGitLayer,
     contents: MutableValueMap
-) :
-    KotlinScriptedLayerMutation<
-            WithKotlinAndGitLayer,
-            WithKotlinAndGitLayerCreation,
-            WithKotlinAndGitLayerMutation,
-            WithKotlinAndGitLayerPersistence,
-            WithKotlinAndGitLayers>(
-        layer,
-        contents
-    )
+) : XLayerMutation<
+        WithKotlinAndGitLayer,
+        WithKotlinAndGitLayerCreation,
+        WithKotlinAndGitLayerMutation,
+        WithKotlinAndGitLayerPersistence,
+        WithKotlinAndGitLayers>(
+    layer,
+    contents
+),
+    ScriptedLayerMutation by KotlinScriptedLayerMutation(layer)
 
 class WithKotlinAndGitLayerPersistence :
-    KotlinScriptedLayerPersistence<
+    XLayerPersistence<
             WithKotlinAndGitLayer,
             WithKotlinAndGitLayerCreation,
             WithKotlinAndGitLayerMutation,
@@ -72,18 +74,17 @@ class WithKotlinAndGitLayers(
     asCreation: WithKotlinAndGitCreation,
     asPersistence: WithKotlinAndGitPersistence,
     _layers: MutableList<WithKotlinAndGitLayer>
-) :
-    KotlinScriptedLayers<
-            WithKotlinAndGitLayer,
-            WithKotlinAndGitLayerCreation,
-            WithKotlinAndGitLayerMutation,
-            WithKotlinAndGitLayerPersistence,
-            WithKotlinAndGitLayers>(
-        scripting,
-        asCreation,
-        asPersistence,
-        _layers
-    ) {
+) : XLayers<
+        WithKotlinAndGitLayer,
+        WithKotlinAndGitLayerCreation,
+        WithKotlinAndGitLayerMutation,
+        WithKotlinAndGitLayerPersistence,
+        WithKotlinAndGitLayers>(
+    asCreation,
+    asPersistence,
+    _layers
+),
+    ScriptedLayers by KotlinScriptedLayers(scripting) {
     init {
         init()
     }
