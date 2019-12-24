@@ -15,13 +15,13 @@ abstract class KotlinScriptedLayer<
     slot,
     factory,
     asMutation
-) {
-    protected val included = mutableListOf<String>()
+), ScriptedLayer {
+    override val included = mutableListOf<String>()
 
-    internal fun <R> letEngine(block: (ScriptEngine) -> R): R =
+    override fun <R> letEngine(block: (ScriptEngine) -> R): R =
         factory.letEngine(block)
 
-    internal fun include(script: String) = included.add(script.clean())
+    override fun include(script: String) = included.add(script.clean())
 }
 
 abstract class KotlinScriptedLayerCreation<
@@ -48,8 +48,8 @@ abstract class KotlinScriptedLayerMutation<
 ) : XLayerMutation<L, LC, LM, LP, LS>(
     layer,
     contents
-) {
-    fun execute(script: String): Unit =
+), ScriptedLayerMutation {
+    override fun execute(script: String): Unit =
         layer.letEngine { engine ->
             engine.eval("""
                     import hm.binkley.layers.*
@@ -71,6 +71,8 @@ abstract class KotlinScriptedLayerPersistence<
         LP : KotlinScriptedLayerPersistence<L, LC, LM, LP, LS>,
         LS : KotlinScriptedLayers<L, LC, LM, LP, LS>>
     : XLayerPersistence<L, LC, LM, LP, LS>() {
+    // TODO: Belongs in persistence?
+
     override fun commit(layer: L) = Unit
     override fun rollback(layer: L) = Unit
 }
@@ -89,7 +91,7 @@ abstract class KotlinScriptedLayers<
     asCreation,
     asPersistence,
     _layers
-) {
-    internal fun <R> letEngine(block: (ScriptEngine) -> R): R =
+), ScriptedLayers {
+    override fun <R> letEngine(block: (ScriptEngine) -> R): R =
         scripting.letEngine(block)
 }
