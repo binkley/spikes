@@ -20,8 +20,8 @@ internal class LayersTest {
         val repoDir = setupRepository(baseTempDir)
 
         val baker = PersistedLayers(
-            Persistence(repoDir.absolutePath),
-            Scripting()
+            GitPersistence(repoDir.absolutePath),
+            Scripting("kts")
         ).use {
             val aCommitMessage = "I am me"
             // Too much whitespace on purpose
@@ -113,14 +113,20 @@ internal class LayersTest {
             println(it)
         }
 
-        PersistedLayers(Persistence(repoDir.absolutePath), Scripting()).use {
+        PersistedLayers(
+            GitPersistence(repoDir.absolutePath),
+            Scripting("kts")
+        ).use {
             assertThat(it.asList()).isEqualTo(baker.asList())
             assertThat(it.asMap()).isEqualTo(baker.asMap())
             assertThat(it).isEqualTo(baker)
         }
 
         val cloneDir = setupClone(baseTempDir, repoDir)
-        PersistedLayers(Persistence(cloneDir.absolutePath), Scripting()).use {
+        PersistedLayers(
+            GitPersistence(cloneDir.absolutePath),
+            Scripting("kts")
+        ).use {
             assertThat(it.asList()).isEqualTo(baker.asList())
             assertThat(it.asMap()).isEqualTo(baker.asMap())
 

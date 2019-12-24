@@ -6,7 +6,7 @@ import java.nio.file.Files.createTempDirectory
 import java.nio.file.Path
 import java.util.Objects.hash
 
-class Persistence(private val repository: String) : AutoCloseable {
+class GitPersistence(private val repository: String) : AutoCloseable {
     private val scriptsDir = createTempDirectory("layers")
     private val git = Git.cloneRepository()
         .setDirectory(scriptsDir.toFile())
@@ -29,7 +29,7 @@ class Persistence(private val repository: String) : AutoCloseable {
     }
 
     override fun equals(other: Any?) = this === other
-            || other is Persistence
+            || other is GitPersistence
             && repository == other.repository
 
     override fun hashCode() = hash(repository)

@@ -16,7 +16,7 @@ fun PersistedLayers.noisyCreateLayer(
 fun main(args: Array<String>) {
     val repository = if (false) args[0]
     else "/Users/boxley/tmp/layers.git"
-    PersistedLayers(Persistence(repository), Scripting()).use {
+    PersistedLayers(GitPersistence(repository), Scripting("kts")).use {
         it.noisyCreateLayer(
             "Base rule for 'b'", """
                 layer["b"] = current(default=true)

@@ -5,7 +5,7 @@ import java.util.Objects.hash
 import javax.script.ScriptEngine
 
 class PersistedLayers(
-    private val persistence: Persistence,
+    private val persistence: GitPersistence,
     private val scripting: Scripting,
     private val _layers: MutableList<PersistedLayer> = mutableListOf()
 ) : Layers,
