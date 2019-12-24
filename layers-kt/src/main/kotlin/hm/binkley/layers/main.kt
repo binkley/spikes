@@ -14,8 +14,10 @@ fun PersistedLayers.noisyCreateLayer(
 }
 
 fun main(args: Array<String>) {
-    val repository = if (false) args[0]
-    else "/Users/boxley/tmp/layers.git"
+    val repository =
+        if (false) args[0]
+        else "${System.getProperty("user.home")}/tmp/layers.git"
+
     PersistedLayers(GitPersistence(repository), Scripting("kts")).use {
         it.noisyCreateLayer(
             "Base rule for 'b'", """
