@@ -70,12 +70,7 @@ abstract class KotlinScriptedLayerPersistence<
         LM : KotlinScriptedLayerMutation<L, LC, LM, LP, LS>,
         LP : KotlinScriptedLayerPersistence<L, LC, LM, LP, LS>,
         LS : KotlinScriptedLayers<L, LC, LM, LP, LS>>
-    : XLayerPersistence<L, LC, LM, LP, LS>() {
-    // TODO: Belongs in persistence?
-
-    override fun commit(layer: L) = Unit
-    override fun rollback(layer: L) = Unit
-}
+    : XLayerPersistence<L, LC, LM, LP, LS>()
 
 abstract class KotlinScriptedLayers<
         L : KotlinScriptedLayer<L, LC, LM, LP, LS>,
