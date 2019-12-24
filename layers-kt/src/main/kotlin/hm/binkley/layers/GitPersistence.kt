@@ -36,19 +36,19 @@ class GitPersistence(private val repository: String) : AutoCloseable {
 
     override fun toString() =
         "${this::class.simpleName}{repository=$repository, scriptsDir=$scriptsDir}"
+}
 
-    private fun Path.load(size: Int, new: (scriptFile: String) -> Unit) {
-        val scriptsDirFile = toFile()
-        val scripts = scriptsDirFile.list { _, name ->
-            name.endsWith(".kts")
-        }!!.sortedBy {
-            it.removeSuffix(".kts").toInt()
-        }
+private fun Path.load(size: Int, new: (scriptFile: String) -> Unit) {
+    val scriptsDirFile = toFile()
+    val scripts = scriptsDirFile.list { _, name ->
+        name.endsWith(".kts")
+    }!!.sortedBy {
+        it.removeSuffix(".kts").toInt()
+    }
 
-        scripts.subList(size, scripts.size).map {
-            scriptsDirFile.resolve(it).readText().clean()
-        }.forEach {
-            new(it)
-        }
+    scripts.subList(size, scripts.size).map {
+        scriptsDirFile.resolve(it).readText().clean()
+    }.forEach {
+        new(it)
     }
 }
