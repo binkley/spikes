@@ -2,9 +2,9 @@ package hm.binkley.layers
 
 import javax.script.ScriptEngine
 
-class KotlinScriptedLayer(
-    private val factory: ScriptedLayers
-) : ScriptedLayer {
+class KotlinScriptedForLayer(
+    private val factory: ScriptedForLayers
+) : ScriptedForLayer {
     override val included = mutableListOf<String>()
 
     override fun <R> letEngine(block: (ScriptEngine) -> R): R =
@@ -13,18 +13,18 @@ class KotlinScriptedLayer(
     override fun include(script: String) = included.add(script.clean())
 }
 
-class KotlinScriptedLayerMutation<
+class KotlinScriptedForLayerMutation<
         L,
         LC : XLayerCreation<L, LC, LM, LP, LS>,
         LM : XLayerMutation<L, LC, LM, LP, LS>,
         LP : XLayerPersistence<L, LC, LM, LP, LS>,
         LS>(
     private val layer: L
-) : ScriptedLayerMutation
+) : ScriptedForLayerMutation
         where L : XLayer<L, LC, LM, LP, LS>,
-              L : ScriptedLayer,
+              L : ScriptedForLayer,
               LS : XLayers<L, LC, LM, LP, LS>,
-              LS : ScriptedLayers {
+              LS : ScriptedForLayers {
     override fun execute(script: String): Unit =
         layer.letEngine { engine ->
             engine.eval("""
@@ -40,9 +40,9 @@ class KotlinScriptedLayerMutation<
         }
 }
 
-class KotlinScriptedLayers(
+class KotlinScriptedForLayers(
     private val scripting: Scripting
-) : ScriptedLayers {
+) : ScriptedForLayers {
     override fun <R> letEngine(block: (ScriptEngine) -> R): R =
         scripting.letEngine(block)
 }

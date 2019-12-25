@@ -23,7 +23,7 @@ class WithKotlinAndGitLayer(
     factory,
     asMutation
 ),
-    ScriptedLayer by KotlinScriptedLayer(factory)
+    ScriptedForLayer by KotlinScriptedForLayer(factory)
 
 class WithKotlinAndGitLayerCreation(
     layers: WithKotlinAndGitLayers
@@ -55,7 +55,7 @@ class WithKotlinAndGitLayerMutation(
     layer,
     contents
 ),
-    ScriptedLayerMutation by KotlinScriptedLayerMutation(layer)
+    ScriptedForLayerMutation by KotlinScriptedForLayerMutation(layer)
 
 /** @todo Call Git */
 class WithKotlinAndGitLayerPersistence(
@@ -84,7 +84,7 @@ class WithKotlinAndGitLayers(
     asCreation,
     persistence
 ),
-    ScriptedLayers by KotlinScriptedLayers(scripting) {
+    ScriptedForLayers by KotlinScriptedForLayers(scripting) {
     init {
         init()
     }
