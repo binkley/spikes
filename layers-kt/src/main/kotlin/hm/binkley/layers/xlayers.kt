@@ -27,6 +27,13 @@ abstract class XLayers<
     private val _layers: MutableList<L> =
         persistence.load().toMutableList()
 
+    /** Please call as part of child class `init` block. */
+    protected fun init() {
+        // Cannot use `init`: child not yet initialized
+        val layer = asCreation(self).new(0)
+        _layers += layer
+    }
+
     val layers: List<L>
         get() = _layers
     val current: L
@@ -47,13 +54,6 @@ abstract class XLayers<
             val value = rule(RuleContext(key, this))
             key to value
         }.asReversed().toMap().toSortedMap()
-
-    /** Please call as part of child class `init` block. */
-    protected fun init() {
-        // Cannot use `init`: child not yet initialized
-        val layer = asCreation(self).new(0)
-        _layers += layer
-    }
 
     fun commit(): L {
         persistence.commit(current)
