@@ -22,9 +22,11 @@ abstract class XLayers<
         LP : XLayerPersistence<L, LC, LM, LP, LS>,
         LS : XLayers<L, LC, LM, LP, LS>>(
     private val asCreation: (LS) -> LC,
-    private val asPersistence: (LS) -> LP,
-    private val _layers: MutableList<L> = mutableListOf()
+    private val persistence: LP
 ) : LayersForRuleContext {
+    private val _layers: MutableList<L> =
+        persistence.load().toMutableList()
+
     val layers: List<L>
         get() = _layers
     val current: L
@@ -54,14 +56,14 @@ abstract class XLayers<
     }
 
     fun commit(): L {
-        asPersistence(self).commit(current)
+        persistence.commit(current)
         val layer = asCreation(self).new(_layers.size)
         _layers += layer
         return current
     }
 
     fun rollback(): L {
-        asPersistence(self).rollback(current)
+        persistence.rollback(current)
         _layers.removeAt(_layers.lastIndex)
         if (_layers.isEmpty()) init()
         return current
@@ -165,6 +167,7 @@ abstract class XLayerPersistence<
         LM : XLayerMutation<L, LC, LM, LP, LS>,
         LP : XLayerPersistence<L, LC, LM, LP, LS>,
         LS : XLayers<L, LC, LM, LP, LS>> {
+    abstract fun load(): List<L>
     abstract fun commit(layer: L)
     abstract fun rollback(layer: L)
 }

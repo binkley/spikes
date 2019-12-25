@@ -1,7 +1,6 @@
 package hm.binkley.layers
 
-typealias WithKotlinAndGitPersistence =
-            (WithKotlinAndGitLayers) -> WithKotlinAndGitLayerPersistence
+import org.eclipse.jgit.api.Git
 
 typealias WithKotlinAndGitCreation =
             (WithKotlinAndGitLayers) -> WithKotlinAndGitLayerCreation
@@ -59,13 +58,15 @@ class WithKotlinAndGitLayerMutation(
     ScriptedLayerMutation by KotlinScriptedLayerMutation(layer)
 
 /** @todo Call Git */
-class WithKotlinAndGitLayerPersistence :
-    XLayerPersistence<
-            WithKotlinAndGitLayer,
-            WithKotlinAndGitLayerCreation,
-            WithKotlinAndGitLayerMutation,
-            WithKotlinAndGitLayerPersistence,
-            WithKotlinAndGitLayers>() {
+class WithKotlinAndGitLayerPersistence(
+    git: Git
+) : XLayerPersistence<
+        WithKotlinAndGitLayer,
+        WithKotlinAndGitLayerCreation,
+        WithKotlinAndGitLayerMutation,
+        WithKotlinAndGitLayerPersistence,
+        WithKotlinAndGitLayers>() {
+    override fun load(): List<WithKotlinAndGitLayer> = listOf()
     override fun commit(layer: WithKotlinAndGitLayer) = Unit
     override fun rollback(layer: WithKotlinAndGitLayer) = Unit
 }
@@ -73,8 +74,7 @@ class WithKotlinAndGitLayerPersistence :
 class WithKotlinAndGitLayers(
     scripting: Scripting,
     asCreation: WithKotlinAndGitCreation,
-    asPersistence: WithKotlinAndGitPersistence,
-    _layers: MutableList<WithKotlinAndGitLayer>
+    persistence: WithKotlinAndGitLayerPersistence
 ) : XLayers<
         WithKotlinAndGitLayer,
         WithKotlinAndGitLayerCreation,
@@ -82,8 +82,7 @@ class WithKotlinAndGitLayers(
         WithKotlinAndGitLayerPersistence,
         WithKotlinAndGitLayers>(
     asCreation,
-    asPersistence,
-    _layers
+    persistence
 ),
     ScriptedLayers by KotlinScriptedLayers(scripting) {
     init {
