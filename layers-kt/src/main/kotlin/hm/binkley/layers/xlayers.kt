@@ -61,7 +61,7 @@ abstract class XLayers<
         _layers += layer
         return current
     }
-
+    
     fun rollback(): L {
         persistence.rollback(current)
         _layers.removeAt(_layers.lastIndex)
@@ -90,8 +90,9 @@ abstract class XLayers<
             it.value
         } as List<T>
 
-    @Suppress("UNCHECKED_CAST", "LeakingThis")
-    private val self = this as LS
+    private val self: LS
+        @Suppress("UNCHECKED_CAST")
+        inline get() = this as LS
 }
 
 abstract class XLayer<
@@ -111,10 +112,6 @@ abstract class XLayer<
         val layer = this as L
         asMutation(layer, contents).block()
     } as L
-
-    fun commit() = factory.commit()
-
-    fun rollback() = factory.rollback()
 
     override fun toDiff() = contents.entries.joinToString("\n") {
         val (key, value) = it
