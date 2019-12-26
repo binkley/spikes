@@ -69,8 +69,8 @@ class WithKotlinAndGitLayerPersistence(
 }
 
 class WithKotlinAndGitLayers(
-    scripting: Scripting,
     creation: WithKotlinAndGitLayerCreation,
+    scripting: KotlinScriptedForLayers,
     persistence: WithKotlinAndGitLayerPersistence
 ) : XLayers<
         WithKotlinAndGitLayer,
@@ -81,7 +81,7 @@ class WithKotlinAndGitLayers(
     creation,
     persistence
 ),
-    ScriptedForLayers by KotlinScriptedForLayers(scripting) {
+    ScriptedForLayers by scripting {
     init {
         init()
     }
