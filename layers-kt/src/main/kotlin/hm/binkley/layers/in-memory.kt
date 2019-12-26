@@ -37,11 +37,11 @@ class InMemoryLayerPersistence :
 }
 
 class InMemoryLayers(
-    asCreation: (InMemoryLayers) -> InMemoryLayerCreation,
+    creation: InMemoryLayerCreation,
     persistence: InMemoryLayerPersistence
 ) :
     XLayers<InMemoryLayer, InMemoryLayerCreation, InMemoryLayerMutation, InMemoryLayerPersistence, InMemoryLayers>(
-        asCreation,
+        creation,
         persistence
     ) {
     init {

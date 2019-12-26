@@ -2,9 +2,6 @@ package hm.binkley.layers
 
 import org.eclipse.jgit.api.Git
 
-typealias WithKotlinAndGitCreation =
-            (WithKotlinAndGitLayers) -> WithKotlinAndGitLayerCreation
-
 typealias WithKotlinAndGitMutation =
             (WithKotlinAndGitLayer, MutableValueMap) ->
         WithKotlinAndGitLayerMutation
@@ -73,7 +70,7 @@ class WithKotlinAndGitLayerPersistence(
 
 class WithKotlinAndGitLayers(
     scripting: Scripting,
-    asCreation: WithKotlinAndGitCreation,
+    creation: WithKotlinAndGitLayerCreation,
     persistence: WithKotlinAndGitLayerPersistence
 ) : XLayers<
         WithKotlinAndGitLayer,
@@ -81,7 +78,7 @@ class WithKotlinAndGitLayers(
         WithKotlinAndGitLayerMutation,
         WithKotlinAndGitLayerPersistence,
         WithKotlinAndGitLayers>(
-    asCreation,
+    creation,
     persistence
 ),
     ScriptedForLayers by KotlinScriptedForLayers(scripting) {

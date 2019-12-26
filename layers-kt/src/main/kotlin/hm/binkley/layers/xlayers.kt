@@ -21,7 +21,7 @@ abstract class XLayers<
         LM : XLayerMutation<L, LC, LM, LP, LS>,
         LP : XLayerPersistence<L, LC, LM, LP, LS>,
         LS : XLayers<L, LC, LM, LP, LS>>(
-    private val asCreation: (LS) -> LC,
+    private val creation: LC,
     private val persistence: LP
 ) : LayersForRuleContext {
     private val _layers: MutableList<L> =
@@ -30,7 +30,7 @@ abstract class XLayers<
     /** Please call as part of child class `init` block. */
     protected fun init() {
         // Cannot use `init`: child not yet initialized
-        val layer = asCreation(self).new(0)
+        val layer = creation.new(0)
         _layers += layer
     }
 
@@ -57,11 +57,11 @@ abstract class XLayers<
 
     fun commit(): L {
         persistence.commit(current)
-        val layer = asCreation(self).new(_layers.size)
+        val layer = creation.new(_layers.size)
         _layers += layer
         return current
     }
-    
+
     fun rollback(): L {
         persistence.rollback(current)
         _layers.removeAt(_layers.lastIndex)
