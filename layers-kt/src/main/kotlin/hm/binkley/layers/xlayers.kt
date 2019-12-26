@@ -89,10 +89,6 @@ abstract class XLayers<
         }.mapNotNull {
             it.value
         } as List<T>
-
-    private val self: LS
-        @Suppress("UNCHECKED_CAST")
-        inline get() = this as LS
 }
 
 abstract class XLayer<
