@@ -83,6 +83,6 @@ class WithKotlinAndGitLayers(
 ),
     ScriptedForLayers by scripting {
     init {
-        init()
+        newLayer()
     }
 }

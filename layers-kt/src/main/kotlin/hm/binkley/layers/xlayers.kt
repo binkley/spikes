@@ -9,11 +9,11 @@ typealias MutableValueMap = MutableMap<String, Value<*>>
  * To ensure an initial, fresh layer, implementing classes should:
  * ```
  * init {
- *     init()
+ *     newLayer()
  * }
  * ```
  *
- * @see init()
+ * @see newLayer()
  */
 abstract class XLayers<
         L : XLayer<L, LC, LM, LP, LS>,
@@ -22,15 +22,13 @@ abstract class XLayers<
         LP : XLayerPersistence<L, LC, LM, LP, LS>,
         LS : XLayers<L, LC, LM, LP, LS>>(
     private val creation: LC,
-    private val persistence: LP
+    private val persistence: LP,
+    private val _layers: MutableList<L> = persistence.load().toMutableList()
 ) : LayersForRuleContext {
-    private val _layers: MutableList<L> =
-        persistence.load().toMutableList()
-
     /** Please call as part of child class `init` block. */
-    protected fun init() {
+    protected fun newLayer() {
         // Cannot use `init`: child not yet initialized
-        val layer = creation.new(0)
+        val layer = creation.new(_layers.size)
         _layers += layer
     }
 
@@ -57,15 +55,14 @@ abstract class XLayers<
 
     fun commit(): L {
         persistence.commit(current)
-        val layer = creation.new(_layers.size)
-        _layers += layer
+        newLayer()
         return current
     }
 
     fun rollback(): L {
         persistence.rollback(current)
         _layers.removeAt(_layers.lastIndex)
-        if (_layers.isEmpty()) init()
+        newLayer()
         return current
     }
 

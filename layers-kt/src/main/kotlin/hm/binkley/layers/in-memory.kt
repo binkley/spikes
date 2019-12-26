@@ -45,6 +45,6 @@ class InMemoryLayers(
         persistence
     ) {
     init {
-        init()
+        newLayer()
     }
 }
