@@ -19,7 +19,7 @@ abstract class XLayers<
         L : XLayer<L, LC, LM, LP, LS>,
         LC : XLayerCreation<L, LC, LM, LP, LS>,
         LM : XLayerMutation<L, LC, LM, LP, LS>,
-        LP : XLayerPersistence<L, LC, LM, LP, LS>,
+        LP : PersistedForLayers<L, LC, LM, LP, LS>,
         LS : XLayers<L, LC, LM, LP, LS>>(
     private val creation: LC,
     private val persistence: LP,
@@ -92,7 +92,7 @@ abstract class XLayer<
         L : XLayer<L, LC, LM, LP, LS>,
         LC : XLayerCreation<L, LC, LM, LP, LS>,
         LM : XLayerMutation<L, LC, LM, LP, LS>,
-        LP : XLayerPersistence<L, LC, LM, LP, LS>,
+        LP : PersistedForLayers<L, LC, LM, LP, LS>,
         LS : XLayers<L, LC, LM, LP, LS>>(
     val slot: Int,
     protected val factory: LS,
@@ -129,7 +129,7 @@ abstract class XLayerCreation<
         L : XLayer<L, LC, LM, LP, LS>,
         LC : XLayerCreation<L, LC, LM, LP, LS>,
         LM : XLayerMutation<L, LC, LM, LP, LS>,
-        LP : XLayerPersistence<L, LC, LM, LP, LS>,
+        LP : PersistedForLayers<L, LC, LM, LP, LS>,
         LS : XLayers<L, LC, LM, LP, LS>>(
     protected val factory: LS,
     protected val asMutation: (L, MutableValueMap) -> LM
@@ -141,7 +141,7 @@ abstract class XLayerMutation<
         L : XLayer<L, LC, LM, LP, LS>,
         LC : XLayerCreation<L, LC, LM, LP, LS>,
         LM : XLayerMutation<L, LC, LM, LP, LS>,
-        LP : XLayerPersistence<L, LC, LM, LP, LS>,
+        LP : PersistedForLayers<L, LC, LM, LP, LS>,
         LS : XLayers<L, LC, LM, LP, LS>>(
     protected val layer: L,
     protected val contents: MutableValueMap
@@ -149,15 +149,4 @@ abstract class XLayerMutation<
     operator fun <T> set(key: String, value: T) {
         contents[key] = if (value is Value<*>) value else value(value)
     }
-}
-
-abstract class XLayerPersistence<
-        L : XLayer<L, LC, LM, LP, LS>,
-        LC : XLayerCreation<L, LC, LM, LP, LS>,
-        LM : XLayerMutation<L, LC, LM, LP, LS>,
-        LP : XLayerPersistence<L, LC, LM, LP, LS>,
-        LS : XLayers<L, LC, LM, LP, LS>> {
-    abstract fun load(): List<L>
-    abstract fun commit(layer: L)
-    abstract fun rollback(layer: L)
 }

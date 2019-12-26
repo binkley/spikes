@@ -57,12 +57,12 @@ class WithKotlinAndGitLayerMutation(
 /** @todo Call Git */
 class WithKotlinAndGitLayerPersistence(
     git: Git
-) : XLayerPersistence<
+) : PersistedForLayers<
         WithKotlinAndGitLayer,
         WithKotlinAndGitLayerCreation,
         WithKotlinAndGitLayerMutation,
         WithKotlinAndGitLayerPersistence,
-        WithKotlinAndGitLayers>() {
+        WithKotlinAndGitLayers> {
     override fun load(): List<WithKotlinAndGitLayer> = listOf()
     override fun commit(layer: WithKotlinAndGitLayer) = Unit
     override fun rollback(layer: WithKotlinAndGitLayer) = Unit

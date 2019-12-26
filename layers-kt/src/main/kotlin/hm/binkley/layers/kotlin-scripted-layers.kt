@@ -17,7 +17,7 @@ class KotlinScriptedForLayerMutation<
         L,
         LC : XLayerCreation<L, LC, LM, LP, LS>,
         LM : XLayerMutation<L, LC, LM, LP, LS>,
-        LP : XLayerPersistence<L, LC, LM, LP, LS>,
+        LP : PersistedForLayers<L, LC, LM, LP, LS>,
         LS>(
     private val layer: L
 ) : ScriptedForLayerMutation
