@@ -18,7 +18,7 @@ fun main() {
     )
     println("$firstBlock")
     nextBlock = firstBlock.next(
-        data = "Hello, world!",
+        data = mapOf("greeting" to "Hello, world!"),
         timestamp = Instant.ofEpochMilli(1L)
     )
     println("$nextBlock")
@@ -40,14 +40,14 @@ fun Block.Companion.first(
 
 class Block(
     val index: Long,
-    val data: String,
+    val data: Any,
     val previousHash: String,
     val difficulty: String,
     val timestamp: Instant
 ) {
     val hash: String = hashWithProofOfWork()
 
-    fun next(data: String, timestamp: Instant = Instant.now()) =
+    fun next(data: Any, timestamp: Instant = Instant.now()) =
         Block(index + 1, data, hash, difficulty, timestamp)
 
     private fun hashWithProofOfWork(): String {
