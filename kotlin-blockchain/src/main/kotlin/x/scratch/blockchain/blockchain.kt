@@ -63,6 +63,7 @@ class Blockchain private constructor(
 }
 
 private val sha256 = MessageDigest.getInstance("SHA-256")
+private val genesisHash = "0".repeat(64)
 
 class Block private constructor(
     val index: Long,
@@ -107,7 +108,7 @@ class Block private constructor(
         ) = Block(
             index = 0,
             data = "Genesis",
-            previousHash = "0".repeat(64),
+            previousHash = genesisHash,
             difficulty = difficulty,
             timestamp = timestamp
         )
