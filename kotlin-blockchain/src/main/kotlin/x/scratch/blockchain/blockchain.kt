@@ -78,7 +78,7 @@ class Block private constructor(
 
     private fun hashWithProofOfWork(): String {
         fun hashWithNonce(nonce: Int) = sha256
-            .digest("$nonce$index$timestamp$previousHash$data".toByteArray())
+            .digest("$nonce$index$timestamp$difficulty$previousHash$data".toByteArray())
             .joinToString("") { "%02x".format(it) }
 
         for (nonce in 0..MAX_VALUE) {
