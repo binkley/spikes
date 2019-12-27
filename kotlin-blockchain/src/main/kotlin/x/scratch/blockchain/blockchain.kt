@@ -31,7 +31,7 @@ fun Block.Companion.first(
     timestamp: Instant = Instant.now()
 ) =
     Block(
-        transaction = 0,
+        index = 0,
         data = "Genesis",
         previousHash = "0".repeat(64),
         difficulty = difficulty,
@@ -39,7 +39,7 @@ fun Block.Companion.first(
     )
 
 class Block(
-    val transaction: Long,
+    val index: Long,
     val data: String,
     val previousHash: String,
     val difficulty: String,
@@ -48,11 +48,11 @@ class Block(
     val hash: String = hashWithProofOfWork()
 
     fun next(data: String, timestamp: Instant = Instant.now()) =
-        Block(transaction + 1, data, hash, difficulty, timestamp)
+        Block(index + 1, data, hash, difficulty, timestamp)
 
     private fun hashWithProofOfWork(): String {
         fun hashWithNonce(nonce: Int) = sha256
-            .digest("$nonce$transaction$timestamp$previousHash$data".toByteArray())
+            .digest("$nonce$index$timestamp$previousHash$data".toByteArray())
             .joinToString("") { "%02x".format(it) }
 
         for (nonce in 0..MAX_VALUE) {
@@ -72,7 +72,7 @@ class Block(
     override fun hashCode() = Objects.hash(hash)
 
     override fun toString() =
-        "${super.toString()}{transaction=$transaction, timestamp=$timestamp, data=$data, hash=$hash, previousHash=$previousHash}"
+        "${super.toString()}{index=$index, timestamp=$timestamp, data=$data, hash=$hash, previousHash=$previousHash}"
 
     companion object
 }
