@@ -14,6 +14,11 @@ fun main() {
     blockchain.add("Hello, world!")
     println(blockchain)
     println("current=${blockchain.last()}")
+    println("genesis=${blockchain.first().genesis}")
+    println("genesis=${blockchain.last().genesis}")
+    println("first=${blockchain[blockchain[0].hash]}")
+
+    for (block in blockchain) println(block)
 
     // Testing example
     blockchain = Blockchain.new(
@@ -27,6 +32,11 @@ fun main() {
     )
     println(blockchain)
     println("current=${blockchain.last()}")
+    println("genesis=${blockchain.first().genesis}")
+    println("genesis=${blockchain.last().genesis}")
+    println("first=${blockchain[blockchain[0].hash]}")
+
+    for (block in blockchain) println(block)
 }
 
 class Blockchain private constructor(
@@ -42,6 +52,8 @@ class Blockchain private constructor(
     fun add(data: Any, timestamp: Instant = Instant.now()) {
         _chain += last().next(data, timestamp)
     }
+
+    operator fun get(hash: String) = _chain.firstOrNull { hash == it.hash }
 
     override fun equals(other: Any?): Boolean {
         return this === other
@@ -73,6 +85,9 @@ class Block private constructor(
     val timestamp: Instant
 ) {
     val hash: String = hashWithProofOfWork()
+
+    val genesis: Boolean
+        get() = 0L == index
 
     fun next(data: Any, timestamp: Instant = Instant.now()) =
         Block(index + 1, data, hash, difficulty, timestamp)
