@@ -1,7 +1,7 @@
 package x.scratch.blockchain
 
-import java.lang.System.currentTimeMillis
 import java.security.MessageDigest
+import java.time.Instant
 import java.util.Objects
 import kotlin.Int.Companion.MAX_VALUE
 
@@ -17,7 +17,7 @@ class Block(
     val data: String,
     val previousHash: String,
     val difficulty: String,
-    val timestamp: Long = currentTimeMillis()
+    val timestamp: Instant = Instant.now()
 ) {
     val hash: String = hashWithProofOfWork()
 
