@@ -5,14 +5,14 @@ import java.time.Instant
 import java.util.Objects
 import kotlin.Int.Companion.MAX_VALUE
 
-@ExperimentalStdlibApi
 fun main() {
     val block = Block.first("00")
     println("$block")
     println("${block.next("Hello, world!")}")
 }
 
-@ExperimentalStdlibApi
+private val sha256 = MessageDigest.getInstance("SHA-256")
+
 class Block(
     val data: String,
     val previousHash: String,
@@ -25,9 +25,8 @@ class Block(
 
     private fun hashWithProofOfWork(): String {
         fun hashWithNonce(nonce: Int) =
-            MessageDigest.getInstance("SHA-256")
-                // TODO: Formatted date
-                .digest((nonce.toString() + timestamp.toString() + previousHash + data).encodeToByteArray())
+            sha256
+                .digest((nonce.toString() + timestamp.toString() + previousHash + data).toByteArray())
                 .joinToString("") { "%02x".format(it) }
 
         for (nonce in 0..MAX_VALUE) {
