@@ -7,27 +7,53 @@ import java.util.Objects
 import kotlin.Int.Companion.MAX_VALUE
 
 fun main() {
-    var firstBlock = Block.first("00")
-    println("$firstBlock")
-    var nextBlock = firstBlock.next("Hello, world!")
-    println("$nextBlock")
+    var blockchain = Blockchain("00")
+    println(blockchain)
+    blockchain.add("Hello, world!")
+    println(blockchain)
 
     // Testing example
-    firstBlock = Block.first(
+    blockchain = Blockchain(
+        difficulty = "",
         timestamp = EPOCH
     )
-    println("$firstBlock")
-    nextBlock = firstBlock.next(
+    println(blockchain)
+    blockchain.add(
         data = mapOf("greeting" to "Hello, world!"),
         timestamp = Instant.ofEpochMilli(1L)
     )
-    println("$nextBlock")
+    println(blockchain)
+}
+
+class Blockchain(
+    difficulty: String = "",
+    timestamp: Instant = Instant.now()
+) {
+    private val _chain = mutableListOf(Block.first(difficulty, timestamp))
+    val chain: List<Block> = _chain
+
+    fun add(data: Any, timestamp: Instant = Instant.now()) {
+        _chain += _chain.last().next(data, timestamp)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return this === other
+                || other is Blockchain
+                && chain == other.chain
+    }
+
+    override fun hashCode() = Objects.hash(chain)
+
+    override fun toString() =
+        "${super.toString()}{chain=$chain}"
+
+    companion object
 }
 
 private val sha256 = MessageDigest.getInstance("SHA-256")
 
 fun Block.Companion.first(
-    difficulty: String = "",
+    difficulty: String,
     timestamp: Instant = Instant.now()
 ) =
     Block(
