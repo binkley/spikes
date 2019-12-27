@@ -13,9 +13,14 @@ fun main() {
     println("$nextBlock")
 
     // Testing example
-    firstBlock = Block.first(timestamp = EPOCH)
+    firstBlock = Block.first(
+        timestamp = EPOCH
+    )
     println("$firstBlock")
-    nextBlock = firstBlock.next("Hello, world!", Instant.ofEpochMilli(1L))
+    nextBlock = firstBlock.next(
+        data = "Hello, world!",
+        timestamp = Instant.ofEpochMilli(1L)
+    )
     println("$nextBlock")
 }
 
@@ -26,13 +31,15 @@ fun Block.Companion.first(
     timestamp: Instant = Instant.now()
 ) =
     Block(
-        "Genesis",
-        "0".repeat(64),
-        difficulty,
-        timestamp
+        transaction = 0,
+        data = "Genesis",
+        previousHash = "0".repeat(64),
+        difficulty = difficulty,
+        timestamp = timestamp
     )
 
 class Block(
+    val transaction: Long,
     val data: String,
     val previousHash: String,
     val difficulty: String,
@@ -41,11 +48,11 @@ class Block(
     val hash: String = hashWithProofOfWork()
 
     fun next(data: String, timestamp: Instant = Instant.now()) =
-        Block(data, hash, difficulty, timestamp)
+        Block(transaction + 1, data, hash, difficulty, timestamp)
 
     private fun hashWithProofOfWork(): String {
         fun hashWithNonce(nonce: Int) = sha256
-            .digest("$nonce$timestamp$previousHash$data".toByteArray())
+            .digest("$nonce$transaction$timestamp$previousHash$data".toByteArray())
             .joinToString("") { "%02x".format(it) }
 
         for (nonce in 0..MAX_VALUE) {
@@ -53,7 +60,7 @@ class Block(
             if (hash.startsWith(difficulty)) return hash
         }
 
-        throw IllegalStateException("Unable to hash with difficulty: $this")
+        throw IllegalStateException("Unable to complete work: $this")
     }
 
     override fun equals(other: Any?): Boolean {
@@ -65,7 +72,7 @@ class Block(
     override fun hashCode() = Objects.hash(hash)
 
     override fun toString() =
-        "${super.toString()}{timestamp=$timestamp, data=$data, hash=$hash, previousHash=$previousHash}"
+        "${super.toString()}{transaction=$transaction, timestamp=$timestamp, data=$data, hash=$hash, previousHash=$previousHash}"
 
     companion object
 }
