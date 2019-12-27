@@ -11,6 +11,7 @@ Spikes are not to be considered stable.
 * [Exploring Kotlin async](kotlin-async/)
 * [Google's Flogger](googles-flogger/)
 * [Gradle pre-push](gradle-pre-push/)
+* [Kotlin blockchain](kotlin-blockchain/)
 * [Layers in Kotlin](layers-kt/)
 * Domain persistence modeling &mdash; moved to
   [https://github.com/binkley/domain-persistence-modeling]
