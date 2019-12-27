@@ -10,33 +10,34 @@ fun main() {
     var blockchain = Blockchain.new(
         difficulty = "00"
     )
-    println(blockchain)
-    blockchain.add("Hello, world!")
-    println(blockchain)
-    println("current=${blockchain.last()}")
-    println("genesis=${blockchain.first().genesis}")
-    println("genesis=${blockchain.last().genesis}")
-    println("first=${blockchain[blockchain[0].hash]}")
+    blockchain.dump()
 
-    for (block in blockchain) println(block)
+    blockchain.add("Hello, world!")
+    blockchain.dump()
 
     // Testing example
     blockchain = Blockchain.new(
         difficulty = "",
         timestamp = EPOCH
     )
-    println(blockchain)
+    blockchain.dump()
+
     blockchain.add(
         data = mapOf("greeting" to "Hello, world!"),
         timestamp = Instant.ofEpochMilli(1L)
     )
-    println(blockchain)
-    println("current=${blockchain.last()}")
-    println("genesis=${blockchain.first().genesis}")
-    println("genesis=${blockchain.last().genesis}")
-    println("first=${blockchain[blockchain[0].hash]}")
+    blockchain.dump()
+}
 
-    for (block in blockchain) println(block)
+private fun Blockchain.dump() {
+    println(this)
+    println("current=${last()}")
+    println("genesis=${first().genesis}")
+    println("genesis=${last().genesis}")
+    println("first=${this[this[0].hash]}")
+    println("first=${this[last().hash]}")
+
+    for (block in this) println(block)
 }
 
 class Blockchain private constructor(
