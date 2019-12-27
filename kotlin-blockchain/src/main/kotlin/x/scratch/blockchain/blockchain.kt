@@ -7,13 +7,15 @@ import java.util.Objects
 import kotlin.Int.Companion.MAX_VALUE
 
 fun main() {
-    var blockchain = Blockchain("00")
+    var blockchain = Blockchain.new(
+        difficulty = "00"
+    )
     println(blockchain)
     blockchain.add("Hello, world!")
     println(blockchain)
 
     // Testing example
-    blockchain = Blockchain(
+    blockchain = Blockchain.new(
         difficulty = "",
         timestamp = EPOCH
     )
@@ -25,9 +27,14 @@ fun main() {
     println(blockchain)
 }
 
-class Blockchain(
+fun Blockchain.Companion.new(
     difficulty: String = "",
     timestamp: Instant = Instant.now()
+) = Blockchain(difficulty, timestamp)
+
+class Blockchain(
+    difficulty: String,
+    timestamp: Instant
 ) {
     private val _chain = mutableListOf(Block.first(difficulty, timestamp))
     val chain: List<Block> = _chain
