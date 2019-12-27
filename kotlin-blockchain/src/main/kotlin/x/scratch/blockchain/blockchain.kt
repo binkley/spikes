@@ -13,6 +13,7 @@ fun main() {
     println(blockchain)
     blockchain.add("Hello, world!")
     println(blockchain)
+    println("current=${blockchain.current}")
 
     // Testing example
     blockchain = Blockchain.new(
@@ -25,6 +26,7 @@ fun main() {
         timestamp = Instant.ofEpochMilli(1L)
     )
     println(blockchain)
+    println("current=${blockchain.current}")
 }
 
 class Blockchain private constructor(
@@ -34,8 +36,11 @@ class Blockchain private constructor(
     private val _chain = mutableListOf(Block.first(difficulty, timestamp))
     val chain: List<Block> = _chain
 
+    val current: Block
+        get() = _chain.last()
+
     fun add(data: Any, timestamp: Instant = Instant.now()) {
-        _chain += _chain.last().next(data, timestamp)
+        _chain += current.next(data, timestamp)
     }
 
     override fun equals(other: Any?): Boolean {
