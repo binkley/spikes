@@ -30,12 +30,12 @@ fun main() {
 }
 
 private fun Blockchain.dump() {
-    println(this)
-    println("current=${last()}")
-    println("genesis=${first().genesis}")
-    println("genesis=${last().genesis}")
-    println("first=${this[this[0].hash]}")
-    println("first=${this[last().hash]}")
+    println("blockchain -> $this")
+    println("current -> ${last()}")
+    println("first genesis -> ${first().genesis}")
+    println("last genesis -> ${last().genesis}")
+    println("first by index -> =${this[this[0].hash]}")
+    println("last by hash -> ${this[last().hash]}")
 
     for (block in this) println(block)
 }
