@@ -3,6 +3,7 @@ package x.scratch.blockchain
 import java.lang.System.currentTimeMillis
 import java.security.MessageDigest
 import java.util.Objects
+import kotlin.Int.Companion.MAX_VALUE
 
 @ExperimentalStdlibApi
 fun main() {
@@ -23,19 +24,19 @@ class Block(
     fun next(data: String) = Block(data, hash, difficulty)
 
     private fun hashWithProofOfWork(): String {
-        var nonce = 0
-        var hash = hashWithNonce(0)
-        while (!hash.startsWith(difficulty)) {
-            hash = hashWithNonce(++nonce)
-        }
-        return hash
-    }
+        fun hashWithNonce(nonce: Int) =
+            MessageDigest.getInstance("SHA-256")
+                // TODO: Formatted date
+                .digest((nonce.toString() + timestamp.toString() + previousHash + data).encodeToByteArray())
+                .joinToString("") { "%02x".format(it) }
 
-    private fun hashWithNonce(nonce: Int) =
-        MessageDigest.getInstance("SHA-256")
-            // TODO: Formatted date
-            .digest((nonce.toString() + timestamp.toString() + previousHash + data).encodeToByteArray())
-            .joinToString("") { "%02x".format(it) }
+        for (nonce in 0..MAX_VALUE) {
+            val hash = hashWithNonce(nonce)
+            if (hash.startsWith(difficulty)) return hash
+        }
+
+        throw IllegalStateException("Unable to hash with difficulty: $this")
+    }
 
     override fun equals(other: Any?): Boolean {
         return this === other
