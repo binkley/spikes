@@ -27,12 +27,7 @@ fun main() {
     println(blockchain)
 }
 
-fun Blockchain.Companion.new(
-    difficulty: String = "",
-    timestamp: Instant = Instant.now()
-) = Blockchain(difficulty, timestamp)
-
-class Blockchain(
+class Blockchain private constructor(
     difficulty: String,
     timestamp: Instant
 ) {
@@ -54,24 +49,17 @@ class Blockchain(
     override fun toString() =
         "${super.toString()}{chain=$chain}"
 
-    companion object
+    companion object {
+        fun new(
+            difficulty: String = "",
+            timestamp: Instant = Instant.now()
+        ) = Blockchain(difficulty, timestamp)
+    }
 }
 
 private val sha256 = MessageDigest.getInstance("SHA-256")
 
-fun Block.Companion.first(
-    difficulty: String,
-    timestamp: Instant = Instant.now()
-) =
-    Block(
-        index = 0,
-        data = "Genesis",
-        previousHash = "0".repeat(64),
-        difficulty = difficulty,
-        timestamp = timestamp
-    )
-
-class Block(
+class Block private constructor(
     val index: Long,
     val data: Any,
     val previousHash: String,
@@ -107,5 +95,16 @@ class Block(
     override fun toString() =
         "${super.toString()}{index=$index, timestamp=$timestamp, data=$data, hash=$hash, previousHash=$previousHash}"
 
-    companion object
+    companion object {
+        fun first(
+            difficulty: String,
+            timestamp: Instant = Instant.now()
+        ) = Block(
+            index = 0,
+            data = "Genesis",
+            previousHash = "0".repeat(64),
+            difficulty = difficulty,
+            timestamp = timestamp
+        )
+    }
 }
