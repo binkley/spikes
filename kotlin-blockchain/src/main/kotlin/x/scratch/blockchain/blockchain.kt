@@ -13,7 +13,7 @@ fun main() {
     println(blockchain)
     blockchain.add("Hello, world!")
     println(blockchain)
-    println("current=${blockchain.current}")
+    println("current=${blockchain.last()}")
 
     // Testing example
     blockchain = Blockchain.new(
@@ -26,33 +26,33 @@ fun main() {
         timestamp = Instant.ofEpochMilli(1L)
     )
     println(blockchain)
-    println("current=${blockchain.current}")
+    println("current=${blockchain.last()}")
 }
 
 class Blockchain private constructor(
     difficulty: String,
-    timestamp: Instant
-) {
-    private val _chain = mutableListOf(Block.first(difficulty, timestamp))
-    val chain: List<Block> = _chain
-
-    val current: Block
-        get() = _chain.last()
-
+    timestamp: Instant,
+    private val _chain: MutableList<Block> = mutableListOf(
+        Block.first(
+            difficulty,
+            timestamp
+        )
+    )
+) : List<Block> by _chain {
     fun add(data: Any, timestamp: Instant = Instant.now()) {
-        _chain += current.next(data, timestamp)
+        _chain += last().next(data, timestamp)
     }
 
     override fun equals(other: Any?): Boolean {
         return this === other
                 || other is Blockchain
-                && chain == other.chain
+                && _chain == other._chain
     }
 
-    override fun hashCode() = Objects.hash(chain)
+    override fun hashCode() = Objects.hash(_chain)
 
     override fun toString() =
-        "${super.toString()}{chain=$chain}"
+        "${super.toString()}{chain=$_chain}"
 
     companion object {
         fun new(
