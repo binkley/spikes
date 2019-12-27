@@ -14,7 +14,7 @@ fun main() {
 
 private val sha256 = MessageDigest.getInstance("SHA-256")
 
-fun Block.Companion.first(difficulty: String) =
+fun Block.Companion.first(difficulty: String = "") =
     Block(
         "Genesis",
         "0".repeat(64),
