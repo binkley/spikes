@@ -3,50 +3,10 @@ package x.scratch.blockchain
 import x.scratch.blockchain.Blockchain.Block
 import java.security.MessageDigest
 import java.time.Instant
-import java.time.Instant.EPOCH
-import java.time.Instant.now
 import java.util.Objects
-import kotlin.Int.Companion.MAX_VALUE
 
-fun main() {
-    var blockchain = Blockchain.new(
-        difficulty = 2
-    )
-    blockchain.dump()
-
-    blockchain.newBlock("Hello, world!")
-    blockchain.verify()
-    blockchain.dump()
-
-    println()
-
-    // Testing example
-    blockchain = Blockchain.new(
-        timestamp = EPOCH
-    )
-    blockchain.dump()
-
-    blockchain.newBlock(
-        data = mapOf("greeting" to "Hello, world!"),
-        timestamp = blockchain.first().timestamp.plusMillis(1L)
-    )
-    blockchain.verify()
-    blockchain.dump()
-}
-
-private fun Blockchain.dump() {
-    println("blockchain -> $this")
-    println("difficulty -> $difficulty")
-    println("latest -> ${last()}")
-    println("first genesis -> ${first().genesis}")
-    println("last genesis -> ${last().genesis}")
-    println("first by index -> ${this[this[0].hash]}")
-    println("last by hash -> ${this[last().hash]}")
-
-    for (block in this) println("block#${block.index} -> $block")
-}
-
-private val sha256 = MessageDigest.getInstance("SHA-256")
+private val sha256 =
+    MessageDigest.getInstance("SHA-256")
 private val genesisHash = "0".repeat(64)
 
 class Blockchain private constructor(
@@ -59,7 +19,7 @@ class Blockchain private constructor(
         chain += firstBlock(firstTimestamp)
     }
 
-    fun newBlock(data: Any, timestamp: Instant = now()) {
+    fun newBlock(data: Any, timestamp: Instant = Instant.now()) {
         chain += last().next(data, timestamp)
     }
 
@@ -97,7 +57,7 @@ class Blockchain private constructor(
         }
     }
 
-    private fun firstBlock(timestamp: Instant = now()) =
+    private fun firstBlock(timestamp: Instant = Instant.now()) =
         Block(
             index = 0,
             timestamp = timestamp,
@@ -117,7 +77,7 @@ class Blockchain private constructor(
         val genesis: Boolean
             get() = 0L == index
 
-        fun next(data: Any, timestamp: Instant = now()) =
+        fun next(data: Any, timestamp: Instant = Instant.now()) =
             Block(
                 index = index + 1,
                 timestamp = timestamp,
@@ -131,7 +91,7 @@ class Blockchain private constructor(
                 .digest("$nonce$index$timestamp$hashPrefix$previousHash$data".toByteArray())
                 .joinToString("") { "%02x".format(it) }
 
-            for (nonce in 0..MAX_VALUE) {
+            for (nonce in 0..Int.MAX_VALUE) {
                 val hash = hashWithNonce(nonce)
                 if (hash.startsWith(hashPrefix)) {
                     this.nonce = nonce
@@ -148,7 +108,8 @@ class Blockchain private constructor(
                     && hash == other.hash
         }
 
-        override fun hashCode() = Objects.hash(hash)
+        override fun hashCode() =
+            Objects.hash(hash)
 
         override fun toString() =
             "${super.toString()}{index=$index, timestamp=$timestamp, data=$data, hash=$hash, previousHash=$previousHash, nonce=$nonce}"
@@ -157,7 +118,7 @@ class Blockchain private constructor(
     companion object {
         fun new(
             difficulty: Int = 0,
-            timestamp: Instant = now()
+            timestamp: Instant = Instant.now()
         ) = Blockchain(
             difficulty = difficulty,
             firstTimestamp = timestamp
