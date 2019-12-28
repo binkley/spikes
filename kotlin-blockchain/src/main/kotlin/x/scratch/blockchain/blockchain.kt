@@ -17,7 +17,6 @@ fun main() {
 
     // Testing example
     blockchain = Blockchain.new(
-        difficulty = "",
         timestamp = EPOCH
     )
     blockchain.dump()
@@ -41,37 +40,34 @@ private fun Blockchain.dump() {
 }
 
 class Blockchain private constructor(
-    difficulty: String,
-    timestamp: Instant,
-    private val _chain: MutableList<Block> = mutableListOf(
-        Block.first(
-            difficulty,
-            timestamp
-        )
-    )
-) : List<Block> by _chain {
+    private val chain: MutableList<Block>
+) : List<Block> by chain {
     fun add(data: Any, timestamp: Instant = Instant.now()) {
-        _chain += last().next(data, timestamp)
+        chain += last().next(data, timestamp)
     }
 
-    operator fun get(hash: String) = _chain.firstOrNull { hash == it.hash }
+    operator fun get(hash: String) = firstOrNull { hash == it.hash }
 
-    override fun equals(other: Any?): Boolean {
-        return this === other
-                || other is Blockchain
-                && _chain == other._chain
-    }
+    override fun equals(other: Any?) = this === other
+            || other is Blockchain
+            && chain == other.chain
 
-    override fun hashCode() = Objects.hash(_chain)
+    override fun hashCode() = Objects.hash(chain)
 
-    override fun toString() =
-        "${super.toString()}{chain=$_chain}"
+    override fun toString() = "${super.toString()}{chain=$chain}"
 
     companion object {
         fun new(
             difficulty: String = "",
             timestamp: Instant = Instant.now()
-        ) = Blockchain(difficulty, timestamp)
+        ) = Blockchain(
+            mutableListOf(
+                Block.first(
+                    difficulty,
+                    timestamp
+                )
+            )
+        )
     }
 }
 
