@@ -8,7 +8,7 @@ import kotlin.Int.Companion.MAX_VALUE
 
 fun main() {
     var blockchain = Blockchain.new(
-        difficulty = "00"
+        difficulty = 2
     )
     blockchain.dump()
 
@@ -58,7 +58,7 @@ class Blockchain private constructor(
 
     companion object {
         fun new(
-            difficulty: String = "",
+            difficulty: Int = 0,
             timestamp: Instant = Instant.now()
         ) = Blockchain(
             mutableListOf(
@@ -76,10 +76,10 @@ private val genesisHash = "0".repeat(64)
 
 class Block private constructor(
     val index: Long,
+    val timestamp: Instant,
     val data: Any,
     val previousHash: String,
-    val difficulty: String,
-    val timestamp: Instant
+    val difficulty: Int
 ) {
     val hash: String = hashWithProofOfWork()
 
@@ -87,16 +87,23 @@ class Block private constructor(
         get() = 0L == index
 
     fun next(data: Any, timestamp: Instant = Instant.now()) =
-        Block(index + 1, data, hash, difficulty, timestamp)
+        Block(
+            index = index + 1,
+            timestamp = timestamp,
+            data = data,
+            previousHash = hash,
+            difficulty = difficulty
+        )
 
     private fun hashWithProofOfWork(): String {
+        val prefix = "0".repeat(difficulty)
         fun hashWithNonce(nonce: Int) = sha256
-            .digest("$nonce$index$timestamp$difficulty$previousHash$data".toByteArray())
+            .digest("$nonce$index$timestamp$prefix$previousHash$data".toByteArray())
             .joinToString("") { "%02x".format(it) }
 
         for (nonce in 0..MAX_VALUE) {
             val hash = hashWithNonce(nonce)
-            if (hash.startsWith(difficulty)) return hash
+            if (hash.startsWith(prefix)) return hash
         }
 
         throw IllegalStateException("Unable to complete work: $this")
@@ -111,11 +118,11 @@ class Block private constructor(
     override fun hashCode() = Objects.hash(hash)
 
     override fun toString() =
-        "${super.toString()}{index=$index, timestamp=$timestamp, data=$data, hash=$hash, previousHash=$previousHash}"
+        "${super.toString()}{index=$index, timestamp=$timestamp, data=$data, hash=$hash, previousHash=$previousHash, difficulty=$difficulty}"
 
     companion object {
         fun first(
-            difficulty: String,
+            difficulty: Int,
             timestamp: Instant = Instant.now()
         ) = Block(
             index = 0,
