@@ -1,5 +1,6 @@
 package x.scratch.blockchain
 
+import x.scratch.blockchain.Blockchain.Block
 import java.security.MessageDigest
 import java.time.Instant
 import java.time.Instant.EPOCH
@@ -44,12 +45,17 @@ private fun Blockchain.dump() {
     for (block in this) println(block)
 }
 
+private val sha256 = MessageDigest.getInstance("SHA-256")
+private val genesisHash = "0".repeat(64)
+
 class Blockchain private constructor(
     val difficulty: Int,
-    private val chain: MutableList<Block>
+    timestamp: Instant = Instant.now(),
+    // TODO: To delegate List to chain, need a chain in ctor, not a property
+    private val chain: MutableList<Block> = mutableListOf()
 ) : List<Block> by chain {
     init {
-        verify()
+        chain += firstBlock(timestamp)
     }
 
     fun add(data: Any, timestamp: Instant = Instant.now()) {
@@ -90,88 +96,72 @@ class Blockchain private constructor(
         }
     }
 
+    private fun firstBlock(timestamp: Instant) =
+        Block(
+            index = 0,
+            timestamp = timestamp,
+            data = "Genesis",
+            previousHash = genesisHash,
+            nonce = 0
+        )
+
+    inner class Block internal constructor(
+        val index: Long,
+        val timestamp: Instant,
+        val data: Any,
+        val previousHash: String,
+        var nonce: Int
+    ) {
+        val hash: String = hashWithProofOfWork()
+
+        val genesis: Boolean
+            get() = 0L == index
+
+        fun next(data: Any, timestamp: Instant = Instant.now()) =
+            Block(
+                index = index + 1,
+                timestamp = timestamp,
+                data = data,
+                previousHash = hash,
+                nonce = 0
+            )
+
+        private fun hashWithProofOfWork(): String {
+            val hashPrefix = "0".repeat(difficulty)
+            fun hashWithNonce(nonce: Int) = sha256
+                .digest("$nonce$index$timestamp$hashPrefix$previousHash$data".toByteArray())
+                .joinToString("") { "%02x".format(it) }
+
+            for (nonce in 0..MAX_VALUE) {
+                val hash = hashWithNonce(nonce)
+                if (hash.startsWith(hashPrefix)) {
+                    this.nonce = nonce
+                    return hash
+                }
+            }
+
+            throw IllegalStateException("Unable to complete work: $this")
+        }
+
+        override fun equals(other: Any?): Boolean {
+            return this === other
+                    || other is Block
+                    && hash == other.hash
+        }
+
+        override fun hashCode() = Objects.hash(hash)
+
+        override fun toString() =
+            "${super.toString()}{index=$index, timestamp=$timestamp, data=$data, hash=$hash, previousHash=$previousHash, difficulty=$difficulty, nonce=$nonce}"
+    }
+
     companion object {
         fun new(
             difficulty: Int = 0,
             timestamp: Instant = Instant.now()
         ) = Blockchain(
-            // TODO: Share readability among blocks
             difficulty = difficulty,
-            chain = mutableListOf(
-                Block.first(
-                    timestamp = timestamp,
-                    difficulty = difficulty
-                )
-            )
-        )
-    }
-}
-
-private val sha256 = MessageDigest.getInstance("SHA-256")
-private val genesisHash = "0".repeat(64)
-
-class Block private constructor(
-    val index: Long,
-    val timestamp: Instant,
-    val data: Any,
-    val previousHash: String,
-    val difficulty: Int,
-    var nonce: Int
-) {
-    val hash: String = hashWithProofOfWork()
-
-    val genesis: Boolean
-        get() = 0L == index
-
-    fun next(data: Any, timestamp: Instant = Instant.now()) =
-        Block(
-            index = index + 1,
-            timestamp = timestamp,
-            data = data,
-            previousHash = hash,
-            difficulty = difficulty,
-            nonce = 0
-        )
-
-    private fun hashWithProofOfWork(): String {
-        val hashPrefix = "0".repeat(difficulty)
-        fun hashWithNonce(nonce: Int) = sha256
-            .digest("$nonce$index$timestamp$hashPrefix$previousHash$data".toByteArray())
-            .joinToString("") { "%02x".format(it) }
-
-        for (nonce in 0..MAX_VALUE) {
-            val hash = hashWithNonce(nonce)
-            if (hash.startsWith(hashPrefix)) {
-                this.nonce = nonce
-                return hash
-            }
-        }
-
-        throw IllegalStateException("Unable to complete work: $this")
-    }
-
-    override fun equals(other: Any?): Boolean {
-        return this === other
-                || other is Block
-                && hash == other.hash
-    }
-
-    override fun hashCode() = Objects.hash(hash)
-
-    override fun toString() =
-        "${super.toString()}{index=$index, timestamp=$timestamp, data=$data, hash=$hash, previousHash=$previousHash, difficulty=$difficulty, nonce=$nonce}"
-
-    companion object {
-        fun first(
-            difficulty: Int,
-            timestamp: Instant = Instant.now()
-        ) = Block(
-            index = 0,
-            timestamp = timestamp,
-            data = "Genesis",
-            previousHash = genesisHash,
-            difficulty = difficulty,
-            nonce = 0
+            timestamp = timestamp
         )
     }
 }
