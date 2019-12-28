@@ -114,7 +114,8 @@ class Block private constructor(
     val timestamp: Instant,
     val data: Any,
     val previousHash: String,
-    val difficulty: Int
+    val difficulty: Int,
+    var nonce: Int
 ) {
     val hash: String = hashWithProofOfWork()
 
@@ -127,7 +128,8 @@ class Block private constructor(
             timestamp = timestamp,
             data = data,
             previousHash = hash,
-            difficulty = difficulty
+            difficulty = difficulty,
+            nonce = 0
         )
 
     private fun hashWithProofOfWork(): String {
@@ -138,7 +140,10 @@ class Block private constructor(
 
         for (nonce in 0..MAX_VALUE) {
             val hash = hashWithNonce(nonce)
-            if (hash.startsWith(hashPrefix)) return hash
+            if (hash.startsWith(hashPrefix)) {
+                this.nonce = nonce
+                return hash
+            }
         }
 
         throw IllegalStateException("Unable to complete work: $this")
@@ -153,7 +158,7 @@ class Block private constructor(
     override fun hashCode() = Objects.hash(hash)
 
     override fun toString() =
-        "${super.toString()}{index=$index, timestamp=$timestamp, data=$data, hash=$hash, previousHash=$previousHash, difficulty=$difficulty}"
+        "${super.toString()}{index=$index, timestamp=$timestamp, data=$data, hash=$hash, previousHash=$previousHash, difficulty=$difficulty, nonce=$nonce}"
 
     companion object {
         fun first(
@@ -161,10 +166,11 @@ class Block private constructor(
             timestamp: Instant = Instant.now()
         ) = Block(
             index = 0,
+            timestamp = timestamp,
             data = "Genesis",
             previousHash = genesisHash,
             difficulty = difficulty,
-            timestamp = timestamp
+            nonce = 0
         )
     }
 }
