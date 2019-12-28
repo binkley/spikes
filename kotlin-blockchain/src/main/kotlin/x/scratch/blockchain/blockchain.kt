@@ -14,6 +14,9 @@ fun main() {
 
     blockchain.add("Hello, world!")
     blockchain.dump()
+    blockchain.verify()
+
+    println()
 
     // Testing example
     blockchain = Blockchain.new(
@@ -26,11 +29,13 @@ fun main() {
         timestamp = blockchain.first().timestamp.plusMillis(1L)
     )
     blockchain.dump()
+    blockchain.verify()
 }
 
 private fun Blockchain.dump() {
     println("blockchain -> $this")
-    println("current -> ${last()}")
+    println("difficulty -> $difficulty")
+    println("latest -> ${last()}")
     println("first genesis -> ${first().genesis}")
     println("last genesis -> ${last().genesis}")
     println("first by index -> =${this[this[0].hash]}")
@@ -40,8 +45,13 @@ private fun Blockchain.dump() {
 }
 
 class Blockchain private constructor(
+    val difficulty: Int,
     private val chain: MutableList<Block>
 ) : List<Block> by chain {
+    init {
+        verify()
+    }
+
     fun add(data: Any, timestamp: Instant = Instant.now()) {
         chain += last().next(data, timestamp)
     }
@@ -56,11 +66,36 @@ class Blockchain private constructor(
 
     override fun toString() = "${super.toString()}{chain=$chain}"
 
+    fun verify() {
+        var previousIndex = -1L
+        var previousTimestamp = Instant.MIN
+        var previousHash = genesisHash
+        val hashPrefix = "0".repeat(difficulty)
+
+        for (block in chain) {
+            if (block.index > previousIndex)
+                previousIndex = block.index
+            else throw IllegalStateException("Out of sequence: $chain")
+
+            if (block.timestamp.isAfter(previousTimestamp))
+                previousTimestamp = block.timestamp
+            else throw IllegalStateException("Out of order: $chain")
+
+            if (block.previousHash == previousHash)
+                previousHash = block.hash
+            else throw IllegalStateException("Corrupted: $chain")
+
+            if (!block.hash.startsWith(hashPrefix))
+                throw IllegalStateException("Too easy: $chain")
+        }
+    }
+
     companion object {
         fun new(
             difficulty: Int = 0,
             timestamp: Instant = Instant.now()
         ) = Blockchain(
+            difficulty,
             mutableListOf(
                 Block.first(
                     difficulty,
@@ -96,14 +131,14 @@ class Block private constructor(
         )
 
     private fun hashWithProofOfWork(): String {
-        val prefix = "0".repeat(difficulty)
+        val hashPrefix = "0".repeat(difficulty)
         fun hashWithNonce(nonce: Int) = sha256
-            .digest("$nonce$index$timestamp$prefix$previousHash$data".toByteArray())
+            .digest("$nonce$index$timestamp$hashPrefix$previousHash$data".toByteArray())
             .joinToString("") { "%02x".format(it) }
 
         for (nonce in 0..MAX_VALUE) {
             val hash = hashWithNonce(nonce)
-            if (hash.startsWith(prefix)) return hash
+            if (hash.startsWith(hashPrefix)) return hash
         }
 
         throw IllegalStateException("Unable to complete work: $this")
