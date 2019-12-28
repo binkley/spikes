@@ -95,11 +95,12 @@ class Blockchain private constructor(
             difficulty: Int = 0,
             timestamp: Instant = Instant.now()
         ) = Blockchain(
-            difficulty,
-            mutableListOf(
+            // TODO: Share readability among blocks
+            difficulty = difficulty,
+            chain = mutableListOf(
                 Block.first(
-                    difficulty,
-                    timestamp
+                    timestamp = timestamp,
+                    difficulty = difficulty
                 )
             )
         )
