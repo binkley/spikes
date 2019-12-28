@@ -13,9 +13,9 @@ fun main() {
     )
     blockchain.dump()
 
-    blockchain.add("Hello, world!")
-    blockchain.dump()
+    blockchain.newBlock("Hello, world!")
     blockchain.verify()
+    blockchain.dump()
 
     println()
 
@@ -25,12 +25,12 @@ fun main() {
     )
     blockchain.dump()
 
-    blockchain.add(
+    blockchain.newBlock(
         data = mapOf("greeting" to "Hello, world!"),
         timestamp = blockchain.first().timestamp.plusMillis(1L)
     )
-    blockchain.dump()
     blockchain.verify()
+    blockchain.dump()
 }
 
 private fun Blockchain.dump() {
@@ -58,7 +58,7 @@ class Blockchain private constructor(
         chain += firstBlock(timestamp)
     }
 
-    fun add(data: Any, timestamp: Instant = Instant.now()) {
+    fun newBlock(data: Any, timestamp: Instant = Instant.now()) {
         chain += last().next(data, timestamp)
     }
 
