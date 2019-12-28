@@ -4,6 +4,7 @@ import x.scratch.blockchain.Blockchain.Block
 import java.security.MessageDigest
 import java.time.Instant
 import java.time.Instant.EPOCH
+import java.time.Instant.now
 import java.util.Objects
 import kotlin.Int.Companion.MAX_VALUE
 
@@ -50,7 +51,7 @@ private val genesisHash = "0".repeat(64)
 
 class Blockchain private constructor(
     val difficulty: Int,
-    timestamp: Instant = Instant.now(),
+    timestamp: Instant,
     // TODO: To delegate List to chain, need a chain in ctor, not a property
     private val chain: MutableList<Block> = mutableListOf()
 ) : List<Block> by chain {
@@ -58,7 +59,7 @@ class Blockchain private constructor(
         chain += firstBlock(timestamp)
     }
 
-    fun newBlock(data: Any, timestamp: Instant = Instant.now()) {
+    fun newBlock(data: Any, timestamp: Instant = now()) {
         chain += last().next(data, timestamp)
     }
 
@@ -96,13 +97,12 @@ class Blockchain private constructor(
         }
     }
 
-    private fun firstBlock(timestamp: Instant) =
+    private fun firstBlock(timestamp: Instant = now()) =
         Block(
             index = 0,
             timestamp = timestamp,
             data = "Genesis",
-            previousHash = genesisHash,
-            nonce = 0
+            previousHash = genesisHash
         )
 
     inner class Block internal constructor(
@@ -110,20 +110,19 @@ class Blockchain private constructor(
         val timestamp: Instant,
         val data: Any,
         val previousHash: String,
-        var nonce: Int
+        var nonce: Int = Int.MIN_VALUE // TODO: A bad thing if it happens
     ) {
         val hash: String = hashWithProofOfWork()
 
         val genesis: Boolean
             get() = 0L == index
 
-        fun next(data: Any, timestamp: Instant = Instant.now()) =
+        fun next(data: Any, timestamp: Instant = now()) =
             Block(
                 index = index + 1,
                 timestamp = timestamp,
                 data = data,
-                previousHash = hash,
-                nonce = 0
+                previousHash = hash
             )
 
         private fun hashWithProofOfWork(): String {
@@ -158,7 +157,7 @@ class Blockchain private constructor(
     companion object {
         fun new(
             difficulty: Int = 0,
-            timestamp: Instant = Instant.now()
+            timestamp: Instant = now()
         ) = Blockchain(
             difficulty = difficulty,
             timestamp = timestamp
