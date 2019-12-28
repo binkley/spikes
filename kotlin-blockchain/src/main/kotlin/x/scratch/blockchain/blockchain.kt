@@ -23,7 +23,7 @@ fun main() {
 
     blockchain.add(
         data = mapOf("greeting" to "Hello, world!"),
-        timestamp = Instant.ofEpochMilli(1L)
+        timestamp = blockchain.first().timestamp.plusMillis(1L)
     )
     blockchain.dump()
 }
