@@ -51,12 +51,12 @@ private val genesisHash = "0".repeat(64)
 
 class Blockchain private constructor(
     val difficulty: Int,
-    timestamp: Instant,
+    firstTimestamp: Instant,
     // TODO: To delegate List to chain, need a chain in ctor, not a property
     private val chain: MutableList<Block> = mutableListOf()
 ) : List<Block> by chain {
     init {
-        chain += firstBlock(timestamp)
+        chain += firstBlock(firstTimestamp)
     }
 
     fun newBlock(data: Any, timestamp: Instant = now()) {
@@ -160,7 +160,7 @@ class Blockchain private constructor(
             timestamp: Instant = now()
         ) = Blockchain(
             difficulty = difficulty,
-            timestamp = timestamp
+            firstTimestamp = timestamp
         )
     }
 }
