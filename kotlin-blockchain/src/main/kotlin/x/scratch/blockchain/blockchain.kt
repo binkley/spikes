@@ -40,10 +40,10 @@ private fun Blockchain.dump() {
     println("latest -> ${last()}")
     println("first genesis -> ${first().genesis}")
     println("last genesis -> ${last().genesis}")
-    println("first by index -> =${this[this[0].hash]}")
+    println("first by index -> ${this[this[0].hash]}")
     println("last by hash -> ${this[last().hash]}")
 
-    for (block in this) println(block)
+    for (block in this) println("block#${block.index} -> $block")
 }
 
 private val sha256 = MessageDigest.getInstance("SHA-256")
@@ -151,7 +151,7 @@ class Blockchain private constructor(
         override fun hashCode() = Objects.hash(hash)
 
         override fun toString() =
-            "${super.toString()}{index=$index, timestamp=$timestamp, data=$data, hash=$hash, previousHash=$previousHash, difficulty=$difficulty, nonce=$nonce}"
+            "${super.toString()}{index=$index, timestamp=$timestamp, data=$data, hash=$hash, previousHash=$previousHash, nonce=$nonce}"
     }
 
     companion object {
