@@ -1,6 +1,6 @@
 # Kotlin blockchain
 
-An example blockchain in Kotlin.
+An example blockchain in Kotlin. &#x1F337;&#x1F337;&#x1F337;
 
 <a href="../LICENSE.md">
 <img src="https://unlicense.org/pd-icon.png" alt="Public Domain" align="right"/>
