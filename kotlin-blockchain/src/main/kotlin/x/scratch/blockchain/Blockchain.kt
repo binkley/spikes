@@ -30,7 +30,8 @@ class Blockchain private constructor(
 
     override fun hashCode() = Objects.hash(chain)
 
-    override fun toString() = "${super.toString()}{chain=$chain}"
+    override fun toString() =
+        "${super.toString()}{difficulty=$difficulty, chain=$chain}"
 
     fun check() {
         var previousIndex = -1L
