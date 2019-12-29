@@ -5,9 +5,8 @@ import java.security.MessageDigest
 import java.time.Instant
 import java.util.Objects
 
-private val sha256 =
-    MessageDigest.getInstance("SHA-256")
-private val genesisHash = "0".repeat(64)
+private const val genesisHash = "0"
+private val sha256 = MessageDigest.getInstance("SHA-256")
 
 class Blockchain private constructor(
     val difficulty: Int,
