@@ -10,4 +10,12 @@ This software is in the Public Domain.  Please see [LICENSE.md](../LICENSE.md).
 
 [![License](https://img.shields.io/badge/license-PD-blue.svg)](http://unlicense.org)
 
+## Getting started
+
+```
+$ ./run.sh
+```
+
+## See also
+
 See [Awesome Blockchains](https://github.com/openblockchains/awesome-blockchains)
