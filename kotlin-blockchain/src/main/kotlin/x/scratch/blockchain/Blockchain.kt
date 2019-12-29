@@ -40,12 +40,11 @@ class Blockchain private constructor(
         val hashPrefix = "0".repeat(difficulty)
 
         for (block in chain) {
-            block.check()
-
-            if (block.index > previousIndex)
+            if (block.index == previousIndex + 1)
                 previousIndex = block.index
             else throw IllegalStateException("Out of sequence: $chain")
 
+            // TODO: Is it legit to have same timestamp for blocks?
             if (block.timestamp.isAfter(previousTimestamp))
                 previousTimestamp = block.timestamp
             else throw IllegalStateException("Out of order: $chain")
@@ -56,6 +55,8 @@ class Blockchain private constructor(
 
             if (!block.hash.startsWith(hashPrefix))
                 throw IllegalStateException("Too easy: $chain")
+
+            block.check()
         }
     }
 
