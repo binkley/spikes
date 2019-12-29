@@ -32,13 +32,15 @@ class Blockchain private constructor(
 
     override fun toString() = "${super.toString()}{chain=$chain}"
 
-    fun verify() {
+    fun check() {
         var previousIndex = -1L
         var previousTimestamp = Instant.MIN
         var previousHash = genesisHash
         val hashPrefix = "0".repeat(difficulty)
 
         for (block in chain) {
+            block.check()
+
             if (block.index > previousIndex)
                 previousIndex = block.index
             else throw IllegalStateException("Out of sequence: $chain")
@@ -83,6 +85,11 @@ class Blockchain private constructor(
                 data = data,
                 previousHash = hash
             )
+
+        fun check() {
+            if (hash != hashWithProofOfWork())
+                throw IllegalStateException("Corrupted: $this")
+        }
 
         private fun hashWithProofOfWork(): String {
             val hashPrefix = "0".repeat(difficulty)

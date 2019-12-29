@@ -9,7 +9,7 @@ fun main() {
     blockchain.dump()
 
     blockchain.newBlock("Hello, world!")
-    blockchain.verify()
+    blockchain.check()
     blockchain.dump()
 
     println()
@@ -24,7 +24,7 @@ fun main() {
         data = mapOf("greeting" to "Hello, world!"),
         timestamp = blockchain.first().timestamp.plusMillis(1L)
     )
-    blockchain.verify()
+    blockchain.check()
     blockchain.dump()
 }
 
