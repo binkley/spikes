@@ -6,7 +6,7 @@ import java.time.Instant
 import java.util.Objects
 
 private const val genesisHash = "0"
-private val sha256 = MessageDigest.getInstance("SHA-256")
+private val sha2 = MessageDigest.getInstance("SHA-512")
 
 class Blockchain private constructor(
     val difficulty: Int,
@@ -96,7 +96,7 @@ class Blockchain private constructor(
 
         private fun hashWithProofOfWork(): String {
             val hashPrefix = "0".repeat(difficulty)
-            fun hashWithNonce(nonce: Int) = sha256
+            fun hashWithNonce(nonce: Int) = sha2
                 .digest("$nonce$index$timestamp$hashPrefix$previousHash$data".toByteArray())
                 .joinToString("") { "%02x".format(it) }
 
