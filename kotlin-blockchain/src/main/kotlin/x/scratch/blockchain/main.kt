@@ -1,34 +1,55 @@
 package x.scratch.blockchain
 
+import java.time.Duration
+import java.time.Instant
 import java.time.Instant.EPOCH
 
-fun main() {
-    var blockchain = Blockchain.new(
-        difficulty = 2
-    )
-    blockchain.dump()
+fun <R> timing(block: () -> R): Pair<R, Duration> {
+    val start = Instant.now()
+    val result = block()!!
+    val end = Instant.now()
+    return result to Duration.between(start, end)
+}
 
-    blockchain.newBlock("Hello, world!")
-    blockchain.check()
-    blockchain.dump()
+fun main() {
+    var running = timing {
+        Blockchain.new()
+    }
+    println("Genesis timing -> ${running.second}")
+    var blockchain = running.first
+    blockchain.checkAndDump()
+
+    running = timing {
+        blockchain.newBlock("Hello, world!")
+    }
+    println("New block timing -> ${running.second}")
+    blockchain.checkAndDump()
 
     println()
 
-    // Testing example
-    blockchain = Blockchain.new(
-        timestamp = EPOCH
-    )
-    blockchain.dump()
+    running = timing {
+        Blockchain.new(
+            difficulty = 4,
+            timestamp = EPOCH
+        )
+    }
+    println("Genesis timing -> ${running.second}")
+    blockchain = running.first
+    blockchain.checkAndDump()
 
-    blockchain.newBlock(
-        data = mapOf("greeting" to "Hello, world!"),
-        timestamp = blockchain.first().timestamp.plusMillis(1L)
-    )
-    blockchain.check()
-    blockchain.dump()
+    running = timing {
+        blockchain.newBlock(
+            data = mapOf("greeting" to "Hello, world!"),
+            timestamp = blockchain.first().timestamp.plusMillis(1L)
+        )
+    }
+    println("New block timing -> ${running.second}")
+    blockchain.checkAndDump()
 }
 
-private fun Blockchain.dump() {
+private fun Blockchain.checkAndDump() {
+    check()
+
     println("blockchain -> $this")
     println("difficulty -> $difficulty")
     println("latest -> ${last()}")

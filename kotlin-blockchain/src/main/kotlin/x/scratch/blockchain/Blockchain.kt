@@ -18,8 +18,9 @@ class Blockchain private constructor(
         chain += firstBlock(firstTimestamp)
     }
 
-    fun newBlock(data: Any, timestamp: Instant = Instant.now()) {
+    fun newBlock(data: Any, timestamp: Instant = Instant.now()): Blockchain {
         chain += last().next(data, timestamp)
+        return this
     }
 
     operator fun get(hash: String) = firstOrNull { hash == it.hash }
