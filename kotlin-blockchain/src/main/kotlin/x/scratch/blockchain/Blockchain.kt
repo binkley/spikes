@@ -9,6 +9,7 @@ private const val genesisData = "Genesis"
 private const val genesisHash = "0"
 
 class Blockchain private constructor(
+    purpose: String,
     val difficulty: Int, // TODO: Property of the chain, not the block
     initialFunctions: Set<String>,
     genesisTimestamp: Instant,
@@ -17,6 +18,7 @@ class Blockchain private constructor(
 ) : List<Block> by chain {
     init {
         chain += genesisBlock(
+            purpose = purpose,
             initialFunctions = initialFunctions,
             genesisTimestamp = genesisTimestamp
         )
@@ -24,11 +26,13 @@ class Blockchain private constructor(
 
     fun newBlock(
         data: Any,
+        purpose: String,
         functions: Set<String> = previousFunctions(),
         timestamp: Instant = Instant.now()
     ) = apply {
         chain += last().next(
             data = data,
+            purpose = purpose,
             functions = functions,
             timestamp = timestamp
         )
@@ -84,12 +88,14 @@ class Blockchain private constructor(
     }
 
     private fun genesisBlock(
+        purpose: String,
         initialFunctions: Set<String>,
         genesisTimestamp: Instant
     ) = Block(
         height = 0,
         timestamp = genesisTimestamp,
         data = genesisData,
+        purpose = purpose,
         functions = initialFunctions,
         previousHashes = initialFunctions.map {
             it to genesisHash
@@ -102,6 +108,7 @@ class Blockchain private constructor(
         val height: Long,
         val timestamp: Instant,
         val data: Any,
+        val purpose: String,
         functions: Set<String>,
         val previousHashes: Map<String, String>,
         private var _nonce: Int = Int.MIN_VALUE
@@ -130,12 +137,14 @@ class Blockchain private constructor(
 
         fun next(
             data: Any,
+            purpose: String,
             functions: Set<String>,
             timestamp: Instant
         ) = Block(
             height = height + 1,
             timestamp = timestamp,
             data = data,
+            purpose = purpose,
             functions = functions,
             previousHashes = hashes
         )
@@ -154,7 +163,7 @@ class Blockchain private constructor(
 
                 return (digests[function]
                     ?: error("BUG: No message digest for function: $function"))
-                    .digest("$nonce$height$timestamp$hashPrefix$previousHash$data".toByteArray())
+                    .digest("$nonce$height$timestamp$data$purpose$hashPrefix$previousHash".toByteArray())
                     .joinToString("") { "%02x".format(it) }
             }
 
@@ -182,17 +191,19 @@ class Blockchain private constructor(
         override fun hashCode() = Objects.hash(hashes)
 
         override fun toString() =
-            "${super.toString()}{height=$height, timestamp=$timestamp, data=$data, hashes=$hashes, previousHashes=$previousHashes, nonce=$nonce}"
+            "${super.toString()}{height=$height, timestamp=$timestamp, data=$data, purpose=$purpose, hashes=$hashes, previousHashes=$previousHashes, nonce=$nonce}"
     }
 
     companion object {
         val DEFAULT_FUNCTIONS = setOf("SHA-256") // SHA2
 
         fun new(
+            purpose: String,
             difficulty: Int = 0,
             initialFunctions: Set<String> = DEFAULT_FUNCTIONS,
             genesisTimestamp: Instant = Instant.now()
         ) = Blockchain(
+            purpose = purpose,
             difficulty = difficulty,
             initialFunctions = initialFunctions,
             genesisTimestamp = genesisTimestamp

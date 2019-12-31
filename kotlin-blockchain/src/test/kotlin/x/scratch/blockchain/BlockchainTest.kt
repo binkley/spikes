@@ -9,21 +9,28 @@ import java.time.Instant.EPOCH
 internal class BlockchainTest {
     @Test
     fun `should hash first block`() {
-        val blockchain = Blockchain.new(genesisTimestamp = EPOCH)
+        val blockchain = Blockchain.new(
+            purpose = "Testing",
+            genesisTimestamp = EPOCH
+        )
 
         blockchain.check(DEFAULT_FUNCTIONS)
 
         assertEquals(
-            "d7cce22abb7945c814718fb71c5a2d27f2da47a39a01aee14e5b2a1cddb9bdd9",
+            "fd4d9c45f4305ce40fd2ce6d5866eff8af45cbb358e23e780745db58c4e17661",
             blockchain[0].hashes["SHA-256"]
         )
     }
 
     @Test
     fun `should hash second block`() {
-        val blockchain = Blockchain.new(genesisTimestamp = EPOCH)
+        val blockchain = Blockchain.new(
+            purpose = "Testing",
+            genesisTimestamp = EPOCH
+        )
 
         blockchain.newBlock(
+            purpose = "Testing",
             data = "FRODO LIVES!",
             timestamp = blockchain[0].timestamp.plusMillis(1L)
         )
@@ -31,7 +38,7 @@ internal class BlockchainTest {
         blockchain.check(DEFAULT_FUNCTIONS)
 
         assertEquals(
-            "f0d286cf862f2996442ef74bf49772a7c5f01c1680f8b4f1c1634f5222c80d8c",
+            "a7c3ea75ae0c9e865116939dbad61b43f874ec62cfe962b51be2ed8a0490a010",
             blockchain[1].hashes["SHA-256"]
         )
     }
@@ -40,6 +47,7 @@ internal class BlockchainTest {
     fun `should have independent hash functions`() {
         val functions = setOf("MD5", "SHA-256")
         val blockchain = Blockchain.new(
+            purpose = "Testing",
             initialFunctions = functions,
             genesisTimestamp = EPOCH
         )
@@ -47,11 +55,11 @@ internal class BlockchainTest {
         blockchain.check(functions)
 
         assertEquals(
-            "b3bc804211d93a6312c84c74b90cc64b",
+            "cf48b3eccbe0d3ecbaf4b25d370a2fcc",
             blockchain[0].hashes["MD5"]
         )
         assertEquals(
-            "d7cce22abb7945c814718fb71c5a2d27f2da47a39a01aee14e5b2a1cddb9bdd9",
+            "fd4d9c45f4305ce40fd2ce6d5866eff8af45cbb358e23e780745db58c4e17661",
             blockchain[0].hashes["SHA-256"]
         )
     }
@@ -60,12 +68,14 @@ internal class BlockchainTest {
     fun `should drop obsolete hash functions`() {
         val functions = setOf("MD5", "SHA-256")
         val blockchain = Blockchain.new(
+            purpose = "Testing",
             initialFunctions = functions,
             genesisTimestamp = EPOCH
         )
 
         blockchain.newBlock(
             data = "FRODO LIVES!",
+            purpose = "Testing",
             functions = setOf("SHA-256"),
             timestamp = blockchain[0].timestamp.plusMillis(1L)
         )
@@ -74,7 +84,7 @@ internal class BlockchainTest {
 
         assertNull(blockchain[1].hashes["MD5"])
         assertEquals(
-            "f0d286cf862f2996442ef74bf49772a7c5f01c1680f8b4f1c1634f5222c80d8c",
+            "a7c3ea75ae0c9e865116939dbad61b43f874ec62cfe962b51be2ed8a0490a010",
             blockchain[1].hashes["SHA-256"]
         )
     }

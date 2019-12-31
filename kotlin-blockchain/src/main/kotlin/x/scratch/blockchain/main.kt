@@ -58,6 +58,7 @@ private fun runTimeAndDump(
 
     var running = timing {
         Blockchain.new(
+            purpose = "Example",
             difficulty = difficulty,
             genesisTimestamp = genesisTimestamp
         )
@@ -70,6 +71,7 @@ private fun runTimeAndDump(
 
     running = timing {
         blockchain.newBlock(
+            purpose = "Example",
             data = firstBlockData,
             // Add some hash functions to existing chain
             functions = setOf("MD5", "SHA-256", "SHA3-256"),
