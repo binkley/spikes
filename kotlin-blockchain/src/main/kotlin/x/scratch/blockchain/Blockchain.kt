@@ -9,10 +9,10 @@ private const val genesisData = "Genesis"
 private const val genesisHash = "0"
 
 class Blockchain private constructor(
-    val difficulty: Int,
+    val difficulty: Int, // Property of the chain, not the block
     firstFunctions: Set<String>,
     firstTimestamp: Instant,
-    // TODO: To delegate List to chain, need a chain in ctor, not a property
+    // TODO: To delegate List to chain, must use in the ctor args
     private val chain: MutableList<Block> = mutableListOf()
 ) : List<Block> by chain {
     init {
@@ -99,9 +99,11 @@ class Blockchain private constructor(
         val data: Any,
         functions: Set<String>,
         val previousHashes: Map<String, String>,
-        var nonce: Int = Int.MIN_VALUE
+        private var _nonce: Int = Int.MIN_VALUE
     ) {
         val hashes: Map<String, String> = hashesWithProofOfWork(functions)
+        val nonce: Int
+            get() = _nonce
 
         val genesis: Boolean
             get() = 0L == index
@@ -141,7 +143,7 @@ class Blockchain private constructor(
                 for (nonce in 0..Int.MAX_VALUE) {
                     val hash = hashWithNonce(function, nonce)
                     if (hash.startsWith(hashPrefix)) {
-                        this.nonce = nonce
+                        this._nonce = nonce
                         return hash
                     }
                 }
