@@ -62,7 +62,7 @@ class Blockchain private constructor(
      * Validates the blockchain.  This is an expensive operation.  Please use
      * it simple tests only.
      */
-    fun check(functions: Set<String>) {
+    fun verify(functions: Set<String>) {
         var previousHeight = -1L
         var previousTimestamp = Instant.MIN
         var previousHashes = functions.map {
@@ -83,7 +83,7 @@ class Blockchain private constructor(
                 previousHashes = block.hashes
             else error("Corrupted: $chain")
 
-            block.check()
+            block.verify()
         }
     }
 
@@ -124,7 +124,7 @@ class Blockchain private constructor(
          * Validates the block.  This is an expensive operation.  Please use
          * it simple tests only.
          */
-        fun check() {
+        fun verify() {
             // TODO: This is horrid.  It runs as slowly as creating the block
             if (hashes != allHashesWithProofOfWork(hashes.keys))
                 error("Corrupted: $this")

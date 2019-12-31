@@ -22,8 +22,8 @@ fun main() {
     }
 }
 
-private fun Blockchain.checkAndDump() {
-    check(Blockchain.DEFAULT_FUNCTIONS)
+private fun Blockchain.verifyAndDump() {
+    verify(Blockchain.DEFAULT_FUNCTIONS)
 
     println("difficulty -> $difficulty")
     println("blockchain -> $this")
@@ -65,7 +65,7 @@ private fun runTimeAndDump(
     }
     val blockchain = running.first
     println("Genesis timing -> ${running.second}")
-    blockchain.checkAndDump()
+    blockchain.verifyAndDump()
 
     println()
 
@@ -79,5 +79,5 @@ private fun runTimeAndDump(
         )
     }
     println("New block timing -> ${running.second}")
-    blockchain.checkAndDump()
+    blockchain.verifyAndDump()
 }
