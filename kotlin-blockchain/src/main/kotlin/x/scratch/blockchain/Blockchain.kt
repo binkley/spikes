@@ -104,6 +104,10 @@ class Blockchain private constructor(
 
     private fun previousFunctions() = last().hashes.keys
 
+    private fun computeHashPrefixFromDifficulty(): String {
+        return "0".repeat(difficulty)
+    }
+
     inner class Block internal constructor(
         val height: Long,
         val timestamp: Instant,
@@ -129,7 +133,7 @@ class Blockchain private constructor(
             if (hashes != allHashesWithProofOfWork(hashes.keys))
                 error("Corrupted: $this")
 
-            val hashPrefix = "0".repeat(difficulty)
+            val hashPrefix = computeHashPrefixFromDifficulty()
             for (hash in hashes.values)
                 if (!hash.startsWith(hashPrefix))
                     error("Too easy: $this")
@@ -151,7 +155,7 @@ class Blockchain private constructor(
 
         private fun allHashesWithProofOfWork(functions: Set<String>)
                 : Map<String, String> {
-            val hashPrefix = "0".repeat(difficulty)
+            val hashPrefix = computeHashPrefixFromDifficulty()
             val digests = functions.map { function ->
                 function to MessageDigest.getInstance(function)
             }.toMap()  // Memoize
