@@ -13,7 +13,7 @@ class Blockchain private constructor(
     val difficulty: Int, // TODO: Property of the chain, not the block
     initialFunctions: Set<String>,
     genesisTimestamp: Instant,
-    // TODO: To delegate List to chain, must use in the ctor args
+    // TODO: Kotlin, how to delegate to a non-ctor arg?
     private val chain: MutableList<Block> = mutableListOf()
 ) : List<Block> by chain {
     init {
@@ -104,10 +104,6 @@ class Blockchain private constructor(
 
     private fun previousFunctions() = last().hashes.keys
 
-    private fun computeHashPrefixFromDifficulty(): String {
-        return "0".repeat(difficulty)
-    }
-
     inner class Block internal constructor(
         val height: Long,
         val timestamp: Instant,
@@ -133,7 +129,7 @@ class Blockchain private constructor(
             if (hashes != allHashesWithProofOfWork(hashes.keys))
                 error("Corrupted: $this")
 
-            val hashPrefix = computeHashPrefixFromDifficulty()
+            val hashPrefix = computeHashPrefixFromDifficulty(difficulty)
             for (hash in hashes.values)
                 if (!hash.startsWith(hashPrefix))
                     error("Too easy: $this")
@@ -155,25 +151,23 @@ class Blockchain private constructor(
 
         private fun allHashesWithProofOfWork(functions: Set<String>)
                 : Map<String, String> {
-            val hashPrefix = computeHashPrefixFromDifficulty()
+            val hashPrefix = computeHashPrefixFromDifficulty(difficulty)
             val digests = functions.map { function ->
-                function to MessageDigest.getInstance(function)
+                // TODO: Kotlin, how to say non-null if the JDK throws?
+                function to MessageDigest.getInstance(function)!!
             }.toMap()  // Memoize
 
-            fun hashWithNonce(function: String, nonce: Int): String {
+            fun oneHashWithProofOfWork(function: String): String {
                 // TODO: Use genesis hash, or recompute to start of chain?
                 val previousHash =
                     previousHashes.getOrDefault(function, genesisHash)
-
-                return (digests[function]
-                    ?: error("BUG: No message digest for function: $function"))
-                    .digest("$nonce$height$timestamp$data$purpose$hashPrefix$previousHash".toByteArray())
-                    .joinToString("") { "%02x".format(it) }
-            }
-
-            fun oneHashWithProofOfWork(function: String): String {
                 for (nonce in 0..Int.MAX_VALUE) {
-                    val hash = hashWithNonce(function, nonce)
+                    val hash = hashForBlock(
+                        // TODO: Kotlin, how to say map cannot be missing keys?
+                        digests[function]!!,
+                        "$nonce$height$timestamp$data$purpose$previousHash"
+                    )
+
                     if (hash.startsWith(hashPrefix)) {
                         this._nonce = nonce
                         return hash
