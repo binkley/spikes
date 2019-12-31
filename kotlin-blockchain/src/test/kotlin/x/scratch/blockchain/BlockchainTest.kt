@@ -58,8 +58,9 @@ internal class BlockchainTest {
 
     @Test
     fun `should drop obsolete hash functions`() {
+        val functions = setOf("MD5", "SHA-256")
         val blockchain = Blockchain.new(
-            functions = setOf("MD5", "SHA-256"),
+            functions = functions,
             timestamp = EPOCH
         )
 
@@ -69,7 +70,7 @@ internal class BlockchainTest {
             timestamp = blockchain[0].timestamp.plusMillis(1L)
         )
 
-        blockchain.check(setOf("MD5", "SHA-256"))
+        blockchain.check(functions)
 
         assertNull(blockchain[1].hashes["MD5"])
         assertEquals(
