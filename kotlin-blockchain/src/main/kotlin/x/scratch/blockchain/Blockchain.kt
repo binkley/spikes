@@ -124,14 +124,17 @@ class Blockchain private constructor(
         private fun allHashesWithProofOfWork(functions: Set<String>)
                 : Map<String, String> {
             val hashPrefix = "0".repeat(difficulty)
+            val digests = functions.map { function ->
+                function to MessageDigest.getInstance(function)
+            }.toMap()
 
             fun hashWithNonce(function: String, nonce: Int): String {
                 // TODO: Use genesis hash, or recompute to start of chain?
                 val previousHash =
                     previousHashes.getOrDefault(function, genesisHash)
 
-                return MessageDigest
-                    .getInstance(function)
+                return (digests[function]
+                    ?: error("BUG: No message digest for function: $function"))
                     .digest("$nonce$height$timestamp$hashPrefix$previousHash$data".toByteArray())
                     .joinToString("") { "%02x".format(it) }
             }
