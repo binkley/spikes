@@ -126,6 +126,7 @@ class Blockchain private constructor(
             val hashPrefix = "0".repeat(difficulty)
 
             fun hashWithNonce(function: String, nonce: Int): String {
+                // TODO: Use genesis hash, or recompute to start of chain?
                 val previousHash =
                     previousHashes.getOrDefault(function, genesisHash)
 
