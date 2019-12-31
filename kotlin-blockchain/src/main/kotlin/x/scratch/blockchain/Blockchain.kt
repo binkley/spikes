@@ -92,7 +92,7 @@ class Blockchain private constructor(
         val previousHashes: Map<String, String>,
         private var _nonce: Int = Int.MIN_VALUE
     ) {
-        val hashes: Map<String, String> = hashesWithProofOfWork(functions)
+        val hashes: Map<String, String> = allHashesWithProofOfWork(functions)
         val nonce: Int
             get() = _nonce
 
@@ -100,7 +100,7 @@ class Blockchain private constructor(
             get() = 0L == height
 
         fun check() {
-            if (hashes != hashesWithProofOfWork(hashes.keys))
+            if (hashes != allHashesWithProofOfWork(hashes.keys))
                 error("Corrupted: $this")
 
             val hashPrefix = "0".repeat(difficulty)
@@ -121,20 +121,21 @@ class Blockchain private constructor(
             previousHashes = hashes
         )
 
-        private fun hashesWithProofOfWork(functions: Set<String>)
+        private fun allHashesWithProofOfWork(functions: Set<String>)
                 : Map<String, String> {
             val hashPrefix = "0".repeat(difficulty)
 
             fun hashWithNonce(function: String, nonce: Int): String {
                 val previousHash =
                     previousHashes.getOrDefault(function, genesisHash)
+
                 return MessageDigest
                     .getInstance(function)
                     .digest("$nonce$height$timestamp$hashPrefix$previousHash$data".toByteArray())
                     .joinToString("") { "%02x".format(it) }
             }
 
-            fun hash(function: String): String {
+            fun oneHashWithProofOfWork(function: String): String {
                 for (nonce in 0..Int.MAX_VALUE) {
                     val hash = hashWithNonce(function, nonce)
                     if (hash.startsWith(hashPrefix)) {
@@ -146,8 +147,8 @@ class Blockchain private constructor(
                 error("Unable to complete work: $this")
             }
 
-            return functions.map {
-                it to hash(it)
+            return functions.map { function ->
+                function to oneHashWithProofOfWork(function)
             }.toMap()
         }
 
