@@ -69,7 +69,7 @@ internal class BlockchainTest {
             timestamp = blockchain[0].timestamp.plusMillis(1L)
         )
 
-        blockchain.check(setOf("SHA-256"))
+        blockchain.check(setOf("MD5", "SHA-256"))
 
         assertNull(blockchain[1].hashes["MD5"])
         assertEquals(

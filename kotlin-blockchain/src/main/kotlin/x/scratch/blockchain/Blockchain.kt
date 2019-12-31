@@ -52,7 +52,6 @@ class Blockchain private constructor(
         var previousHashes = functions.map {
             it to genesisHash
         }.toMap()
-        val hashPrefix = "0".repeat(difficulty)
 
         for (block in chain) {
             if (block.index == previousIndex + 1)
@@ -64,15 +63,9 @@ class Blockchain private constructor(
                 previousTimestamp = block.timestamp
             else error("Out of order: $chain")
 
-            if (false) { // TODO: Nice way to check for dropped/added
-                if (block.previousHashes == previousHashes)
-                    previousHashes = block.hashes
-                else error("Corrupted: $chain")
-            }
-
-            for (hash in block.hashes.values)
-                if (!hash.startsWith(hashPrefix))
-                    error("Too easy: $chain")
+            if (block.previousHashes == previousHashes)
+                previousHashes = block.hashes
+            else error("Corrupted: $chain")
 
             block.check()
         }
@@ -107,23 +100,27 @@ class Blockchain private constructor(
         val genesis: Boolean
             get() = 0L == index
 
+        fun check() {
+            val hashPrefix = "0".repeat(difficulty)
+            if (hashes != hashesWithProofOfWork(hashes.keys))
+                error("Corrupted: $this")
+
+            for (hash in hashes.values)
+                if (!hash.startsWith(hashPrefix))
+                    error("Too easy: $this")
+        }
+
         fun next(
             data: Any,
             functions: Set<String>,
             timestamp: Instant
-        ) =
-            Block(
-                index = index + 1,
-                timestamp = timestamp,
-                data = data,
-                functions = functions,
-                previousHashes = hashes
-            )
-
-        fun check() {
-            if (hashes != hashesWithProofOfWork(hashes.keys))
-                error("Corrupted: $this")
-        }
+        ) = Block(
+            index = index + 1,
+            timestamp = timestamp,
+            data = data,
+            functions = functions,
+            previousHashes = hashes
+        )
 
         private fun hashesWithProofOfWork(functions: Set<String>)
                 : Map<String, String> {
