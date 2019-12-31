@@ -74,16 +74,15 @@ class Blockchain private constructor(
     private fun firstBlock(
         functions: Set<String>,
         timestamp: Instant
-    ) =
-        Block(
-            index = 0,
-            timestamp = timestamp,
-            data = genesisData,
-            functions = functions,
-            previousHashes = functions.map {
-                it to genesisHash
-            }.toMap()
-        )
+    ) = Block(
+        index = 0,
+        timestamp = timestamp,
+        data = genesisData,
+        functions = functions,
+        previousHashes = functions.map {
+            it to genesisHash
+        }.toMap()
+    )
 
     inner class Block internal constructor(
         val index: Long,
@@ -101,10 +100,10 @@ class Blockchain private constructor(
             get() = 0L == index
 
         fun check() {
-            val hashPrefix = "0".repeat(difficulty)
             if (hashes != hashesWithProofOfWork(hashes.keys))
                 error("Corrupted: $this")
 
+            val hashPrefix = "0".repeat(difficulty)
             for (hash in hashes.values)
                 if (!hash.startsWith(hashPrefix))
                     error("Too easy: $this")
@@ -152,14 +151,11 @@ class Blockchain private constructor(
             }.toMap()
         }
 
-        override fun equals(other: Any?): Boolean {
-            return this === other
-                    || other is Block
-                    && hashes == other.hashes
-        }
+        override fun equals(other: Any?) = this === other
+                || other is Block
+                && hashes == other.hashes
 
-        override fun hashCode() =
-            Objects.hash(hashes)
+        override fun hashCode() = Objects.hash(hashes)
 
         override fun toString() =
             "${super.toString()}{index=$index, timestamp=$timestamp, data=$data, hashes=$hashes, previousHashes=$previousHashes, nonce=$nonce}"
