@@ -71,6 +71,8 @@ private fun runTimeAndDump(
     running = timing {
         blockchain.newBlock(
             data = firstBlockData,
+            // Add some hash functions to existing chain
+            functions = setOf("MD5", "SHA-256", "SHA3-256"),
             timestamp = firstBlockTimestamp(initialTimestamp)
         )
     }
