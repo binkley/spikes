@@ -9,7 +9,7 @@ private const val genesisData = "Genesis"
 private const val genesisHash = "0"
 
 class Blockchain private constructor(
-    val difficulty: Int, // Property of the chain, not the block
+    val difficulty: Int, // TODO: Property of the chain, not the block
     initialFunctions: Set<String>,
     genesisTimestamp: Instant,
     // TODO: To delegate List to chain, must use in the ctor args
@@ -24,7 +24,7 @@ class Blockchain private constructor(
 
     fun newBlock(
         data: Any,
-        functions: Set<String> = last().hashes.keys,
+        functions: Set<String> = previousFunctions(),
         timestamp: Instant = Instant.now()
     ) = apply {
         chain += last().next(
@@ -34,6 +34,14 @@ class Blockchain private constructor(
         )
     }
 
+    /**
+     * Looks up a block by its digest function and hash, and returns `null`
+     * if none found.  Example:
+     * ```
+     * val aBlock = blockchain["SHA-256", "d7cce22abb7945c814718fb71c5a2d27f2da47a39a01aee14e5b2a1cddb9bdd9"]
+     * ```
+     * Use the `List` index operator to lookup a block by height.
+     */
     operator fun get(function: String, hash: String) =
         firstOrNull { hash == it.hashes[function] }
 
@@ -46,6 +54,10 @@ class Blockchain private constructor(
     override fun toString() =
         "${super.toString()}{difficulty=$difficulty, chain=$chain}"
 
+    /**
+     * Validates the blockchain.  This is an expensive operation.  Please use
+     * it simple tests only.
+     */
     fun check(functions: Set<String>) {
         var previousHeight = -1L
         var previousTimestamp = Instant.MIN
@@ -84,6 +96,8 @@ class Blockchain private constructor(
         }.toMap()
     )
 
+    private fun previousFunctions() = last().hashes.keys
+
     inner class Block internal constructor(
         val height: Long,
         val timestamp: Instant,
@@ -99,7 +113,12 @@ class Blockchain private constructor(
         val genesis: Boolean
             get() = 0L == height
 
+        /**
+         * Validates the block.  This is an expensive operation.  Please use
+         * it simple tests only.
+         */
         fun check() {
+            // TODO: This is horrid.  It runs as slowly as creating the block
             if (hashes != allHashesWithProofOfWork(hashes.keys))
                 error("Corrupted: $this")
 
@@ -126,7 +145,7 @@ class Blockchain private constructor(
             val hashPrefix = "0".repeat(difficulty)
             val digests = functions.map { function ->
                 function to MessageDigest.getInstance(function)
-            }.toMap()
+            }.toMap()  // Memoize
 
             fun hashWithNonce(function: String, nonce: Int): String {
                 // TODO: Use genesis hash, or recompute to start of chain?
