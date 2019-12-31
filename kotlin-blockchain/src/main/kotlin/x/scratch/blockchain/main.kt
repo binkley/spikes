@@ -23,7 +23,7 @@ fun main() {
 }
 
 private fun Blockchain.checkAndDump() {
-    check()
+    check(Blockchain.DEFAULT_FUNCTIONS)
 
     println("difficulty -> $difficulty")
     println("blockchain -> $this")

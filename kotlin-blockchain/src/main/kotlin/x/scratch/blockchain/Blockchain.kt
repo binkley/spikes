@@ -5,7 +5,8 @@ import java.security.MessageDigest
 import java.time.Instant
 import java.util.Objects
 
-private val genesisHashes = mapOf("SHA-256" to "0")
+private const val genesisData = "Genesis"
+private const val genesisHash = "0"
 
 class Blockchain private constructor(
     val difficulty: Int,
@@ -44,10 +45,12 @@ class Blockchain private constructor(
     override fun toString() =
         "${super.toString()}{difficulty=$difficulty, chain=$chain}"
 
-    fun check() {
+    fun check(functions: Set<String>) {
         var previousIndex = -1L
         var previousTimestamp = Instant.MIN
-        var previousHashes = genesisHashes
+        var previousHashes = functions.map {
+            it to genesisHash
+        }.toMap()
         val hashPrefix = "0".repeat(difficulty)
 
         for (block in chain) {
@@ -79,9 +82,11 @@ class Blockchain private constructor(
         Block(
             index = 0,
             timestamp = timestamp,
-            data = "Genesis",
+            data = genesisData,
             functions = functions,
-            previousHashes = genesisHashes
+            previousHashes = functions.map {
+                it to genesisHash
+            }.toMap()
         )
 
     inner class Block internal constructor(
@@ -120,7 +125,8 @@ class Blockchain private constructor(
             val hashPrefix = "0".repeat(difficulty)
 
             fun hashWithNonce(function: String, nonce: Int): String {
-                val previousHash = previousHashes.getOrDefault(function, "0")
+                val previousHash =
+                    previousHashes.getOrDefault(function, genesisHash)
                 return MessageDigest
                     .getInstance(function)
                     .digest("$nonce$index$timestamp$hashPrefix$previousHash$data".toByteArray())
@@ -158,9 +164,11 @@ class Blockchain private constructor(
     }
 
     companion object {
+        val DEFAULT_FUNCTIONS = setOf("SHA-256")
+
         fun new(
             difficulty: Int = 0,
-            functions: Set<String> = setOf("SHA-256"),
+            functions: Set<String> = DEFAULT_FUNCTIONS,
             timestamp: Instant = Instant.now()
         ) = Blockchain(
             difficulty = difficulty,
