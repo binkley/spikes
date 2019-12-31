@@ -17,8 +17,8 @@ class Blockchain private constructor(
 ) : List<Block> by chain {
     init {
         chain += genesisBlock(
-            functions = initialFunctions,
-            timestamp = genesisTimestamp
+            initialFunctions = initialFunctions,
+            genesisTimestamp = genesisTimestamp
         )
     }
 
@@ -72,14 +72,14 @@ class Blockchain private constructor(
     }
 
     private fun genesisBlock(
-        functions: Set<String>,
-        timestamp: Instant
+        initialFunctions: Set<String>,
+        genesisTimestamp: Instant
     ) = Block(
         height = 0,
-        timestamp = timestamp,
+        timestamp = genesisTimestamp,
         data = genesisData,
-        functions = functions,
-        previousHashes = functions.map {
+        functions = initialFunctions,
+        previousHashes = initialFunctions.map {
             it to genesisHash
         }.toMap()
     )
