@@ -26,13 +26,12 @@ class Blockchain private constructor(
         data: Any,
         functions: Set<String> = last().hashes.keys,
         timestamp: Instant = Instant.now()
-    ): Blockchain {
+    ) = apply {
         chain += last().next(
             data = data,
             functions = functions,
             timestamp = timestamp
         )
-        return this
     }
 
     operator fun get(function: String, hash: String) =
@@ -58,22 +57,22 @@ class Blockchain private constructor(
         for (block in chain) {
             if (block.index == previousIndex + 1)
                 previousIndex = block.index
-            else throw IllegalStateException("Out of sequence: $chain")
+            else error("Out of sequence: $chain")
 
             // TODO: Is it legit to have same timestamp for blocks?
             if (block.timestamp.isAfter(previousTimestamp))
                 previousTimestamp = block.timestamp
-            else throw IllegalStateException("Out of order: $chain")
+            else error("Out of order: $chain")
 
             if (false) { // TODO: Nice way to check for dropped/added
                 if (block.previousHashes == previousHashes)
                     previousHashes = block.hashes
-                else throw IllegalStateException("Corrupted: $chain")
+                else error("Corrupted: $chain")
             }
 
             for (hash in block.hashes.values)
                 if (!hash.startsWith(hashPrefix))
-                    throw IllegalStateException("Too easy: $chain")
+                    error("Too easy: $chain")
 
             block.check()
         }
@@ -123,7 +122,7 @@ class Blockchain private constructor(
 
         fun check() {
             if (hashes != hashesWithProofOfWork(hashes.keys))
-                throw IllegalStateException("Corrupted: $this")
+                error("Corrupted: $this")
         }
 
         private fun hashesWithProofOfWork(functions: Set<String>)
@@ -148,7 +147,7 @@ class Blockchain private constructor(
                     }
                 }
 
-                throw IllegalStateException("Unable to complete work: $this")
+                error("Unable to complete work: $this")
             }
 
             return functions.map {
