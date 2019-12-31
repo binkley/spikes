@@ -16,6 +16,11 @@ This software is in the Public Domain.  Please see [LICENSE.md](../LICENSE.md).
 $ ./run.sh
 ```
 
+## Notes
+
+* This example does not support varying the difficulty (proof of work)
+per-block: it is a property of the chain, not block construction.
+
 ## See also
 
 See [Awesome Blockchains](https://github.com/openblockchains/awesome-blockchains)
