@@ -10,15 +10,15 @@ private const val genesisHash = "0"
 
 class Blockchain private constructor(
     val difficulty: Int, // Property of the chain, not the block
-    firstFunctions: Set<String>,
-    firstTimestamp: Instant,
+    initialFunctions: Set<String>,
+    genesisTimestamp: Instant,
     // TODO: To delegate List to chain, must use in the ctor args
     private val chain: MutableList<Block> = mutableListOf()
 ) : List<Block> by chain {
     init {
         chain += genesisBlock(
-            functions = firstFunctions,
-            timestamp = firstTimestamp
+            functions = initialFunctions,
+            timestamp = genesisTimestamp
         )
     }
 
@@ -167,16 +167,16 @@ class Blockchain private constructor(
     }
 
     companion object {
-        val DEFAULT_FUNCTIONS = setOf("SHA-256")
+        val DEFAULT_FUNCTIONS = setOf("SHA-256") // SHA2
 
         fun new(
             difficulty: Int = 0,
-            functions: Set<String> = DEFAULT_FUNCTIONS,
-            timestamp: Instant = Instant.now()
+            initialFunctions: Set<String> = DEFAULT_FUNCTIONS,
+            genesisTimestamp: Instant = Instant.now()
         ) = Blockchain(
             difficulty = difficulty,
-            firstFunctions = functions,
-            firstTimestamp = timestamp
+            initialFunctions = initialFunctions,
+            genesisTimestamp = genesisTimestamp
         )
     }
 }

@@ -9,7 +9,7 @@ import java.time.Instant.EPOCH
 internal class BlockchainTest {
     @Test
     fun `should hash first block`() {
-        val blockchain = Blockchain.new(timestamp = EPOCH)
+        val blockchain = Blockchain.new(genesisTimestamp = EPOCH)
 
         blockchain.check(DEFAULT_FUNCTIONS)
 
@@ -21,7 +21,7 @@ internal class BlockchainTest {
 
     @Test
     fun `should hash second block`() {
-        val blockchain = Blockchain.new(timestamp = EPOCH)
+        val blockchain = Blockchain.new(genesisTimestamp = EPOCH)
 
         blockchain.newBlock(
             data = "FRODO LIVES!",
@@ -40,8 +40,8 @@ internal class BlockchainTest {
     fun `should have independent hash functions`() {
         val functions = setOf("MD5", "SHA-256")
         val blockchain = Blockchain.new(
-            functions = functions,
-            timestamp = EPOCH
+            initialFunctions = functions,
+            genesisTimestamp = EPOCH
         )
 
         blockchain.check(functions)
@@ -60,8 +60,8 @@ internal class BlockchainTest {
     fun `should drop obsolete hash functions`() {
         val functions = setOf("MD5", "SHA-256")
         val blockchain = Blockchain.new(
-            functions = functions,
-            timestamp = EPOCH
+            initialFunctions = functions,
+            genesisTimestamp = EPOCH
         )
 
         blockchain.newBlock(

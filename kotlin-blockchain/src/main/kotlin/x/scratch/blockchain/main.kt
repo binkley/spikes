@@ -7,7 +7,7 @@ import java.time.Instant.EPOCH
 fun main() {
     runTimeAndDump(
         difficulty = 0,
-        initialTimestamp = Instant.now(),
+        genesisTimestamp = Instant.now(),
         firstBlockData = "Hello, world!"
     ) {
         Instant.now()
@@ -15,7 +15,7 @@ fun main() {
 
     runTimeAndDump(
         difficulty = 4,
-        initialTimestamp = EPOCH,
+        genesisTimestamp = EPOCH,
         firstBlockData = mapOf("greeting" to "Hello, world!")
     ) { initialTimestamp ->
         initialTimestamp.plusMillis(1L)
@@ -48,7 +48,7 @@ private fun <R> timing(block: () -> R): Pair<R, Duration> {
 
 private fun runTimeAndDump(
     difficulty: Int,
-    initialTimestamp: Instant,
+    genesisTimestamp: Instant,
     firstBlockData: Any,
     firstBlockTimestamp: (Instant) -> Instant
 ) {
@@ -59,7 +59,7 @@ private fun runTimeAndDump(
     var running = timing {
         Blockchain.new(
             difficulty = difficulty,
-            timestamp = initialTimestamp
+            genesisTimestamp = genesisTimestamp
         )
     }
     val blockchain = running.first
@@ -73,7 +73,7 @@ private fun runTimeAndDump(
             data = firstBlockData,
             // Add some hash functions to existing chain
             functions = setOf("MD5", "SHA-256", "SHA3-256"),
-            timestamp = firstBlockTimestamp(initialTimestamp)
+            timestamp = firstBlockTimestamp(genesisTimestamp)
         )
     }
     println("New block timing -> ${running.second}")
