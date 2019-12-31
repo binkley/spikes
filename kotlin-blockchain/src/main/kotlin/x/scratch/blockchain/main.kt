@@ -30,13 +30,13 @@ private fun Blockchain.checkAndDump() {
     println("latest -> ${last()}")
     println("first genesis -> ${first().genesis}")
     println("last genesis -> ${last().genesis}")
-    println("first SHA-256 by index -> ${this[0]}")
+    println("first SHA-256 by height -> ${this[0]}")
     println(
         "last SHA-256 by hash -> ${this["SHA-256", last().hashes["SHA-256"]
             ?: error("No SHA-256")]}"
     )
 
-    for (block in this) println("block#${block.index} -> $block")
+    for (block in this) println("block#${block.height} -> $block")
 }
 
 private fun <R> timing(block: () -> R): Pair<R, Duration> {

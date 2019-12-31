@@ -16,7 +16,7 @@ class Blockchain private constructor(
     private val chain: MutableList<Block> = mutableListOf()
 ) : List<Block> by chain {
     init {
-        chain += firstBlock(
+        chain += genesisBlock(
             functions = firstFunctions,
             timestamp = firstTimestamp
         )
@@ -47,15 +47,15 @@ class Blockchain private constructor(
         "${super.toString()}{difficulty=$difficulty, chain=$chain}"
 
     fun check(functions: Set<String>) {
-        var previousIndex = -1L
+        var previousHeight = -1L
         var previousTimestamp = Instant.MIN
         var previousHashes = functions.map {
             it to genesisHash
         }.toMap()
 
         for (block in chain) {
-            if (block.index == previousIndex + 1)
-                previousIndex = block.index
+            if (block.height == previousHeight + 1)
+                previousHeight = block.height
             else error("Out of sequence: $chain")
 
             // TODO: Is it legit to have same timestamp for blocks?
@@ -71,11 +71,11 @@ class Blockchain private constructor(
         }
     }
 
-    private fun firstBlock(
+    private fun genesisBlock(
         functions: Set<String>,
         timestamp: Instant
     ) = Block(
-        index = 0,
+        height = 0,
         timestamp = timestamp,
         data = genesisData,
         functions = functions,
@@ -85,7 +85,7 @@ class Blockchain private constructor(
     )
 
     inner class Block internal constructor(
-        val index: Long,
+        val height: Long,
         val timestamp: Instant,
         val data: Any,
         functions: Set<String>,
@@ -97,7 +97,7 @@ class Blockchain private constructor(
             get() = _nonce
 
         val genesis: Boolean
-            get() = 0L == index
+            get() = 0L == height
 
         fun check() {
             if (hashes != hashesWithProofOfWork(hashes.keys))
@@ -114,7 +114,7 @@ class Blockchain private constructor(
             functions: Set<String>,
             timestamp: Instant
         ) = Block(
-            index = index + 1,
+            height = height + 1,
             timestamp = timestamp,
             data = data,
             functions = functions,
@@ -130,7 +130,7 @@ class Blockchain private constructor(
                     previousHashes.getOrDefault(function, genesisHash)
                 return MessageDigest
                     .getInstance(function)
-                    .digest("$nonce$index$timestamp$hashPrefix$previousHash$data".toByteArray())
+                    .digest("$nonce$height$timestamp$hashPrefix$previousHash$data".toByteArray())
                     .joinToString("") { "%02x".format(it) }
             }
 
@@ -158,7 +158,7 @@ class Blockchain private constructor(
         override fun hashCode() = Objects.hash(hashes)
 
         override fun toString() =
-            "${super.toString()}{index=$index, timestamp=$timestamp, data=$data, hashes=$hashes, previousHashes=$previousHashes, nonce=$nonce}"
+            "${super.toString()}{height=$height, timestamp=$timestamp, data=$data, hashes=$hashes, previousHashes=$previousHashes, nonce=$nonce}"
     }
 
     companion object {
