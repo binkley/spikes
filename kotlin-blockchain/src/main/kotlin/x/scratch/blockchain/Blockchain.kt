@@ -160,7 +160,7 @@ class Blockchain private constructor(
             Objects.hash(hashes)
 
         override fun toString() =
-            "${super.toString()}{index=$index, timestamp=$timestamp, data=$data, hashes=$hashes, previousHash=$previousHashes, nonce=$nonce}"
+            "${super.toString()}{index=$index, timestamp=$timestamp, data=$data, hashes=$hashes, previousHashes=$previousHashes, nonce=$nonce}"
     }
 
     companion object {
