@@ -113,7 +113,8 @@ class Blockchain private constructor(
         val previousHashes: Map<String, String>,
         private var _nonce: Int = Int.MIN_VALUE
     ) {
-        val hashes: Map<String, String> = allHashesWithProofOfWork(functions)
+        val hashes = allHashesWithProofOfWork(functions)
+
         val nonce: Int
             get() = _nonce
 

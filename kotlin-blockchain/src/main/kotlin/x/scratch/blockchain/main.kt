@@ -33,8 +33,10 @@ private fun Blockchain.verifyAndDump() {
         "last SHA-256 by hash -> ${this["SHA-256", last().hashes["SHA-256"]
             ?: error("No SHA-256")]}"
     )
-
-    for (block in this) println("block#${block.height} -> $block")
+    for (block in this) {
+        println("---")
+        println("block#${block.height} -> $block")
+    }
 }
 
 private fun <R> timing(block: () -> R): Pair<R, Duration> {
