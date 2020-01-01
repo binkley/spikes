@@ -28,8 +28,6 @@ private fun Blockchain.verifyAndDump() {
     println("difficulty -> $difficulty")
     println("blockchain -> $this")
     println("latest -> ${last()}")
-    println("first genesis -> ${first().genesis}")
-    println("last genesis -> ${last().genesis}")
     println("first SHA-256 by height -> ${this[0]}")
     println(
         "last SHA-256 by hash -> ${this["SHA-256", last().hashes["SHA-256"]

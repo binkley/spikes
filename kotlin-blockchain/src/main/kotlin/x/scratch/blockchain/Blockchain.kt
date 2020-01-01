@@ -117,9 +117,6 @@ class Blockchain private constructor(
         val nonce: Int
             get() = _nonce
 
-        val genesis: Boolean
-            get() = 0L == height
-
         /**
          * Validates the block.  This is an expensive operation.  Please use
          * it simple tests only.
