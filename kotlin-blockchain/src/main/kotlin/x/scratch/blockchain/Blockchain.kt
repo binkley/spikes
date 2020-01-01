@@ -6,12 +6,12 @@ import java.time.Duration
 import java.time.Instant
 import java.util.Objects
 
-private const val genesisData = "Genesis"
 private val genesisHash = TimedHash("0", Duration.ZERO)
 
 data class TimedHash(val hash: String, val timing: Duration)
 
 class Blockchain private constructor(
+    val genesisData: String,
     purpose: String,
     val difficulty: Int, // TODO: Property of the chain, not the block
     initialFunctions: Set<String>,
@@ -59,21 +59,7 @@ class Blockchain private constructor(
     override fun hashCode() = Objects.hash(chain)
 
     override fun toString() =
-        "${super.toString()}{difficulty=$difficulty, chain=$chain}"
-
-    fun pretty(): String {
-        val buf = StringBuilder()
-
-        buf.append("BLOCKCHAIN difficulty: ")
-        buf.append(difficulty)
-
-        for (block in chain) {
-            buf.append("\n---\n")
-            block.pretty(buf)
-        }
-
-        return buf.toString()
-    }
+        "${super.toString()}{genesisData=$genesisData, difficulty=$difficulty, chain=$chain}"
 
     /**
      * Validates the blockchain.  This is an expensive operation.  Please use
@@ -207,44 +193,6 @@ class Blockchain private constructor(
             }.toMap()
         }
 
-        fun pretty(buf: StringBuilder) {
-            buf.append("BLOCK #")
-            buf.append(height)
-            buf.append(" @ ")
-            buf.append(timestamp)
-            buf.append("\n* Purpose: ")
-            buf.append(purpose)
-            buf.append("\n* Hashes:")
-            hashes.forEach { (function, timedHash) ->
-                buf.append("\n    - ")
-                buf.append(function)
-                buf.append(" (")
-                buf.append(timedHash.timing)
-                buf.append("): ")
-                buf.append(timedHash.hash)
-            }
-            buf.append("\n* Previous hashes:")
-            previousHashes.forEach { (function, timedHash) ->
-                buf.append("\n    - ")
-                buf.append(function)
-                buf.append(" (")
-                buf.append(timedHash.timing)
-                buf.append("): ")
-                buf.append(timedHash.hash)
-            }
-            val truncateAfter = genesisData.length
-            val prettyData = data.toString()
-            if (prettyData.length > truncateAfter) {
-                buf.append("\n* Data (truncated): ")
-                // TODO: Where's my helper function?!
-                buf.append(prettyData.substring(0, truncateAfter))
-                buf.append(" ...")
-            } else {
-                buf.append("\n* Data: ")
-                buf.append(prettyData)
-            }
-        }
-
         override fun equals(other: Any?) = this === other
                 || other is Block
                 && hashes == other.hashes
@@ -259,11 +207,13 @@ class Blockchain private constructor(
         val DEFAULT_FUNCTIONS = setOf("SHA-256") // SHA2
 
         fun new(
+            genesisData: String,
             purpose: String,
             difficulty: Int = 0,
             initialFunctions: Set<String> = DEFAULT_FUNCTIONS,
             genesisTimestamp: Instant = Instant.now()
         ) = Blockchain(
+            genesisData = genesisData,
             purpose = purpose,
             difficulty = difficulty,
             initialFunctions = initialFunctions,

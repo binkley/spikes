@@ -10,6 +10,7 @@ internal class BlockchainTest {
     @Test
     fun `should hash first block`() {
         val blockchain = Blockchain.new(
+            genesisData = "Genesis",
             purpose = "Testing",
             genesisTimestamp = EPOCH
         )
@@ -25,6 +26,7 @@ internal class BlockchainTest {
     @Test
     fun `should hash second block`() {
         val blockchain = Blockchain.new(
+            genesisData = "Genesis",
             purpose = "Testing",
             genesisTimestamp = EPOCH
         )
@@ -47,6 +49,7 @@ internal class BlockchainTest {
     fun `should have independent hash functions`() {
         val functions = setOf("MD5", "SHA-256")
         val blockchain = Blockchain.new(
+            genesisData = "Genesis",
             purpose = "Testing",
             initialFunctions = functions,
             genesisTimestamp = EPOCH
@@ -68,6 +71,7 @@ internal class BlockchainTest {
     fun `should drop obsolete hash functions`() {
         val functions = setOf("MD5", "SHA-256")
         val blockchain = Blockchain.new(
+            genesisData = "Genesis",
             purpose = "Testing",
             initialFunctions = functions,
             genesisTimestamp = EPOCH
