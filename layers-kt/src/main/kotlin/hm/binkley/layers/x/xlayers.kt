@@ -5,6 +5,7 @@ import hm.binkley.layers.LayersForRuleContext
 import hm.binkley.layers.Rule
 import hm.binkley.layers.RuleContext
 import hm.binkley.layers.Value
+import hm.binkley.layers.value
 import lombok.Generated
 import java.util.Objects.hash
 
@@ -160,8 +161,6 @@ abstract class XLayerMutation<
 ) : MutableValueMap by contents {
     operator fun <T> set(key: String, value: T) {
         contents[key] =
-            if (value is Value<*>) value else hm.binkley.layers.value(
-                value
-            )
+            if (value is Value<*>) value else value(value)
     }
 }
