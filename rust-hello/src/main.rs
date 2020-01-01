@@ -91,7 +91,7 @@ fn main() {
     say_hello!();
 
     let mut p = Layers::new();
-    let a = p.new_layer();
+    let a = p.current();
     a["a"] = Value::number(0);
     a["b"] = Value::number(1);
     a["p"] = Value::text("Hello");

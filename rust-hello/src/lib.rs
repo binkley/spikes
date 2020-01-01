@@ -260,7 +260,13 @@ pub mod layers {
 
     impl<'a> Layers<'a> {
         pub fn new() -> Layers<'a> {
-            Layers { layers: Vec::new() }
+            let mut layers = Layers { layers: Vec::new() };
+            layers.new_layer();
+            layers
+        }
+
+        pub fn current(&mut self) -> &mut Layer<'a> {
+            self.layers.last_mut().unwrap()
         }
 
         pub fn new_layer(&mut self) -> &mut Layer<'a> {
