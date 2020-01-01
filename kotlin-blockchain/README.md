@@ -20,6 +20,8 @@ $ ./run.sh
 
 * This example does not support varying the difficulty (proof of work)
 per-block: it is a property of the chain, not block construction.
+* It would be straight-forward to replace difficulty (count of leading zeros
+in the hash) with a minimum time spent working.
 
 ## Questions
 
