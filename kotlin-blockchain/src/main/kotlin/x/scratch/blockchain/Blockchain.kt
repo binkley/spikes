@@ -58,6 +58,20 @@ class Blockchain private constructor(
     override fun toString() =
         "${super.toString()}{difficulty=$difficulty, chain=$chain}"
 
+    fun pretty(): String {
+        val buf = StringBuilder()
+
+        buf.append("BLOCKCHAIN difficulty: ")
+        buf.append(difficulty)
+
+        for (block in chain) {
+            buf.append("\n---\n")
+            block.pretty(buf)
+        }
+
+        return buf.toString()
+    }
+
     /**
      * Validates the blockchain.  This is an expensive operation.  Please use
      * it simple tests only.
@@ -180,22 +194,21 @@ class Blockchain private constructor(
             }.toMap()
         }
 
-        fun pretty(): String {
-            val buf = StringBuilder()
+        fun pretty(buf: StringBuilder) {
             buf.append("BLOCK #")
             buf.append(height)
             buf.append(" @ ")
             buf.append(timestamp)
-            buf.append("\n * Purpose: ")
+            buf.append("\n* Purpose: ")
             buf.append(purpose)
-            buf.append("\n * Hashes:")
+            buf.append("\n* Hashes:")
             hashes.forEach { (function, hash) ->
                 buf.append("\n    - ")
                 buf.append(function)
                 buf.append(": ")
                 buf.append(hash)
             }
-            buf.append("\n * Previous hashes:")
+            buf.append("\n* Previous hashes:")
             previousHashes.forEach { (function, hash) ->
                 buf.append("\n    - ")
                 buf.append(function)
@@ -205,16 +218,14 @@ class Blockchain private constructor(
             val truncateAfter = genesisData.length
             val prettyData = data.toString()
             if (prettyData.length > truncateAfter) {
-                buf.append("\n * Data (truncated): ")
+                buf.append("\n* Data (truncated): ")
                 // TODO: Where's my helper function?!
                 buf.append(prettyData.substring(0, truncateAfter))
                 buf.append(" ...")
             } else {
-                buf.append("\n * Data: ")
+                buf.append("\n* Data: ")
                 buf.append(prettyData)
             }
-
-            return buf.toString()
         }
 
         override fun equals(other: Any?) = this === other
