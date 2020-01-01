@@ -6,9 +6,9 @@ import java.time.Duration
 import java.time.Instant
 import java.util.Objects
 
-private val genesisHash = TimedHash("0", Duration.ZERO)
+private val genesisHash = TimedHash("0", Duration.ZERO, 0)
 
-data class TimedHash(val hash: String, val timing: Duration)
+data class TimedHash(val hash: String, val timing: Duration, val nonce: Int)
 
 class Blockchain private constructor(
     val genesisData: String,
@@ -117,13 +117,9 @@ class Blockchain private constructor(
         val data: Any,
         val purpose: String,
         functions: Set<String>,
-        val previousHashes: Map<String, TimedHash>,
-        private var _nonce: Int = Int.MIN_VALUE
+        val previousHashes: Map<String, TimedHash>
     ) {
         val hashes = allHashesWithProofOfWork(functions)
-
-        val nonce: Int
-            get() = _nonce
 
         /**
          * Validates the block.  This is an expensive operation.  Please use
@@ -180,8 +176,7 @@ class Blockchain private constructor(
 
                     if (hash.startsWith(hashPrefix)) {
                         val timing = Duration.between(Instant.now(), start)
-                        this._nonce = nonce
-                        return TimedHash(hash, timing)
+                        return TimedHash(hash, timing, nonce)
                     }
                 }
 
@@ -200,7 +195,7 @@ class Blockchain private constructor(
         override fun hashCode() = Objects.hash(hashes)
 
         override fun toString() =
-            "${super.toString()}{height=$height, timestamp=$timestamp, data=$data, purpose=$purpose, hashes=$hashes, previousHashes=$previousHashes, nonce=$nonce}"
+            "${super.toString()}{height=$height, timestamp=$timestamp, data=$data, purpose=$purpose, hashes=$hashes, previousHashes=$previousHashes}"
     }
 
     companion object {

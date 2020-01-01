@@ -48,23 +48,9 @@ fun Block.pretty(buf: StringBuilder) {
     buf.append("\n* Purpose: ")
     buf.append(purpose)
     buf.append("\n* Hashes:")
-    hashes.forEach { (function, timedHash) ->
-        buf.append("\n  - ")
-        buf.append(function)
-        buf.append(" (")
-        buf.append(timedHash.timing)
-        buf.append("): ")
-        buf.append(timedHash.hash)
-    }
+    hashes.pretty(buf)
     buf.append("\n* Previous hashes:")
-    previousHashes.forEach { (function, timedHash) ->
-        buf.append("\n  - ")
-        buf.append(function)
-        buf.append(" (")
-        buf.append(timedHash.timing)
-        buf.append("): ")
-        buf.append(timedHash.hash)
-    }
+    previousHashes.pretty(buf)
     val truncateAfter = genesisData.length
     val prettyData = data.toString()
     if (prettyData.length > truncateAfter) {
@@ -75,6 +61,19 @@ fun Block.pretty(buf: StringBuilder) {
     } else {
         buf.append("\n* Data: ")
         buf.append(prettyData)
+    }
+}
+
+fun Map<String, TimedHash>.pretty(buf: StringBuilder) {
+    forEach { (function, timedHash) ->
+        buf.append("\n  - ")
+        buf.append(function)
+        buf.append(" (")
+        buf.append(timedHash.nonce)
+        buf.append(" runs @")
+        buf.append(timedHash.timing)
+        buf.append("): ")
+        buf.append(timedHash.hash)
     }
 }
 
