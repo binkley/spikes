@@ -82,11 +82,7 @@ class Blockchain private constructor(
                 previousTimestamp = block.timestamp
             else error("Out of order: $chain")
 
-            if (block.previousHashes.map {
-                    it.key to it.value.hash
-                } == previousHashes.map {
-                    it.key to it.value.hash
-                })
+            if (block.previousHashes.equivalentTo(previousHashes))
                 previousHashes = block.hashes
             else error("Corrupted: $chain")
 
@@ -127,14 +123,10 @@ class Blockchain private constructor(
          */
         fun verify() {
             // TODO: This is horrid.  It runs as slowly as creating the block
-            if (hashes.map {
-                    it.key to it.value.hash
-                } != allHashesWithProofOfWork(hashes.keys).map {
-                    it.key to it.value.hash
-                })
+            if (!hashes.equivalentTo(allHashesWithProofOfWork(hashes.keys)))
                 error("Corrupted: $this")
 
-            val hashPrefix = computeHashPrefixFromDifficulty(difficulty)
+            val hashPrefix = hashPrefixForDifficulty(difficulty)
             for (timedHash in hashes.values)
                 if (!timedHash.hash.startsWith(hashPrefix))
                     error("Too easy: $this")
@@ -156,7 +148,7 @@ class Blockchain private constructor(
 
         private fun allHashesWithProofOfWork(functions: Set<String>)
                 : Map<String, TimedHash> {
-            val hashPrefix = computeHashPrefixFromDifficulty(difficulty)
+            val hashPrefix = hashPrefixForDifficulty(difficulty)
             val digests = functions.map { function ->
                 // TODO: Kotlin, how to say non-null if the JDK throws?
                 function to MessageDigest.getInstance(function)!!
