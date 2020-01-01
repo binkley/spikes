@@ -18,7 +18,7 @@ internal class BlockchainTest {
 
         assertEquals(
             "fd4d9c45f4305ce40fd2ce6d5866eff8af45cbb358e23e780745db58c4e17661",
-            blockchain[0].hashes["SHA-256"]
+            blockchain[0].hashes["SHA-256"]?.hash
         )
     }
 
@@ -39,7 +39,7 @@ internal class BlockchainTest {
 
         assertEquals(
             "a7c3ea75ae0c9e865116939dbad61b43f874ec62cfe962b51be2ed8a0490a010",
-            blockchain[1].hashes["SHA-256"]
+            blockchain[1].hashes["SHA-256"]?.hash
         )
     }
 
@@ -56,11 +56,11 @@ internal class BlockchainTest {
 
         assertEquals(
             "cf48b3eccbe0d3ecbaf4b25d370a2fcc",
-            blockchain[0].hashes["MD5"]
+            blockchain[0].hashes["MD5"]?.hash
         )
         assertEquals(
             "fd4d9c45f4305ce40fd2ce6d5866eff8af45cbb358e23e780745db58c4e17661",
-            blockchain[0].hashes["SHA-256"]
+            blockchain[0].hashes["SHA-256"]?.hash
         )
     }
 
@@ -85,7 +85,7 @@ internal class BlockchainTest {
         assertNull(blockchain[1].hashes["MD5"])
         assertEquals(
             "a7c3ea75ae0c9e865116939dbad61b43f874ec62cfe962b51be2ed8a0490a010",
-            blockchain[1].hashes["SHA-256"]
+            blockchain[1].hashes["SHA-256"]?.hash
         )
     }
 }

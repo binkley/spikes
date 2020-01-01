@@ -2,11 +2,14 @@ package x.scratch.blockchain
 
 import x.scratch.blockchain.Blockchain.Block
 import java.security.MessageDigest
+import java.time.Duration
 import java.time.Instant
 import java.util.Objects
 
 private const val genesisData = "Genesis"
-private const val genesisHash = "0"
+private val genesisHash = TimedHash("0", Duration.ZERO)
+
+data class TimedHash(val hash: String, val timing: Duration)
 
 class Blockchain private constructor(
     purpose: String,
@@ -47,7 +50,7 @@ class Blockchain private constructor(
      * Use the `List` index operator to lookup a block by height.
      */
     operator fun get(function: String, hash: String) =
-        firstOrNull { hash == it.hashes[function] }
+        firstOrNull { hash == it.hashes[function]?.hash }
 
     override fun equals(other: Any?) = this === other
             || other is Blockchain
@@ -74,7 +77,7 @@ class Blockchain private constructor(
 
     /**
      * Validates the blockchain.  This is an expensive operation.  Please use
-     * it simple tests only.
+     * in simple tests only.
      */
     fun verify(functions: Set<String>) {
         var previousHeight = -1L
@@ -93,7 +96,11 @@ class Blockchain private constructor(
                 previousTimestamp = block.timestamp
             else error("Out of order: $chain")
 
-            if (block.previousHashes == previousHashes)
+            if (block.previousHashes.map {
+                    it.key to it.value.hash
+                } == previousHashes.map {
+                    it.key to it.value.hash
+                })
                 previousHashes = block.hashes
             else error("Corrupted: $chain")
 
@@ -124,7 +131,7 @@ class Blockchain private constructor(
         val data: Any,
         val purpose: String,
         functions: Set<String>,
-        val previousHashes: Map<String, String>,
+        val previousHashes: Map<String, TimedHash>,
         private var _nonce: Int = Int.MIN_VALUE
     ) {
         val hashes = allHashesWithProofOfWork(functions)
@@ -134,16 +141,20 @@ class Blockchain private constructor(
 
         /**
          * Validates the block.  This is an expensive operation.  Please use
-         * it simple tests only.
+         * in simple tests only.
          */
         fun verify() {
             // TODO: This is horrid.  It runs as slowly as creating the block
-            if (hashes != allHashesWithProofOfWork(hashes.keys))
+            if (hashes.map {
+                    it.key to it.value.hash
+                } != allHashesWithProofOfWork(hashes.keys).map {
+                    it.key to it.value.hash
+                })
                 error("Corrupted: $this")
 
             val hashPrefix = computeHashPrefixFromDifficulty(difficulty)
-            for (hash in hashes.values)
-                if (!hash.startsWith(hashPrefix))
+            for (timedHash in hashes.values)
+                if (!timedHash.hash.startsWith(hashPrefix))
                     error("Too easy: $this")
         }
 
@@ -162,17 +173,18 @@ class Blockchain private constructor(
         )
 
         private fun allHashesWithProofOfWork(functions: Set<String>)
-                : Map<String, String> {
+                : Map<String, TimedHash> {
             val hashPrefix = computeHashPrefixFromDifficulty(difficulty)
             val digests = functions.map { function ->
                 // TODO: Kotlin, how to say non-null if the JDK throws?
                 function to MessageDigest.getInstance(function)!!
             }.toMap()  // Memoize
 
-            fun oneHashWithProofOfWork(function: String): String {
+            fun oneHashWithProofOfWork(function: String): TimedHash {
                 // TODO: Use genesis hash, or recompute to start of chain?
                 val previousHash =
-                    previousHashes.getOrDefault(function, genesisHash)
+                    previousHashes.getOrDefault(function, genesisHash).hash
+                val start = Instant.now()
                 for (nonce in 0..Int.MAX_VALUE) {
                     val hash = hashForBlock(
                         // TODO: Kotlin, how to say map cannot be missing keys?
@@ -181,8 +193,9 @@ class Blockchain private constructor(
                     )
 
                     if (hash.startsWith(hashPrefix)) {
+                        val timing = Duration.between(Instant.now(), start)
                         this._nonce = nonce
-                        return hash
+                        return TimedHash(hash, timing)
                     }
                 }
 
@@ -202,18 +215,22 @@ class Blockchain private constructor(
             buf.append("\n* Purpose: ")
             buf.append(purpose)
             buf.append("\n* Hashes:")
-            hashes.forEach { (function, hash) ->
+            hashes.forEach { (function, timedHash) ->
                 buf.append("\n    - ")
                 buf.append(function)
-                buf.append(": ")
-                buf.append(hash)
+                buf.append(" (")
+                buf.append(timedHash.timing)
+                buf.append("): ")
+                buf.append(timedHash.hash)
             }
             buf.append("\n* Previous hashes:")
-            previousHashes.forEach { (function, hash) ->
+            previousHashes.forEach { (function, timedHash) ->
                 buf.append("\n    - ")
                 buf.append(function)
-                buf.append(": ")
-                buf.append(hash)
+                buf.append(" (")
+                buf.append(timedHash.timing)
+                buf.append("): ")
+                buf.append(timedHash.hash)
             }
             val truncateAfter = genesisData.length
             val prettyData = data.toString()
