@@ -35,7 +35,7 @@ private fun Blockchain.verifyAndDump() {
     )
     for (block in this) {
         println("---")
-        println("block#${block.height} -> $block")
+        println(block.pretty())
     }
 }
 
