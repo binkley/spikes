@@ -1,4 +1,4 @@
-package hm.binkley.layers
+package hm.binkley.layers.x
 
 import org.eclipse.jgit.api.Git
 
@@ -20,7 +20,9 @@ class WithKotlinAndGitLayer(
     factory,
     asMutation
 ),
-    ScriptedForLayer by KotlinScriptedForLayer(factory)
+    ScriptedForLayer by KotlinScriptedForLayer(
+        factory
+    )
 
 class WithKotlinAndGitLayerCreation(
     layers: WithKotlinAndGitLayers
@@ -36,7 +38,11 @@ class WithKotlinAndGitLayerCreation(
     override fun new(
         slot: Int
     ): WithKotlinAndGitLayer {
-        return WithKotlinAndGitLayer(slot, factory, asMutation)
+        return WithKotlinAndGitLayer(
+            slot,
+            factory,
+            asMutation
+        )
     }
 }
 
@@ -52,7 +58,9 @@ class WithKotlinAndGitLayerMutation(
     layer,
     contents
 ),
-    ScriptedForLayerMutation by KotlinScriptedForLayerMutation(layer)
+    ScriptedForLayerMutation by KotlinScriptedForLayerMutation(
+        layer
+    )
 
 /** @todo Call Git */
 class WithKotlinAndGitLayerPersistence(

@@ -1,4 +1,4 @@
-package hm.binkley.layers
+package hm.binkley.layers.x
 
 class InMemoryLayer(
     slot: Int,
@@ -19,7 +19,11 @@ class InMemoryLayerCreation(layers: InMemoryLayers) :
     override fun new(
         slot: Int
     ): InMemoryLayer {
-        return InMemoryLayer(slot, factory, asMutation)
+        return InMemoryLayer(
+            slot,
+            factory,
+            asMutation
+        )
     }
 }
 

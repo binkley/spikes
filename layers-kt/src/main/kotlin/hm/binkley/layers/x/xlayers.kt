@@ -1,5 +1,10 @@
-package hm.binkley.layers
+package hm.binkley.layers.x
 
+import hm.binkley.layers.Diffable
+import hm.binkley.layers.LayersForRuleContext
+import hm.binkley.layers.Rule
+import hm.binkley.layers.RuleContext
+import hm.binkley.layers.Value
 import lombok.Generated
 import java.util.Objects.hash
 
@@ -49,7 +54,12 @@ abstract class XLayers<
             val key = it.key
             @Suppress("UNCHECKED_CAST")
             val rule = it.value.rule as Rule<Any>
-            val value = rule(RuleContext(key, this))
+            val value = rule(
+                RuleContext(
+                    key,
+                    this
+                )
+            )
             key to value
         }.asReversed().toMap().toSortedMap()
 
@@ -75,7 +85,9 @@ abstract class XLayers<
             null != it.value.rule
         }.let {
             @Suppress("UNCHECKED_CAST")
-            (it.value.rule!! as Rule<T>)(RuleContext(key, this))
+            (it.value.rule!! as Rule<T>)(
+                RuleContext(key, this)
+            )
         }
 
     /** All values for [key] from newest to oldest. */
@@ -147,6 +159,9 @@ abstract class XLayerMutation<
     protected val contents: MutableValueMap
 ) : MutableValueMap by contents {
     operator fun <T> set(key: String, value: T) {
-        contents[key] = if (value is Value<*>) value else value(value)
+        contents[key] =
+            if (value is Value<*>) value else hm.binkley.layers.value(
+                value
+            )
     }
 }
