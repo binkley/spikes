@@ -1,14 +1,13 @@
 package x.scratch.blockchain
 
 import x.scratch.blockchain.Blockchain.Block
-import java.time.Duration
 import java.time.Instant
 import java.time.Instant.EPOCH
 
 private const val genesisData = "Genesis"
 
 fun main() {
-    runTimeAndDump(
+    runVerifyAndDump(
         difficulty = 0,
         genesisTimestamp = Instant.now(),
         firstBlockData = "Hello, world!"
@@ -16,7 +15,7 @@ fun main() {
         Instant.now()
     }
 
-    runTimeAndDump(
+    runVerifyAndDump(
         difficulty = 4,
         genesisTimestamp = EPOCH,
         firstBlockData = mapOf("greeting" to "Hello, world!")
@@ -93,14 +92,7 @@ private fun Blockchain.verifyAndDump() {
     )
 }
 
-private fun <R> timing(block: () -> R): Pair<R, Duration> {
-    val start = Instant.now()
-    val result = block()!!
-    val end = Instant.now()
-    return result to Duration.between(start, end)
-}
-
-private fun runTimeAndDump(
+private fun runVerifyAndDump(
     difficulty: Int,
     genesisTimestamp: Instant,
     firstBlockData: Any,
@@ -110,29 +102,22 @@ private fun runTimeAndDump(
     println("========")
     println()
 
-    var running = timing {
-        Blockchain.new(
-            genesisData = genesisData,
-            purpose = "Example",
-            difficulty = difficulty,
-            genesisTimestamp = genesisTimestamp
-        )
-    }
-    val blockchain = running.first
-    println("Genesis timing -> ${running.second}")
+    val blockchain = Blockchain.new(
+        genesisData = genesisData,
+        purpose = "Example",
+        difficulty = difficulty,
+        genesisTimestamp = genesisTimestamp
+    )
     blockchain.verifyAndDump()
 
     println()
 
-    running = timing {
-        blockchain.newBlock(
-            purpose = "Example",
-            data = firstBlockData,
-            // Add some hash functions to existing chain
-            functions = setOf("MD5", "SHA-256", "SHA3-256"),
-            timestamp = firstBlockTimestamp(genesisTimestamp)
-        )
-    }
-    println("New block timing -> ${running.second}")
+    blockchain.newBlock(
+        purpose = "Example",
+        data = firstBlockData,
+        // Add some hash functions to existing chain
+        functions = setOf("MD5", "SHA-256", "SHA3-256"),
+        timestamp = firstBlockTimestamp(genesisTimestamp)
+    )
     blockchain.verifyAndDump()
 }
