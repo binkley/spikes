@@ -1,5 +1,7 @@
 #![deny(warnings)]
 
+extern crate jemallocator;
+
 use std::fmt;
 use std::fmt::Display;
 use std::io::{stdout, BufWriter};
@@ -9,6 +11,9 @@ use ferris_says::say;
 use hello_rust::boxy::MapBox;
 use hello_rust::layers::{Layers, Value};
 use hello_rust::math::collatz;
+
+#[global_allocator]
+static ALLOC: jemallocator::Jemalloc = jemallocator::Jemalloc;
 
 #[derive(Debug)]
 struct Structure(i32);
