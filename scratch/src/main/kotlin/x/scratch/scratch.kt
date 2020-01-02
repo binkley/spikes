@@ -120,6 +120,9 @@ fun main() {
         "0/0 is ${Rational.new(
             BigInteger.valueOf(0),
             BigInteger.valueOf(0)
+        )}, and NaN is NaN is same object is ${Rational.NaN === Rational.new(
+            BigInteger.valueOf(0),
+            BigInteger.valueOf(0)
         )}"
     )
     println(

@@ -79,20 +79,16 @@ class Rational private constructor(
     // TODO: operator fun rem
     // TODO: operator fun rangeTo
 
-    // TODO: Comparisons to special values
-    fun isFinite() = denominator != BigInteger.ZERO
+    fun isFinite() =
+        // TODO: Is NaN finite?
+        this !== NaN && this !== POSITIVE_INFINITY && this !== NEGATIVE_INFINITY
 
-    // TODO: Comparisons to special values
     fun isInfinite() =
-        denominator == BigInteger.ZERO && numerator != BigInteger.ZERO
+        this === POSITIVE_INFINITY || this === NEGATIVE_INFINITY
 
-    // TODO: Comparisons to special values
-    fun isNaN() =
-        denominator == BigInteger.ZERO && numerator == BigInteger.ZERO
+    fun isNaN() = this === NaN
 
-    // TODO: Comparisons to special values
-    fun isZero() =
-        denominator != BigInteger.ZERO && numerator == BigInteger.ZERO
+    fun isZero() = this === ZERO
 
     companion object {
         // TODO: Consider alternative of Rational as a sealed class, with
@@ -122,8 +118,15 @@ class Rational private constructor(
                 d /= gcd
             }
 
-            // TODO: Corner cases, like a 0 divisor, or returning object
-            //  constants for special values
+            fun BigInteger.isZero() = this == BigInteger.ZERO
+            fun BigInteger.isOne() = this == BigInteger.ONE
+
+            if (d.isZero()) when {
+                n.isZero() -> return NaN
+                n.isOne() -> return POSITIVE_INFINITY
+                n.negate().isOne() -> return NEGATIVE_INFINITY
+            }
+            if (n.isZero()) return ZERO
 
             return Rational(n, d)
         }
