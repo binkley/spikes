@@ -40,10 +40,14 @@ class Rational private constructor(
         return a.compareTo(b)
     }
 
-    override fun equals(other: Any?) = this === other
-            || other is Rational
-            && numerator == other.numerator
-            && denominator == other.denominator
+    override fun equals(other: Any?) = when {
+        isNaN() -> false
+        this === other -> true
+        other !is Rational -> false
+        other.isNaN() -> false
+        else -> numerator == other.numerator
+                && denominator == other.denominator
+    }
 
     override fun hashCode() = Objects.hash(numerator, denominator)
 
@@ -57,27 +61,65 @@ class Rational private constructor(
     }
 
     operator fun unaryPlus() = this
-    operator fun unaryMinus() = Rational(numerator.negate(), denominator)
-    operator fun inc() = Rational(numerator + denominator, denominator)
-    operator fun dec() = Rational(numerator - denominator, denominator)
-    operator fun plus(b: Rational) = Rational(
+    operator fun unaryMinus() = new(numerator.negate(), denominator)
+    operator fun inc() = new(numerator + denominator, denominator)
+    operator fun dec() = new(numerator - denominator, denominator)
+    operator fun plus(b: Rational) = new(
         numerator * b.denominator + b.numerator * denominator,
         denominator * b.denominator
     )
 
-    operator fun minus(b: Rational) = Rational(
+    operator fun minus(b: Rational) = new(
         numerator * b.denominator - b.numerator * denominator,
         denominator * b.denominator
     )
 
     operator fun times(b: Rational) =
-        Rational(numerator * b.numerator, denominator * b.denominator)
+        new(numerator * b.numerator, denominator * b.denominator)
 
     operator fun div(b: Rational) =
-        Rational(numerator * b.denominator, denominator * b.numerator)
+        new(numerator * b.denominator, denominator * b.numerator)
 
     // TODO: operator fun rem
-    // TODO: operator fun rangeTo
+
+    operator fun rangeTo(b: Rational) = RationalProgression(this, b)
+
+    class RationalIterator(
+        start: Rational,
+        private val endInclusive: Rational,
+        private val step: Rational
+    ) : Iterator<Rational> {
+        init {
+            if (step == ZERO) error("Infinite loop")
+        }
+
+        private var current = start
+
+        override fun hasNext() =
+            if (step > ZERO)
+                current <= endInclusive
+            else
+                current >= endInclusive
+
+        override fun next(): Rational {
+            val next = current
+            current += step
+            return next
+        }
+    }
+
+    class RationalProgression(
+        override val start: Rational,
+        override val endInclusive: Rational,
+        private val step: Rational = ONE
+    ) : Iterable<Rational>, ClosedRange<Rational> {
+        override fun iterator() = RationalIterator(start, endInclusive, step)
+
+        infix fun step(step: Rational) =
+            RationalProgression(start, endInclusive, step)
+    }
+
+    infix fun downTo(b: Rational) = RationalProgression(this, b, -ONE)
 
     fun isFinite() =
         // TODO: Is NaN finite?
@@ -88,13 +130,12 @@ class Rational private constructor(
 
     fun isNaN() = this === NaN
 
-    fun isZero() = this === ZERO
-
     companion object {
         // TODO: Consider alternative of Rational as a sealed class, with
         //  special cases able to handle themselves, eg, toString
         val NaN = Rational(BigInteger.ZERO, BigInteger.ZERO)
         val ZERO = Rational(BigInteger.ZERO, BigInteger.ONE)
+        val ONE = Rational(BigInteger.ONE, BigInteger.ONE)
         val POSITIVE_INFINITY = Rational(BigInteger.ONE, BigInteger.ZERO)
         val NEGATIVE_INFINITY =
             Rational(BigInteger.ONE.negate(), BigInteger.ZERO)
@@ -127,6 +168,7 @@ class Rational private constructor(
                 n.negate().isOne() -> return NEGATIVE_INFINITY
             }
             if (n.isZero()) return ZERO
+            if (n.isOne() && d.isOne()) return ONE
 
             return Rational(n, d)
         }

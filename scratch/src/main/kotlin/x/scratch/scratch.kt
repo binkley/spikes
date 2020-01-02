@@ -123,7 +123,13 @@ fun main() {
         )}, and NaN is NaN is same object is ${Rational.NaN === Rational.new(
             BigInteger.valueOf(0),
             BigInteger.valueOf(0)
-        )}"
+        )}, and NaN is equal to itself ${Rational.NaN == Rational.new(
+            BigInteger.valueOf(0),
+            BigInteger.valueOf(0)
+        )}, and NaN is equal to itself also ${Rational.new(
+            BigInteger.valueOf(0),
+            BigInteger.valueOf(0)
+        ) == Rational.NaN}"
     )
     println(
         "4/0 is ${Rational.new(
@@ -146,6 +152,13 @@ fun main() {
     val ratA = Rational.new(BigInteger.valueOf(3), BigInteger.valueOf(5))
     val ratB = Rational.new(BigInteger.valueOf(2), BigInteger.valueOf(3))
     println("$ratA / $ratB is ${ratA / ratB}")
+
+    val ratC = Rational.ZERO
+    val ratD = Rational.new(BigInteger.valueOf(7), BigInteger.valueOf(3))
+    val ratE = Rational.new(BigInteger.valueOf(1), BigInteger.valueOf(2))
+    val ratRange = ratC.rangeTo(ratD)
+    for (r in ratRange step ratE) println(r)
+    for (r in ratD downTo ratC) println(r)
 }
 
 @UseExperimental(ExperimentalStdlibApi::class)
