@@ -1,5 +1,6 @@
 package x.scratch
 
+import java.math.BigInteger
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind.EXACTLY_ONCE
 import kotlin.contracts.contract
@@ -98,6 +99,44 @@ fun main() {
     println("Kotlin floating point is Java's")
     println("NaN comparison: ${Double.NaN == Double.NaN}")
     println("NaN check: ${Double.NaN.isNaN()}")
+
+    println("ZERO is ${Rational.ZERO}")
+    println("NaN is ${Rational.NaN}")
+    println("POSITIVE_INFINITY is ${Rational.POSITIVE_INFINITY}")
+    println("NEGATIVE_INFINITY is ${Rational.NEGATIVE_INFINITY}")
+    println(
+        "4/10 is ${Rational.new(
+            BigInteger.valueOf(4),
+            BigInteger.valueOf(10)
+        )}"
+    )
+    println(
+        "4/2 is ${Rational.new(
+            BigInteger.valueOf(4),
+            BigInteger.valueOf(2)
+        )}"
+    )
+    println(
+        "4/0 is ${Rational.new(
+            BigInteger.valueOf(4),
+            BigInteger.valueOf(0)
+        )}"
+    )
+    println(
+        "-4/0 is ${Rational.new(
+            BigInteger.valueOf(-4),
+            BigInteger.valueOf(0)
+        )}"
+    )
+    println(
+        "-4/-4 is ${Rational.new(
+            BigInteger.valueOf(-4),
+            BigInteger.valueOf(-4)
+        )}"
+    )
+    val ratA = Rational.new(BigInteger.valueOf(3), BigInteger.valueOf(5))
+    val ratB = Rational.new(BigInteger.valueOf(2), BigInteger.valueOf(3))
+    println("$ratA / $ratB is ${ratA / ratB}")
 }
 
 @UseExperimental(ExperimentalStdlibApi::class)
