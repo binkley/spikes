@@ -117,6 +117,12 @@ fun main() {
         )}"
     )
     println(
+        "0/0 is ${Rational.new(
+            BigInteger.valueOf(0),
+            BigInteger.valueOf(0)
+        )}"
+    )
+    println(
         "4/0 is ${Rational.new(
             BigInteger.valueOf(4),
             BigInteger.valueOf(0)

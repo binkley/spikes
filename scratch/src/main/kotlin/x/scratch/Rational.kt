@@ -117,10 +117,15 @@ class Rational private constructor(
             }
 
             val gcd = gcd(n, d).abs()
+            if (gcd != BigInteger.ZERO) {
+                n /= gcd
+                d /= gcd
+            }
 
             // TODO: Corner cases, like a 0 divisor, or returning object
             //  constants for special values
-            return Rational(n / gcd, d / gcd)
+
+            return Rational(n, d)
         }
     }
 }
