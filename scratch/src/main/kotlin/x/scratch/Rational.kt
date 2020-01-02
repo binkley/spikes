@@ -84,43 +84,6 @@ class Rational private constructor(
 
     operator fun rangeTo(b: Rational) = RationalProgression(this, b)
 
-    class RationalIterator(
-        start: Rational,
-        private val endInclusive: Rational,
-        private val step: Rational
-    ) : Iterator<Rational> {
-        init {
-            if (step == ZERO) error("Infinite loop")
-        }
-
-        private var current = start
-
-        override fun hasNext() =
-            if (step > ZERO)
-                current <= endInclusive
-            else
-                current >= endInclusive
-
-        override fun next(): Rational {
-            val next = current
-            current += step
-            return next
-        }
-    }
-
-    class RationalProgression(
-        override val start: Rational,
-        override val endInclusive: Rational,
-        private val step: Rational = ONE
-    ) : Iterable<Rational>, ClosedRange<Rational> {
-        override fun iterator() = RationalIterator(start, endInclusive, step)
-
-        infix fun step(step: Rational) =
-            RationalProgression(start, endInclusive, step)
-    }
-
-    infix fun downTo(b: Rational) = RationalProgression(this, b, -ONE)
-
     fun isFinite() =
         // TODO: Is NaN finite?
         this !== NaN && this !== POSITIVE_INFINITY && this !== NEGATIVE_INFINITY
@@ -174,3 +137,41 @@ class Rational private constructor(
         }
     }
 }
+
+class RationalIterator(
+    start: Rational,
+    private val endInclusive: Rational,
+    private val step: Rational
+) : Iterator<Rational> {
+    init {
+        if (step == Rational.ZERO) error("Infinite loop")
+    }
+
+    private var current = start
+
+    override fun hasNext() =
+        if (step > Rational.ZERO)
+            current <= endInclusive
+        else
+            current >= endInclusive
+
+    override fun next(): Rational {
+        val next = current
+        current += step
+        return next
+    }
+}
+
+class RationalProgression(
+    override val start: Rational,
+    override val endInclusive: Rational,
+    private val step: Rational = Rational.ONE
+) : Iterable<Rational>, ClosedRange<Rational> {
+    override fun iterator() = RationalIterator(start, endInclusive, step)
+
+    infix fun step(step: Rational) =
+        RationalProgression(start, endInclusive, step)
+}
+
+infix fun Rational.downTo(b: Rational) =
+    RationalProgression(this, b, -Rational.ONE)
