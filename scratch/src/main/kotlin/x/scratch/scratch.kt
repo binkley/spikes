@@ -128,8 +128,7 @@ fun main() {
     val ratC = Rational.ZERO
     val ratD = Rational.new(7, 3)
     val ratE = Rational.new(1, 2)
-    val ratRange = ratC.rangeTo(ratD)
-    for (r in ratRange step ratE) println(r)
+    for (r in ratC..ratD step ratE) println(r)
     for (r in ratD downTo ratC) println(r)
 
     println("Compare infinities? ${Rational.POSITIVE_INFINITY > Rational.ZERO} and ${Rational.NEGATIVE_INFINITY < Rational.ZERO}")
