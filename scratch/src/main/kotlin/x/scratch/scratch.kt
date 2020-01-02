@@ -94,6 +94,10 @@ fun main() {
     println("Test clock advanced since mark by ${tm.elapsedNow()}")
 
     println(Bob(3).aaa(listOf("fruits")))
+
+    println("Kotlin floating point is Java's")
+    println("NaN comparison: ${Double.NaN == Double.NaN}")
+    println("NaN check: ${Double.NaN.isNaN()}")
 }
 
 @UseExperimental(ExperimentalStdlibApi::class)
