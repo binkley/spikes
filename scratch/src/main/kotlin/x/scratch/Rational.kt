@@ -1,17 +1,22 @@
 package x.scratch
 
+import x.scratch.Rational.Companion.ONE
+import x.scratch.Rational.Companion.ZERO
 import java.math.BigInteger
 import java.util.Objects
+
+private typealias BInt = BigInteger
 
 /**
  * See https://developer.android.com/reference/kotlin/android/util/Rational
  *
  * @todo Consider LCM -- for simplicity avoid prime factorization for now
- * @todo Propagate NaN-ness
+ * @todo Propagate NaN-ness, convert Infinities to NaN for operations
+ * @todo Consider DivByZero exceptions instead of headache of NaN and +/-Inf
  */
 class Rational private constructor(
-    val numerator: BigInteger,
-    val denominator: BigInteger
+    val numerator: BInt,
+    val denominator: BInt
 ) : Number(), Comparable<Rational> {
     override fun toByte() = toLong().toByte()
 
@@ -56,7 +61,7 @@ class Rational private constructor(
         if (this == ZERO) return "0"
         if (this == POSITIVE_INFINITY) return "+∞"
         if (this == NEGATIVE_INFINITY) return "-∞"
-        if (denominator == BigInteger.ONE) return numerator.toString()
+        if (denominator == BInt.ONE) return numerator.toString()
         return "$numerator/$denominator"
     }
 
@@ -96,34 +101,33 @@ class Rational private constructor(
     companion object {
         // TODO: Consider alternative of Rational as a sealed class, with
         //  special cases able to handle themselves, eg, toString
-        val NaN = Rational(BigInteger.ZERO, BigInteger.ZERO)
-        val ZERO = Rational(BigInteger.ZERO, BigInteger.ONE)
-        val ONE = Rational(BigInteger.ONE, BigInteger.ONE)
-        val POSITIVE_INFINITY = Rational(BigInteger.ONE, BigInteger.ZERO)
-        val NEGATIVE_INFINITY =
-            Rational(BigInteger.ONE.negate(), BigInteger.ZERO)
+        val NaN = Rational(BInt.ZERO, BInt.ZERO)
+        val ZERO = Rational(BInt.ZERO, BInt.ONE)
+        val ONE = Rational(BInt.ONE, BInt.ONE)
+        val POSITIVE_INFINITY = Rational(BInt.ONE, BInt.ZERO)
+        val NEGATIVE_INFINITY = Rational(BInt.ONE.negate(), BInt.ZERO)
 
-        fun new(numerator: BigInteger, denominator: BigInteger): Rational {
+        fun new(numerator: BInt, denominator: BInt): Rational {
             var n = numerator
             var d = denominator
-            if (d < BigInteger.ZERO) {
+            if (d < BInt.ZERO) {
                 n = n.negate()
                 d = d.negate()
             }
 
-            tailrec fun gcd(p: BigInteger, q: BigInteger): BigInteger {
-                if (q == BigInteger.ZERO) return p
+            tailrec fun gcd(p: BInt, q: BInt): BInt {
+                if (q == BInt.ZERO) return p
                 return gcd(q, p % q)
             }
 
             val gcd = gcd(n, d).abs()
-            if (gcd != BigInteger.ZERO) {
+            if (gcd != BInt.ZERO) {
                 n /= gcd
                 d /= gcd
             }
 
-            fun BigInteger.isZero() = this == BigInteger.ZERO
-            fun BigInteger.isOne() = this == BigInteger.ONE
+            fun BInt.isZero() = this == BInt.ZERO
+            fun BInt.isOne() = this == BInt.ONE
 
             if (d.isZero()) when {
                 n.isZero() -> return NaN
@@ -144,13 +148,13 @@ class RationalIterator(
     private val step: Rational
 ) : Iterator<Rational> {
     init {
-        if (step == Rational.ZERO) error("Infinite loop")
+        if (step == ZERO) error("Infinite loop")
     }
 
     private var current = start
 
     override fun hasNext() =
-        if (step > Rational.ZERO)
+        if (step > ZERO)
             current <= endInclusive
         else
             current >= endInclusive
@@ -165,7 +169,7 @@ class RationalIterator(
 class RationalProgression(
     override val start: Rational,
     override val endInclusive: Rational,
-    private val step: Rational = Rational.ONE
+    private val step: Rational = ONE
 ) : Iterable<Rational>, ClosedRange<Rational> {
     override fun iterator() = RationalIterator(start, endInclusive, step)
 
@@ -174,4 +178,4 @@ class RationalProgression(
 }
 
 infix fun Rational.downTo(b: Rational) =
-    RationalProgression(this, b, -Rational.ONE)
+    RationalProgression(this, b, -ONE)
