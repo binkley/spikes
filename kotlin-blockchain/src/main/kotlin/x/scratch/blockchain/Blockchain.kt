@@ -47,6 +47,22 @@ class Blockchain private constructor(
         )
     }
 
+    fun newHandOffBlock(
+        data: Any,
+        purpose: String,
+        previousHash: String,
+        nextHash: String,
+        timestamp: Instant = Instant.now()
+    ) = apply {
+        verify(setOf(previousHash))
+        chain += last().next(
+            data = data,
+            purpose = purpose,
+            functions = setOf(previousHash, nextHash),
+            timestamp = timestamp
+        )
+    }
+
     /**
      * Looks up a block by its digest function and hash, returning `null` if
      * none found.  Example:

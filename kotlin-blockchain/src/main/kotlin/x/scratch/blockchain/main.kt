@@ -77,46 +77,45 @@ fun Map<String, TimedHash>.pretty(buf: StringBuilder) {
     }
 }
 
-private fun Blockchain.verifyAndDump() {
-    verify(Blockchain.DEFAULT_FUNCTIONS)
-
-    println()
-    println(pretty())
-    println()
-    println("latest -> ${last()}")
-    println("first SHA-256 by height -> ${this[0]}")
-    println(
-        "last SHA-256 by hash -> ${this["SHA-256", last().hashes["SHA-256"]?.hash
-            ?: error("No SHA-256")]}"
-    )
-}
-
 private fun runVerifyAndDump(
     difficulty: Int,
     genesisTimestamp: Instant,
     firstBlockData: Any,
-    firstBlockTimestamp: (Instant) -> Instant
+    computeFirstBlockTimestamp: (Instant) -> Instant
 ) {
-    println()
-    println("========")
-    println()
-
     val blockchain = Blockchain.new(
         genesisData = genesisData,
         purpose = "Example",
         difficulty = difficulty,
         genesisTimestamp = genesisTimestamp
     )
-    blockchain.verifyAndDump()
+    println()
+    println("========")
+    println(blockchain.pretty())
 
     println()
 
+    val firstBlockTimestamp = computeFirstBlockTimestamp(genesisTimestamp)
+
     blockchain.newBlock(
-        purpose = "Example",
         data = firstBlockData,
+        purpose = "Example",
         // Add some hash functions to existing chain
         functions = setOf("MD5", "SHA-256", "SHA3-256"),
-        timestamp = firstBlockTimestamp(genesisTimestamp)
+        timestamp = firstBlockTimestamp
     )
-    blockchain.verifyAndDump()
+    println()
+    println("========")
+    println(blockchain.pretty())
+
+    blockchain.newHandOffBlock(
+        data = "Stick em' up!  This is a hand off!",
+        purpose = "Example",
+        previousHash = "SHA-256",
+        nextHash = "SHA3-256",
+        timestamp = firstBlockTimestamp.plusMillis(1L)
+    )
+    println()
+    println("========")
+    println(blockchain.pretty())
 }
