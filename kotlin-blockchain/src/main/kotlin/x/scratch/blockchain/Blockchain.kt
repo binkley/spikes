@@ -156,10 +156,7 @@ class Blockchain private constructor(
             previousHashes = hashes
         )
 
-        private fun hashWithNonce(
-            function: String,
-            nonce: Int
-        ): String {
+        private fun hashWithNonce(function: String, nonce: Int): String {
             // TODO: Use genesis hash, or something cleverer?
             val previousHash =
                 previousHashes.getOrDefault(function, genesisHash).hash
@@ -173,7 +170,7 @@ class Blockchain private constructor(
                 : Map<String, TimedHash> {
             val hashPrefix = hashPrefixForDifficulty(difficulty)
 
-            fun oneHashWithProofOfWork(function: String): TimedHash {
+            fun hashWithProofOfWork(function: String): TimedHash {
                 val start = Instant.now()
 
                 for (nonce in 0..Int.MAX_VALUE) {
@@ -189,7 +186,7 @@ class Blockchain private constructor(
             }
 
             return functions.map { function ->
-                function to oneHashWithProofOfWork(function)
+                function to hashWithProofOfWork(function)
             }.toMap()
         }
 
