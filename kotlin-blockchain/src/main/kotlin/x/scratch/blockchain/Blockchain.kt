@@ -8,6 +8,12 @@ import java.util.Objects
 
 private val genesisHash = TimedHash("0", Duration.ZERO, 0)
 
+private val digests = mutableMapOf<String, MessageDigest>()
+private fun digest(function: String) =
+    digests.computeIfAbsent(function) {
+        MessageDigest.getInstance(it)!!
+    }
+
 data class TimedHash(val hash: String, val timing: Duration, val nonce: Int)
 
 class Blockchain private constructor(
@@ -124,11 +130,7 @@ class Blockchain private constructor(
                 function to timedHash.hash
             }.toMap()
             val recomputedHashes = hashes.map { (function, timedHash) ->
-                function to hashWithNonce(
-                    function,
-                    MessageDigest.getInstance(function),
-                    timedHash.nonce
-                )
+                function to hashWithNonce(function, timedHash.nonce)
             }.toMap()
 
             if (originalHashes != recomputedHashes)
@@ -156,14 +158,13 @@ class Blockchain private constructor(
 
         private fun hashWithNonce(
             function: String,
-            digest: MessageDigest,
             nonce: Int
         ): String {
             // TODO: Use genesis hash, or something cleverer?
             val previousHash =
                 previousHashes.getOrDefault(function, genesisHash).hash
             return hashForBlock(
-                digest,
+                digest(function),
                 "$nonce$height$timestamp$data$purpose$previousHash"
             )
         }
@@ -171,17 +172,12 @@ class Blockchain private constructor(
         private fun allHashesWithProofOfWork(functions: Set<String>)
                 : Map<String, TimedHash> {
             val hashPrefix = hashPrefixForDifficulty(difficulty)
-            val digests = functions.map { function ->
-                // TODO: Kotlin, how to say non-null if the JDK throws?
-                function to MessageDigest.getInstance(function)!!
-            }.toMap()  // Memoize
 
             fun oneHashWithProofOfWork(function: String): TimedHash {
-                val digest = digests[function]!!
                 val start = Instant.now()
 
                 for (nonce in 0..Int.MAX_VALUE) {
-                    val hash = hashWithNonce(function, digest, nonce)
+                    val hash = hashWithNonce(function, nonce)
 
                     if (hash.startsWith(hashPrefix)) {
                         val timing = Duration.between(Instant.now(), start)
