@@ -146,6 +146,20 @@ class Blockchain private constructor(
             previousHashes = hashes
         )
 
+        private fun hashWithNonce(
+            function: String,
+            digest: MessageDigest,
+            nonce: Int
+        ): String {
+            // TODO: Use genesis hash, or something cleverer?
+            val previousHash =
+                previousHashes.getOrDefault(function, genesisHash).hash
+            return hashForBlock(
+                digest,
+                "$nonce$height$timestamp$data$purpose$previousHash"
+            )
+        }
+
         private fun allHashesWithProofOfWork(functions: Set<String>)
                 : Map<String, TimedHash> {
             val hashPrefix = hashPrefixForDifficulty(difficulty)
@@ -155,16 +169,11 @@ class Blockchain private constructor(
             }.toMap()  // Memoize
 
             fun oneHashWithProofOfWork(function: String): TimedHash {
-                // TODO: Use genesis hash, or recompute to start of chain?
-                val previousHash =
-                    previousHashes.getOrDefault(function, genesisHash).hash
+                val digest = digests[function]!!
                 val start = Instant.now()
+
                 for (nonce in 0..Int.MAX_VALUE) {
-                    val hash = hashForBlock(
-                        // TODO: Kotlin, how to say map cannot be missing keys?
-                        digests[function]!!,
-                        "$nonce$height$timestamp$data$purpose$previousHash"
-                    )
+                    val hash = hashWithNonce(function, digest, nonce)
 
                     if (hash.startsWith(hashPrefix)) {
                         val timing = Duration.between(Instant.now(), start)
