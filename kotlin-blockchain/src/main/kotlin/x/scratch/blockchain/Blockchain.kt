@@ -62,8 +62,9 @@ class Blockchain private constructor(
         "${super.toString()}{genesisData=$genesisData, difficulty=$difficulty, chain=$chain}"
 
     /**
-     * Validates the blockchain.  This is an expensive operation.  Please use
-     * in simple tests only.
+     * Validates the blockchain.
+     *
+     * @todo Do not require an input
      */
     fun verify(functions: Set<String>) {
         var previousHeight = -1L
@@ -117,13 +118,20 @@ class Blockchain private constructor(
     ) {
         val hashes = allHashesWithProofOfWork(functions)
 
-        /**
-         * Validates the block.  This is an expensive operation.  Please use
-         * in simple tests only.
-         */
+        /** Validates the block. */
         fun verify() {
-            // TODO: This is horrid.  It runs as slowly as creating the block
-            if (!hashes.equivalentTo(allHashesWithProofOfWork(hashes.keys)))
+            val originalHashes = hashes.map { (function, timedHash) ->
+                function to timedHash.hash
+            }.toMap()
+            val recomputedHashes = hashes.map { (function, timedHash) ->
+                function to hashWithNonce(
+                    function,
+                    MessageDigest.getInstance(function),
+                    timedHash.nonce
+                )
+            }.toMap()
+
+            if (originalHashes != recomputedHashes)
                 error("Corrupted: $this")
 
             val hashPrefix = hashPrefixForDifficulty(difficulty)
