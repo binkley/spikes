@@ -48,8 +48,8 @@ class Blockchain private constructor(
     }
 
     /**
-     * Looks up a block by its digest function and hash, and returns `null`
-     * if none found.  Example:
+     * Looks up a block by its digest function and hash, returning `null` if
+     * none found.  Example:
      * ```
      * val aBlock = blockchain["SHA-256", "d7cce22abb7945c814718fb71c5a2d27f2da47a39a01aee14e5b2a1cddb9bdd9"]
      * ```
