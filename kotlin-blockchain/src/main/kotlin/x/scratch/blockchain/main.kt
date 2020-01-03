@@ -108,7 +108,7 @@ private fun runVerifyAndDump(
     println("========")
     println(blockchain.pretty())
 
-    blockchain.newHandOffBlock(
+    blockchain.handOffBlock(
         data = "Stick em' up!  This is a hand off!",
         purpose = "Example",
         previousHash = "SHA-256",

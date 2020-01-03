@@ -47,7 +47,7 @@ class Blockchain private constructor(
         )
     }
 
-    fun newHandOffBlock(
+    fun handOffBlock(
         data: Any,
         purpose: String,
         previousHash: String,
