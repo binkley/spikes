@@ -19,22 +19,11 @@ class Rational private constructor(
     val denominator: BInt
 ) : Number(), Comparable<Rational> {
     override fun toByte() = toLong().toByte()
-
-    override fun toChar(): Char {
-        // TODO: Think about converting to a Char
-        error("Characters are inherently non-numeric")
-    }
-
-    override fun toDouble() =
-        numerator.toDouble() / denominator.toDouble()
-
-    override fun toFloat() =
-        numerator.toFloat() / denominator.toFloat()
-
+    override fun toChar(): Char = error("Characters are non-numeric")
+    override fun toDouble() = numerator.toDouble() / denominator.toDouble()
+    override fun toFloat() = numerator.toFloat() / denominator.toFloat()
     override fun toInt() = toLong().toInt()
-
     override fun toLong() = (numerator / denominator).toLong()
-
     override fun toShort() = toLong().toShort()
 
     /** NB -- NaN is larger than all other values, and NaN != NaN */
@@ -103,9 +92,7 @@ class Rational private constructor(
     fun isInfinite() = isPositiveInfinity() || isNegativeInfinity()
 
     fun isPositiveInfinity() = this === POSITIVE_INFINITY
-
     fun isNegativeInfinity() = this === NEGATIVE_INFINITY
-
     fun isNaN() = this === NaN
 
     companion object {
