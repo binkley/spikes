@@ -78,6 +78,7 @@ class Rational private constructor(
     operator fun times(b: Rational) =
         new(numerator * b.numerator, denominator * b.denominator)
 
+    /** NB -- Division by zero returns NaN, does not raise exception */
     operator fun div(b: Rational) =
         new(numerator * b.denominator, denominator * b.numerator)
 
