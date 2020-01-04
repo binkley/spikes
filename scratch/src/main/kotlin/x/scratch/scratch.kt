@@ -108,25 +108,17 @@ fun main() {
     println("POSITIVE_INFINITY is $POSITIVE_INFINITY")
     println("NEGATIVE_INFINITY is $NEGATIVE_INFINITY")
     println("1 is ${Rational.new(1)}")
-    println("4/10 is ${Rational.new(4, 10)}")
-    println("4/2 is ${Rational.new(4, 2)}")
+    println("4/10 is ${4 over 10}")
+    println("4/2 is ${4 over 2}")
     println(
-        "0/0 is ${Rational.new(
-            0, 0
-        )}, and NaN is NaN is same object is ${NaN === Rational.new(
-            0, 0
-        )}, and NaN is equal to itself ${NaN == Rational.new(
-            0, 0
-        )}, and NaN is equal to itself also ${Rational.new(
-            0, 0
-        ) == NaN}"
+        "0/0 is ${0 over 0}, and NaN is NaN is same object is ${NaN === 0 over 0}, and NaN is equal to itself ${NaN == 0 over 0}, and NaN is equal to itself also ${0 over 0 == NaN}"
     )
-    println("4/0 is ${Rational.new(4, 0)}")
-    println("-4/0 is ${Rational.new(-4, 0)}")
-    println("-4/-4 is ${Rational.new(-4, -4)}")
+    println("4/0 is ${4 over 0}")
+    println("-4/0 is ${-4 over 0}")
+    println("-4/-4 is ${-4 over -4}")
 
-    val ratA = Rational.new(3, 5)
-    val ratB = Rational.new(2, 3)
+    val ratA = 3 over 5
+    val ratB = 2 over 3
     println("$ratA / $ratB is ${ratA / ratB}")
 
     val ratC = ZERO

@@ -150,6 +150,21 @@ class Rational private constructor(
     }
 }
 
+infix fun BInt.over(denominator: BInt) = Rational.new(this, denominator)
+infix fun BInt.over(denominator: Long) = Rational.new(this, denominator)
+infix fun BInt.over(denominator: Int) =
+    Rational.new(this, denominator.toLong())
+
+infix fun Long.over(denominator: BInt) = Rational.new(this, denominator)
+infix fun Long.over(denominator: Long) = Rational.new(this, denominator)
+infix fun Long.over(denominator: Int) =
+    Rational.new(this, denominator.toLong())
+
+infix fun Int.over(denominator: BInt) = Rational.new(toLong(), denominator)
+infix fun Int.over(denominator: Long) = Rational.new(toLong(), denominator)
+infix fun Int.over(denominator: Int) =
+    Rational.new(toLong(), denominator.toLong())
+
 class RationalIterator(
     start: Rational,
     private val endInclusive: Rational,
