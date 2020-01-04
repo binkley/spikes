@@ -38,8 +38,15 @@ class Rational private constructor(
     override fun toShort() = toLong().toShort()
 
     override fun compareTo(other: Rational): Int {
+        // Handle the corner cases with +/-Inf and NaN
+        if (this == other) return 0 // Ensure sort stability
+        if (this === NEGATIVE_INFINITY) return -1
+        if (this === NaN) return 1
+        if (this === POSITIVE_INFINITY) {
+            return if (other === NaN) -1 else 1
+        }
+
         // TODO: Find LCM rather than always using product
-        // TODO: Handle corner cases with NaN and the infinities
         val a = numerator * other.denominator
         val b = other.numerator * denominator
         return a.compareTo(b)
@@ -57,10 +64,10 @@ class Rational private constructor(
     override fun hashCode() = Objects.hash(numerator, denominator)
 
     override fun toString(): String {
-        if (this == NaN) return "NaN"
-        if (this == ZERO) return "0"
-        if (this == POSITIVE_INFINITY) return "+∞"
-        if (this == NEGATIVE_INFINITY) return "-∞"
+        if (this === NaN) return "NaN"
+        if (this === ZERO) return "0"
+        if (this === POSITIVE_INFINITY) return "+∞"
+        if (this === NEGATIVE_INFINITY) return "-∞"
         if (denominator == BInt.ONE) return numerator.toString()
         return "$numerator/$denominator"
     }

@@ -132,6 +132,15 @@ fun main() {
     for (r in ratD downTo ratC) println(r)
 
     println("Compare infinities? ${Rational.POSITIVE_INFINITY > Rational.ZERO} and ${Rational.NEGATIVE_INFINITY < Rational.ZERO}")
+
+    println(
+        "[NaN, +Inf, ZERO, -Inf] sorted is ${listOf(
+            Rational.NaN,
+            Rational.POSITIVE_INFINITY,
+            Rational.ZERO,
+            Rational.NEGATIVE_INFINITY
+        ).sorted()}"
+    )
 }
 
 @UseExperimental(ExperimentalStdlibApi::class)
