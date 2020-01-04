@@ -37,19 +37,21 @@ class Rational private constructor(
 
     override fun toShort() = toLong().toShort()
 
-    override fun compareTo(other: Rational): Int {
+    override fun compareTo(other: Rational) = when {
         // Handle the corner cases with +/-Inf and NaN
-        if (this == other) return 0 // Ensure sort stability
-        if (this === NEGATIVE_INFINITY) return -1
-        if (this === NaN) return 1
-        if (this === POSITIVE_INFINITY) {
-            return if (other === NaN) -1 else 1
+        this === other -> 0 // Ensure sort stability
+        isNegativeInfinity() -> -1
+        isNaN() -> 1
+        isPositiveInfinity() -> {
+            if (other.isNaN()) -1 else 1
         }
 
-        // TODO: Find LCM rather than always using product
-        val a = numerator * other.denominator
-        val b = other.numerator * denominator
-        return a.compareTo(b)
+        else -> {
+            // TODO: Find LCM rather than always using product
+            val a = numerator * other.denominator
+            val b = other.numerator * denominator
+            a.compareTo(b)
+        }
     }
 
     override fun equals(other: Any?) = when {
@@ -63,13 +65,12 @@ class Rational private constructor(
 
     override fun hashCode() = Objects.hash(numerator, denominator)
 
-    override fun toString(): String {
-        if (this === NaN) return "NaN"
-        if (this === ZERO) return "0"
-        if (this === POSITIVE_INFINITY) return "+∞"
-        if (this === NEGATIVE_INFINITY) return "-∞"
-        if (denominator == BInt.ONE) return numerator.toString()
-        return "$numerator/$denominator"
+    override fun toString() = when {
+        isNaN() -> "NaN"
+        isPositiveInfinity() -> "+∞"
+        isNegativeInfinity() -> "-∞"
+        denominator == BInt.ONE -> numerator.toString()
+        else -> "$numerator/$denominator"
     }
 
     operator fun unaryPlus() = this
@@ -100,8 +101,11 @@ class Rational private constructor(
         // TODO: Is NaN finite?
         this !== NaN && this !== POSITIVE_INFINITY && this !== NEGATIVE_INFINITY
 
-    fun isInfinite() =
-        this === POSITIVE_INFINITY || this === NEGATIVE_INFINITY
+    fun isInfinite() = isPositiveInfinity() || isNegativeInfinity()
+
+    fun isPositiveInfinity() = this === POSITIVE_INFINITY
+
+    fun isNegativeInfinity() = this === NEGATIVE_INFINITY
 
     fun isNaN() = this === NaN
 
