@@ -37,15 +37,13 @@ class Rational private constructor(
 
     override fun toShort() = toLong().toShort()
 
+    /** NB -- NaN is larger than all other values, and NaN != NaN */
     override fun compareTo(other: Rational) = when {
-        // Handle the corner cases with +/-Inf and NaN
-        this === other -> 0 // Ensure sort stability
+        this === other -> 0 // Sort stability for constants
         isNegativeInfinity() -> -1
         isNaN() -> 1
-        isPositiveInfinity() -> {
-            if (other.isNaN()) -1 else 1
-        }
-
+        other.isNaN() -> -1 // NaN sorts after +Inf
+        isPositiveInfinity() -> 1
         else -> {
             // TODO: Find LCM rather than always using product
             val a = numerator * other.denominator
@@ -54,6 +52,7 @@ class Rational private constructor(
         }
     }
 
+    /** NB -- NaN != NaN */
     override fun equals(other: Any?) = when {
         isNaN() -> false
         this === other -> true
@@ -97,10 +96,10 @@ class Rational private constructor(
 
     operator fun rangeTo(b: Rational) = RationalProgression(this, b)
 
-    fun isFinite() =
-        // TODO: Is NaN finite?
-        this !== NaN && this !== POSITIVE_INFINITY && this !== NEGATIVE_INFINITY
+    /** NB -- NaN is not finite */
+    fun isFinite() = !isNaN() && !isInfinite()
 
+    /** NB -- NaN is not infinite */
     fun isInfinite() = isPositiveInfinity() || isNegativeInfinity()
 
     fun isPositiveInfinity() = this === POSITIVE_INFINITY
@@ -140,6 +139,7 @@ class Rational private constructor(
             fun BInt.isZero() = this == BInt.ZERO
             fun BInt.isOne() = this == BInt.ONE
 
+            // Ensure constants return the *same* object
             if (d.isZero()) when {
                 n.isZero() -> return NaN
                 n.isOne() -> return POSITIVE_INFINITY

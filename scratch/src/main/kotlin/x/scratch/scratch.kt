@@ -133,14 +133,17 @@ fun main() {
 
     println("Compare infinities? ${Rational.POSITIVE_INFINITY > Rational.ZERO} and ${Rational.NEGATIVE_INFINITY < Rational.ZERO}")
 
-    println(
-        "[NaN, +Inf, ZERO, -Inf] sorted is ${listOf(
-            Rational.NaN,
-            Rational.POSITIVE_INFINITY,
-            Rational.ZERO,
-            Rational.NEGATIVE_INFINITY
-        ).sorted()}"
+    val toSort = listOf(
+        Rational.POSITIVE_INFINITY,
+        Rational.NaN,
+        Rational.ZERO,
+        Rational.POSITIVE_INFINITY,
+        Rational.NaN,
+        Rational.NEGATIVE_INFINITY,
+        Rational.ZERO,
+        Rational.NEGATIVE_INFINITY
     )
+    println("$toSort sorted is ${toSort.sorted()}")
 }
 
 @UseExperimental(ExperimentalStdlibApi::class)
