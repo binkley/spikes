@@ -1,5 +1,9 @@
 package x.scratch
 
+import x.scratch.Rational.Companion.NEGATIVE_INFINITY
+import x.scratch.Rational.Companion.NaN
+import x.scratch.Rational.Companion.POSITIVE_INFINITY
+import x.scratch.Rational.Companion.ZERO
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind.EXACTLY_ONCE
 import kotlin.contracts.contract
@@ -99,23 +103,23 @@ fun main() {
     println("NaN comparison: ${Double.NaN == Double.NaN}")
     println("NaN check: ${Double.NaN.isNaN()}")
 
-    println("ZERO is ${Rational.ZERO}")
-    println("NaN is ${Rational.NaN}")
-    println("POSITIVE_INFINITY is ${Rational.POSITIVE_INFINITY}")
-    println("NEGATIVE_INFINITY is ${Rational.NEGATIVE_INFINITY}")
+    println("ZERO is $ZERO")
+    println("NaN is $NaN")
+    println("POSITIVE_INFINITY is $POSITIVE_INFINITY")
+    println("NEGATIVE_INFINITY is $NEGATIVE_INFINITY")
     println("1 is ${Rational.new(1)}")
     println("4/10 is ${Rational.new(4, 10)}")
     println("4/2 is ${Rational.new(4, 2)}")
     println(
         "0/0 is ${Rational.new(
             0, 0
-        )}, and NaN is NaN is same object is ${Rational.NaN === Rational.new(
+        )}, and NaN is NaN is same object is ${NaN === Rational.new(
             0, 0
-        )}, and NaN is equal to itself ${Rational.NaN == Rational.new(
+        )}, and NaN is equal to itself ${NaN == Rational.new(
             0, 0
         )}, and NaN is equal to itself also ${Rational.new(
             0, 0
-        ) == Rational.NaN}"
+        ) == NaN}"
     )
     println("4/0 is ${Rational.new(4, 0)}")
     println("-4/0 is ${Rational.new(-4, 0)}")
@@ -125,23 +129,32 @@ fun main() {
     val ratB = Rational.new(2, 3)
     println("$ratA / $ratB is ${ratA / ratB}")
 
-    val ratC = Rational.ZERO
+    val ratC = ZERO
     val ratD = Rational.new(7, 3)
     val ratE = Rational.new(1, 2)
     for (r in ratC..ratD step ratE) println(r)
     for (r in ratD downTo ratC) println(r)
+    var i = 0
+    for (r in POSITIVE_INFINITY..NaN) {
+        if (i > 1) {
+            println("NaN loops infinitely (as expected)")
+            break
+        }
+        println(r)
+        ++i
+    }
 
-    println("Compare infinities? ${Rational.POSITIVE_INFINITY > Rational.ZERO} and ${Rational.NEGATIVE_INFINITY < Rational.ZERO}")
+    println("Compare infinities? ${POSITIVE_INFINITY > ZERO} and ${NEGATIVE_INFINITY < ZERO}")
 
     val toSort = listOf(
-        Rational.POSITIVE_INFINITY,
-        Rational.NaN,
-        Rational.ZERO,
-        Rational.POSITIVE_INFINITY,
-        Rational.NaN,
-        Rational.NEGATIVE_INFINITY,
-        Rational.ZERO,
-        Rational.NEGATIVE_INFINITY
+        POSITIVE_INFINITY,
+        NaN,
+        ZERO,
+        POSITIVE_INFINITY,
+        NaN,
+        NEGATIVE_INFINITY,
+        ZERO,
+        NEGATIVE_INFINITY
     )
     println("$toSort sorted is ${toSort.sorted()}")
 }
