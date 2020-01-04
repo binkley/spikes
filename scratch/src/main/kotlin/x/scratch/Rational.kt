@@ -8,11 +8,18 @@ import java.util.Objects
 private typealias BInt = BigInteger
 
 /**
+ * NB -- two choices for division by 0:
+ * - Raise an error, as in whole numbers
+ * - Produce a NaN, as in floating point
+ *
+ * This class produces a NaN, so I could explore the impact of NaN (generally,
+ * too great).
+ *
+ * NB -- avoids use of LCM, and relies on factory ctor GCM to simplify.
+ *
  * See https://developer.android.com/reference/kotlin/android/util/Rational
  *
- * @todo Consider LCM -- for simplicity avoid prime factorization for now
- * @todo Propagate NaN-ness, convert Infinities to NaN for operations
- * @todo Consider DivByZero exceptions instead of headache of NaN and +/-Inf
+ * @todo Propagate NaN-ness
  */
 class Rational private constructor(
     val numerator: BInt,
@@ -34,7 +41,6 @@ class Rational private constructor(
         other.isNaN() -> -1 // NaN sorts after +Inf
         isPositiveInfinity() -> 1
         else -> {
-            // TODO: Find LCM rather than always using product
             val a = numerator * other.denominator
             val b = other.numerator * denominator
             a.compareTo(b)
