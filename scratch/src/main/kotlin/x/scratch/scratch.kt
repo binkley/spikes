@@ -134,14 +134,10 @@ fun main() {
     val ratE = Rational.new(1, 2)
     for (r in ratC..ratD step ratE) println(r)
     for (r in ratD downTo ratC) println(r)
-    var i = 0
-    for (r in POSITIVE_INFINITY..NaN) {
-        if (i > 1) {
-            println("NaN loops infinitely (as expected)")
-            break
-        }
-        println(r)
-        ++i
+    try {
+        for (r in POSITIVE_INFINITY..NaN);
+    } catch (e: IllegalStateException) {
+        println("Expected: $e")
     }
 
     println("Compare infinities? ${POSITIVE_INFINITY > ZERO} and ${NEGATIVE_INFINITY < ZERO}")

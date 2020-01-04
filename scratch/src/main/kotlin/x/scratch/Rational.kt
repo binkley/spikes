@@ -157,6 +157,8 @@ class RationalIterator(
 ) : Iterator<Rational> {
     init {
         if (step == ZERO) error("Infinite loop")
+        if (start.isNaN() || endInclusive.isNaN() || step.isNaN())
+            error("NaN != NaN")
     }
 
     private var current = start
