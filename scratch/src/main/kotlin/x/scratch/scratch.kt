@@ -1,5 +1,6 @@
 package x.scratch
 
+import java.math.BigInteger
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind.EXACTLY_ONCE
 import kotlin.contracts.contract
@@ -23,6 +24,11 @@ class A(val p: Int)
     ExperimentalUnsignedTypes::class
 )
 fun main() {
+    println("GCD pos to pos: ${BigInteger.valueOf(3).gcd(BigInteger.valueOf(2))}")
+    println("GCD pos to neg: ${BigInteger.valueOf(3).gcd(BigInteger.valueOf(-2))}")
+    println("GCD neg to pos: ${BigInteger.valueOf(-3).gcd(BigInteger.valueOf(2))}")
+    println("GCD neg to neg: ${BigInteger.valueOf(-3).gcd(BigInteger.valueOf(-2))}")
+
     println("Rounding a positive fraction: ${3 / 2}")
     println("Rounding a negative fraction in the numerator: ${-3 / 2}")
     println("Rounding a negative fraction in the denominator: ${3 / -2}")
