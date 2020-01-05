@@ -23,6 +23,11 @@ class A(val p: Int)
     ExperimentalUnsignedTypes::class
 )
 fun main() {
+    println("Rounding a positive fraction: ${3 / 2}")
+    println("Rounding a negative fraction in the numerator: ${-3 / 2}")
+    println("Rounding a negative fraction in the denominator: ${3 / -2}")
+    println("Rounding a negative fraction: ${-3 / -2}")
+
     val a: UByte = 3u
     val b: UByte = 5u
     println(a.and(b))
