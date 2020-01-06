@@ -18,7 +18,7 @@ data class TimedHash(
     val hash: String,
     val timing: Duration,
     val difficulty: Int,
-    val nonce: Int
+    val nonce: Long
 )
 
 class Blockchain private constructor(
@@ -183,7 +183,7 @@ class Blockchain private constructor(
 
         private fun hashWithNonce(
             function: String,
-            nonce: Int,
+            nonce: Long,
             previousHash: String
         ): String {
             return hashForBlock(
@@ -203,7 +203,7 @@ class Blockchain private constructor(
                 val previousHash =
                     previousHashes.getOrDefault(function, genesisHash).hash
 
-                for (nonce in 0..Int.MAX_VALUE) {
+                for (nonce in 0..Long.MAX_VALUE) {
                     val hash = hashWithNonce(
                         function,
                         nonce,
