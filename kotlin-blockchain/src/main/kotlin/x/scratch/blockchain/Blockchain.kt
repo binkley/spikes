@@ -151,7 +151,11 @@ class Blockchain private constructor(
                 function to timedHash.hash
             }.toMap()
             val recomputedHashes = hashes.map { (function, timedHash) ->
-                function to hashWithNonce(function, timedHash.nonce)
+                function to hashWithNonce(
+                    function,
+                    timedHash.nonce,
+                    previousHashes.getOrDefault(function, genesisHash).hash
+                )
             }.toMap()
 
             if (originalHashes != recomputedHashes)
@@ -177,10 +181,11 @@ class Blockchain private constructor(
             previousHashes = hashes
         )
 
-        private fun hashWithNonce(function: String, nonce: Int): String {
-            // TODO: Use genesis hash, or something cleverer?
-            val previousHash =
-                previousHashes.getOrDefault(function, genesisHash).hash
+        private fun hashWithNonce(
+            function: String,
+            nonce: Int,
+            previousHash: String
+        ): String {
             return hashForBlock(
                 digest(function),
                 "$nonce$height$timestamp$data$purpose$previousHash"
@@ -194,8 +199,16 @@ class Blockchain private constructor(
             fun hashWithProofOfWork(function: String): TimedHash {
                 val start = Instant.now()
 
+                // TODO: Use genesis hash, or something cleverer?
+                val previousHash =
+                    previousHashes.getOrDefault(function, genesisHash).hash
+
                 for (nonce in 0..Int.MAX_VALUE) {
-                    val hash = hashWithNonce(function, nonce)
+                    val hash = hashWithNonce(
+                        function,
+                        nonce,
+                        previousHash
+                    )
 
                     if (hash.startsWith(hashPrefix)) {
                         val timing = Duration.between(Instant.now(), start)
