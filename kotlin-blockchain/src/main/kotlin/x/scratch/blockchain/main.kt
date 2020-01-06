@@ -68,9 +68,11 @@ fun Map<String, TimedHash>.pretty(buf: StringBuilder) {
     forEach { (function, timedHash) ->
         buf.append("\n  - ")
         buf.append(function)
-        buf.append(" (")
+        buf.append(" (difficulty ")
+        buf.append(timedHash.difficulty)
+        buf.append(" took ")
         buf.append(timedHash.nonce)
-        buf.append(" runs @")
+        buf.append(" runs after ")
         buf.append(timedHash.timing)
         buf.append("): ")
         buf.append(timedHash.hash)

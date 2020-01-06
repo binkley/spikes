@@ -6,7 +6,7 @@ import java.time.Duration
 import java.time.Instant
 import java.util.Objects
 
-private val genesisHash = TimedHash("0", Duration.ZERO, 0)
+private val genesisHash = TimedHash("0", Duration.ZERO, 0, 0)
 
 private val digests = mutableMapOf<String, MessageDigest>()
 private fun digest(function: String) =
@@ -14,7 +14,12 @@ private fun digest(function: String) =
         MessageDigest.getInstance(it)!!
     }
 
-data class TimedHash(val hash: String, val timing: Duration, val nonce: Int)
+data class TimedHash(
+    val hash: String,
+    val timing: Duration,
+    val difficulty: Int,
+    val nonce: Int
+)
 
 class Blockchain private constructor(
     val genesisData: String,
@@ -194,7 +199,7 @@ class Blockchain private constructor(
 
                     if (hash.startsWith(hashPrefix)) {
                         val timing = Duration.between(Instant.now(), start)
-                        return TimedHash(hash, timing, nonce)
+                        return TimedHash(hash, timing, difficulty, nonce)
                     }
                 }
 
