@@ -126,6 +126,18 @@ fun main() {
     }.take(2).forEach {
         println(it)
     }
+
+    val nextGen = generate<Int, Int> {
+        // TODO: How to use "param" -- 100 vs 1000
+        println("it: $it")
+        while (true) {
+            val next = Random.nextInt()
+            if (next in 0..it)
+                yield(next)
+        }
+    }
+    println(nextGen.next(100))
+    println(nextGen.next(1000))
 }
 
 @UseExperimental(ExperimentalStdlibApi::class)
