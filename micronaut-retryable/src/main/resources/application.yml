@@ -3,6 +3,6 @@ micronaut:
     name: kotlin-micronaut-retryable
 
 retrying:
-  attempts: 2
+  attempts: 3
   delay: 1ms
   backoff-factor: 2
