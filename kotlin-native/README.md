@@ -5,6 +5,10 @@
 - Gradle 6.0.1
 - Kotlin 1.3.61
 
+## TODOs
+
+* Follow up on (_Unable to access kotlin.native.Platform_)[https://github.com/JetBrains/kotlin-native/issues/3680]
+
 ## Gotchas
 
 * On Linux, install `libncurses5`, else there is a link error for
