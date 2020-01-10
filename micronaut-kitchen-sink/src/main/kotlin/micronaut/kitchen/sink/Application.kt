@@ -1,13 +1,13 @@
 package micronaut.kitchen.sink
 
 import io.micronaut.runtime.Micronaut
-import io.swagger.v3.oas.annotations.*
-import io.swagger.v3.oas.annotations.info.*
+import io.swagger.v3.oas.annotations.OpenAPIDefinition
+import io.swagger.v3.oas.annotations.info.Info
 
 @OpenAPIDefinition(
     info = Info(
-            title = "micronaut-kitchen-sink",
-            version = "0.0"
+        title = "micronaut-kitchen-sink",
+        version = "0.0"
     )
 )
 object Application {
@@ -15,8 +15,8 @@ object Application {
     @JvmStatic
     fun main(args: Array<String>) {
         Micronaut.build()
-                .packages("micronaut.kitchen.sink")
-                .mainClass(Application.javaClass)
-                .start()
+            .packages("micronaut.kitchen.sink")
+            .mainClass(Application.javaClass)
+            .start()
     }
 }
