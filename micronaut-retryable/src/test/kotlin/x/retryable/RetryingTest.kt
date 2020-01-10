@@ -43,8 +43,7 @@ internal class RetryingTest {
             retrying.retryMe()
         }.toThrow<HttpClientException> { }
 
-        expect(testRetryEventListener.events)
-            .hasSize(attempts)
+        expect(testRetryEventListener.events).hasSize(attempts)
     }
 
     // TODO: Would be nicer with @Property or @Value

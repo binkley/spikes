@@ -5,3 +5,4 @@ micronaut:
 retrying:
   attempts: 2
   delay: 1ms
+  backoff-factor: 2

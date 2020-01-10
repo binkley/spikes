@@ -12,8 +12,9 @@ interface Retrying {
 @Client("https://no-where/retry-me")
 @Retryable(
     attempts = "\${retrying.attempts}",
-    delay = "\${retrying.delay}"
-) // default is 3 times
+    delay = "\${retrying.delay}",
+    multiplier = "\${retrying.backoff-factor}"
+)
 interface RetryingClient : Retrying {
     override fun retryMe(): String
 }
