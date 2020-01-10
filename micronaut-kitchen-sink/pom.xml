@@ -8,7 +8,7 @@
     <version>0.1</version>
     <properties>
         <!-- @formatter:off -->
-        <exec.mainClass>micronaut.kitchen.sink.Application</exec.mainClass>
+        <exec.mainClass>hm.binkley.scratch.Application</exec.mainClass>
         <java.charset>UTF-8</java.charset>
         <java.version>11</java.version>
         <jdk.version>${java.version}</jdk.version>
