@@ -46,7 +46,7 @@ internal class RetryingTest {
         expect(testRetryEventListener.events).hasSize(attempts)
     }
 
-    // TODO: Would be nicer with @Property or @Value
+    // TODO: How to use @Property of @Value?
     private val attempts: Int
         get() = env.getProperty("retrying.attempts", String::class.java)
             .orElseThrow().toInt()
