@@ -1,5 +1,0 @@
-profile: service
-defaultPackage: micronaut.features
----
-testFramework: kotlintest
-sourceLanguage: kotlin
