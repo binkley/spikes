@@ -4,6 +4,7 @@ import java.math.BigInteger
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind.EXACTLY_ONCE
 import kotlin.contracts.contract
+import kotlin.random.Random
 import kotlin.reflect.full.superclasses
 import kotlin.reflect.jvm.javaConstructor
 import kotlin.reflect.jvm.javaField
@@ -13,8 +14,6 @@ import kotlin.time.MonoClock
 import kotlin.time.TestClock
 import kotlin.time.measureTimedValue
 import kotlin.time.seconds
-
-const val a = 1
 
 class A(val p: Int)
 
@@ -92,7 +91,7 @@ fun main() {
     val clock = MonoClock
     val mark1 = clock.markNow()
     val mark2 = clock.markNow()
-    println("$mark1 -> ${mark1.elapsedNow()}")
+    println("$mark1, $mark2 -> ${mark1.elapsedNow()}")
 
     val (result, duration) = clock.measureTimedValue {
         "zippo"
@@ -109,6 +108,24 @@ fun main() {
     println("Kotlin floating point is Java's")
     println("NaN comparison: ${Double.NaN == Double.NaN}")
     println("NaN check: ${Double.NaN.isNaN()}")
+
+    // How to trigger IntelliJ suggestion use of sequence?
+    val qqq = listOf("a", "b", "c").filter {
+        it == "a"
+    }.map {
+        1
+    }.takeLast(2).forEach {
+        println(it)
+    }
+    println(qqq)
+
+    generateSequence {
+        Random.nextInt()
+    }.filter {
+        it in 0..999
+    }.take(2).forEach {
+        println(it)
+    }
 }
 
 @UseExperimental(ExperimentalStdlibApi::class)
