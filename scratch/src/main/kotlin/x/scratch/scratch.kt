@@ -138,6 +138,10 @@ fun main() {
     }
     println(nextGen.next(100))
     println(nextGen.next(1000))
+
+    val firstName = FirstName("Brian")
+    println(firstName)
+    println(firstName.name)
 }
 
 @UseExperimental(ExperimentalStdlibApi::class)
@@ -187,3 +191,5 @@ data class Bob(val a: Int) : Listy {
         list.doodah()
     }
 }
+
+inline class FirstName(val name: String)
