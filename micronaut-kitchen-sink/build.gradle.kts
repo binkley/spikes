@@ -62,6 +62,11 @@ application {
     mainClassName = "hm.binkley.scratch.Application"
 }
 
+gitProperties {
+    dateFormat = "yyyy-MM-dd'T'HH:mm:ssX"
+    dateFormatTimeZone = "UTC"
+}
+
 tasks {
     withType<KotlinCompile> {
         kotlinOptions {

@@ -4,6 +4,7 @@ import io.kotlintest.specs.StringSpec
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.client.annotation.Client
 import io.micronaut.test.annotation.MicronautTest
+import java.time.Instant
 
 data class InfoJson(
     val git: GitJson
@@ -25,9 +26,7 @@ data class InfoJson(
         data class CommitJson(
             val id: String,
             val message: MessageJson,
-            // TODO: 2020-01-12T08:48:42-0600 does not parse as an
-            //  OffsetDateTime because of -0600 vs -06:00
-            val time: String,
+            val time: Instant,
             val user: UserJson
         ) {
             data class MessageJson(
