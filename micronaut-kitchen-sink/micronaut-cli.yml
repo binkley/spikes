@@ -1,5 +1,5 @@
 profile: service
-defaultPackage: micronaut.kitchen.sink
+defaultPackage: bob
 ---
-testFramework: junit
+testFramework: kotlintest
 sourceLanguage: kotlin
