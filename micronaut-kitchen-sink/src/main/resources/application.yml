@@ -15,6 +15,11 @@ micronaut:
         enabled: true
         step: PT1M
         descriptions: true
+  router:
+    static-resources:
+      swagger:
+        paths: classpath:META-INF/swagger
+        mapping: /swagger/**
 
 tracing:
   jaeger:
