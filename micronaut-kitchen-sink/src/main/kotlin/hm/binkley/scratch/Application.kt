@@ -8,7 +8,7 @@ import java.time.ZoneOffset.UTC
 import java.util.TimeZone
 
 @Generated
-@OpenAPIDefinition(
+@OpenAPIDefinition( // TODO: Annotate package, not class
     info = Info(
         title = "micronaut-kitchen-sink",
         version = "0.0"
@@ -16,11 +16,11 @@ import java.util.TimeZone
 )
 object Application {
     @JvmStatic
-    fun main(args: Array<String>) {
+    fun main(args: Array<String>) { // TODO: top-level function
         System.setProperty("user.timezone", "UTC")
         TimeZone.setDefault(TimeZone.getTimeZone(UTC))
 
-        Micronaut.build()
+        Micronaut.build() // TODO: Simplify
             .packages("hm.binkley.scratch")
             .mainClass(Application.javaClass)
             .start()
