@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 val gradleWrapperVersion: String by project
 val jacksonVersion: String by project
+val jacocoVersion: String by project
 val kotlinVersion: String by project
 val kotlinTestVersion: String by project
 val logbackVersion: String by project
@@ -15,6 +16,7 @@ plugins {
     id("com.gorylenko.gradle-git-properties")
     id("com.github.johnrengelman.shadow")
     application
+    jacoco
 }
 
 version = "0.1"
@@ -67,6 +69,10 @@ gitProperties {
     dateFormatTimeZone = "UTC"
 }
 
+jacoco {
+    toolVersion = jacocoVersion
+}
+
 tasks {
     withType<KotlinCompile> {
         kotlinOptions {
@@ -77,6 +83,22 @@ tasks {
 
     test {
         useJUnitPlatform()
+
+        finalizedBy(jacocoTestReport)
+    }
+
+    jacocoTestCoverageVerification {
+        violationRules {
+            rule {
+                limit {
+                    minimum = BigDecimal.ONE
+                }
+            }
+        }
+    }
+
+    check {
+        dependsOn(jacocoTestCoverageVerification)
     }
 
     shadowJar {

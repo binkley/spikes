@@ -3,9 +3,11 @@ package hm.binkley.scratch
 import io.micronaut.runtime.Micronaut
 import io.swagger.v3.oas.annotations.OpenAPIDefinition
 import io.swagger.v3.oas.annotations.info.Info
+import lombok.Generated
 import java.time.ZoneOffset.UTC
 import java.util.TimeZone
 
+@Generated
 @OpenAPIDefinition(
     info = Info(
         title = "micronaut-kitchen-sink",
@@ -17,7 +19,7 @@ object Application {
     fun main(args: Array<String>) {
         System.setProperty("user.timezone", "UTC")
         TimeZone.setDefault(TimeZone.getTimeZone(UTC))
-        
+
         Micronaut.build()
             .packages("hm.binkley.scratch")
             .mainClass(Application.javaClass)
