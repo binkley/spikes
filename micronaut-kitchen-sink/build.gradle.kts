@@ -45,6 +45,7 @@ dependencies {
     kaptTest(platform("io.micronaut:micronaut-bom:$micronautVersion"))
     kaptTest("io.micronaut:micronaut-inject-java")
     runtimeOnly("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
+    runtimeOnly("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
     runtimeOnly("ch.qos.logback:logback-classic:$logbackVersion")
     runtimeOnly("io.jaegertracing:jaeger-thrift")
     testImplementation(platform("io.micronaut:micronaut-bom:$micronautVersion"))
