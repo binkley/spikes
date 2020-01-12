@@ -17,7 +17,7 @@ plugins {
 }
 
 version = "0.1"
-group = "bob"
+group = "hm.binkley.scratch"
 
 repositories {
     mavenCentral()
@@ -57,7 +57,7 @@ allOpen {
 }
 
 application {
-    mainClassName = "bob.Application"
+    mainClassName = "hm.binkley.scratch.Application"
 }
 
 tasks {

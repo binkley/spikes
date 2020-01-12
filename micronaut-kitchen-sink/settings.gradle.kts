@@ -1,4 +1,4 @@
-rootProject.name = "bob"
+rootProject.name = "micronaut-kitchen-sink"
 
 pluginManagement {
     val kotlinVersion: String by settings

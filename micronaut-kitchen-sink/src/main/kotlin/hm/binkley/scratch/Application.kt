@@ -1,4 +1,4 @@
-package bob
+package hm.binkley.scratch
 
 import io.micronaut.runtime.Micronaut
 import io.swagger.v3.oas.annotations.OpenAPIDefinition
@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.info.Info
 
 @OpenAPIDefinition(
     info = Info(
-        title = "bob",
+        title = "micronaut-kitchen-sink",
         version = "0.0"
     )
 )
@@ -14,7 +14,7 @@ object Application {
     @JvmStatic
     fun main(args: Array<String>) {
         Micronaut.build()
-            .packages("bob")
+            .packages("hm.binkley.scratch")
             .mainClass(Application.javaClass)
             .start()
     }

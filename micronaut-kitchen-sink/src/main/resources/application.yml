@@ -1,7 +1,7 @@
 ---
 micronaut:
   application:
-    name: bob
+    name: micronaut-kitchen-sink
 
 ---
 micronaut:
