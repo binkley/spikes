@@ -12,6 +12,7 @@ plugins {
     kotlin("jvm")
     kotlin("kapt")
     kotlin("plugin.allopen")
+    id("com.gorylenko.gradle-git-properties")
     id("com.github.johnrengelman.shadow")
     application
 }

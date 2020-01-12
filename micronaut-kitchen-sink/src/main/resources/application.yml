@@ -1,10 +1,11 @@
----
+endpoints:
+  info:
+    enabled: true
+    sensitive: false
+
 micronaut:
   application:
     name: micronaut-kitchen-sink
-
----
-micronaut:
   metrics:
     enabled: true
     export:
@@ -13,7 +14,6 @@ micronaut:
         step: PT1M
         descriptions: true
 
----
 tracing:
   jaeger:
     enabled: true
