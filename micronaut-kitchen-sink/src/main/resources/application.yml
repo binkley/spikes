@@ -1,4 +1,6 @@
 endpoints:
+  all:
+    path: /admin
   info:
     enabled: true
     sensitive: false
