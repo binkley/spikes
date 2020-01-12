@@ -7,6 +7,7 @@ val jacocoVersion: String by project
 val kotlinVersion: String by project
 val kotlinTestVersion: String by project
 val logbackVersion: String by project
+val logstashVersion: String by project
 val micronautVersion: String by project
 
 plugins {
@@ -50,6 +51,7 @@ dependencies {
     runtimeOnly("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
     runtimeOnly("ch.qos.logback:logback-classic:$logbackVersion")
     runtimeOnly("io.jaegertracing:jaeger-thrift")
+    runtimeOnly("net.logstash.logback:logstash-logback-encoder:$logstashVersion")
     testImplementation(platform("io.micronaut:micronaut-bom:$micronautVersion"))
     testImplementation("io.micronaut.test:micronaut-test-kotlintest")
     testImplementation("io.mockk:mockk:1.9.3")
