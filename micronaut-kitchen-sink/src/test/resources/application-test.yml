@@ -1,0 +1,25 @@
+endpoints:
+  all:
+    path: /admin
+    enabled: false
+
+micronaut:
+  application:
+    name: micronaut-kitchen-sink
+  metrics:
+    enabled: true
+    export:
+      prometheus:
+        enabled: true
+        step: PT1M
+        descriptions: true
+  router:
+    static-resources:
+      swagger:
+        paths: classpath:META-INF/swagger
+        mapping: /swagger/**
+
+tracing:
+  jaeger:
+    enabled: false
+
