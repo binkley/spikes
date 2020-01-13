@@ -20,9 +20,23 @@ Try `./gradlew clean build`.
 - Full code coverage (jacoco)
 - Flaky test detection (**IN PROGRESS**)
 
+## Deployment
+
+### TODO
+
+- Pipeline
+
+## Alerting
+
+### TODO
+
 ## Auditing
 
 - Leverage event publishing
+
+### TODO
+
+- Publish to business analytics
 
 ## Logging
 
@@ -34,10 +48,15 @@ Try `./gradlew clean build`.
 - Local dev gets pretty printed text rather than JSON
 
   Teach `LogbackConfiguration` about environments.
+- Publish to aggregation
 
 ## Management
 
 - Git build details in `/admin/info`
+
+### TODO
+
+- Dashboard
 
 ## Tracing
 
@@ -46,3 +65,4 @@ Try `./gradlew clean build`.
 - Use Zipkin rather tha Jaeger
 
   Simple swap out is not producing HTTP trace headers for Zipkin.
+- Publish to aggregation
