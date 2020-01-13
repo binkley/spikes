@@ -9,6 +9,7 @@ val kotlinTestVersion: String by project
 val logbackVersion: String by project
 val logstashVersion: String by project
 val micronautVersion: String by project
+val mockkVersion: String by project
 
 plugins {
     kotlin("jvm")
@@ -55,7 +56,7 @@ dependencies {
     implementation("net.logstash.logback:logstash-logback-encoder:$logstashVersion")
     testImplementation(platform("io.micronaut:micronaut-bom:$micronautVersion"))
     testImplementation("io.micronaut.test:micronaut-test-kotlintest")
-    testImplementation("io.mockk:mockk:1.9.3")
+    testImplementation("io.mockk:mockk:$mockkVersion")
     testImplementation("io.kotlintest:kotlintest-runner-junit5:$kotlinTestVersion")
 }
 
@@ -107,6 +108,8 @@ tasks {
 
     check {
         dependsOn(jacocoTestCoverageVerification)
+        // TODO: Do not run both ktlintCheck and ktlintFormat
+        dependsOn(ktlintFormat)
     }
 
     shadowJar {

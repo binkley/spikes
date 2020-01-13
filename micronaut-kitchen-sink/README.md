@@ -2,6 +2,22 @@
 
 All the things
 
+Try `./gradlew clean build`.
+
+## Stack
+
+- Kotlin, Kotlintest, Mockk
+- Micronaut, Jackson, Logback
+- Swagger
+- Jaeger (**TODO**: Zipkin)
+- Prometheus
+
+## Build
+
+- Gradle with Kotlin
+- Format linting with automatic fixes
+- Full code coverage
+
 ## Auditing
 
 - Leverage event publishing
@@ -16,6 +32,10 @@ All the things
 - Local dev gets pretty printed text rather than JSON
 
   Teach `LogbackConfiguration` about environments.
+
+## Management
+
+- Git build details in `/admin/info`
 
 ## Tracing
 
