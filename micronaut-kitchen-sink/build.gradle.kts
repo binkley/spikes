@@ -61,6 +61,7 @@ dependencies {
 
 allOpen {
     annotation("io.micronaut.aop.Around")
+    annotation("io.micronaut.http.annotation.Controller")
 }
 
 application {

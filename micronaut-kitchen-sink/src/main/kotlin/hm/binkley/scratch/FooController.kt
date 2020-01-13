@@ -6,12 +6,12 @@ import io.micronaut.http.annotation.Get
 import io.micronaut.tracing.annotation.NewSpan
 
 @Controller("/foo")
-open class FooController(
+class FooController(
     private val publisher: ApplicationEventPublisher
 ) {
     @Get
     @NewSpan("foo")
-    open fun get(): FooJson {
+    fun get(): FooJson {
         try {
             return FooJson("Brian", 42)
         } finally {
