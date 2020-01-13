@@ -15,6 +15,7 @@ plugins {
     kotlin("kapt")
     kotlin("plugin.allopen")
     id("com.gorylenko.gradle-git-properties")
+    id("org.jlleitschuh.gradle.ktlint")
     id("com.github.johnrengelman.shadow")
     application
     jacoco

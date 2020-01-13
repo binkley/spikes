@@ -10,7 +10,8 @@ import java.time.ZoneOffset.UTC
 import java.util.TimeZone
 
 @Generated
-@OpenAPIDefinition( // TODO: Annotate package, not class
+@OpenAPIDefinition(
+    // TODO: Annotate package, not class
     info = Info(
         contact = Contact(
             name = "B. K. Oxley (binkley)",
