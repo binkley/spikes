@@ -8,15 +8,16 @@ Try `./gradlew clean build`.
 
 - Kotlin, Kotlintest, Mockk
 - Micronaut, Jackson, Logback
-- Swagger
+- Swagger (no UI client)
 - Jaeger (**TODO**: Zipkin)
 - Prometheus
 
 ## Build
 
-- Gradle with Kotlin
-- Format linting with automatic fixes
-- Full code coverage
+- Gradle with Kotlin (`settings.gradle.kts`, `build.gradle.kts`)
+- Static code analysis (detekt)
+- Format linting with automatic fixes (ktlint)
+- Full code coverage (jacoco)
 
 ## Auditing
 

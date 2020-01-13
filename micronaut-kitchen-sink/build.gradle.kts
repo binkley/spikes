@@ -15,6 +15,7 @@ plugins {
     kotlin("jvm")
     kotlin("kapt")
     kotlin("plugin.allopen")
+    id("io.gitlab.arturbosch.detekt")
     id("com.gorylenko.gradle-git-properties")
     id("org.jlleitschuh.gradle.ktlint")
     id("com.github.johnrengelman.shadow")
@@ -67,6 +68,12 @@ allOpen {
 
 application {
     mainClassName = "hm.binkley.scratch.Application"
+}
+
+detekt {
+    failFast = true
+    // No support yet for configuring direcly in Gradle
+    config = files("config/detekt.yml")
 }
 
 gitProperties {

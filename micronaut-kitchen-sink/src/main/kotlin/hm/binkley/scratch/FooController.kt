@@ -13,6 +13,7 @@ class FooController(
     @NewSpan("foo")
     fun get(): FooJson {
         try {
+            @Suppress("MagicNumber")
             return FooJson("Brian", 42)
         } finally {
             publisher.publishEvent(FooAuditEvent(this))
