@@ -6,6 +6,7 @@ pluginManagement {
     val kotlinVersion: String by settings
     val ktlintGradlePlugin: String by settings
     val shadowPluginVersion: String by settings
+    val testRetryPluginVersion: String by settings
 
     plugins {
         kotlin("jvm") version kotlinVersion
@@ -15,5 +16,6 @@ pluginManagement {
         id("com.gorylenko.gradle-git-properties") version gitPropertiesPluginVersion
         id("org.jlleitschuh.gradle.ktlint") version ktlintGradlePlugin
         id("com.github.johnrengelman.shadow") version shadowPluginVersion
+        id("org.gradle.test-retry") version testRetryPluginVersion
     }
 }

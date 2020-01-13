@@ -18,6 +18,7 @@ Try `./gradlew clean build`.
 - Static code analysis (detekt)
 - Format linting with automatic fixes (ktlint)
 - Full code coverage (jacoco)
+- Flaky test detection (**IN PROGRESS**)
 
 ## Auditing
 

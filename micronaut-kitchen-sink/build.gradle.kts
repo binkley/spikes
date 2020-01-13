@@ -19,6 +19,7 @@ plugins {
     id("com.gorylenko.gradle-git-properties")
     id("org.jlleitschuh.gradle.ktlint")
     id("com.github.johnrengelman.shadow")
+    id("org.gradle.test-retry")
     application
     jacoco
 }
@@ -89,6 +90,14 @@ ktlint {
     outputColorName.set("RED")
 }
 
+// test {
+//    retry {
+//        failOnPassedAfterRetry = true
+//        maxFailures = 42
+//        maxRetries = 1
+//    }
+// }
+
 tasks {
     withType<KotlinCompile> {
         kotlinOptions {
@@ -110,6 +119,16 @@ tasks {
                     minimum = BigDecimal.ONE
                 }
             }
+        }
+    }
+
+    // TODO: How to move this out to configuration, like Groovy example
+    withType<Test> {
+        // See https://blog.gradle.org/gradle-flaky-test-retry-plugin
+        retry {
+            failOnPassedAfterRetry.set(true)
+            maxRetries.set(6)
+            maxFailures.set(1)
         }
     }
 
