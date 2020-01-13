@@ -77,6 +77,10 @@ jacoco {
     toolVersion = jacocoVersion
 }
 
+ktlint {
+    outputColorName.set("RED")
+}
+
 tasks {
     withType<KotlinCompile> {
         kotlinOptions {
