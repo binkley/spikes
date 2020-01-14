@@ -1,7 +1,7 @@
 package hm.binkley.scratch
 
 import ch.qos.logback.classic.BasicConfigurator
-import ch.qos.logback.classic.Level.INFO
+import ch.qos.logback.classic.Level.WARN
 import ch.qos.logback.classic.Logger
 import ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME
 import ch.qos.logback.classic.LoggerContext
@@ -27,7 +27,7 @@ class LogbackConfiguration(
         }.also { it.start() }
 
         lc.getLogger(ROOT_LOGGER_NAME).apply {
-            level = INFO
+            level = WARN
             this += console
         }
     }

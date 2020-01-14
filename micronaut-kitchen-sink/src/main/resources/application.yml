@@ -5,6 +5,10 @@ endpoints:
     enabled: true
     sensitive: false
 
+logger:
+  levels:
+    root: INFO
+
 micronaut:
   application:
     name: micronaut-kitchen-sink
