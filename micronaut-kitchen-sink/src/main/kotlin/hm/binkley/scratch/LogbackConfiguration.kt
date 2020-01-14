@@ -19,17 +19,10 @@ class LogbackConfiguration(
             context = lc
             name = "STDOUT"
             if (json) {
-                encoder = LogstashEncoder().apply {
-                    context = lc
-                }.also { it.start() }
+                encoder = jsonFormat(lc)
             } else {
-                isWithJansi = true
-                encoder = PatternLayoutEncoder().apply {
-                    context = lc
-                    pattern = """
-%cyan(%d{HH:mm:ss.SSS}) %gray([%thread]) %highlight(%-5level) %magenta(%logger{36}) - %msg%n
-                    """.trim()
-                }.also { it.start() }
+                isWithJansi = true // Windows old console support
+                encoder = defaultMicronautFormat(lc)
             }
         }.also { it.start() }
 
@@ -39,6 +32,19 @@ class LogbackConfiguration(
         }
     }
 }
+
+private fun jsonFormat(lc: LoggerContext) =
+    LogstashEncoder().apply {
+        context = lc
+    }.also { it.start() }
+
+private fun defaultMicronautFormat(lc: LoggerContext) =
+    PatternLayoutEncoder().apply {
+        context = lc
+        pattern = """
+%cyan(%d{HH:mm:ss.SSS}) %gray([%thread]) %highlight(%-5level) %magenta(%logger{36}) - %msg%n
+        """.trim()
+    }.also { it.start() }
 
 private operator fun Logger.plusAssign(appender: Appender<ILoggingEvent>) =
     addAppender(appender)
