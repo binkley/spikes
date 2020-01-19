@@ -4,6 +4,8 @@ import java.math.BigInteger
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind.EXACTLY_ONCE
 import kotlin.contracts.contract
+import kotlin.math.abs
+import kotlin.math.cos
 import kotlin.random.Random
 import kotlin.reflect.full.superclasses
 import kotlin.reflect.jvm.javaConstructor
@@ -142,6 +144,37 @@ fun main() {
     val firstName = FirstName("Brian")
     println(firstName)
     println(firstName.name)
+
+    println("Converging at $ALPHA")
+    println("Summing is ${sumCos(1.0)}")
+}
+
+const val EPSILON = 1e-16
+val ALPHA = alpha()
+
+fun alpha(): Double {
+    var x = 1.0
+    var cx = cos(x)
+    while (abs(x - cx) > EPSILON) {
+        x = cx
+        cx = cos(x)
+    }
+    return x
+}
+
+/** See https://www.johndcook.com/blog/2020/01/18/variation-on-cosine-fixed-point/ */
+fun sumCos(_x: Double): Double {
+    var x = _x
+    var s = 0.0
+    var cx = cos(x)
+    var delta = ALPHA - cx
+    while (abs(delta) > EPSILON) {
+        s += delta
+        x = cx
+        cx = cos(cx)
+        delta = ALPHA - cx
+    }
+    return s
 }
 
 @UseExperimental(ExperimentalStdlibApi::class)
