@@ -34,6 +34,10 @@ and not just for the genesis block.  Is this best?
 caller hasn't started using "SuperHash" yet).  This would presently reset
 previous with the genesis hash.  How to deal with this?
 
+## TODOs
+
+* Work with Merkle Trees, not linked lists.
+
 ## See also
 
 See [Awesome Blockchains](https://github.com/openblockchains/awesome-blockchains)
