@@ -33,33 +33,37 @@ repositories {
 }
 
 dependencies {
-    implementation(platform("io.micronaut:micronaut-bom:$micronautVersion"))
-    implementation(kotlin("stdlib-jdk8"))
-    implementation(kotlin("reflect"))
-    implementation("io.micronaut:micronaut-runtime")
-    implementation("io.micronaut:micronaut-management")
-    implementation("io.micronaut:micronaut-http-client")
-    implementation("io.micronaut.configuration:micronaut-micrometer-core")
-    implementation("io.micronaut.configuration:micronaut-micrometer-registry-prometheus")
-    implementation("io.swagger.core.v3:swagger-annotations")
-    implementation("io.micronaut:micronaut-http-server-netty")
-    implementation("io.micronaut:micronaut-tracing")
-    implementation("javax.annotation:javax.annotation-api")
     kapt(platform("io.micronaut:micronaut-bom:$micronautVersion"))
+    kapt("io.micronaut.configuration:micronaut-openapi")
     kapt("io.micronaut:micronaut-inject-java")
     kapt("io.micronaut:micronaut-validation")
-    kapt("io.micronaut.configuration:micronaut-openapi")
+
+    implementation(kotlin("reflect"))
+    implementation(kotlin("stdlib-jdk8"))
+    implementation(platform("io.micronaut:micronaut-bom:$micronautVersion"))
+    implementation("ch.qos.logback:logback-classic:$logbackVersion")
+    implementation("io.micronaut.configuration:micronaut-micrometer-core")
+    implementation("io.micronaut.configuration:micronaut-micrometer-registry-prometheus")
+    implementation("io.micronaut:micronaut-http-client")
+    implementation("io.micronaut:micronaut-http-server-netty")
+    implementation("io.micronaut:micronaut-management")
+    implementation("io.micronaut:micronaut-runtime")
+    implementation("io.micronaut:micronaut-tracing")
+    implementation("io.swagger.core.v3:swagger-annotations")
+    implementation("javax.annotation:javax.annotation-api")
+    implementation("net.logstash.logback:logstash-logback-encoder:$logstashVersion")
+
     kaptTest(platform("io.micronaut:micronaut-bom:$micronautVersion"))
     kaptTest("io.micronaut:micronaut-inject-java")
-    runtimeOnly("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
-    runtimeOnly("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
-    implementation("ch.qos.logback:logback-classic:$logbackVersion")
-    runtimeOnly("io.jaegertracing:jaeger-thrift")
-    implementation("net.logstash.logback:logstash-logback-encoder:$logstashVersion")
+
     testImplementation(platform("io.micronaut:micronaut-bom:$micronautVersion"))
+    testImplementation("io.kotlintest:kotlintest-runner-junit5:$kotlinTestVersion")
     testImplementation("io.micronaut.test:micronaut-test-kotlintest")
     testImplementation("io.mockk:mockk:$mockkVersion")
-    testImplementation("io.kotlintest:kotlintest-runner-junit5:$kotlinTestVersion")
+
+    runtimeOnly("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
+    runtimeOnly("com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
+    runtimeOnly("io.jaegertracing:jaeger-thrift")
 }
 
 allOpen {
