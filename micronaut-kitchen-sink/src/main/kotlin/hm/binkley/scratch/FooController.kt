@@ -12,12 +12,10 @@ class FooController(
     @Get
     @NewSpan("foo")
     fun get(): FooJson {
-        try {
-            @Suppress("MagicNumber")
-            return FooJson("Brian", 42)
-        } finally {
-            publisher.publishEvent(FooAuditEvent(this))
-        }
+        @Suppress("MagicNumber")
+        val response = FooJson("Brian", 42)
+        publisher.publishEvent(FooAuditEvent(this))
+        return response
     }
 }
 
