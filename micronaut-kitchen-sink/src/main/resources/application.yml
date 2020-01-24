@@ -21,6 +21,9 @@ micronaut:
         descriptions: true
   router:
     static-resources:
+      # TODO: What is the default path?
+      homepage:
+        paths: classpath:public
       swagger:
         paths: classpath:META-INF/swagger
         mapping: /swagger/**
