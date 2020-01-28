@@ -33,6 +33,7 @@ suspend fun foo() {
 suspend fun qux(channel: Channel<Int>) {
     // this might be heavy CPU-consuming computation or async logic, we'll just send five squares
     for (x in 1..5) channel.send(x * x)
+    channel.close()
 }
 
 suspend fun quux(channel: Channel<Int>) {
