@@ -23,6 +23,8 @@ fun main() {
         }
 
         squares().consumeEach { println(it) }
+
+        for (x in squares()) println(x)
     }
 }
 
