@@ -1,10 +1,20 @@
 package hm.binkley.spikes.kotlinasync
 
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 fun main() {
     runBlocking {
         foo()
+
+        val channel = Channel<Int>()
+        launch {
+            qux(channel)
+        }
+        launch {
+            quux(channel)
+        }
     }
 }
 
@@ -18,6 +28,17 @@ suspend fun foo() {
     println(bar.foo())
     bar.foo(2)
     println(bar.foo())
+}
+
+suspend fun qux(channel: Channel<Int>) {
+    // this might be heavy CPU-consuming computation or async logic, we'll just send five squares
+    for (x in 1..5) channel.send(x * x)
+}
+
+suspend fun quux(channel: Channel<Int>) {
+    // here we print five received integers:
+    repeat(5) { println(channel.receive()) }
+    println("Done!")
 }
 
 class Foo(private var foo: Int) {
