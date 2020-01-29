@@ -111,7 +111,6 @@
                         <arg>-Xuse-experimental=kotlin.Experimental</arg>
                         <arg>-Xinline-classes</arg>
                     </args>
-                    <experimentalCoroutines>enable</experimentalCoroutines>
                 </configuration>
                 <executions>
                     <execution>

@@ -2,6 +2,7 @@ package x.scratch;
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
@@ -9,9 +10,13 @@ import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.FlowCollector
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
+@InternalCoroutinesApi
 @ExperimentalCoroutinesApi
 fun main() = runBlocking {
     foo()
@@ -75,6 +80,22 @@ fun main() = runBlocking {
     delay(1_500)
 
     coroutineContext.cancelChildren()
+
+    launch {
+        for (k in 1..3) {
+            println("$k -> not blocked")
+            delay(100)
+        }
+    }
+    flowFoo().collect(Floe()) // TODO: Why isn't trailing block working here?
+
+    coroutineContext.cancelChildren()
+}
+
+class Floe : FlowCollector<Int> {
+    override suspend fun emit(value: Int) {
+        println(value)
+    }
 }
 
 class Bar {
@@ -172,5 +193,14 @@ suspend fun player(name: String, table: Channel<Ball>) {
         println("$name WHACK $ball")
         delay(200)
         table.send(ball)
+    }
+}
+
+// https://github.com/Kotlin/kotlinx.coroutines/blob/master/docs/flow.md
+
+fun flowFoo(): Flow<Int> = flow {
+    for (i in 1..3) {
+        delay(100)
+        emit(i)
     }
 }
