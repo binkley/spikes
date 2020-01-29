@@ -7,6 +7,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.channels.produce
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
@@ -38,6 +39,13 @@ fun main() = runBlocking {
         println(prime)
         cur = filter(cur, prime)
     }
+
+    val slowNumbers = slowProduceNumbers()
+    repeat(5) {
+        launchProcessor(it, slowNumbers)
+    }
+    delay(950)
+    slowNumbers.cancel()
 
     coroutineContext.cancelChildren()
 }
@@ -102,4 +110,18 @@ fun CoroutineScope.numbersFrom(start: Int) = produce {
 fun CoroutineScope.filter(numbers: ReceiveChannel<Int>, prime: Int) =
     produce {
         for (x in numbers) if (x % prime != 0) send(x)
+    }
+
+@ExperimentalCoroutinesApi
+fun CoroutineScope.slowProduceNumbers() = produce {
+    var x = 1
+    while (true) {
+        send(x++)
+        delay(100)
+    }
+}
+
+fun CoroutineScope.launchProcessor(id: Int, channel: ReceiveChannel<Int>) =
+    launch {
+        for (msg in channel) println("#$id <- $msg")
     }
