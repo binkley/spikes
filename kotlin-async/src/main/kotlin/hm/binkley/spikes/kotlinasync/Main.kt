@@ -59,6 +59,12 @@ fun main() = runBlocking {
         println(stringChannel.receive())
     }
 
+    val table = Channel<Ball>()
+    launch { player("ping", table) }
+    launch { player("pong", table) }
+    table.send(Ball(0))
+    delay(1_000)
+
     coroutineContext.cancelChildren()
 }
 
@@ -146,5 +152,16 @@ suspend fun sendString(
     while (true) {
         delay(time)
         channel.send(s)
+    }
+}
+
+data class Ball(var hits: Int)
+
+suspend fun player(name: String, table: Channel<Ball>) {
+    for (ball in table) {
+        ++ball.hits
+        println("$name WHACK $ball")
+        delay(200)
+        table.send(ball)
     }
 }
