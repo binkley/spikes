@@ -2,6 +2,7 @@ package hm.binkley.spikes.kotlinasync
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.consumeEach
@@ -10,22 +11,35 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 @ExperimentalCoroutinesApi
-fun main() {
-    runBlocking {
-        foo()
+fun main() = runBlocking {
+    foo()
 
-        val channel = Channel<Int>()
-        launch {
-            qux(channel)
-        }
-        launch {
-            quux(channel)
-        }
-
-        squares().consumeEach { println(it) }
-
-        for (x in squares()) println(x)
+    val channel = Channel<Int>()
+    launch {
+        qux(channel)
     }
+    launch {
+        quux(channel)
+    }
+
+    squares().consumeEach { println(it) }
+
+    for (x in squares()) println(x)
+
+    val numbers = produceNumbers()
+    val squares = square(numbers)
+    repeat(5) {
+        println(squares.receive())
+    }
+
+    var cur = numbersFrom(2)
+    repeat(10) {
+        val prime = cur.receive()
+        println(prime)
+        cur = filter(cur, prime)
+    }
+
+    coroutineContext.cancelChildren()
 }
 
 class Bar {
@@ -66,3 +80,26 @@ class Foo(private var foo: Int) {
 
 suspend operator fun Foo.invoke() = getFoo()
 suspend operator fun Foo.invoke(foo: Int) = setFoo(foo)
+
+@ExperimentalCoroutinesApi
+fun CoroutineScope.produceNumbers() = produce {
+    var x = 1
+    while (true) send(x++)
+}
+
+@ExperimentalCoroutinesApi
+fun CoroutineScope.square(numbers: ReceiveChannel<Int>) = produce {
+    for (x in numbers) send(x * x)
+}
+
+@ExperimentalCoroutinesApi
+fun CoroutineScope.numbersFrom(start: Int) = produce {
+    var x = start
+    while (true) send(x++)
+}
+
+@ExperimentalCoroutinesApi
+fun CoroutineScope.filter(numbers: ReceiveChannel<Int>, prime: Int) =
+    produce {
+        for (x in numbers) if (x % prime != 0) send(x)
+    }
