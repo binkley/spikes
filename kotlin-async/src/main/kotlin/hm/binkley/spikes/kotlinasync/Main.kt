@@ -62,8 +62,9 @@ fun main() = runBlocking {
     val table = Channel<Ball>()
     launch { player("ping", table) }
     launch { player("pong", table) }
+    launch { player("tHuD", table) }
     table.send(Ball(0))
-    delay(1_000)
+    delay(1_500)
 
     coroutineContext.cancelChildren()
 }
