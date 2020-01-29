@@ -24,6 +24,8 @@ fun main() = runBlocking {
         quux(channel)
     }
 
+    coroutineContext.cancelChildren()
+
     squares().consumeEach { println(it) }
 
     for (x in squares()) println(x)
@@ -33,6 +35,8 @@ fun main() = runBlocking {
     repeat(5) {
         println(squares.receive())
     }
+
+    coroutineContext.cancelChildren()
 
     var cur = numbersFrom(2)
     repeat(10) {
@@ -48,6 +52,8 @@ fun main() = runBlocking {
     delay(950)
     slowNumbers.cancel()
 
+    coroutineContext.cancelChildren()
+
     val stringChannel = Channel<String>()
     launch {
         sendString(stringChannel, "foo", 200L)
@@ -58,6 +64,8 @@ fun main() = runBlocking {
     repeat(6) {
         println(stringChannel.receive())
     }
+
+    coroutineContext.cancelChildren()
 
     val table = Channel<Ball>()
     launch { player("ping", table) }
