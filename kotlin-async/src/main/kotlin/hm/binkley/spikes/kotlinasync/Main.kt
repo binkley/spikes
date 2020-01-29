@@ -5,6 +5,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.delay
@@ -46,6 +47,17 @@ fun main() = runBlocking {
     }
     delay(950)
     slowNumbers.cancel()
+
+    val stringChannel = Channel<String>()
+    launch {
+        sendString(stringChannel, "foo", 200L)
+    }
+    launch {
+        sendString(stringChannel, "BAR!", 500L)
+    }
+    repeat(6) {
+        println(stringChannel.receive())
+    }
 
     coroutineContext.cancelChildren()
 }
@@ -125,3 +137,14 @@ fun CoroutineScope.launchProcessor(id: Int, channel: ReceiveChannel<Int>) =
     launch {
         for (msg in channel) println("#$id <- $msg")
     }
+
+suspend fun sendString(
+    channel: SendChannel<String>,
+    s: String,
+    time: Long
+) {
+    while (true) {
+        delay(time)
+        channel.send(s)
+    }
+}
