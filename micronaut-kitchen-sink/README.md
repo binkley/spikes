@@ -19,7 +19,6 @@ Try `./gradlew clean build`.
 - Format linting with automatic fixes (ktlint)
 - Full code coverage (jacoco)
 - Flaky test detection (**IN PROGRESS**)
-- Use `./build.sh` as a workaround (TODO: Pass JVM args to Kotlinc)
 
 ## Deployment
 
