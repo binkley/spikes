@@ -4,8 +4,10 @@ import io.micronaut.context.event.ApplicationEventPublisher
 import io.micronaut.http.annotation.Controller
 import io.micronaut.http.annotation.Get
 import io.micronaut.tracing.annotation.NewSpan
+import io.micronaut.validation.Validated
 
 @Controller("/foo")
+@Validated
 class FooController(
     private val publisher: ApplicationEventPublisher
 ) {

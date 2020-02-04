@@ -14,7 +14,7 @@ val mockkVersion: String by project
 plugins {
     kotlin("jvm")
     kotlin("kapt")
-    kotlin("plugin.allopen")
+    id("org.jetbrains.kotlin.plugin.allopen")
     id("io.gitlab.arturbosch.detekt")
     id("com.gorylenko.gradle-git-properties")
     id("org.jlleitschuh.gradle.ktlint")
@@ -49,6 +49,7 @@ dependencies {
     implementation("io.micronaut:micronaut-management")
     implementation("io.micronaut:micronaut-runtime")
     implementation("io.micronaut:micronaut-tracing")
+    implementation("io.micronaut:micronaut-validation")
     implementation("io.swagger.core.v3:swagger-annotations")
     implementation("javax.annotation:javax.annotation-api")
     implementation("net.logstash.logback:logstash-logback-encoder:$logstashVersion")

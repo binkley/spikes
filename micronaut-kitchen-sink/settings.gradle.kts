@@ -11,7 +11,7 @@ pluginManagement {
     plugins {
         kotlin("jvm") version kotlinVersion
         kotlin("kapt") version kotlinVersion
-        kotlin("plugin.allopen") version kotlinVersion
+        id("org.jetbrains.kotlin.plugin.allopen") version kotlinVersion
         id("io.gitlab.arturbosch.detekt") version detektPluginVersion
         id("com.gorylenko.gradle-git-properties") version gitPropertiesPluginVersion
         id("org.jlleitschuh.gradle.ktlint") version ktlintGradlePlugin
