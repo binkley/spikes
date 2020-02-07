@@ -112,7 +112,7 @@ tasks {
         useJUnitPlatform()
 
         retry {
-            // An example: No flaky tests at present
+            // See `FlakyTest.kt`
             failOnPassedAfterRetry.set(true)
             maxFailures.set(6)
             maxRetries.set(11)
