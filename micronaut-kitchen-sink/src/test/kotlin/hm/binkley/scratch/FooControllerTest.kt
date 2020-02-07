@@ -5,11 +5,9 @@ import io.kotlintest.shouldBe
 import io.kotlintest.specs.StringSpec
 import io.micronaut.context.annotation.Property
 import io.micronaut.context.annotation.PropertySource
-import io.micronaut.context.event.ApplicationEventListener
 import io.micronaut.http.annotation.Get
 import io.micronaut.http.client.annotation.Client
 import io.micronaut.test.annotation.MicronautTest
-import javax.inject.Singleton
 
 @MicronautTest
 @PropertySource(
@@ -34,13 +32,4 @@ internal class FooControllerTest(
 interface FooClient {
     @Get
     fun get(): FooJson
-}
-
-@Singleton
-class TestAuditListener(
-    val events: MutableList<AuditEvent> = mutableListOf()
-) : ApplicationEventListener<AuditEvent> {
-    override fun onApplicationEvent(event: AuditEvent) {
-        events += event
-    }
 }
