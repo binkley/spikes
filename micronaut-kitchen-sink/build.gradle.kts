@@ -8,6 +8,7 @@ val kotlinVersion: String by project
 val kotlinTestVersion: String by project
 val logbackVersion: String by project
 val logstashVersion: String by project
+val lombokVersion: String by project
 val micronautVersion: String by project
 val mockkVersion: String by project
 
@@ -37,6 +38,9 @@ dependencies {
     kapt("io.micronaut.configuration:micronaut-openapi")
     kapt("io.micronaut:micronaut-inject-java")
     kapt("io.micronaut:micronaut-validation")
+
+    // For selectively suppressing code coverage
+    compileOnly("org.projectlombok:lombok:$lombokVersion")
 
     implementation(kotlin("reflect"))
     implementation(kotlin("stdlib-jdk8"))
@@ -121,7 +125,7 @@ tasks {
         violationRules {
             rule {
                 limit {
-                    minimum = BigDecimal.ZERO // TODO: Real coverage
+                    minimum = BigDecimal.ONE // TODO: Real coverage
                 }
             }
         }

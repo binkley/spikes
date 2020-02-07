@@ -9,8 +9,10 @@ import ch.qos.logback.classic.encoder.PatternLayoutEncoder
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.Appender
 import ch.qos.logback.core.ConsoleAppender
+import lombok.Generated
 import net.logstash.logback.encoder.LogstashEncoder
 
+@Generated // Lie to JaCoCo
 class LogbackConfiguration(
     private val json: Boolean = true
 ) : BasicConfigurator() {
@@ -33,11 +35,13 @@ class LogbackConfiguration(
     }
 }
 
+@Generated // Lie to JaCoCo
 private fun jsonFormat(lc: LoggerContext) =
     LogstashEncoder().apply {
         context = lc
     }.also { it.start() }
 
+@Generated // Lie to JaCoCo
 private fun defaultMicronautFormat(lc: LoggerContext) =
     PatternLayoutEncoder().apply {
         context = lc
