@@ -100,14 +100,6 @@ ktlint {
     outputColorName.set("RED")
 }
 
-// test {
-//    retry {
-//        failOnPassedAfterRetry = true
-//        maxFailures = 42
-//        maxRetries = 1
-//    }
-// }
-
 tasks {
     withType<KotlinCompile> {
         kotlinOptions {
@@ -119,6 +111,13 @@ tasks {
     test {
         useJUnitPlatform()
 
+        retry {
+            // An example: No flaky tests at present
+            failOnPassedAfterRetry.set(true)
+            maxFailures.set(6)
+            maxRetries.set(11)
+        }
+
         finalizedBy(jacocoTestReport)
     }
 
@@ -129,16 +128,6 @@ tasks {
                     minimum = BigDecimal.ONE // TODO: Real coverage
                 }
             }
-        }
-    }
-
-    // TODO: How to move this out to configuration, like Groovy example
-    withType<Test> {
-        // See https://blog.gradle.org/gradle-flaky-test-retry-plugin
-        retry {
-            failOnPassedAfterRetry.set(true)
-            maxRetries.set(6)
-            maxFailures.set(1)
         }
     }
 
