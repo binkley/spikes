@@ -21,6 +21,7 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint")
     id("com.github.johnrengelman.shadow")
     id("org.gradle.test-retry")
+    id("com.github.ben-manes.versions")
     application
     jacoco
 }
