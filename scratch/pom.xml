@@ -11,10 +11,10 @@
 
     <properties>
         <!-- @formatter:off -->
-        <atrium.version>0.8.0</atrium.version>
+        <atrium.version>0.9.2</atrium.version>
         <java.charset>UTF-8</java.charset>
         <java.version>11</java.version>
-        <junit.version>5.5.2</junit.version>
+        <junit.version>5.6.0</junit.version>
         <kotlin.compiler.apiVersion>1.4</kotlin.compiler.apiVersion>
         <kotlin.compiler.jvmTarget>${java.version}</kotlin.compiler.jvmTarget>
         <kotlin.compiler.languageVersion>1.4</kotlin.compiler.languageVersion>
