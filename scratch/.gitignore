@@ -1,4 +1,5 @@
 /dependency-reduced-pom.xml
 /.idea/
 /*.iml
+/.maven-cache/
 /target/
