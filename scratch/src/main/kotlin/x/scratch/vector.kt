@@ -3,30 +3,30 @@ package x.scratch
 import java.util.Objects.hash
 
 open class Vector2<T>(
-    val x0: T,
-    val x1: T
+    val a0: T,
+    val a1: T
 ) {
-    operator fun component0() = x0
-    operator fun component1() = x1
+    operator fun component0() = a0
+    operator fun component1() = a1
 
     override fun equals(other: Any?) = this === other ||
             other is Vector2<*> &&
-            x0 == other.x0 &&
-            x1 == other.x1
+            a0 == other.a0 &&
+            a1 == other.a1
 
-    override fun hashCode() = hash(x0, x1)
-    override fun toString() = "[$x0, $x1]"
+    override fun hashCode() = hash(a0, a1)
+    override fun toString() = "[$a0, $a1]"
 }
 
 class RowVector2<T>(
-    x0: T,
-    x1: T
-) : Vector2<T>(x0, x1)
+    a0: T,
+    a1: T
+) : Vector2<T>(a0, a1)
 
 class ColVector2<T>(
-    x0: T,
-    x1: T
-) : Vector2<T>(x0, x1) {
+    a0: T,
+    a1: T
+) : Vector2<T>(a0, a1) {
     override fun toString() = super.toString() + "\uD835\uDDB3" // Math "T"
 }
 
@@ -52,31 +52,31 @@ open class Matrix2<T>(
     override fun toString() = "[$a, $b; $c, $d]"
 }
 
-fun <T> RowVector2<T>.transpose() = ColVector2(x0, x1)
-fun <T> ColVector2<T>.transpose() = RowVector2(x0, x1)
+fun <T> RowVector2<T>.transpose() = ColVector2(a0, a1)
+fun <T> ColVector2<T>.transpose() = RowVector2(a0, a1)
 
 operator fun RowVector2<Int>.unaryPlus() = this
-operator fun RowVector2<Int>.unaryMinus() = RowVector2(-x0, -x1)
+operator fun RowVector2<Int>.unaryMinus() = RowVector2(-a0, -a1)
 
 operator fun RowVector2<Int>.plus(other: RowVector2<Int>) =
-    RowVector2(x0 + other.x0, x1 + other.x1)
+    RowVector2(a0 + other.a0, a1 + other.a1)
 
 operator fun ColVector2<Int>.plus(other: ColVector2<Int>) =
-    ColVector2(x0 + other.x0, x1 + other.x1)
+    ColVector2(a0 + other.a0, a1 + other.a1)
 
 operator fun RowVector2<Int>.minus(other: RowVector2<Int>) =
-    RowVector2(x0 - other.x0, x1 - other.x1)
+    RowVector2(a0 - other.a0, a1 - other.a1)
 
 operator fun ColVector2<Int>.minus(other: ColVector2<Int>) =
-    ColVector2(x0 - other.x0, x1 - other.x1)
+    ColVector2(a0 - other.a0, a1 - other.a1)
 
 operator fun RowVector2<Int>.times(other: ColVector2<Int>) =
-    x0 * other.x0 + x1 * other.x1
+    a0 * other.a0 + a1 * other.a1
 
 operator fun ColVector2<Int>.times(other: RowVector2<Int>) =
     Matrix2(
-        x0 + other.x0,
-        x0 * other.x1,
-        x1 * other.x0,
-        x1 * other.x1
+        a0 + other.a0,
+        a0 * other.a1,
+        a1 * other.a0,
+        a1 * other.a1
     )
