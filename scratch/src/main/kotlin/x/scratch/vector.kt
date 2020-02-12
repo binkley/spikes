@@ -2,16 +2,28 @@ package x.scratch
 
 import java.util.Objects.hash
 
-interface Arithmetic<T : Arithmetic<T>> {
+interface Group<T : Ring<T>> {
+    val plusIdentity: T
+
     @Suppress("UNCHECKED_CAST")
     operator fun unaryPlus(): T = this as T
     operator fun unaryMinus(): T
     operator fun plus(other: T): T
     operator fun minus(other: T): T = this + -other
+}
+
+interface Ring<T : Ring<T>> : Group<T> {
+    val timesIdentity: T
+
     operator fun times(other: T): T
 }
 
-inline class MathInt(val value: Int) : Arithmetic<MathInt> {
+inline class MathInt(val value: Int) : Ring<MathInt> {
+    override val plusIdentity: MathInt
+        get() = MathInt(0)
+    override val timesIdentity: MathInt
+        get() = MathInt(1)
+
     override fun unaryMinus() = MathInt(-value)
     override fun plus(other: MathInt) = MathInt(value + other.value)
     override fun times(other: MathInt) = MathInt(value * other.value)
@@ -19,7 +31,7 @@ inline class MathInt(val value: Int) : Arithmetic<MathInt> {
     override fun toString() = value.toString()
 }
 
-open class Vector2<T : Arithmetic<T>>(
+open class Vector2<T : Ring<T>>(
     val a0: T,
     val a1: T
 ) {
@@ -35,7 +47,7 @@ open class Vector2<T : Arithmetic<T>>(
     override fun toString() = "[$a0, $a1]"
 }
 
-class RowVector2<T : Arithmetic<T>>(
+class RowVector2<T : Ring<T>>(
     a0: T,
     a1: T
 ) : Vector2<T>(a0, a1) {
@@ -45,7 +57,7 @@ class RowVector2<T : Arithmetic<T>>(
     }
 }
 
-class ColVector2<T : Arithmetic<T>>(
+class ColVector2<T : Ring<T>>(
     a0: T,
     a1: T
 ) : Vector2<T>(a0, a1) {
@@ -57,7 +69,7 @@ class ColVector2<T : Arithmetic<T>>(
     }
 }
 
-open class Matrix2<T : Arithmetic<T>>(
+open class Matrix2<T : Ring<T>>(
     val a: T,
     val b: T,
     val c: T,
@@ -79,35 +91,35 @@ open class Matrix2<T : Arithmetic<T>>(
     override fun toString() = "[$a, $b; $c, $d]"
 }
 
-fun <T : Arithmetic<T>> RowVector2<T>.transpose() = ColVector2(a0, a1)
-fun <T : Arithmetic<T>> ColVector2<T>.transpose() = RowVector2(a0, a1)
+fun <T : Ring<T>> RowVector2<T>.transpose() = ColVector2(a0, a1)
+fun <T : Ring<T>> ColVector2<T>.transpose() = RowVector2(a0, a1)
 
-operator fun <T : Arithmetic<T>> RowVector2<T>.unaryPlus() = this
-operator fun <T : Arithmetic<T>> RowVector2<T>.unaryMinus() =
+operator fun <T : Ring<T>> RowVector2<T>.unaryPlus() = this
+operator fun <T : Ring<T>> RowVector2<T>.unaryMinus() =
     RowVector2(-a0, -a1)
 
-operator fun <T : Arithmetic<T>> RowVector2<T>.plus(other: RowVector2<T>) =
+operator fun <T : Ring<T>> RowVector2<T>.plus(other: RowVector2<T>) =
     RowVector2(a0 + other.a0, a1 + other.a1)
 
-operator fun <T : Arithmetic<T>> ColVector2<T>.plus(other: ColVector2<T>) =
+operator fun <T : Ring<T>> ColVector2<T>.plus(other: ColVector2<T>) =
     ColVector2(a0 + other.a0, a1 + other.a1)
 
-operator fun <T : Arithmetic<T>> RowVector2<T>.minus(other: RowVector2<T>) =
+operator fun <T : Ring<T>> RowVector2<T>.minus(other: RowVector2<T>) =
     RowVector2(a0 - other.a0, a1 - other.a1)
 
-operator fun <T : Arithmetic<T>> ColVector2<T>.minus(other: ColVector2<T>) =
+operator fun <T : Ring<T>> ColVector2<T>.minus(other: ColVector2<T>) =
     ColVector2(a0 - other.a0, a1 - other.a1)
 
-operator fun <T : Arithmetic<T>> RowVector2<T>.times(other: ColVector2<T>) =
+operator fun <T : Ring<T>> RowVector2<T>.times(other: ColVector2<T>) =
     a0 * other.a0 + a1 * other.a1
 
-operator fun <T : Arithmetic<T>> RowVector2<T>.times(other: RowVector2<T>) =
+operator fun <T : Ring<T>> RowVector2<T>.times(other: RowVector2<T>) =
     a0 * other.a1 - a1 * other.a0
 
-operator fun <T : Arithmetic<T>> ColVector2<T>.times(other: ColVector2<T>) =
+operator fun <T : Ring<T>> ColVector2<T>.times(other: ColVector2<T>) =
     a0 * other.a1 - a1 * other.a0
 
-operator fun <T : Arithmetic<T>> ColVector2<T>.times(other: RowVector2<T>) =
+operator fun <T : Ring<T>> ColVector2<T>.times(other: RowVector2<T>) =
     Matrix2(
         a0 + other.a0,
         a0 * other.a1,
@@ -115,13 +127,13 @@ operator fun <T : Arithmetic<T>> ColVector2<T>.times(other: RowVector2<T>) =
         a1 * other.a1
     )
 
-val <T : Arithmetic<T>> Matrix2<T>.rows: Pair<RowVector2<T>, RowVector2<T>>
+val <T : Ring<T>> Matrix2<T>.rows: Pair<RowVector2<T>, RowVector2<T>>
     get() = RowVector2(a, b) to RowVector2(c, d)
 
-val <T : Arithmetic<T>> Matrix2<T>.cols: Pair<ColVector2<T>, ColVector2<T>>
+val <T : Ring<T>> Matrix2<T>.cols: Pair<ColVector2<T>, ColVector2<T>>
     get() = ColVector2(a, c) to ColVector2(b, d)
 
-operator fun <T : Arithmetic<T>> Matrix2<T>.times(other: Matrix2<T>) =
+operator fun <T : Ring<T>> Matrix2<T>.times(other: Matrix2<T>) =
     Matrix2(
         rows.first * other.cols.first,
         rows.first * other.cols.second,
@@ -129,5 +141,5 @@ operator fun <T : Arithmetic<T>> Matrix2<T>.times(other: Matrix2<T>) =
         rows.second * other.cols.second
     )
 
-val <T : Arithmetic<T>> Matrix2<T>.det: T
+val <T : Ring<T>> Matrix2<T>.det: T
     get() = rows.first * rows.second
