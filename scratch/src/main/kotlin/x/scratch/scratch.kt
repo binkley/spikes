@@ -1,5 +1,17 @@
 package x.scratch
 
+import x.scratch.units.div
+import x.scratch.units.english.Barleycorns
+import x.scratch.units.english.Inches
+import x.scratch.units.english.Poppyseed
+import x.scratch.units.english.Poppyseeds
+import x.scratch.units.english.minus
+import x.scratch.units.english.plus
+import x.scratch.units.english.to
+import x.scratch.units.over
+import x.scratch.units.times
+import x.scratch.units.unaryMinus
+import x.scratch.units.unaryPlus
 import java.math.BigInteger
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind.EXACTLY_ONCE
@@ -157,7 +169,7 @@ fun main() {
     println("Converging at $ALPHA")
     println("Summing is ${sumCos(1.0)}")
 
-    println()
+    println("VECTORS")
 
     val rv0 = RowVector2.of(1, 2)
     println(rv0)
@@ -168,7 +180,7 @@ fun main() {
     println(rv0 * cv0)
     println(cv0 * rv0)
 
-    println()
+    println("OVERFLOW/UNDERFLOW")
 
     println(
         """
@@ -178,7 +190,7 @@ fun main() {
     """.trimIndent()
     )
 
-    println()
+    println("ADAPTERS")
 
     val aBob = ABob(2, "apple")
     println(
@@ -190,6 +202,21 @@ fun main() {
             .hashCode()}
     """.trimIndent()
     )
+
+    println("UNITS AND MEASURES")
+    val m1 = Poppyseed(3 over 1)
+
+    println(+m1)
+    println(-m1)
+    println(m1.to(Poppyseeds))
+    println(m1.to(Barleycorns))
+    println(m1 + m1)
+    println(m1 + m1.to(Barleycorns))
+    println(m1.to(Barleycorns) - m1)
+    println(m1 * 3)
+    println(m1 / 3)
+    println(m1.to(Inches))
+    println(m1.to(Inches) + m1 - m1.to(Barleycorns))
 }
 
 const val EPSILON = 1e-16

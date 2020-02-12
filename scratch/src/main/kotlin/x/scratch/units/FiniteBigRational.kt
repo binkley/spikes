@@ -1,9 +1,9 @@
-package x.scratch
+package x.scratch.units
 
-import x.scratch.FiniteBigRational.Companion.ONE
-import x.scratch.FiniteBigRational.Companion.TEN
-import x.scratch.FiniteBigRational.Companion.ZERO
-import x.scratch.FiniteBigRational.Companion.valueOf
+import x.scratch.units.FiniteBigRational.Companion.ONE
+import x.scratch.units.FiniteBigRational.Companion.TEN
+import x.scratch.units.FiniteBigRational.Companion.ZERO
+import x.scratch.units.FiniteBigRational.Companion.valueOf
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.util.Objects.hash
