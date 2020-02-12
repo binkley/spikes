@@ -3,18 +3,17 @@ package x.scratch
 import java.util.Objects.hash
 
 interface Arithmetic<T : Arithmetic<T>> {
-    operator fun unaryPlus(): T
+    @Suppress("UNCHECKED_CAST")
+    operator fun unaryPlus(): T = this as T
     operator fun unaryMinus(): T
     operator fun plus(other: T): T
-    operator fun minus(other: T): T
+    operator fun minus(other: T): T = this + -other
     operator fun times(other: T): T
 }
 
 inline class MathInt(val value: Int) : Arithmetic<MathInt> {
-    override fun unaryPlus() = this
     override fun unaryMinus() = MathInt(-value)
     override fun plus(other: MathInt) = MathInt(value + other.value)
-    override fun minus(other: MathInt) = MathInt(value - other.value)
     override fun times(other: MathInt) = MathInt(value * other.value)
 
     override fun toString() = value.toString()
