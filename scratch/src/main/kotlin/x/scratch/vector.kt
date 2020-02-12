@@ -73,6 +73,12 @@ operator fun ColVector2<Int>.minus(other: ColVector2<Int>) =
 operator fun RowVector2<Int>.times(other: ColVector2<Int>) =
     a0 * other.a0 + a1 * other.a1
 
+operator fun RowVector2<Int>.times(other: RowVector2<Int>) =
+    a0 * other.a1 - a1 * other.a0
+
+operator fun ColVector2<Int>.times(other: ColVector2<Int>) =
+    a0 * other.a1 - a1 * other.a0
+
 operator fun ColVector2<Int>.times(other: RowVector2<Int>) =
     Matrix2(
         a0 + other.a0,
@@ -80,3 +86,20 @@ operator fun ColVector2<Int>.times(other: RowVector2<Int>) =
         a1 * other.a0,
         a1 * other.a1
     )
+
+val <T> Matrix2<T>.rows: Pair<RowVector2<T>, RowVector2<T>>
+    get() = RowVector2(a, b) to RowVector2(c, d)
+
+val <T> Matrix2<T>.cols: Pair<ColVector2<T>, ColVector2<T>>
+    get() = ColVector2(a, c) to ColVector2(b, d)
+
+operator fun Matrix2<Int>.times(other: Matrix2<Int>) =
+    Matrix2(
+        rows.first * other.cols.first,
+        rows.first * other.cols.second,
+        rows.second * other.cols.first,
+        rows.second * other.cols.second
+    )
+
+val Matrix2<Int>.det: Int
+    get() = rows.first * rows.second
