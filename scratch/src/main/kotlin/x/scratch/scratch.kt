@@ -157,6 +157,8 @@ fun main() {
     println("Converging at $ALPHA")
     println("Summing is ${sumCos(1.0)}")
 
+    println()
+
     val rv0 = RowVector2.of(1, 2)
     println(rv0)
     println(rv0.transpose())
@@ -165,6 +167,16 @@ fun main() {
     println(cv0.transpose())
     println(rv0 * cv0)
     println(cv0 * rv0)
+
+    println()
+
+    println(
+        """
+        ${Int.MAX_VALUE} vs ${Int.MAX_VALUE + 1}
+        ${Int.MIN_VALUE} vs ${Int.MIN_VALUE - 1}
+        ${5 / 3} vs ${5 % 3}
+    """.trimIndent()
+    )
 }
 
 const val EPSILON = 1e-16
