@@ -177,6 +177,19 @@ fun main() {
         ${5 / 3} vs ${5 % 3}
     """.trimIndent()
     )
+
+    println()
+
+    val aBob = ABob(2, "apple")
+    println(
+        """
+        $aBob vs ${aBob.toAdaptedBob()}
+        ${aBob.toAdaptedBob().foo()}
+        equals? ${aBob.toAdaptedBob() == aBob.toAdaptedBob()}
+        hashCode? ${aBob.toAdaptedBob().hashCode() == aBob.toAdaptedBob()
+            .hashCode()}
+    """.trimIndent()
+    )
 }
 
 const val EPSILON = 1e-16
