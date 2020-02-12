@@ -12,6 +12,7 @@
     <properties>
         <!-- @formatter:off -->
         <atrium.version>0.9.2</atrium.version>
+        <indriya.version>2.0.2</indriya.version>
         <java.charset>UTF-8</java.charset>
         <java.version>11</java.version>
         <junit.version>5.6.0</junit.version>
@@ -74,6 +75,14 @@
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-script-runtime</artifactId>
             <version>${kotlin.version}</version>
+        </dependency>
+
+        <!-- Units, money, et al -->
+        <dependency>
+            <groupId>tech.units</groupId>
+            <artifactId>indriya</artifactId>
+            <version>${indriya.version}</version>
+            <type>pom</type>
         </dependency>
 
         <dependency>
