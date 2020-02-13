@@ -52,6 +52,7 @@ private val rates = mapOf(
 fun <U : EnglishLengths<U>, V : EnglishLengths<V>> Measure<U>.to(other: V) =
     other.new(value * (rates[other to unit] ?: error("Missing rate")))
 
+// With automatic unit conversion
 operator fun <U : EnglishLengths<U>, V : EnglishLengths<V>> Measure<U>.plus(
     other: Measure<V>
 ) = unit.new(value + other.to(unit).value)
@@ -59,3 +60,10 @@ operator fun <U : EnglishLengths<U>, V : EnglishLengths<V>> Measure<U>.plus(
 operator fun <U : EnglishLengths<U>, V : EnglishLengths<V>> Measure<U>.minus(
     other: Measure<V>
 ) = unit.new(value - other.to(unit).value)
+
+// With explicit unit conversion
+//operator fun <U : EnglishLengths<U>> Measure<U>.plus(other: Measure<U>) =
+//    unit.new(value + other.value)
+//
+//operator fun <U : EnglishLengths<U>> Measure<U>.minus(other: Measure<U>) =
+//    unit.new(value - other.value)
