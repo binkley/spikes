@@ -122,7 +122,10 @@ private val ratios = mapOf(
 )
 
 fun <U : EnglishLengths<U>, V : EnglishLengths<V>> Measure<U>.to(other: V) =
-    other.new(value * (ratios[other to unit] ?: error("Missing rate")))
+    other.new(
+        value * (ratios[other to unit]
+            ?: error("Missing ratio for $other from $unit"))
+    )
 
 // With automatic unit conversion -- for explicit conversion, remove these
 // definitions, and rely on Unit<*>'s definitions
