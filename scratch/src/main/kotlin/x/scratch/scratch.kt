@@ -2,9 +2,13 @@ package x.scratch
 
 import x.scratch.units.div
 import x.scratch.units.english.Barleycorns
+import x.scratch.units.english.Fathoms
+import x.scratch.units.english.Feet
+import x.scratch.units.english.Hands
 import x.scratch.units.english.Inches
 import x.scratch.units.english.Poppyseed
 import x.scratch.units.english.Poppyseeds
+import x.scratch.units.english.Yards
 import x.scratch.units.english.minus
 import x.scratch.units.english.plus
 import x.scratch.units.english.to
@@ -204,7 +208,7 @@ fun main() {
     )
 
     println("UNITS AND MEASURES")
-    val m1 = Poppyseed(3 over 1)
+    val m1 = Poppyseed(120 over 1)
 
     println(+m1)
     println(-m1)
@@ -212,11 +216,11 @@ fun main() {
     println(m1.to(Barleycorns))
     println(m1 + m1)
     println(m1 + m1.to(Barleycorns))
-    println(m1.to(Barleycorns) - m1)
+    println(m1.to(Hands) - m1)
     println(m1 * 3)
     println(m1 / 3)
     println(m1.to(Inches))
-    println(m1.to(Inches) + m1 - m1.to(Barleycorns))
+    println((m1.to(Yards) + m1.to(Feet) - m1.to(Barleycorns)).to(Fathoms))
 }
 
 const val EPSILON = 1e-16
