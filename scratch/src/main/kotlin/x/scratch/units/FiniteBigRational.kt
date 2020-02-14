@@ -45,18 +45,19 @@ class FiniteBigRational private constructor(
         fun valueOf(numerator: BInt, denominator: BInt): FiniteBigRational {
             if (denominator.isZero()) throw ArithmeticException("Division by zero")
             if (numerator.isZero()) return ZERO
-            if (denominator.isOne()) return when {
-                numerator.isOne() -> ONE
-                numerator.isTwo() -> TWO
-                numerator.isTen() -> TEN
-                else -> FiniteBigRational(numerator, denominator)
-            }
 
             var n = numerator
             var d = denominator
             if (-1 == d.signum()) {
                 n = n.negate()
                 d = d.negate()
+            }
+
+            if (d.isOne()) return when {
+                n.isOne() -> ONE
+                n.isTwo() -> TWO
+                n.isTen() -> TEN
+                else -> FiniteBigRational(n, d)
             }
 
             val gcd = n.gcd(d)
