@@ -1,0 +1,4 @@
+/Cargo.lock
+/.idea/
+/rust-hello.iml
+/target/
