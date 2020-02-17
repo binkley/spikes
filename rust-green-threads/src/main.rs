@@ -1,5 +1,6 @@
 #![feature(asm)]
 #![feature(naked_functions)]
+
 use std::ptr;
 
 const DEFAULT_STACK_SIZE: usize = 1024 * 1024 * 2;
@@ -129,7 +130,7 @@ impl Runtime {
             ptr::write(s_ptr.offset(-32) as *mut u64, f as u64);
             available.ctx.rsp = s_ptr.offset(-32) as u64;
         }
-        
+
         available.state = State::Ready;
     }
 }
