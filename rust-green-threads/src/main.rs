@@ -1,3 +1,4 @@
+#![deny(warnings)]
 #![feature(asm)]
 #![feature(naked_functions)]
 
@@ -7,6 +8,7 @@ const DEFAULT_STACK_SIZE: usize = 1024 * 1024 * 2;
 const MAX_THREADS: usize = 4;
 static mut RUNTIME: usize = 0;
 
+#[derive(Debug)]
 pub struct Runtime {
     threads: Vec<Thread>,
     current: usize,
@@ -19,6 +21,7 @@ enum State {
     Ready,
 }
 
+#[derive(Debug)]
 struct Thread {
     id: usize,
     stack: Vec<u8>,
@@ -114,7 +117,7 @@ impl Runtime {
         self.threads.len() > 0
     }
 
-    pub fn spawn(&mut self, f: fn()) {
+    pub fn spawn(&mut self, f: fn()) -> usize {
         let available = self
             .threads
             .iter_mut()
@@ -132,6 +135,8 @@ impl Runtime {
         }
 
         available.state = State::Ready;
+
+        available.id
     }
 }
 
@@ -180,7 +185,8 @@ unsafe fn switch(old: *mut ThreadContext, new: *const ThreadContext) {
 fn main() {
     let mut runtime = Runtime::new();
     runtime.init();
-    runtime.spawn(|| {
+//    println!("RUNTIME: {:?}", runtime);
+    let mut thread_id = runtime.spawn(|| {
         println!("THREAD 1 STARTING");
         let id = 1;
         for i in 0..10 {
@@ -189,7 +195,8 @@ fn main() {
         }
         println!("THREAD 1 FINISHED");
     });
-    runtime.spawn(|| {
+    println!("Created thread #{}", thread_id);
+    thread_id = runtime.spawn(|| {
         println!("THREAD 2 STARTING");
         let id = 2;
         for i in 0..15 {
@@ -198,5 +205,6 @@ fn main() {
         }
         println!("THREAD 2 FINISHED");
     });
+    println!("Created thread #{}", thread_id);
     runtime.run();
 }
