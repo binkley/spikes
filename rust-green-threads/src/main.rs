@@ -187,23 +187,23 @@ fn main() {
     runtime.init();
 //    println!("RUNTIME: {:?}", runtime);
     let mut thread_id = runtime.spawn(|| {
-        println!("THREAD 1 STARTING");
-        let id = 1;
+        let id = 1; // TODO: How to access created thread_id?
+        println!("THREAD {} STARTING", id);
         for i in 0..10 {
             println!("thread: {} counter: {}", id, i);
             yield_thread();
         }
-        println!("THREAD 1 FINISHED");
+        println!("THREAD {} FINISHED", id);
     });
     println!("Created thread #{}", thread_id);
     thread_id = runtime.spawn(|| {
-        println!("THREAD 2 STARTING");
-        let id = 2;
+        let id = 2; // TODO: How to access created thread_id?
+        println!("THREAD {} STARTING", id);
         for i in 0..15 {
             println!("thread: {} counter: {}", id, i);
             yield_thread();
         }
-        println!("THREAD 2 FINISHED");
+        println!("THREAD {} FINISHED", id);
     });
     println!("Created thread #{}", thread_id);
     runtime.run();
