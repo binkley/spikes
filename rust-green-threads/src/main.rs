@@ -4,7 +4,7 @@
 
 use std::ptr;
 
-const DEFAULT_STACK_SIZE: usize = 1024 * 4;
+const DEFAULT_STACK_SIZE: usize = 1024 * 2;
 const MAX_THREADS: usize = 4;
 static mut RUNTIME: usize = 0;
 
@@ -185,7 +185,6 @@ unsafe fn switch(old: *mut ThreadContext, new: *const ThreadContext) {
 fn main() {
     let mut runtime = Runtime::new();
     runtime.init();
-//    println!("RUNTIME: {:?}", runtime);
     let mut thread_id = runtime.spawn(|| {
         let id = 1; // TODO: How to access created thread_id?
         println!("THREAD {} STARTING", id);
@@ -206,5 +205,6 @@ fn main() {
         println!("THREAD {} FINISHED", id);
     });
     println!("Created thread #{}", thread_id);
+    println!("RUNTIME: {:?}", runtime);
     runtime.run();
 }
