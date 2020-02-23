@@ -71,11 +71,11 @@ class Layers private constructor(
 
     companion object {
         fun newLayer(
-            name: String,
+            layersName: String,
             firstLayerName: String,
             vararg rules: Pair<String, RuleValue<*>>
         ) =
-            Layers(name, mutableMapOf(*rules), firstLayerName)
+            Layers(layersName, mutableMapOf(*rules), firstLayerName)
     }
 }
 
