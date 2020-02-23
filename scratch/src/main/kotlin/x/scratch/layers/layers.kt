@@ -4,12 +4,15 @@ class Layer(
     val name: String,
     private val map: MutableMap<String, Value<*>>,
     private val layer: Layers
-) : MutableMap<String, Value<*>> by map {
+) : Map<String, Value<*>> by map {
     fun keepAndNext(nextLayerName: String) =
         layer.nextLayer(nextLayerName)
 
     fun reset(renameLayer: String) =
         layer.reset(renameLayer)
+
+    fun edit(block: MutableMap<String, Value<*>>.() -> Unit) =
+        map.apply(block)
 
     override fun toString() = "$name: $map"
 }

@@ -17,7 +17,10 @@ fun main() {
 
     println("---")
 
-    layers.top["name"] = StringValue("Sleepy Bob")
+    layers.top.edit {
+        this["name"] = StringValue("Sleepy Bob")
+    }
+
     println(layers)
     println(layers["name"])
 
