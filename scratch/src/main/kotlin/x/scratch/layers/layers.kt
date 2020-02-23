@@ -80,3 +80,15 @@ class Layers private constructor(
 }
 
 operator fun Layers.get(key: String) = value<Any>(key)
+
+operator fun MutableMap<String, Value<*>>.set(key: String, value: Boolean) {
+    this[key] = BooleanValue(value)
+}
+
+operator fun MutableMap<String, Value<*>>.set(key: String, value: Int) {
+    this[key] = IntValue(value)
+}
+
+operator fun MutableMap<String, Value<*>>.set(key: String, value: String) {
+    this[key] = StringValue(value)
+}

@@ -1,15 +1,18 @@
 package x.scratch.layers
 
+import x.scratch.layers.BooleanValue.Companion.lastRule
+import x.scratch.layers.IntValue.Companion.sumRule
 import x.scratch.layers.Layers.Companion.newLayer
+import x.scratch.layers.StringValue.Companion.lastRule
 
 fun main() {
     val layers = newLayer(
         "BOB",
         "edit me",
-        "name" to StringValue.lastRule("The Magnificent Bob"),
-        "body" to IntValue.sumRule(10),
-        "mind" to IntValue.sumRule(10),
-        "invisible" to BooleanValue.lastRule(false)
+        "name" to lastRule("The Magnificent Bob"),
+        "body" to sumRule(10),
+        "mind" to sumRule(10),
+        "invisible" to lastRule(false)
     )
 
     println(layers)
@@ -18,7 +21,7 @@ fun main() {
     println("---")
 
     layers.edit {
-        this["name"] = StringValue("Sleepy Bob")
+        this["name"] = "Sleepy Bob"
     }
 
     println(layers)
@@ -34,7 +37,7 @@ fun main() {
 
     layers.top.reset("also edit me")
     layers.edit {
-        this["name"] = StringValue("The Cool-hand Bob")
+        this["name"] = "The Cool-hand Bob"
     }
     layers.keepAndNext("More to do")
     println(layers)
