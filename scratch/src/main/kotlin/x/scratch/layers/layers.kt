@@ -8,7 +8,7 @@ class Layer(
     fun keepAndNext(nextLayerName: String) =
         layer.nextLayer(nextLayerName)
 
-    fun reset(renameLayer: String) =
+    fun reset(renameLayer: String = name) =
         layer.reset(renameLayer)
 
     fun edit(block: MutableMap<String, Value<*>>.() -> Unit) =

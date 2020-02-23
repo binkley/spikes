@@ -26,6 +26,12 @@ fun main() {
 
     println("---")
 
+    layers.top.reset()
+    println(layers)
+    println(layers["name"])
+
+    println("---")
+
     layers.top.reset("also edit me")
     println(layers)
     println(layers["name"])
