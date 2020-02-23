@@ -6,8 +6,6 @@ import x.scratch.layers.Layers.Companion.newLayer
 import x.scratch.layers.StringValue.Companion.lastRule
 
 fun main() {
-    println("INITIAL")
-
     val layers = newLayer(
         "BOB",
         "edit me",
@@ -16,24 +14,15 @@ fun main() {
         "mind" to sumRule(10),
         "invisible" to lastRule(false)
     )
-    dump(layers)
-
-    println("---")
-    println("EDIT WITHOUT KEEPING")
+    dump("INITIAL", layers)
 
     layers.edit {
         this["name"] = "Sleepy Bob"
     }
-    dump(layers)
-
-    println("---")
-    println("RESETTING")
+    dump("EDIT WITHOUT KEEPING", layers)
 
     layers.reset()
-    dump(layers)
-
-    println("---")
-    println("EDIT AND KEEP")
+    dump("RESETING", layers)
 
     layers.reset("also edit me")
     layers.edit {
@@ -41,10 +30,12 @@ fun main() {
         this["invisible"] = true
     }
     layers.keepAndNext("more to do")
-    dump(layers)
+    dump("EDIT AND KEEP", layers)
 }
 
-fun dump(layers: Layers) {
+fun dump(what: String, layers: Layers) {
+    println("---")
+    println(what)
     println(layers)
     println(layers.top)
     println(
