@@ -24,6 +24,7 @@ fun main() {
     layers.reset()
     dump("RESETING", layers)
 
+    layers.top.reset("should be unseen")
     layers.reset("also edit me")
     layers.edit {
         this["name"] = "The Cool-hand Bob"
