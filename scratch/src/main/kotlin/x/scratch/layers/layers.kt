@@ -5,14 +5,9 @@ class Layer(
     private val map: MutableMap<String, Value<*>>,
     private val layer: Layers
 ) : Map<String, Value<*>> by map {
-    fun keepAndNext(nextLayerName: String) =
-        layer.nextLayer(nextLayerName)
-
-    fun reset(renameLayer: String = name) =
-        layer.reset(renameLayer)
-
-    fun edit(block: MutableMap<String, Value<*>>.() -> Unit) =
-        map.apply(block)
+    fun edit(block: MutableMap<String, Value<*>>.() -> Unit) = block(map)
+    fun keepAndNext(nextLayerName: String) = layer.keepAndNext(nextLayerName)
+    fun reset(renameLayer: String = name) = layer.reset(renameLayer)
 
     override fun toString() = "$name: $map"
 }
@@ -33,7 +28,18 @@ class Layers private constructor(
         initialLayer.keepAndNext(firstLayerName)
     }
 
-    fun reset(name: String): Layer {
+    fun edit(block: MutableMap<String, Value<*>>.() -> Unit) = top.edit(block)
+
+    internal fun keepAndNext(
+        nextLayerName: String,
+        values: MutableMap<String, Value<*>> = mutableMapOf()
+    ): Layer {
+        val layer = Layer(nextLayerName, values, this)
+        layers.add(layer)
+        return layer
+    }
+
+    fun reset(name: String = top.name): Layer {
         val newLayer = Layer(name, mutableMapOf(), this)
         layers[layers.size - 1] = newLayer
         return newLayer
@@ -61,15 +67,6 @@ class Layers private constructor(
             x.append("\n- [${it.index}] ${it.value}")
         }
         return x.toString()
-    }
-
-    internal fun nextLayer(
-        name: String,
-        values: MutableMap<String, Value<*>> = mutableMapOf()
-    ): Layer {
-        val layer = Layer(name, values, this)
-        layers.add(layer)
-        return layer
     }
 
     companion object {
