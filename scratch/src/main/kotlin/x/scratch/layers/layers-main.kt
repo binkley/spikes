@@ -33,6 +33,10 @@ fun main() {
     println("---")
 
     layers.top.reset("also edit me")
+    layers.edit {
+        this["name"] = StringValue("The Cool-hand Bob")
+    }
+    layers.keepAndNext("More to do")
     println(layers)
     println(layers["name"])
 }
