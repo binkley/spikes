@@ -4,6 +4,13 @@ sealed class Value<T> {
     abstract val value: T
 }
 
+data class RuleValue<T>(val rule: Rule<T>, val initialValue: T) :
+    Value<T>(), Rule<T> by rule {
+    override val value = initialValue
+
+    override fun toString() = "$name[$initialValue]"
+}
+
 data class BooleanValue(override val value: Boolean) : Value<Boolean>() {
     companion object {
         fun lastRule(initialValue: Boolean) =
@@ -23,9 +30,4 @@ data class StringValue(override val value: String) : Value<String>() {
         fun lastRule(initialValue: String) =
             RuleValue(LastRule(), initialValue)
     }
-}
-
-data class RuleValue<T>(val rule: Rule<T>, val initialValue: T) :
-    Value<T>(), Rule<T> by rule {
-    override val value = initialValue
 }

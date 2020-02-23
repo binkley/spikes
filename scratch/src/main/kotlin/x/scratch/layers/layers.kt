@@ -5,10 +5,11 @@ class Layer(
     val values: MutableMap<String, Value<*>>,
     private val layer: Layers
 ) {
-
+    override fun toString() = "$name: $values"
 }
 
 class Layers private constructor(
+    val name: String,
     initialLayerName: String,
     initialLayerValues: MutableMap<String, Value<*>>,
     firstLayerName: String
@@ -33,6 +34,15 @@ class Layers private constructor(
         }.asSequence().filterNotNull() as Sequence<Value<T>>
     }
 
+    override fun toString(): String {
+        val x = StringBuilder(name)
+        x.append(':')
+        layers.withIndex().reversed().forEach {
+            x.append("\n- [${it.index}] ${it.value}")
+        }
+        return x.toString()
+    }
+
     private fun layer(
         name: String,
         values: MutableMap<String, Value<*>>
@@ -44,10 +54,11 @@ class Layers private constructor(
 
     companion object {
         fun newLayer(
+            name: String,
             firstLayerName: String,
             vararg rules: Pair<String, RuleValue<*>>
         ) =
-            Layers("initial", mutableMapOf(*rules), firstLayerName)
+            Layers(name, "initial", mutableMapOf(*rules), firstLayerName)
     }
 }
 

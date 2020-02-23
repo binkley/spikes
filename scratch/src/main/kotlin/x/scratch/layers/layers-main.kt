@@ -4,6 +4,7 @@ import x.scratch.layers.Layers.Companion.newLayer
 
 fun main() {
     val layers = newLayer(
+        "BOB",
         "edit me",
         "name" to StringValue.lastRule("The Magnificent Bob"),
         "body" to IntValue.sumRule(10),
