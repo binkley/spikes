@@ -2,22 +2,39 @@ package x.scratch.layers
 
 class Layer(
     val name: String,
-    val values: MutableMap<String, Value<*>>,
+    private val map: MutableMap<String, Value<*>>,
     private val layer: Layers
-) {
-    override fun toString() = "$name: $values"
+) : MutableMap<String, Value<*>> by map {
+    fun keepAndNext(nextLayerName: String) =
+        layer.nextLayer(nextLayerName)
+
+    fun reset(renameLayer: String) =
+        layer.reset(renameLayer)
+
+    override fun toString() = "$name: $map"
 }
 
 class Layers private constructor(
     val name: String,
-    initialLayerName: String,
     initialLayerValues: MutableMap<String, Value<*>>,
     firstLayerName: String
 ) {
-    private val layers: MutableList<Layer> = mutableListOf(
-        Layer(initialLayerName, initialLayerValues, this),
-        Layer(firstLayerName, mutableMapOf(), this)
-    )
+    private val layers: MutableList<Layer> = mutableListOf()
+
+    val top: Layer
+        get() = layers.last()
+
+    init {
+        val initialLayer = Layer("initial", initialLayerValues, this)
+        layers += initialLayer
+        initialLayer.keepAndNext(firstLayerName)
+    }
+
+    fun reset(name: String): Layer {
+        val newLayer = Layer(name, mutableMapOf(), this)
+        layers[layers.size - 1] = newLayer
+        return newLayer
+    }
 
     fun <T> value(key: String): T {
         val allValues = values<T>(key)
@@ -30,7 +47,7 @@ class Layers private constructor(
     @Suppress("UNCHECKED_CAST")
     private fun <T> values(key: String): Sequence<Value<T>> {
         return layers.map {
-            it.values[key]
+            it[key]
         }.asSequence().filterNotNull() as Sequence<Value<T>>
     }
 
@@ -43,9 +60,9 @@ class Layers private constructor(
         return x.toString()
     }
 
-    private fun layer(
+    internal fun nextLayer(
         name: String,
-        values: MutableMap<String, Value<*>>
+        values: MutableMap<String, Value<*>> = mutableMapOf()
     ): Layer {
         val layer = Layer(name, values, this)
         layers.add(layer)
@@ -58,7 +75,7 @@ class Layers private constructor(
             firstLayerName: String,
             vararg rules: Pair<String, RuleValue<*>>
         ) =
-            Layers(name, "initial", mutableMapOf(*rules), firstLayerName)
+            Layers(name, mutableMapOf(*rules), firstLayerName)
     }
 }
 

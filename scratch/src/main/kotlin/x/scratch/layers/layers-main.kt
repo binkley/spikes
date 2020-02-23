@@ -14,4 +14,16 @@ fun main() {
 
     println(layers)
     println(layers["name"])
+
+    println("---")
+
+    layers.top["name"] = StringValue("Sleepy Bob")
+    println(layers)
+    println(layers["name"])
+
+    println("---")
+
+    layers.top.reset("also edit me")
+    println(layers)
+    println(layers["name"])
 }
