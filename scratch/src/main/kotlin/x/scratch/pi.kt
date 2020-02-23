@@ -6,25 +6,45 @@ import java.math.BigInteger.ONE
 import java.math.BigInteger.TEN
 import java.math.BigInteger.TWO
 import java.math.BigInteger.ZERO
+import java.util.Objects.hash
 
 fun main() {
+    val name = "BrianKeithOxley"
+    println(name)
+    val nameDigits = toDigits(name)
+    val nameAsDigits = nameDigits.joinToString("")
+    println(nameAsDigits)
+
     val pi = generatePiDigits()
-    pi.take(100).forEach {
+    pi.take(nameAsDigits.length).forEach {
         print(it)
     }
     println()
 
-    println(toPosition("AbCdEfG"))
+    println(WindowOnPi(name))
+}
+
+data class WindowOnPi(val str: String) {
+    private val digits = toDigits(str)
+    private val pi = generatePiDigits()
+
+    override fun equals(other: Any?) = this === other ||
+            other is WindowOnPi &&
+            str == other.str
+
+    override fun hashCode() = hash(str)
+
+    override fun toString() = "${this.javaClass.simpleName}[$str]"
 }
 
 private const val Apos = 'A'.toInt()
-fun toPosition(str: String) = str.map {
+fun toDigits(str: String) = str.map {
     val c = it.toUpperCase()
     c.toInt() - Apos
-}
+}.toIntArray()
 
 fun findInPi(str: String) {
-    val digitsToFind = toPosition(str)
+    val digitsToFind = toDigits(str)
 
     println(str)
     str.map {
