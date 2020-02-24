@@ -39,13 +39,13 @@ fun findInPi(str: String): Int {
     }
 }
 
-fun toDigits(char: Int): Array<Int> {
+private fun toDigits(char: Int): Array<Int> {
     return if (char < 10) arrayOf(char)
     else arrayOf(char / 10, char % 10)
 }
 
 private const val Apos = 'A'.toInt()
-fun toDigits(str: String): IntArray {
+private fun toDigits(str: String): IntArray {
     val array = IntArray(str.length * 2)
     var j = 0
     str.forEach { ch ->
@@ -58,9 +58,9 @@ fun toDigits(str: String): IntArray {
     return array.sliceArray(0 until j)
 }
 
-val THREE: BigInteger = BigInteger.valueOf(3)
-val FOUR: BigInteger = BigInteger.valueOf(4)
-val SEVEN: BigInteger = BigInteger.valueOf(7)
+private val THREE: BigInteger = BigInteger.valueOf(3)
+private val FOUR: BigInteger = BigInteger.valueOf(4)
+private val SEVEN: BigInteger = BigInteger.valueOf(7)
 
 class Pi : Iterator<Int> {
     companion object {
@@ -82,27 +82,26 @@ class Pi : Iterator<Int> {
 
     override fun hasNext() = true
 
-    override fun next() = digitsOfPi()
+    override fun next() = nextDigitOfPi()
 
     /**
      * See <a href="https://rosettacode.org/wiki/Pi><cite>Pi - Rosetta Code</cite></a>
      */
-    fun digitsOfPi(): Int {
+    private fun nextDigitOfPi(): Int {
         var nn: BigInteger
         var nr: BigInteger
-        var i = 0L
 
         while (true) {
             val foo = FOUR * q + r - t
             val bar = n * t
 
             if (foo < bar) {
-                val printMe = n
+                val nextDigit = n
                 nr = TEN * (r - bar)
                 n = (TEN * (THREE * q + r)) / t - TEN * n
                 q *= TEN
                 r = nr
-                return printMe.toInt()
+                return nextDigit.toInt()
             } else {
                 nr = (TWO * q + r) * l
                 nn = (q * (SEVEN * k) + TWO + r * l) / (t * l)
