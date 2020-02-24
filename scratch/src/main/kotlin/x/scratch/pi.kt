@@ -14,6 +14,20 @@ fun main() {
     println(findInPi(name))
 }
 
+/**
+ * Finds the first 0-based index into the digits of PI corresponding to the
+ * 0-based position in the plain Latin alphabet of a string of characters.
+ * For those characters with positions 10 and greater, they are treated as two
+ * separate digits to locate in PI.  Examples:
+ *
+ * - "A" is looking for the digit string "0", found in position 32
+ * - "Z" is looking for the digit string "25" (a 2 followed by a 5), found in
+ * position 89
+ *
+ * It is believed every possible string eventually appears as a digit string
+ * within PI, however finding the position may exhaust your patience, and some
+ * strings will not be found before the heat death of the Universe.
+ */
 fun findInPi(str: String): Int {
     val digits = toDigits(str)
 
