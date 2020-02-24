@@ -6,54 +6,56 @@ import java.math.BigInteger.ONE
 import java.math.BigInteger.TEN
 import java.math.BigInteger.TWO
 import java.math.BigInteger.ZERO
-import java.util.Objects.hash
 
 fun main() {
-    val name = "BrianKeithOxley"
+    val name = "BKO" // TODO: Ố in Oxley, ie, UNICODE
     println(name)
-    val nameDigits = toDigits(name)
-    val nameAsDigits = nameDigits.joinToString("")
-    println(nameAsDigits)
-
-    val pi = generatePiDigits()
-    pi.take(nameAsDigits.length).forEach {
-        print(it)
-    }
-    println()
-
-    println(WindowOnPi(name))
+    println(findInPi(name))
 }
 
-data class WindowOnPi(val str: String) {
-    private val digits = toDigits(str)
-    private val pi = generatePiDigits()
+fun findInPi(str: String): Int {
+    val digits = toDigits(str)
 
-    override fun equals(other: Any?) = this === other ||
-            other is WindowOnPi &&
-            str == other.str
+    val piBuf = IntArray(digits.size)
+    val pi = generatePiDigits()
+    val piIt = pi.iterator()
+    for (i in digits.indices) {
+        piBuf[i] = piIt.next()
+    }
 
-    override fun hashCode() = hash(str)
+    var i = 0
+    while (true) {
+        if (digits.contentEquals(piBuf)) return i
 
-    override fun toString() = "${this.javaClass.simpleName}[$str]"
+        var j = 1
+        while (j < piBuf.size) {
+            piBuf[j - 1] = piBuf[j]
+            ++j
+        }
+
+        piBuf[j - 1] = piIt.next()
+
+        ++i
+    }
+}
+
+fun toDigits(char: Int): Array<Int> {
+    return if (char < 10) arrayOf(char)
+    else arrayOf(char / 10, char % 10)
 }
 
 private const val Apos = 'A'.toInt()
-fun toDigits(str: String) = str.map {
-    val c = it.toUpperCase()
-    c.toInt() - Apos
-}.toIntArray()
-
-fun findInPi(str: String) {
-    val digitsToFind = toDigits(str)
-
-    println(str)
-    str.map {
-        it.toUpperCase()
-    }.forEach {
-        print(' ')
-        print(it.toInt() - 'A'.toInt())
+fun toDigits(str: String): IntArray {
+    val array = IntArray(str.length * 2)
+    var j = 0
+    str.forEach { ch ->
+        val c = ch.toUpperCase()
+        val i = c.toInt() - Apos
+        toDigits(i).forEach {
+            array[j++] = it
+        }
     }
-    println()
+    return array.sliceArray(0 until j)
 }
 
 val THREE: BigInteger = BigInteger.valueOf(3)
