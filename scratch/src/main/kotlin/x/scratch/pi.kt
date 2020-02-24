@@ -1,6 +1,7 @@
 package x.scratch
 
 import x.scratch.Pi.Companion.generatePiDigits
+import java.lang.System.arraycopy
 import java.math.BigInteger
 import java.math.BigInteger.ONE
 import java.math.BigInteger.TEN
@@ -27,13 +28,9 @@ fun findInPi(str: String): Int {
     while (true) {
         if (digits.contentEquals(piBuf)) return i
 
-        var j = 1
-        while (j < piBuf.size) {
-            piBuf[j - 1] = piBuf[j]
-            ++j
-        }
-
-        piBuf[j - 1] = piIt.next()
+        // Shift contents left by 1, and fill in the end with next digit
+        arraycopy(piBuf, 1, piBuf, 0, piBuf.size - 1)
+        piBuf[piBuf.size - 1] = piIt.next()
 
         ++i
     }
