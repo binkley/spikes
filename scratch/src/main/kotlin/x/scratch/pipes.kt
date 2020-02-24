@@ -4,7 +4,7 @@ fun main() {
     val double = { it: Int -> 2 * it }
 
     listOf(1, 2, 3) / double / { println(it) }
-    // TODO: Does not compile: "{ 2 * it}" inferred to return Unit
+    // TODO: Does not compile: "{ 2 * it }" inferred to return Unit
     // listOf(1, 2, 3) / { 2 * it } / { println(it) }
 }
 
