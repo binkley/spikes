@@ -35,7 +35,7 @@ import kotlin.time.seconds
 
 class A(val p: Int)
 
-@UseExperimental(
+@OptIn(
     ExperimentalStdlibApi::class,
     ExperimentalTime::class,
     ExperimentalUnsignedTypes::class
@@ -251,7 +251,7 @@ fun sumCos(_x: Double): Double {
     return s
 }
 
-@UseExperimental(ExperimentalStdlibApi::class)
+@OptIn(ExperimentalStdlibApi::class)
 inline fun <reified T> accessReifiedTypeArg() {
     val kType = typeOf<T>()
     println(kType.toString())
@@ -259,7 +259,7 @@ inline fun <reified T> accessReifiedTypeArg() {
 
 inline class InlineClass(val value: Int)
 
-@UseExperimental(ExperimentalContracts::class)
+@OptIn(ExperimentalContracts::class)
 fun synchronize(lock: Any?, block: () -> Unit) {
     // It tells compiler:
     // "This function will invoke 'block' here and now, and exactly one time"
