@@ -2,6 +2,7 @@ package x.scratch
 
 import x.scratch.units.div
 import x.scratch.units.english.Barleycorns
+import x.scratch.units.english.EnglishLengths
 import x.scratch.units.english.Fathoms
 import x.scratch.units.english.Feet
 import x.scratch.units.english.Hands
@@ -266,7 +267,22 @@ fun main() {
     }
     println("BEFORE: ${scanMe.toList()}")
     println("AFTER: ${scanned.toList()}")
+
+    println()
+    println("SEALED CLASSES")
+
+    println("Sealed? ${X::class.isSealed}")
+    println("Types: ${X::class.sealedSubclasses.map { it.simpleName }}")
+    println(
+        "English length types: ${EnglishLengths::class.sealedSubclasses.map {
+            it.simpleName
+        }}"
+    )
 }
+
+private sealed class X(val s: String)
+private class XA : X("XA")
+private data class XB(val a: Int) : X("XB")
 
 const val EPSILON = 1e-16
 val ALPHA = alpha()
