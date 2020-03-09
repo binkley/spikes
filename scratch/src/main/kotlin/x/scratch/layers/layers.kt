@@ -19,8 +19,8 @@ class Layers private constructor(
 ) {
     private val layers: MutableList<Layer> = mutableListOf()
 
-    val top: Layer
-        get() = layers.last()
+    val top get() = layers.last()
+    val keys get() = layers.flatMap { it.keys }.distinct()
 
     init {
         val initialLayer = Layer("initial", initialLayerValues, this)
@@ -92,3 +92,5 @@ operator fun MutableMap<String, Value<*>>.set(key: String, value: Int) {
 operator fun MutableMap<String, Value<*>>.set(key: String, value: String) {
     this[key] = StringValue(value)
 }
+
+fun Layers.toMap() = keys.map { it to value<Any>(it) }.toMap()

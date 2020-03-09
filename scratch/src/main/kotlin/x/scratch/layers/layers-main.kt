@@ -38,6 +38,7 @@ fun dump(what: String, layers: Layers) {
     println("---")
     println(what)
     println(layers)
+    println(layers.toMap())
     println(layers.top)
     println(
         """
