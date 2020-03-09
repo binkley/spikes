@@ -76,7 +76,7 @@ object Fathoms : EnglishLengths<Fathoms>("Fathom") {
 class Fathom(value: FiniteBigRational) :
     Measure<Fathoms>(Fathoms, value)
 
-/** There is probably a clever way to do this, but this is simple. */
+/** There is a clever way to do this, but this is simple if tedious. */
 private val ratios = mapOf(
     (Poppyseeds to Poppyseeds) to ONE,
     (Poppyseeds to Barleycorns) to (4 over 1),
