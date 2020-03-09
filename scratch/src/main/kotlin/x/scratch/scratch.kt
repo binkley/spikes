@@ -28,8 +28,8 @@ import kotlin.reflect.jvm.javaConstructor
 import kotlin.reflect.jvm.javaField
 import kotlin.reflect.typeOf
 import kotlin.time.ExperimentalTime
-import kotlin.time.MonoClock
-import kotlin.time.TestClock
+import kotlin.time.TestTimeSource
+import kotlin.time.TimeSource
 import kotlin.time.measureTimedValue
 import kotlin.time.seconds
 
@@ -41,6 +41,9 @@ class A(val p: Int)
     ExperimentalUnsignedTypes::class
 )
 fun main() {
+    println()
+    println("MATHS")
+
     println(
         "GCD pos to pos: ${BigInteger.valueOf(3).gcd(BigInteger.valueOf(2))}"
     )
@@ -60,12 +63,18 @@ fun main() {
     println("Rounding a negative fraction in the denominator: ${3 / -2}")
     println("Rounding a negative fraction: ${-3 / -2}")
 
+    println()
+    println("UNSIGNED TYPES")
+
     val a: UByte = 3u
     val b: UByte = 5u
     println(a.and(b))
     println(a.or(b))
     println(a.inv())
     println(a.xor(b))
+
+    println()
+    println("TYPES AND REFLECTION")
 
     val intType = typeOf<Int>()
     println(intType)
@@ -115,22 +124,27 @@ fun main() {
     val xxs = String::class.superclasses
     println("$xxs, ie, ${xxs.first()::class}")
 
-    val clock = MonoClock
+    println()
+    println("TIME")
+
+    val clock = TimeSource.Monotonic
     val mark1 = clock.markNow()
-    val mark2 = clock.markNow()
-    println("$mark1, $mark2 -> ${mark1.elapsedNow()}")
+    println("${mark1.elapsedNow()}")
 
     val (result, duration) = clock.measureTimedValue {
         "zippo"
     }
     println("$result took $duration")
 
-    val tc = TestClock()
+    val tc = TestTimeSource()
     val tm = tc.markNow()
     tc.plusAssign(1.seconds)
     println("Test clock advanced since mark by ${tm.elapsedNow()}")
 
     println(Bob(3).aaa(listOf("fruits")))
+
+    println()
+    println("NAN")
 
     println("Kotlin floating point is Java's")
     println("NaN comparison: ${Double.NaN == Double.NaN}")
@@ -173,6 +187,7 @@ fun main() {
     println("Converging at $ALPHA")
     println("Summing is ${sumCos(1.0)}")
 
+    println()
     println("VECTORS")
 
     val rv0 = RowVector2.of(1, 2)
@@ -184,6 +199,7 @@ fun main() {
     println(rv0 * cv0)
     println(cv0 * rv0)
 
+    println()
     println("OVERFLOW/UNDERFLOW")
 
     println(
@@ -194,6 +210,7 @@ fun main() {
     """.trimIndent()
     )
 
+    println()
     println("ADAPTERS")
 
     val aBob = ABob(2, "apple")
@@ -207,7 +224,9 @@ fun main() {
     """.trimIndent()
     )
 
+    println()
     println("UNITS AND MEASURES")
+
     val m1 = Poppyseed(120 over 1)
 
     println(+m1)
@@ -222,6 +241,7 @@ fun main() {
     println(m1.to(Inches))
     println((m1.to(Yards) + m1.to(Feet) - m1.to(Barleycorns)).to(Fathoms))
 
+    println()
     println("BUILDERS")
 
     val bs = buildString {
@@ -236,6 +256,7 @@ fun main() {
     }
     println(bl)
 
+    println()
     println("SCAN")
 
     val scanMe = 1..7
