@@ -221,6 +221,19 @@ fun main() {
     println(m1 / 3)
     println(m1.to(Inches))
     println((m1.to(Yards) + m1.to(Feet) - m1.to(Barleycorns)).to(Fathoms))
+
+    println("BUILDERS")
+    val bs = buildString {
+        append("first")
+        append(' ')
+        append("last")
+    }
+    println(bs)
+    val bl = buildList {
+        add(0)
+        add(3)
+    }
+    println(bl)
 }
 
 const val EPSILON = 1e-16
