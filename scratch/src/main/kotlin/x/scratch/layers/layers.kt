@@ -28,8 +28,6 @@ class Layers private constructor(
         initialLayer.keepAndNext(firstLayerName)
     }
 
-    fun edit(block: MutableMap<String, Value<*>>.() -> Unit) = top.edit(block)
-
     internal fun keepAndNext(
         nextLayerName: String,
         values: MutableMap<String, Value<*>> = mutableMapOf()
@@ -45,16 +43,8 @@ class Layers private constructor(
         return newLayer
     }
 
-    fun <T> value(key: String): T {
-        val allValues = values<T>(key)
-        val rule = allValues.filterIsInstance<RuleValue<T>>().last()
-        val values = allValues.map { it.value }
-
-        return rule(values)
-    }
-
     @Suppress("UNCHECKED_CAST")
-    private fun <T> values(key: String): Sequence<Value<T>> {
+    fun <T> values(key: String): Sequence<Value<T>> {
         return layers.map {
             it[key]
         }.asSequence().filterNotNull() as Sequence<Value<T>>
@@ -91,6 +81,17 @@ operator fun MutableMap<String, Value<*>>.set(key: String, value: Int) {
 
 operator fun MutableMap<String, Value<*>>.set(key: String, value: String) {
     this[key] = StringValue(value)
+}
+
+fun Layers.edit(block: MutableMap<String, Value<*>>.() -> Unit) =
+    top.edit(block)
+
+fun <T> Layers.value(key: String): T {
+    val allValues = values<T>(key)
+    val rule = allValues.filterIsInstance<RuleValue<T>>().last()
+    val values = allValues.map { it.value }
+
+    return rule(values)
 }
 
 fun Layers.toMap() = keys.map { it to this[it] }.toMap()
