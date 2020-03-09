@@ -223,6 +223,7 @@ fun main() {
     println((m1.to(Yards) + m1.to(Feet) - m1.to(Barleycorns)).to(Fathoms))
 
     println("BUILDERS")
+
     val bs = buildString {
         append("first")
         append(' ')
@@ -234,6 +235,15 @@ fun main() {
         add(3)
     }
     println(bl)
+
+    println("SCAN")
+
+    val scanMe = 1..7
+    val scanned = scanMe.asSequence().scanIndexed(0) { index, acc, elem ->
+        (acc + elem) * index
+    }
+    println("BEFORE: ${scanMe.toList()}")
+    println("AFTER: ${scanned.toList()}")
 }
 
 const val EPSILON = 1e-16
