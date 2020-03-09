@@ -3,11 +3,11 @@ package x.scratch.layers
 class Layer(
     val name: String,
     private val map: MutableMap<String, Value<*>>,
-    private val layer: Layers
+    private val layers: Layers
 ) : Map<String, Value<*>> by map {
     fun edit(block: MutableMap<String, Value<*>>.() -> Unit) = block(map)
-    fun keepAndNext(nextLayerName: String) = layer.keepAndNext(nextLayerName)
-    fun reset(renameLayer: String = name) = layer.reset(renameLayer)
+    fun keepAndNext(nextLayerName: String) = layers.keepAndNext(nextLayerName)
+    fun reset(renameLayer: String = name) = layers.reset(renameLayer)
 
     override fun toString() = "$name: $map"
 }
