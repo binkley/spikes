@@ -93,4 +93,4 @@ operator fun MutableMap<String, Value<*>>.set(key: String, value: String) {
     this[key] = StringValue(value)
 }
 
-fun Layers.toMap() = keys.map { it to value<Any>(it) }.toMap()
+fun Layers.toMap() = keys.map { it to this[it] }.toMap()
