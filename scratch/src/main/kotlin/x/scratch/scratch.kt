@@ -13,6 +13,7 @@ import x.scratch.units.english.Sticks
 import x.scratch.units.english.Yards
 import x.scratch.units.english.minus
 import x.scratch.units.english.plus
+import x.scratch.units.english.poppyseed
 import x.scratch.units.english.to
 import x.scratch.units.over
 import x.scratch.units.times
@@ -229,7 +230,7 @@ fun main() {
     println()
     println("UNITS AND MEASURES")
 
-    val m1 = Poppyseed(120 over 1)
+    val m1 = 120.poppyseed
 
     println(+m1)
     println(-m1)

@@ -1,5 +1,6 @@
 package x.scratch.units.english
 
+import x.scratch.Bar
 import x.scratch.units.FiniteBigRational
 import x.scratch.units.FiniteBigRational.Companion.ONE
 import x.scratch.units.Measure
@@ -20,6 +21,9 @@ object Poppyseeds : EnglishLengths<Poppyseeds>("Poppyseed") {
 class Poppyseed(value: FiniteBigRational) :
     Measure<Poppyseeds>(Poppyseeds, value)
 
+inline val Int.poppyseed
+    get() = Poppyseed(this over 1)
+
 object Barleycorns : EnglishLengths<Barleycorns>("Barleycorn") {
     override fun new(value: FiniteBigRational) = Barleycorn(value)
     override fun format(value: FiniteBigRational) = "$value barleycorns"
@@ -27,6 +31,9 @@ object Barleycorns : EnglishLengths<Barleycorns>("Barleycorn") {
 
 class Barleycorn(value: FiniteBigRational) :
     Measure<Barleycorns>(Barleycorns, value)
+
+inline val Int.barleycorn
+    get() = Barleycorn(this over 1)
 
 object Inches : EnglishLengths<Inches>("Inch") {
     override fun new(value: FiniteBigRational) = Inch(value)
@@ -36,6 +43,9 @@ object Inches : EnglishLengths<Inches>("Inch") {
 class Inch(value: FiniteBigRational) :
     Measure<Inches>(Inches, value)
 
+inline val Int.inch
+    get() = Inch(this over 1)
+
 object Sticks : EnglishLengths<Sticks>("Stick") {
     override fun new(value: FiniteBigRational) = Stick(value)
     override fun format(value: FiniteBigRational) = "$value sticks"
@@ -43,6 +53,9 @@ object Sticks : EnglishLengths<Sticks>("Stick") {
 
 class Stick(value: FiniteBigRational) :
     Measure<Sticks>(Sticks, value)
+
+inline val Int.stick
+    get() = Stick(this over 1)
 
 object Hands : EnglishLengths<Hands>("Hand") {
     override fun new(value: FiniteBigRational) = Hand(value)
@@ -52,6 +65,9 @@ object Hands : EnglishLengths<Hands>("Hand") {
 class Hand(value: FiniteBigRational) :
     Measure<Hands>(Hands, value)
 
+inline val Int.hand
+    get() = Hand(this over 1)
+
 object Feet : EnglishLengths<Feet>("Foot") {
     override fun new(value: FiniteBigRational) = Foot(value)
     override fun format(value: FiniteBigRational) = "$value'"
@@ -59,6 +75,9 @@ object Feet : EnglishLengths<Feet>("Foot") {
 
 class Foot(value: FiniteBigRational) :
     Measure<Feet>(Feet, value)
+
+inline val Int.foot
+    get() = Foot(this over 1)
 
 object Yards : EnglishLengths<Yards>("Yard") {
     override fun new(value: FiniteBigRational) = Yard(value)
@@ -68,6 +87,9 @@ object Yards : EnglishLengths<Yards>("Yard") {
 class Yard(value: FiniteBigRational) :
     Measure<Yards>(Yards, value)
 
+inline val Int.yard
+    get() = Yard(this over 1)
+
 object Fathoms : EnglishLengths<Fathoms>("Fathom") {
     override fun new(value: FiniteBigRational) = Fathom(value)
     override fun format(value: FiniteBigRational) = "$value fm"
@@ -75,6 +97,9 @@ object Fathoms : EnglishLengths<Fathoms>("Fathom") {
 
 class Fathom(value: FiniteBigRational) :
     Measure<Fathoms>(Fathoms, value)
+
+inline val Int.fathom
+    get() = Fathom(this over 1)
 
 /** There is a clever way to do this, but this is simple if tedious. */
 private val ratios = mapOf(
