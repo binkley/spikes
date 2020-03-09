@@ -36,6 +36,14 @@ object Inches : EnglishLengths<Inches>("Inch") {
 class Inch(value: FiniteBigRational) :
     Measure<Inches>(Inches, value)
 
+object Sticks : EnglishLengths<Sticks>("Stick") {
+    override fun new(value: FiniteBigRational) = Stick(value)
+    override fun format(value: FiniteBigRational) = "$value sticks"
+}
+
+class Stick(value: FiniteBigRational) :
+    Measure<Sticks>(Sticks, value)
+
 object Hands : EnglishLengths<Hands>("Hand") {
     override fun new(value: FiniteBigRational) = Hand(value)
     override fun format(value: FiniteBigRational) = "$value hh"
@@ -73,6 +81,7 @@ private val ratios = mapOf(
     (Poppyseeds to Poppyseeds) to ONE,
     (Poppyseeds to Barleycorns) to (4 over 1),
     (Poppyseeds to Inches) to (12 over 1),
+    (Poppyseeds to Sticks) to (24 over 1),
     (Poppyseeds to Hands) to (48 over 1),
     (Poppyseeds to Feet) to (144 over 1),
     (Poppyseeds to Yards) to (432 over 1),
@@ -80,6 +89,7 @@ private val ratios = mapOf(
     (Barleycorns to Poppyseeds) to (1 over 4),
     (Barleycorns to Barleycorns) to ONE,
     (Barleycorns to Inches) to (3 over 1),
+    (Barleycorns to Sticks) to (6 over 1),
     (Barleycorns to Hands) to (12 over 1),
     (Barleycorns to Feet) to (36 over 1),
     (Barleycorns to Yards) to (108 over 1),
@@ -87,13 +97,23 @@ private val ratios = mapOf(
     (Inches to Poppyseeds) to (1 over 12),
     (Inches to Barleycorns) to (1 over 3),
     (Inches to Inches) to ONE,
+    (Inches to Sticks) to (2 over 1),
     (Inches to Hands) to (4 over 1),
     (Inches to Feet) to (12 over 1),
     (Inches to Yards) to (36 over 1),
     (Inches to Fathoms) to (72 over 1),
+    (Sticks to Poppyseeds) to (1 over 24),
+    (Sticks to Barleycorns) to (1 over 6),
+    (Sticks to Inches) to (1 over 2),
+    (Sticks to Sticks) to ONE,
+    (Sticks to Hands) to (2 over 1),
+    (Sticks to Feet) to (6 over 1),
+    (Sticks to Yards) to (18 over 1),
+    (Sticks to Fathoms) to (36 over 1),
     (Hands to Poppyseeds) to (1 over 48),
     (Hands to Barleycorns) to (1 over 12),
     (Hands to Inches) to (1 over 4),
+    (Hands to Sticks) to (1 over 2),
     (Hands to Hands) to ONE,
     (Hands to Feet) to (3 over 1),
     (Hands to Yards) to (9 over 1),
@@ -101,6 +121,7 @@ private val ratios = mapOf(
     (Feet to Poppyseeds) to (1 over 144),
     (Feet to Barleycorns) to (1 over 36),
     (Feet to Inches) to (1 over 12),
+    (Feet to Sticks) to (1 over 6),
     (Feet to Hands) to (1 over 3),
     (Feet to Feet) to ONE,
     (Feet to Yards) to (3 over 1),
@@ -108,6 +129,7 @@ private val ratios = mapOf(
     (Yards to Poppyseeds) to (1 over 432),
     (Yards to Barleycorns) to (1 over 108),
     (Yards to Inches) to (1 over 36),
+    (Yards to Sticks) to (1 over 18),
     (Yards to Hands) to (1 over 9),
     (Yards to Feet) to (1 over 3),
     (Yards to Yards) to ONE,
@@ -115,6 +137,7 @@ private val ratios = mapOf(
     (Fathoms to Poppyseeds) to (1 over 864),
     (Fathoms to Barleycorns) to (1 over 216),
     (Fathoms to Inches) to (1 over 72),
+    (Fathoms to Sticks) to (1 over 36),
     (Fathoms to Hands) to (1 over 18),
     (Fathoms to Feet) to (1 over 6),
     (Fathoms to Yards) to (1 over 2),

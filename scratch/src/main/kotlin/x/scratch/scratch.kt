@@ -8,6 +8,7 @@ import x.scratch.units.english.Hands
 import x.scratch.units.english.Inches
 import x.scratch.units.english.Poppyseed
 import x.scratch.units.english.Poppyseeds
+import x.scratch.units.english.Sticks
 import x.scratch.units.english.Yards
 import x.scratch.units.english.minus
 import x.scratch.units.english.plus
@@ -238,7 +239,7 @@ fun main() {
     println(m1.to(Hands) - m1)
     println(m1 * 3)
     println(m1 / 3)
-    println(m1.to(Inches))
+    println(m1.to(Inches).to(Sticks))
     println((m1.to(Yards) + m1.to(Feet) - m1.to(Barleycorns)).to(Fathoms))
 
     println()
