@@ -1,24 +1,5 @@
 package x.scratch
 
-import x.scratch.units.div
-import x.scratch.units.english.Barleycorns
-import x.scratch.units.english.EnglishLengths
-import x.scratch.units.english.Fathoms
-import x.scratch.units.english.Feet
-import x.scratch.units.english.Hands
-import x.scratch.units.english.Inches
-import x.scratch.units.english.Poppyseed
-import x.scratch.units.english.Poppyseeds
-import x.scratch.units.english.Sticks
-import x.scratch.units.english.Yards
-import x.scratch.units.english.minus
-import x.scratch.units.english.plus
-import x.scratch.units.english.poppyseed
-import x.scratch.units.english.to
-import x.scratch.units.over
-import x.scratch.units.times
-import x.scratch.units.unaryMinus
-import x.scratch.units.unaryPlus
 import java.math.BigInteger
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind.EXACTLY_ONCE
@@ -228,23 +209,6 @@ fun main() {
     )
 
     println()
-    println("UNITS AND MEASURES")
-
-    val m1 = 120.poppyseed
-
-    println(+m1)
-    println(-m1)
-    println(m1.to(Poppyseeds))
-    println(m1.to(Barleycorns))
-    println(m1 + m1)
-    println(m1 + m1.to(Barleycorns))
-    println(m1.to(Hands) - m1)
-    println(m1 * 3)
-    println(m1 / 3)
-    println(m1.to(Inches).to(Sticks))
-    println((m1.to(Yards) + m1.to(Feet) - m1.to(Barleycorns)).to(Fathoms))
-
-    println()
     println("BUILDERS")
 
     val bs = buildString {
@@ -268,17 +232,6 @@ fun main() {
     }
     println("BEFORE: ${scanMe.toList()}")
     println("AFTER: ${scanned.toList()}")
-
-    println()
-    println("SEALED CLASSES")
-
-    println("Sealed? ${X::class.isSealed}")
-    println("Types: ${X::class.sealedSubclasses.map { it.simpleName }}")
-    println(
-        "English length types: ${EnglishLengths::class.sealedSubclasses.map {
-            it.simpleName
-        }}"
-    )
 }
 
 private sealed class X(val s: String)
