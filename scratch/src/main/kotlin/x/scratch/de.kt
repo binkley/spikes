@@ -81,17 +81,13 @@ private fun List<Int>.average() = sum() / size
 
 private fun List<Int>.next(): List<Int> {
     val updated = ArrayList<Int>(size)
-    updated.add(first().next(this[1]))
-    repeat(size - 2) {
-        val i = it + 1
-        updated.add(this[i].next(this[i - 1], this[i + 1]))
+    updated.add(middle(first(), this[1]))
+    (1 until size - 1).forEach {
+        updated.add(middle(this[it - 1], this[it], this[it + 1]))
     }
-    updated.add(last().next(this[size - 2]))
+    updated.add(middle(last(), this[size - 2]))
     return updated
 }
-
-private fun Int.next(other: Int) = middle(this, other)
-private fun Int.next(left: Int, right: Int) = middle(left, this, right)
 
 private fun middle(vararg xs: Int): Int {
     infix fun Int.outOf(base: Int) =
