@@ -2,22 +2,35 @@ package x.scratch
 
 import kotlin.math.absoluteValue
 import kotlin.random.Random
+import kotlin.system.exitProcess
 
-private const val n = 40
-private const val max = 9
+private const val n = 100
+private const val max = 19
+private const val cutoff = 1000
 
 fun main() {
     var last: List<Int> = init()
-    println(last)
+    val initAverage = last.average()
     var i = 0
-    while (true) {
-        val next = last.next()
-        if (next == last) break
-        println(next)
-        last = next
+
+    println("$i: $last")
+    while (!last.equilibrium()) {
         ++i
+        avoidRunningAway(i)
+        last = last.next()
+        println("$i: $last")
     }
-    println("$i STEPS")
+
+    println("$i STEPS NEEDED")
+    println("$initAverage INITIAL AVERAGE")
+    println("${last[0]} EQUILIBRIUM")
+}
+
+private fun avoidRunningAway(i: Int) {
+    if (i >= cutoff) {
+        println("MORE THAN $cutoff STEPS NEEDED")
+        exitProcess(1)
+    }
 }
 
 private fun init(): MutableList<Int> {
@@ -34,6 +47,16 @@ private fun init(): MutableList<Int> {
     return init
 }
 
+private fun List<Int>.equilibrium(): Boolean {
+    val first = this[0]
+    (1 until size).forEach {
+        if (this[it] != first) return false
+    }
+    return true
+}
+
+private fun List<Int>.average() = sum() / size
+
 private fun List<Int>.next(): List<Int> {
     val updated = ArrayList<Int>(size)
     updated.add(this[0].next(this[1]))
@@ -44,5 +67,43 @@ private fun List<Int>.next(): List<Int> {
     return updated
 }
 
-private fun Int.next(other: Int) = (this + other) / 2
-private fun Int.next(left: Int, right: Int) = (left + this + right) / 3
+private fun Int.next(other: Int) = middle(this, other)
+private fun Int.next(left: Int, right: Int) = middle(left, this, right)
+
+private fun middle(a: Int, b: Int, c: Int): Int {
+    val sum = a + b + c
+    return when (sum % 3) {
+        0 -> sum / 3
+        1 -> sum / 3 + oneThirdChance()
+        else -> sum / 3 + twoThirdChance()
+    }
+}
+
+private fun middle(a: Int, b: Int): Int {
+    val sum = a + b
+    return when (sum % 2) {
+        0 -> sum / 2
+        else -> sum / 2 + oneHalfChance()
+    }
+}
+
+private fun oneThirdChance(): Int {
+    return when (Random.nextInt(0, 2)) {
+        0, 1 -> 0
+        else -> 1
+    }
+}
+
+private fun twoThirdChance(): Int {
+    return when (Random.nextInt(0, 2)) {
+        0 -> 0
+        else -> 1
+    }
+}
+
+private fun oneHalfChance(): Int {
+    return when (Random.nextInt(0, 1)) {
+        0 -> 0
+        else -> 1
+    }
+}
