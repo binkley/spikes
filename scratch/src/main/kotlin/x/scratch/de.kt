@@ -63,11 +63,9 @@ private fun avoidRunningAway(i: Int) {
 
 private fun init(): MutableList<Int> {
     val init = ArrayList<Int>(n)
-    init.add(0)
-    repeat(n - 2) {
+    repeat(n) {
         init.add(Random.nextInt(0, max + 1).absoluteValue)
     }
-    init.add(0)
     return init
 }
 
