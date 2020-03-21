@@ -4,18 +4,18 @@ import kotlin.math.absoluteValue
 import kotlin.random.Random
 import kotlin.system.exitProcess
 
-private const val noisy = true
+private const val noisy = false
 private const val n = 20
 private const val max = 9
-private const val cutoff = 1000
-private const val oneTimeOnly = true
+private const val cutoff = 10000
+private const val oneTimeOnly = false
 private const val trials = 100
 
 fun main() {
-    val counts = mutableListOf(0, 0, 0)
     if (oneTimeOnly) {
         oneTrial()
     } else {
+        val counts = mutableListOf(0, 0, 0)
         repeat(trials) {
             val (init, final) = oneTrial()
             when {
@@ -100,5 +100,5 @@ private fun middle(vararg xs: Int): Int {
         if (Random.nextInt(0, base) < this) 1 else 0
 
     val sum = xs.sum()
-    return sum / xs.size + ((sum % xs.size) outOf xs.size)
+    return sum / xs.size + (sum % xs.size outOf xs.size)
 }
