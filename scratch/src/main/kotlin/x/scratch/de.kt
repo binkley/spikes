@@ -21,33 +21,28 @@ fun main() {
 }
 
 private fun init(): MutableList<Int> {
-    val init = (1..(n - 2)).map {
+    val init = ArrayList<Int>(n)
+    init.add(0)
+    (1..(n - 2)).map {
         Random.nextInt() % (max + 1)
     }.map {
         it.absoluteValue
-    }.toMutableList()
-    init.add(0, 0)
-    init.add(n - 1, 0)
+    }.forEach {
+        init.add(it)
+    }
+    init.add(0)
     return init
 }
 
 private fun List<Int>.next(): List<Int> {
     val updated = ArrayList<Int>(size)
-    updated.add(this[0])
+    updated.add(this[0].next(this[1]))
     (1..(size - 2)).forEach {
         updated.add(this[it].next(this[it - 1], this[it + 1]))
     }
-    updated.add(last())
+    updated.add(this[size - 1].next(this[size - 2]))
     return updated
 }
 
-private fun Int.next(left: Int, right: Int) = when {
-    this < left && this < right -> randomPick(left, right)
-    this > left && this > right -> randomPick(left, right)
-    else -> this
-}
-
-private fun randomPick(left: Int, right: Int) = when {
-    Random.nextBoolean() -> left
-    else -> right
-}
+private fun Int.next(other: Int) = (this + other) / 2
+private fun Int.next(left: Int, right: Int) = (left + this + right) / 3
