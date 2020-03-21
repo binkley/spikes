@@ -4,8 +4,8 @@ import kotlin.math.absoluteValue
 import kotlin.random.Random
 import kotlin.system.exitProcess
 
-private const val n = 100
-private const val max = 19
+private const val n = 20
+private const val max = 9
 private const val cutoff = 1000
 
 fun main() {
@@ -74,8 +74,8 @@ private fun middle(a: Int, b: Int, c: Int): Int {
     val sum = a + b + c
     return when (sum % 3) {
         0 -> sum / 3
-        1 -> sum / 3 + oneThirdChance()
-        else -> sum / 3 + twoThirdChance()
+        1 -> sum / 3 + oneInNChance(3)
+        else -> sum / 3 + twoThirdsChance()
     }
 }
 
@@ -83,27 +83,20 @@ private fun middle(a: Int, b: Int): Int {
     val sum = a + b
     return when (sum % 2) {
         0 -> sum / 2
-        else -> sum / 2 + oneHalfChance()
+        else -> sum / 2 + oneInNChance(2)
     }
 }
 
-private fun oneThirdChance(): Int {
-    return when (Random.nextInt(0, 2)) {
-        0, 1 -> 0
-        else -> 1
+private fun oneInNChance(n: Int): Int {
+    return when (Random.nextInt(0, n)) {
+        0 -> 1
+        else -> 0
     }
 }
 
-private fun twoThirdChance(): Int {
-    return when (Random.nextInt(0, 2)) {
-        0 -> 0
-        else -> 1
-    }
-}
-
-private fun oneHalfChance(): Int {
-    return when (Random.nextInt(0, 1)) {
-        0 -> 0
-        else -> 1
+private fun twoThirdsChance(): Int {
+    return when (Random.nextInt(0, 3)) {
+        0, 1 -> 1
+        else -> 0
     }
 }
