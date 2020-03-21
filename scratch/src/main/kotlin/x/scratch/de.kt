@@ -4,26 +4,49 @@ import kotlin.math.absoluteValue
 import kotlin.random.Random
 import kotlin.system.exitProcess
 
+private const val noisy = false
 private const val n = 20
 private const val max = 9
 private const val cutoff = 1000
+private const val trials = 100
 
 fun main() {
+    val counts = mutableListOf(0, 0, 0)
+    (1..trials).forEach {
+        val (init, final) = oneTrial()
+        when {
+            init < final -> ++counts[0]
+            init == final -> ++counts[1]
+            init > final -> ++counts[2]
+        }
+    }
+    println(counts)
+}
+
+private fun oneTrial(): Pair<Int, Int> {
+    // TODO: BUG: Something biases this towards INIT < FINAL
     var last: List<Int> = init()
     val initAverage = last.average()
     var i = 0
 
-    println("$i: $last")
+    noise("$i: $last")
     while (!last.equilibrium()) {
         ++i
         avoidRunningAway(i)
         last = last.next()
-        println("$i: $last")
+        noise("$i: $last")
     }
+    val equilibrium = last[0]
 
-    println("$i STEPS NEEDED")
-    println("$initAverage INITIAL AVERAGE")
-    println("${last[0]} EQUILIBRIUM")
+    noise("$i STEPS NEEDED")
+    noise("$initAverage INITIAL AVERAGE")
+    noise("$equilibrium EQUILIBRIUM")
+
+    return initAverage to equilibrium
+}
+
+private fun noise(message: String) {
+    if (noisy) println(message)
 }
 
 private fun avoidRunningAway(i: Int) {
