@@ -29,7 +29,6 @@ fun main() {
 }
 
 private fun oneTrial(): Pair<Int, Int> {
-    // TODO: BUG: Something biases this towards INIT < FINAL
     var last: List<Int> = init()
     val initAverage = last.average()
     var i = 0
@@ -77,7 +76,7 @@ private fun List<Int>.equilibrium(): Boolean {
     return true
 }
 
-private fun List<Int>.average() = sum() / size
+private fun List<Int>.average() = middle(*(this.toIntArray()))
 
 private fun List<Int>.next(): List<Int> {
     val updated = ArrayList<Int>(size)
