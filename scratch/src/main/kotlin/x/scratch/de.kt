@@ -70,33 +70,10 @@ private fun List<Int>.next(): List<Int> {
 private fun Int.next(other: Int) = middle(this, other)
 private fun Int.next(left: Int, right: Int) = middle(left, this, right)
 
-private fun middle(a: Int, b: Int, c: Int): Int {
-    val sum = a + b + c
-    return when (sum % 3) {
-        0 -> sum / 3
-        1 -> sum / 3 + oneInNChance(3)
-        else -> sum / 3 + twoThirdsChance()
-    }
-}
+private fun middle(vararg xs: Int): Int {
+    infix fun Int.outOf(base: Int) =
+        if (Random.nextInt(0, base) < this) 1 else 0
 
-private fun middle(a: Int, b: Int): Int {
-    val sum = a + b
-    return when (sum % 2) {
-        0 -> sum / 2
-        else -> sum / 2 + oneInNChance(2)
-    }
-}
-
-private fun oneInNChance(n: Int): Int {
-    return when (Random.nextInt(0, n)) {
-        0 -> 1
-        else -> 0
-    }
-}
-
-private fun twoThirdsChance(): Int {
-    return when (Random.nextInt(0, 3)) {
-        0, 1 -> 1
-        else -> 0
-    }
+    val sum = xs.sum()
+    return sum / xs.size + ((sum % xs.size) outOf xs.size)
 }
