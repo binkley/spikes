@@ -36,7 +36,7 @@ private fun avoidRunningAway(i: Int) {
 private fun init(): MutableList<Int> {
     val init = ArrayList<Int>(n)
     init.add(0)
-    (1..(n - 2)).map {
+    (1 until (n - 1)).map {
         Random.nextInt() % (max + 1)
     }.map {
         it.absoluteValue
@@ -60,7 +60,7 @@ private fun List<Int>.average() = sum() / size
 private fun List<Int>.next(): List<Int> {
     val updated = ArrayList<Int>(size)
     updated.add(this[0].next(this[1]))
-    (1..(size - 2)).forEach {
+    (1 until (size - 1)).forEach {
         updated.add(this[it].next(this[it - 1], this[it + 1]))
     }
     updated.add(this[size - 1].next(this[size - 2]))
