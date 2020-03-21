@@ -4,23 +4,28 @@ import kotlin.math.absoluteValue
 import kotlin.random.Random
 import kotlin.system.exitProcess
 
-private const val noisy = false
+private const val noisy = true
 private const val n = 20
 private const val max = 9
 private const val cutoff = 1000
+private const val oneTimeOnly = true
 private const val trials = 100
 
 fun main() {
     val counts = mutableListOf(0, 0, 0)
-    (1..trials).forEach {
-        val (init, final) = oneTrial()
-        when {
-            init < final -> ++counts[0]
-            init == final -> ++counts[1]
-            init > final -> ++counts[2]
+    if (oneTimeOnly) {
+        oneTrial()
+    } else {
+        repeat(trials) {
+            val (init, final) = oneTrial()
+            when {
+                init < final -> ++counts[0]
+                init == final -> ++counts[1]
+                init > final -> ++counts[2]
+            }
         }
+        println(counts)
     }
-    println(counts)
 }
 
 private fun oneTrial(): Pair<Int, Int> {
@@ -59,19 +64,15 @@ private fun avoidRunningAway(i: Int) {
 private fun init(): MutableList<Int> {
     val init = ArrayList<Int>(n)
     init.add(0)
-    (1 until (n - 1)).map {
-        Random.nextInt() % (max + 1)
-    }.map {
-        it.absoluteValue
-    }.forEach {
-        init.add(it)
+    repeat(n - 2) {
+        init.add(Random.nextInt(0, max + 1).absoluteValue)
     }
     init.add(0)
     return init
 }
 
 private fun List<Int>.equilibrium(): Boolean {
-    val first = this[0]
+    val first = first()
     (1 until size).forEach {
         if (this[it] != first) return false
     }
@@ -82,11 +83,12 @@ private fun List<Int>.average() = sum() / size
 
 private fun List<Int>.next(): List<Int> {
     val updated = ArrayList<Int>(size)
-    updated.add(this[0].next(this[1]))
-    (1 until (size - 1)).forEach {
-        updated.add(this[it].next(this[it - 1], this[it + 1]))
+    updated.add(first().next(this[1]))
+    repeat(size - 2) {
+        val i = it + 1
+        updated.add(this[i].next(this[i - 1], this[i + 1]))
     }
-    updated.add(this[size - 1].next(this[size - 2]))
+    updated.add(last().next(this[size - 2]))
     return updated
 }
 
