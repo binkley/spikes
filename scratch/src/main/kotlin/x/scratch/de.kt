@@ -145,23 +145,6 @@ private fun printStep(): (Int, List<Int>) -> Unit {
     }
 }
 
-private fun graphDifferences(stepValues: List<Int>) {
-    for (value in max downTo 0) {
-        if (graphNewRow(value, stepValues))
-            break
-    }
-    println("-".repeat(n))
-}
-
-private fun graphNewRow(value: Int, stepValues: List<Int>): Boolean {
-    if (stepValues.none { it >= value }) return false
-    stepValues.forEach { item ->
-        print(if (item < value) ' ' else '|')
-    }
-    println()
-    return stepValues.all { it >= value }
-}
-
 private fun printSummary(result: RunResult) {
     val (nSteps, initAverage, equilibrium) = result
     println("$nSteps STEPS NEEDED")
