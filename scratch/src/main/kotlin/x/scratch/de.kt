@@ -28,7 +28,7 @@ fun main() {
     }
 }
 
-private typealias StepProgress = (Int, List<Int>) -> Unit
+private typealias ReportProgress = (Int, List<Int>) -> Unit
 
 private data class RunResult(
     val stepsNeeded: Int,
@@ -36,19 +36,22 @@ private data class RunResult(
     val equilibrium: Int
 )
 
-private fun runOnce(init: List<Int>, progress: StepProgress): RunResult {
+private fun runOnce(
+    init: List<Int>,
+    reportProgress: ReportProgress
+): RunResult {
     val initAverage = init.average()
-    var last: List<Int> = init
+    var step: List<Int> = init
     var nSteps = 0
 
-    progress(nSteps, last)
-    while (!last.equilibrium()) {
+    reportProgress(nSteps, step)
+    while (!step.equilibrium()) {
         ++nSteps
         avoidRunningAway(nSteps)
-        last = last.next()
-        progress(nSteps, last)
+        step = step.nextStep()
+        reportProgress(nSteps, step)
     }
-    val equilibrium = last[0]
+    val equilibrium = step[0]
 
     return RunResult(nSteps, initAverage, equilibrium)
 }
@@ -66,13 +69,6 @@ private fun runTrials() {
         }
     }
     println("ROSE: $rose, STAYED: $stayed, FELL: $fell")
-}
-
-private fun avoidRunningAway(nSteps: Int) {
-    if (nSteps >= cutoff) {
-        println("MORE THAN $cutoff STEPS NEEDED")
-        exitProcess(1)
-    }
 }
 
 private fun randomInit(): List<Int> {
@@ -94,25 +90,35 @@ private fun hotColdInit(): List<Int> {
     return init
 }
 
+private fun avoidRunningAway(nSteps: Int) {
+    if (nSteps >= cutoff) {
+        println("MORE THAN $cutoff STEPS NEEDED")
+        exitProcess(1)
+    }
+}
+
 private fun List<Int>.equilibrium(): Boolean {
     val first = first()
-    (1 until size).forEach {
-        if (this[it] != first) return false
-    }
-    return true
+    return all { it == first }
 }
 
 private fun List<Int>.average() = middle(*(this.toIntArray()))
 
-private fun List<Int>.next(): List<Int> {
+private fun List<Int>.nextStep(): List<Int> {
     val updated = ArrayList<Int>(size)
-    updated.add(middle(first(), this[1]))
-    (1 until size - 1).forEach {
-        updated.add(middle(this[it - 1], this[it], this[it + 1]))
+    updated.add(middle(first(), second()))
+    (1..size - 2).forEach {
+        updated.add(middle(preceding(it), current(it), following(it)))
     }
-    updated.add(middle(last(), this[size - 2]))
+    updated.add(middle(penultimate(), last()))
     return updated
 }
+
+private fun List<Int>.second() = this[1]
+private fun List<Int>.penultimate() = this[size - 2]
+private fun List<Int>.preceding(i: Int) = this[i - 1]
+private fun List<Int>.current(i: Int) = this[i]
+private fun List<Int>.following(i: Int) = this[i + 1]
 
 private fun middle(vararg xs: Int): Int {
     infix fun Int.outOf(base: Int) =
