@@ -1,13 +1,13 @@
 package x.scratch
 
-import x.scratch.Run.HOT_COLD
-import x.scratch.Run.ONCE
-import x.scratch.Run.TRIALS
+import x.scratch.Run.MANY_BELL_CURVE
+import x.scratch.Run.ONCE_HOT_COLD
+import x.scratch.Run.ONCE_RANDOM
 import kotlin.math.absoluteValue
 import kotlin.random.Random
 import kotlin.system.exitProcess
 
-private val run = ONCE
+private val run = ONCE_RANDOM
 private const val graph = true
 private const val n = 20
 private const val max = 9
@@ -15,54 +15,20 @@ private const val cutoff = 10000
 private const val trials = 100
 
 private enum class Run {
-    ONCE,
-    TRIALS,
-    HOT_COLD
+    ONCE_RANDOM,
+    ONCE_HOT_COLD,
+    MANY_BELL_CURVE
 }
 
 fun main() {
     when (run) {
-        ONCE -> printSummary(runOnce(randomInit(), printStep()))
-        TRIALS -> runTrials()
-        HOT_COLD -> printSummary(runOnce(hotColdInit(), printStep()))
+        ONCE_RANDOM -> printSummary(runOnce(randomInit(), printStep()))
+        ONCE_HOT_COLD -> printSummary(runOnce(hotColdInit(), printStep()))
+        MANY_BELL_CURVE -> runTrials()
     }
 }
 
-private fun printStep(): (Int, List<Int>) -> Unit {
-    return { i, step ->
-        if (graph) {
-            println("$i:")
-            graphDifferences(step)
-        } else
-            println("$i: $step")
-    }
-}
-
-private fun graphDifferences(step: List<Int>) {
-    for (value in max downTo 0) {
-        if (graphNewRow(value, step))
-            break
-    }
-    println("-".repeat(n))
-}
-
-private fun graphNewRow(value: Int, step: List<Int>): Boolean {
-    if (step.none { it >= value }) return false
-    step.forEach { item ->
-        print(if (item < value) ' ' else '|')
-    }
-    println()
-    return step.all { it >= value }
-}
-
-private fun printSummary(result: RunResult) {
-    val (stepsNeeded, initAverage, equilibrium) = result
-    println("$stepsNeeded STEPS NEEDED")
-    println("$initAverage INITIAL AVERAGE")
-    println("$equilibrium EQUILIBRIUM")
-}
-
-typealias Progress = (Int, List<Int>) -> Unit
+typealias StepProgress = (Int, List<Int>) -> Unit
 
 private data class RunResult(
     val stepsNeeded: Int,
@@ -70,38 +36,40 @@ private data class RunResult(
     val equilibrium: Int
 )
 
-private fun runOnce(init: List<Int>, progress: Progress): RunResult {
+private fun runOnce(init: List<Int>, progress: StepProgress): RunResult {
     val initAverage = init.average()
     var last: List<Int> = init
-    var i = 0
+    var nSteps = 0
 
-    progress(i, last)
+    progress(nSteps, last)
     while (!last.equilibrium()) {
-        ++i
-        avoidRunningAway(i)
+        ++nSteps
+        avoidRunningAway(nSteps)
         last = last.next()
-        progress(i, last)
+        progress(nSteps, last)
     }
     val equilibrium = last[0]
 
-    return RunResult(i, initAverage, equilibrium)
+    return RunResult(nSteps, initAverage, equilibrium)
 }
 
 private fun runTrials() {
-    val counts = mutableListOf(0, 0, 0)
+    var rose = 0
+    var stayed = 0
+    var fell = 0
     repeat(trials) {
         val (_, initAverage, equilibrium) = runOnce(randomInit()) { _, _ -> }
         when {
-            initAverage < equilibrium -> ++counts[0]
-            initAverage == equilibrium -> ++counts[1]
-            initAverage > equilibrium -> ++counts[2]
+            initAverage < equilibrium -> ++rose
+            initAverage == equilibrium -> ++stayed
+            initAverage > equilibrium -> ++fell
         }
     }
-    println("ROSE: ${counts[0]}, STAYED: ${counts[1]}, FELL: ${counts[2]}")
+    println("ROSE: $rose, STAYED: $stayed, FELL: $fell")
 }
 
-private fun avoidRunningAway(i: Int) {
-    if (i >= cutoff) {
+private fun avoidRunningAway(nSteps: Int) {
+    if (nSteps >= cutoff) {
         println("MORE THAN $cutoff STEPS NEEDED")
         exitProcess(1)
     }
@@ -165,4 +133,38 @@ private fun adjusted(left: Int, middle: Int, right: Int): Int {
         0 -> doubleDiff / 2
         else -> doubleDiff / 2 + Random.nextInt(0, 2)
     }
+}
+
+private fun printStep(): (Int, List<Int>) -> Unit {
+    return { nSteps, stepValues ->
+        if (graph) {
+            println("$nSteps:")
+            graphDifferences(stepValues)
+        } else
+            println("$nSteps: $stepValues")
+    }
+}
+
+private fun graphDifferences(stepValues: List<Int>) {
+    for (value in max downTo 0) {
+        if (graphNewRow(value, stepValues))
+            break
+    }
+    println("-".repeat(n))
+}
+
+private fun graphNewRow(value: Int, stepValues: List<Int>): Boolean {
+    if (stepValues.none { it >= value }) return false
+    stepValues.forEach { item ->
+        print(if (item < value) ' ' else '|')
+    }
+    println()
+    return stepValues.all { it >= value }
+}
+
+private fun printSummary(result: RunResult) {
+    val (nSteps, initAverage, equilibrium) = result
+    println("$nSteps STEPS NEEDED")
+    println("$initAverage INITIAL AVERAGE")
+    println("$equilibrium EQUILIBRIUM")
 }
