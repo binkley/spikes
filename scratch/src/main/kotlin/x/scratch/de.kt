@@ -1,5 +1,6 @@
 package x.scratch
 
+import x.scratch.Run.GRAPH
 import x.scratch.Run.HOT_COLD
 import x.scratch.Run.ONCE
 import x.scratch.Run.TRIALS
@@ -11,68 +12,79 @@ private val run = TRIALS
 private const val n = 20
 private const val max = 9
 private const val cutoff = 10000
-private var noisy = false
 private const val trials = 100
 
 private enum class Run {
     ONCE,
     TRIALS,
-    HOT_COLD
+    HOT_COLD,
+    GRAPH
 }
 
 fun main() {
     when (run) {
         ONCE -> {
-            noisy = true
-            runOnce(randomInit())
+            val (stepsNeeded, initAverage, equilibrium)
+                    = runOnce(randomInit()) { i, last ->
+                println("$i: $last")
+            }
+
+            println("$stepsNeeded STEPS NEEDED")
+            println("$initAverage INITIAL AVERAGE")
+            println("$equilibrium EQUILIBRIUM")
         }
-        TRIALS -> {
-            noisy = false
-            runTrials()
-        }
+        TRIALS -> runTrials()
         HOT_COLD -> {
-            noisy = true
-            runOnce(hotColdInit())
+            val (stepsNeeded, initAverage, equilibrium)
+                    = runOnce(hotColdInit()) { i, last ->
+                println("$i: $last")
+            }
+
+            println("$stepsNeeded STEPS NEEDED")
+            println("$initAverage INITIAL AVERAGE")
+            println("$equilibrium EQUILIBRIUM")
+        }
+        GRAPH -> {
         }
     }
 }
 
-private fun runOnce(init: List<Int>): Pair<Int, Int> {
+typealias Progress = (Int, List<Int>) -> Unit
+
+private data class RunResult(
+    val stepsNeeded: Int,
+    val initAverage: Int,
+    val equilibrium: Int
+)
+
+private fun runOnce(init: List<Int>, progress: Progress): RunResult {
     val initAverage = init.average()
     var last: List<Int> = init
     var i = 0
 
-    noise("$i: $last")
+    progress(i, last)
     while (!last.equilibrium()) {
         ++i
         avoidRunningAway(i)
         last = last.next()
-        noise("$i: $last")
+        progress(i, last)
     }
     val equilibrium = last[0]
 
-    noise("$i STEPS NEEDED")
-    noise("$initAverage INITIAL AVERAGE")
-    noise("$equilibrium EQUILIBRIUM")
-
-    return initAverage to equilibrium
+    return RunResult(i, initAverage, equilibrium)
 }
 
 private fun runTrials() {
     val counts = mutableListOf(0, 0, 0)
     repeat(trials) {
-        val (init, final) = runOnce(randomInit())
+        val (_, initAverage, equilibrium) = runOnce(randomInit()) { _, _ -> }
         when {
-            init < final -> ++counts[0]
-            init == final -> ++counts[1]
-            init > final -> ++counts[2]
+            initAverage < equilibrium -> ++counts[0]
+            initAverage == equilibrium -> ++counts[1]
+            initAverage > equilibrium -> ++counts[2]
         }
     }
     println("ROSE: ${counts[0]}, STAYED: ${counts[1]}, FELL: ${counts[2]}")
-}
-
-private fun noise(message: String) {
-    if (noisy) println(message)
 }
 
 private fun avoidRunningAway(i: Int) {
