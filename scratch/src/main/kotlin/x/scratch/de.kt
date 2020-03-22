@@ -1,12 +1,13 @@
 package x.scratch
 
+import x.scratch.Run.HOT_COLD
 import x.scratch.Run.ONCE
 import x.scratch.Run.TRIALS
 import kotlin.math.absoluteValue
 import kotlin.random.Random
 import kotlin.system.exitProcess
 
-private val run = ONCE
+private val run = HOT_COLD
 private const val n = 20
 private const val max = 9
 private const val cutoff = 10000
@@ -15,25 +16,30 @@ private const val trials = 100
 
 private enum class Run {
     ONCE,
-    TRIALS
+    TRIALS,
+    HOT_COLD
 }
 
 fun main() {
     when (run) {
         ONCE -> {
             noisy = true
-            runOnce()
+            runOnce(randomInit())
         }
         TRIALS -> {
             noisy = false
             runTrials()
         }
+        HOT_COLD -> {
+            noisy = true
+            runOnce(hotColdInit())
+        }
     }
 }
 
-private fun runOnce(): Pair<Int, Int> {
-    var last: List<Int> = init()
-    val initAverage = last.average()
+private fun runOnce(init: List<Int>): Pair<Int, Int> {
+    val initAverage = init.average()
+    var last: List<Int> = init
     var i = 0
 
     noise("$i: $last")
@@ -55,7 +61,7 @@ private fun runOnce(): Pair<Int, Int> {
 private fun runTrials() {
     val counts = mutableListOf(0, 0, 0)
     repeat(trials) {
-        val (init, final) = runOnce()
+        val (init, final) = runOnce(randomInit())
         when {
             init < final -> ++counts[0]
             init == final -> ++counts[1]
@@ -76,10 +82,21 @@ private fun avoidRunningAway(i: Int) {
     }
 }
 
-private fun init(): MutableList<Int> {
+private fun randomInit(): List<Int> {
     val init = ArrayList<Int>(n)
     repeat(n) {
         init.add(Random.nextInt(0, max + 1).absoluteValue)
+    }
+    return init
+}
+
+private fun hotColdInit(): List<Int> {
+    val init = ArrayList<Int>(n)
+    repeat(n / 2) {
+        init.add(9)
+    }
+    repeat(n / 2 + n % 2) {
+        init.add(0)
     }
     return init
 }
