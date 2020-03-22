@@ -28,7 +28,7 @@ fun main() {
     }
 }
 
-typealias StepProgress = (Int, List<Int>) -> Unit
+private typealias StepProgress = (Int, List<Int>) -> Unit
 
 private data class RunResult(
     val stepsNeeded: Int,
