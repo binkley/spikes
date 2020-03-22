@@ -7,7 +7,7 @@ import kotlin.math.absoluteValue
 import kotlin.random.Random
 import kotlin.system.exitProcess
 
-private val run = HOT_COLD
+private val run = ONCE
 private const val graph = true
 private const val n = 20
 private const val max = 9
@@ -29,16 +29,30 @@ fun main() {
 }
 
 private fun printStep(): (Int, List<Int>) -> Unit {
-    return { i, last ->
+    return { i, step ->
         if (graph) {
             println("$i:")
-            last.forEach {
-                print('|')
-                println("-".repeat(it))
-            }
+            graphDifferences(step)
         } else
-            println("$i: $last")
+            println("$i: $step")
     }
+}
+
+private fun graphDifferences(step: List<Int>) {
+    for (value in max downTo 0) {
+        if (graphNewRow(value, step))
+            break
+    }
+    println("-".repeat(n))
+}
+
+private fun graphNewRow(value: Int, step: List<Int>): Boolean {
+    if (step.none { it >= value }) return false
+    step.forEach { item ->
+        print(if (item < value) ' ' else '|')
+    }
+    println()
+    return step.all { it >= value }
 }
 
 private fun printSummary(result: RunResult) {
