@@ -1,34 +1,37 @@
 package x.scratch
 
+import x.scratch.Run.ONCE
+import x.scratch.Run.TRIALS
 import kotlin.math.absoluteValue
 import kotlin.random.Random
 import kotlin.system.exitProcess
 
+private val run = ONCE
 private const val n = 20
 private const val max = 9
 private const val cutoff = 10000
-private const val oneTimeOnly = false
-private const val noisy = oneTimeOnly
+private var noisy = false
 private const val trials = 100
 
+private enum class Run {
+    ONCE,
+    TRIALS
+}
+
 fun main() {
-    if (oneTimeOnly) {
-        oneTrial()
-    } else {
-        val counts = mutableListOf(0, 0, 0)
-        repeat(trials) {
-            val (init, final) = oneTrial()
-            when {
-                init < final -> ++counts[0]
-                init == final -> ++counts[1]
-                init > final -> ++counts[2]
-            }
+    when (run) {
+        ONCE -> {
+            noisy = true
+            runOnce()
         }
-        println(counts)
+        TRIALS -> {
+            noisy = false
+            runTrials()
+        }
     }
 }
 
-private fun oneTrial(): Pair<Int, Int> {
+private fun runOnce(): Pair<Int, Int> {
     var last: List<Int> = init()
     val initAverage = last.average()
     var i = 0
@@ -47,6 +50,19 @@ private fun oneTrial(): Pair<Int, Int> {
     noise("$equilibrium EQUILIBRIUM")
 
     return initAverage to equilibrium
+}
+
+private fun runTrials() {
+    val counts = mutableListOf(0, 0, 0)
+    repeat(trials) {
+        val (init, final) = runOnce()
+        when {
+            init < final -> ++counts[0]
+            init == final -> ++counts[1]
+            init > final -> ++counts[2]
+        }
+    }
+    println(counts)
 }
 
 private fun noise(message: String) {
