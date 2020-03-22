@@ -7,7 +7,7 @@ import kotlin.math.absoluteValue
 import kotlin.random.Random
 import kotlin.system.exitProcess
 
-private val run = HOT_COLD
+private val run = TRIALS
 private const val n = 20
 private const val max = 9
 private const val cutoff = 10000
@@ -68,7 +68,7 @@ private fun runTrials() {
             init > final -> ++counts[2]
         }
     }
-    println(counts)
+    println("ROSE: ${counts[0]}, STAYED: ${counts[1]}, FELL: ${counts[2]}")
 }
 
 private fun noise(message: String) {
