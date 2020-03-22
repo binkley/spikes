@@ -4,11 +4,11 @@ import kotlin.math.absoluteValue
 import kotlin.random.Random
 import kotlin.system.exitProcess
 
-private const val noisy = false
 private const val n = 20
 private const val max = 9
 private const val cutoff = 10000
 private const val oneTimeOnly = false
+private const val noisy = oneTimeOnly
 private const val trials = 100
 
 fun main() {
@@ -94,4 +94,17 @@ private fun middle(vararg xs: Int): Int {
 
     val sum = xs.sum()
     return sum / xs.size + (sum % xs.size outOf xs.size)
+}
+
+private fun adjusted(left: Int, middle: Int, right: Int): Int {
+    // TODO: This seems to capture https://youtu.be/ly4S0oi3Yz8?t=605
+    //  but does not
+    val upperDiff = right - middle
+    val lowerDiff = middle - left
+    val doubleDiff = upperDiff - lowerDiff
+
+    return middle + when (doubleDiff % 2) {
+        0 -> doubleDiff / 2
+        else -> doubleDiff / 2 + Random.nextInt(0, 2)
+    }
 }
