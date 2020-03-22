@@ -1,6 +1,5 @@
 package x.scratch
 
-import x.scratch.Run.GRAPH
 import x.scratch.Run.HOT_COLD
 import x.scratch.Run.ONCE
 import x.scratch.Run.TRIALS
@@ -8,7 +7,8 @@ import kotlin.math.absoluteValue
 import kotlin.random.Random
 import kotlin.system.exitProcess
 
-private val run = TRIALS
+private val run = HOT_COLD
+private const val graph = true
 private const val n = 20
 private const val max = 9
 private const val cutoff = 10000
@@ -17,36 +17,35 @@ private const val trials = 100
 private enum class Run {
     ONCE,
     TRIALS,
-    HOT_COLD,
-    GRAPH
+    HOT_COLD
 }
 
 fun main() {
     when (run) {
-        ONCE -> {
-            val (stepsNeeded, initAverage, equilibrium)
-                    = runOnce(randomInit()) { i, last ->
-                println("$i: $last")
-            }
-
-            println("$stepsNeeded STEPS NEEDED")
-            println("$initAverage INITIAL AVERAGE")
-            println("$equilibrium EQUILIBRIUM")
-        }
+        ONCE -> printSummary(runOnce(randomInit(), printStep()))
         TRIALS -> runTrials()
-        HOT_COLD -> {
-            val (stepsNeeded, initAverage, equilibrium)
-                    = runOnce(hotColdInit()) { i, last ->
-                println("$i: $last")
-            }
-
-            println("$stepsNeeded STEPS NEEDED")
-            println("$initAverage INITIAL AVERAGE")
-            println("$equilibrium EQUILIBRIUM")
-        }
-        GRAPH -> {
-        }
+        HOT_COLD -> printSummary(runOnce(hotColdInit(), printStep()))
     }
+}
+
+private fun printStep(): (Int, List<Int>) -> Unit {
+    return { i, last ->
+        if (graph) {
+            println("$i:")
+            last.forEach {
+                print('|')
+                println("-".repeat(it))
+            }
+        } else
+            println("$i: $last")
+    }
+}
+
+private fun printSummary(result: RunResult) {
+    val (stepsNeeded, initAverage, equilibrium) = result
+    println("$stepsNeeded STEPS NEEDED")
+    println("$initAverage INITIAL AVERAGE")
+    println("$equilibrium EQUILIBRIUM")
 }
 
 typealias Progress = (Int, List<Int>) -> Unit
