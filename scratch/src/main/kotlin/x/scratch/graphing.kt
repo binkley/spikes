@@ -7,7 +7,6 @@ import kotlin.math.min
  * Prints a vertical ASCII bar graph of differences among values in [row].
  */
 fun graphDifferences(row: List<Int>) {
-    val max = row.max()
     for (value in row.max() downTo row.min()) {
         if (graphRowOrStop(value, row))
             break
