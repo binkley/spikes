@@ -131,6 +131,7 @@ fun main() {
     println("NAN")
 
     println("Kotlin floating point is Java's")
+    @Suppress("ConvertNaNEquality")
     println("NaN comparison: ${Double.NaN == Double.NaN}")
     println("NaN check: ${Double.NaN.isNaN()}")
 
@@ -186,6 +187,7 @@ fun main() {
     println()
     println("OVERFLOW/UNDERFLOW")
 
+    @Suppress("INTEGER_OVERFLOW")
     println(
         """
         ${Int.MAX_VALUE} vs ${Int.MAX_VALUE + 1}
@@ -233,10 +235,6 @@ fun main() {
     println("BEFORE: ${scanMe.toList()}")
     println("AFTER: ${scanned.toList()}")
 }
-
-private sealed class X(val s: String)
-private class XA : X("XA")
-private data class XB(val a: Int) : X("XB")
 
 const val EPSILON = 1e-16
 val ALPHA = alpha()

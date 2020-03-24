@@ -128,8 +128,8 @@ suspend fun quux(channel: Channel<Int>) {
 }
 
 class Foo(private var foo: Int) {
-    suspend fun getFoo() = foo
-    suspend fun setFoo(foo: Int) {
+    fun getFoo() = foo
+    fun setFoo(foo: Int) {
         this.foo = foo
     }
 }
