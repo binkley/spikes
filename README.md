@@ -11,6 +11,8 @@ Spikes are not to be considered stable.
 * [Exploring Kotlin async](kotlin-async/)
 * [Google's Flogger](googles-flogger/)
 * [Gradle pre-push](gradle-pre-push/)
+* Gradle test sets &mdash; moved to
+  [https://github.com/binkley/gradle-multiple-test-roots]
 * [Kotlin blockchain](kotlin-blockchain/)
 * [Layers in Kotlin](layers-kt/)
 * Domain persistence modeling &mdash; moved to
@@ -24,4 +26,3 @@ Spikes are not to be considered stable.
   [https://github.com/binkley/spring-boot-logging]
 * [Spring transactions](spring-transactions/)
 * [Spring XML support](xmlish/)
-* [Gradle test sets](gradle-test-sets/)
