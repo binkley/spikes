@@ -17,3 +17,11 @@ After building at least once, you can see the impact of the build cache:
 
 [Gradle task tree](https://github.com/dorongold/gradle-task-tree) pretty
 prints the tasks that would run.
+
+## Structure
+
+* `[ab]/src/main/*` - Production code and resources
+* `[ab]/src/test/*` - Unit test code and resources
+* `[ab]/src/integrationTest/*` - Integration test code and resources
+
+Module `a` depends on module `b`.
