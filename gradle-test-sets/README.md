@@ -14,3 +14,6 @@ After building at least once, you can see the impact of the build cache:
 ```
 ./gradlew build taskTree
 ```
+
+[Gradle task tree](https://github.com/dorongold/gradle-task-tree) pretty
+prints the tasks that would run.
