@@ -6,13 +6,13 @@ buildscript {
     }
 
     dependencies {
-        classpath "org.unbroken-dome.gradle-plugins:gradle-testsets-plugin:2.1.1"
+        classpath "org.unbroken-dome.gradle-plugins:gradle-testsets-plugin:3.0.1"
     }
 }
 
 plugins {
     id "build-dashboard"
-    id "com.dorongold.task-tree" version "1.4"
+    id "com.dorongold.task-tree" version "1.5"
 }
 
 apply plugin: BasePlugin
