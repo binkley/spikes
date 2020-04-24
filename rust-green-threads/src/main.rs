@@ -1,5 +1,5 @@
 #![deny(warnings)]
-#![feature(asm)]
+#![feature(llvm_asm)]
 #![feature(naked_functions)]
 
 use std::ptr;
@@ -157,7 +157,7 @@ pub fn yield_thread() {
 #[naked]
 #[inline(never)]
 unsafe fn switch(old: *mut ThreadContext, new: *const ThreadContext) {
-    asm!("
+    llvm_asm!("
         mov     %rsp, 0x00($0)
         mov     %r15, 0x08($0)
         mov     %r14, 0x10($0)
@@ -165,7 +165,7 @@ unsafe fn switch(old: *mut ThreadContext, new: *const ThreadContext) {
         mov     %r12, 0x20($0)
         mov     %rbx, 0x28($0)
         mov     %rbp, 0x30($0)
-   
+
         mov     0x00($1), %rsp
         mov     0x08($1), %r15
         mov     0x10($1), %r14
