@@ -183,7 +183,6 @@
                         <arg>-progressive</arg>
                         <arg>-Xjsr305=strict</arg>
                         <arg>-Xjvm-default=enable</arg>
-                        <arg>-Xuse-experimental=kotlin.Experimental</arg>
                         <arg>-Xinline-classes</arg>
                     </args>
                 </configuration>
