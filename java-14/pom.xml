@@ -33,6 +33,8 @@
                 <configuration>
                     <release>14</release>
                     <compilerArgs>--enable-preview</compilerArgs>
+                    <source>14</source>
+                    <target>14</target>
                 </configuration>
             </plugin>
 

@@ -1,8 +1,11 @@
 package hm.binkley;
 
+import static java.lang.System.out;
+
 public class Java14 {
     public static void main(String[] args) {
-        System.out.println(new Fooby<>(3, "bob"));
+        final var x = "bob";
+        if (x instanceof String msg) out.println(new Fooby<>(3, msg));
     }
 }
 
