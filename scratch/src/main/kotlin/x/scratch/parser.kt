@@ -34,33 +34,18 @@ open class DiceParser : BaseParser<Int>() {
         rollTheDice()
     )
 
-    internal open fun maybeRollMore() = ZeroOrMore(
-        Sequence(
-            FirstOf(
-                Ch('+'),
-                Ch('-')
-            ),
-            carrySign(),
-            rollExpression(),
-            signNumber(),
-            keepAddingDice()
-        )
-    )
-
-    internal fun keepAddingDice() = push(pop() + pop())
-
-    internal fun rollTheDice(): Boolean {
-        val explode = pop() != 0
-        val keep = pop()
-        val dieType = pop()
-        val diceCount = pop()
-        return push(rollDice(diceCount, dieType, keep, explode))
-    }
-
     internal open fun rollCount() = Sequence(
         ZeroOrMore(number()),
         push(matchInt(1))
     )
+
+    internal open fun number() = Sequence(
+        OneOrMore(CharRange('1', '9')),
+        ZeroOrMore(CharRange('0', '9'))
+    )
+
+    internal fun matchInt(default: Int) =
+        (matchOrDefault(default.toString())).toInt()
 
     internal open fun dieType() = Sequence(
         FirstOf(
@@ -69,6 +54,11 @@ open class DiceParser : BaseParser<Int>() {
         ),
         push(matchDieType())
     )
+
+    internal fun matchDieType() = when (val match = match()) {
+        "%" -> 100
+        else -> match.toInt()
+    }
 
     internal open fun maybeKeepFewer() = Sequence(
         Optional(
@@ -97,6 +87,40 @@ open class DiceParser : BaseParser<Int>() {
         push(matchExplode())
     )
 
+    internal fun matchExplode() = if (match() == "") 0 else 1
+
+    internal fun rollTheDice(): Boolean {
+        val explode = pop() != 0
+        val keep = pop()
+        val dieType = pop()
+        val diceCount = pop()
+        return push(rollDice(diceCount, dieType, keep, explode))
+    }
+
+    internal open fun carrySign() = push(
+        when (match()) {
+            "+" -> 1
+            else -> -1
+        }
+    )
+
+    internal open fun signNumber() = push(pop() * pop())
+
+    internal open fun maybeRollMore() = ZeroOrMore(
+        Sequence(
+            FirstOf(
+                Ch('+'),
+                Ch('-')
+            ),
+            carrySign(),
+            rollExpression(),
+            signNumber(),
+            keepAddingDice()
+        )
+    )
+
+    internal fun keepAddingDice() = push(pop() + pop())
+
     internal open fun maybeAdjust() = Sequence(
         Optional(
             FirstOf(
@@ -109,30 +133,6 @@ open class DiceParser : BaseParser<Int>() {
         ),
         push(pop() + matchInt(0))
     )
-
-    internal open fun carrySign() = push(
-        when (match()) {
-            "+" -> 1
-            else -> -1
-        }
-    )
-
-    internal open fun signNumber() = push(pop() * pop())
-
-    internal open fun number() = Sequence(
-        OneOrMore(CharRange('1', '9')),
-        ZeroOrMore(CharRange('0', '9'))
-    )
-
-    internal fun matchInt(default: Int) =
-        (matchOrDefault(default.toString())).toInt()
-
-    internal fun matchDieType() = when (val match = match()) {
-        "%" -> 100
-        else -> match.toInt()
-    }
-
-    internal fun matchExplode() = if (match() == "") 0 else 1
 }
 
 private fun rollDice(
