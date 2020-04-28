@@ -19,22 +19,33 @@ open class DiceParser : BaseParser<Int>() {
         rollCount(),
         'd',
         dieType(),
+        maybeAdjust(),
         rollTheDice()
     )
 
     internal fun rollTheDice(): Boolean {
-        swap()
-        return push(roll(pop(), pop()))
+        val adjust = pop()
+        val dieType = pop()
+        val diceCount = pop()
+        return push(roll(diceCount, dieType, adjust))
     }
 
     internal open fun rollCount() = Sequence(
         ZeroOrMore(number()),
-        push(matchInt())
+        push(matchInt(1))
     )
 
     internal open fun dieType() = Sequence(
         OneOrMore(number()),
-        push(matchInt())
+        push(matchInt(1))
+    )
+
+    internal open fun maybeAdjust() = Sequence(
+        Optional(
+            FirstOf('+', '-'),
+            number()
+        ),
+        push(matchInt(0))
     )
 
     internal open fun number(): Rule = Sequence(
@@ -42,23 +53,25 @@ open class DiceParser : BaseParser<Int>() {
         ZeroOrMore(CharRange('0', '9'))
     )
 
-    internal fun matchInt() = (matchOrDefault("1")).toInt()
+    internal fun matchInt(default: Int) =
+        (matchOrDefault(default.toString())).toInt()
 }
 
-private fun roll(n: Int, d: Int): Int {
+private fun roll(n: Int, d: Int, adjustment: Int): Int {
     var total = 0
     for (i in 1..n) {
         val roll = Random.nextInt(0, d) + 1
         if (verbose) println("roll -> $roll")
         total += roll
     }
-    return total
+
+    return total + adjustment
 }
 
 fun main() {
     val parser = Parboiled.createParser(DiceParser::class.java)
     val runner = RecoveringParseRunner<Int>(parser.diceExpression())
-    val result = runner.run("3d6")
+    val result = runner.run("3d6+100")
 
     result.parseErrors.forEach {
         err.println(printParseError(it))
