@@ -89,7 +89,7 @@ open class DiceParser : BaseParser<Int>() {
         push(matchInt(0))
     )
 
-    internal open fun number(): Rule = Sequence(
+    internal open fun number() = Sequence(
         OneOrMore(CharRange('1', '9')),
         ZeroOrMore(CharRange('0', '9'))
     )
@@ -114,12 +114,12 @@ private fun rollDice(
     val rolls = ArrayList<Int>(n)
     for (i in 1..n) {
         var roll = rollDie(d)
-        if (verbose) println("roll -> $roll")
+        if (verbose) println("roll(d$d) -> $roll")
         rolls += roll
 
         if (explode) while (roll == d) {
             roll = rollDie(d)
-            if (verbose) println("!roll -> $roll")
+            if (verbose) println("!roll(d$d) -> $roll")
             rolls += roll
         }
     }
@@ -128,29 +128,30 @@ private fun rollDice(
 
     rolls.sort()
 
-    if (keep < 0) {
+    return if (keep < 0) {
         if (verbose) rolls.subList(-keep, rolls.size).forEach {
             println("drop -> $it")
         }
-        return rolls.subList(0, -keep).sum()
+        rolls.subList(0, -keep).sum()
     } else {
         if (verbose) rolls.subList(0, n - keep).forEach {
             println("drop -> $it")
         }
-        return rolls.subList(n - keep, rolls.size).sum()
+        rolls.subList(n - keep, rolls.size).sum()
     }
 }
 
 private fun rollDie(d: Int) = Random.nextInt(0, d) + 1
 
 fun main() {
-    val parser = Parboiled.createParser(DiceParser::class.java)
-    val runner = RecoveringParseRunner<Int>(parser.diceExpression())
+    val rule = Parboiled.createParser(DiceParser::class.java).diceExpression()
+    val runner = RecoveringParseRunner<Int>(rule)
 
     showRolls(runner, "3d3!+100")
     showRolls(runner, "3d6")
     showRolls(runner, "4d6h3")
     showRolls(runner, "4d6l3")
+    showRolls(runner, "3d6+2d4")
     showRolls(runner, "d%")
 }
 
@@ -158,6 +159,7 @@ private fun showRolls(
     runner: RecoveringParseRunner<Int>,
     expression: String
 ) {
+    println("---")
     val result = runner.run(expression)
     result.parseErrors.forEach {
         err.println(printParseError(it))
