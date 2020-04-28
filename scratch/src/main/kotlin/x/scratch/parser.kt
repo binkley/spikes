@@ -13,6 +13,7 @@ import kotlin.random.Random
 
 private val verbose = true
 
+/** See [roll](https://github.com/matteocorti/roll#examples) */
 @BuildParseTree
 open class DiceParser : BaseParser<Int>() {
     open fun diceExpression(): Rule = Sequence(
