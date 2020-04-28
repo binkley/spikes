@@ -5,14 +5,14 @@ import org.parboiled.Parboiled
 import org.parboiled.Rule
 import org.parboiled.annotations.BuildParseTree
 import org.parboiled.parserunners.ReportingParseRunner
+import java.lang.System.err
 import kotlin.random.Random
 
 @BuildParseTree
 open class DiceParser : BaseParser<Int>() {
     open fun inputLine(): Rule = Sequence(
         diceExpression(),
-        EOI,
-        push(roll(pop() as Int, pop() as Int))
+        push(roll(pop(), pop()))
     )
 
     open fun diceExpression(): Rule = Sequence(
@@ -38,9 +38,8 @@ private fun roll(n: Int, d: Int): Int {
 
 fun main() {
     val parser = Parboiled.createParser(DiceParser::class.java)
-    val result = ReportingParseRunner<Int>(parser.inputLine()).run("3d6")
+    val result = ReportingParseRunner<Int>(parser.inputLine()).run("1d2")
+    result.parseErrors.forEach { err.println(it) }
     println(result.matched)
     println(result.resultValue)
-    println(result.hasErrors())
-    println(result.parseErrors)
 }
