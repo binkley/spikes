@@ -29,6 +29,7 @@ open class DiceParser : BaseParser<Int>() {
         rollCount(),
         Ch('d'),
         dieType(),
+        maybeReroll(),
         maybeKeepFewer(),
         maybeExplode(),
         rollTheDice()
@@ -45,7 +46,7 @@ open class DiceParser : BaseParser<Int>() {
     )
 
     internal fun matchInt(default: Int) =
-        (matchOrDefault(default.toString())).toInt()
+        matchOrDefault(default.toString()).toInt()
 
     internal open fun dieType() = Sequence(
         FirstOf(
@@ -60,6 +61,8 @@ open class DiceParser : BaseParser<Int>() {
         else -> match.toInt()
     }
 
+    internal open fun maybeReroll() = true
+
     internal open fun maybeKeepFewer() = Sequence(
         Optional(
             FirstOf(
@@ -68,15 +71,15 @@ open class DiceParser : BaseParser<Int>() {
             ),
             number()
         ),
-        matchKeepFewer()
+        push(matchKeepFewer())
     )
 
-    internal open fun matchKeepFewer(): Boolean {
+    internal open fun matchKeepFewer(): Int {
         val match = match()
         return when {
-            match.startsWith('h') -> push(match.substring(1).toInt())
-            match.startsWith('l') -> push(-match.substring(1).toInt())
-            else -> push(peek(1))
+            match.startsWith('h') -> match.substring(1).toInt()
+            match.startsWith('l') -> -match.substring(1).toInt()
+            else -> peek(1)
         }
     }
 
