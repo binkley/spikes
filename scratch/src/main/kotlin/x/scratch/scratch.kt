@@ -258,7 +258,7 @@ fun sumCos(_x: Double): Double {
     while (abs(delta) > EPSILON) {
         s += delta
         x = cx
-        cx = cos(cx)
+        cx = cos(x)
         delta = ALPHA - cx
     }
     return s
