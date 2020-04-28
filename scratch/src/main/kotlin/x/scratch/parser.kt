@@ -29,7 +29,6 @@ open class DiceParser : BaseParser<Int>() {
         rollCount(),
         Ch('d'),
         dieType(),
-        maybeReroll(),
         maybeKeepFewer(),
         maybeExplode(),
         rollTheDice()
@@ -60,8 +59,6 @@ open class DiceParser : BaseParser<Int>() {
         "%" -> 100
         else -> match.toInt()
     }
-
-    internal open fun maybeReroll() = true
 
     internal open fun maybeKeepFewer() = Sequence(
         Optional(
@@ -97,7 +94,7 @@ open class DiceParser : BaseParser<Int>() {
         val keep = pop()
         val dieType = pop()
         val diceCount = pop()
-        return push(rollDice(diceCount, dieType, keep, explode))
+        return push(rollDice(diceCount, dieType, 0, keep, explode))
     }
 
     internal open fun carrySign() = push(
@@ -141,17 +138,26 @@ open class DiceParser : BaseParser<Int>() {
 private fun rollDice(
     n: Int,
     d: Int,
+    reroll: Int,
     keep: Int,
     explode: Boolean
 ): Int {
     val rolls = ArrayList<Int>(n)
     for (i in 1..n) {
         var roll = rollDie(d)
+        while (roll <= reroll) {
+            if (verbose) println("*roll(d$d) -> $roll")
+            roll = rollDie(d)
+        }
         if (verbose) println("roll(d$d) -> $roll")
         rolls += roll
 
         if (explode) while (roll == d) {
             roll = rollDie(d)
+            while (roll <= reroll) {
+                if (verbose) println("*roll(d$d) -> $roll")
+                roll = rollDie(d)
+            }
             if (verbose) println("!roll(d$d) -> $roll")
             rolls += roll
         }
