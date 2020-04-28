@@ -8,6 +8,8 @@ import org.parboiled.parserunners.ReportingParseRunner
 import java.lang.System.err
 import kotlin.random.Random
 
+private val verbose = true
+
 @BuildParseTree
 open class DiceParser : BaseParser<Int>() {
     open fun diceExpression(): Rule = Sequence(
@@ -29,15 +31,21 @@ open class DiceParser : BaseParser<Int>() {
 
 private fun roll(n: Int, d: Int): Int {
     var total = 0
-    for (i in 1..n)
-        total += Random.nextInt(0, d) + 1
+    for (i in 1..n) {
+        val roll = Random.nextInt(0, d) + 1
+        if (verbose) println("roll -> $roll")
+        total += roll
+    }
     return total
 }
 
 fun main() {
     val parser = Parboiled.createParser(DiceParser::class.java)
-    val result =
-        ReportingParseRunner<Int>(parser.diceExpression()).run("d2")
-    result.parseErrors.forEach { err.println("${it.inputBuffer}: ${it.errorMessage}") }
+    val runner = ReportingParseRunner<Int>(parser.diceExpression())
+    val result = runner.run("3d6")
+
+    result.parseErrors.forEach {
+        err.println("${it.inputBuffer}: ${it.errorMessage}")
+    }
     println(result.resultValue)
 }
