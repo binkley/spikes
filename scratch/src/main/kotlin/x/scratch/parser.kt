@@ -8,7 +8,6 @@ import org.parboiled.Rule
 import org.parboiled.annotations.BuildParseTree
 import org.parboiled.errors.ErrorUtils.printParseError
 import org.parboiled.parserunners.RecoveringParseRunner
-import org.parboiled.support.ParsingResult
 import java.lang.System.err
 import kotlin.random.Random
 
@@ -24,6 +23,7 @@ open class DiceParser : BaseParser<Int>() {
         rollCount(),
         Ch('d'),
         dieType(),
+        maybeKeepFewer(),
         maybeExplode(),
         maybeAdjust(),
         rollTheDice()
@@ -32,9 +32,10 @@ open class DiceParser : BaseParser<Int>() {
     internal fun rollTheDice(): Boolean {
         val adjust = pop()
         val explode = pop() != 0
+        val keep = pop()
         val dieType = pop()
         val diceCount = pop()
-        return push(rollDice(diceCount, dieType, explode) + adjust)
+        return push(rollDice(diceCount, dieType, keep, explode) + adjust)
     }
 
     internal open fun rollCount() = Sequence(
@@ -49,6 +50,26 @@ open class DiceParser : BaseParser<Int>() {
         ),
         push(matchDieType())
     )
+
+    internal open fun maybeKeepFewer() = Sequence(
+        Optional(
+            FirstOf(
+                Ch('h'),
+                Ch('l')
+            ),
+            number()
+        ),
+        matchKeepFewer()
+    )
+
+    internal open fun matchKeepFewer(): Boolean {
+        val match = match()
+        return when {
+            match.startsWith('h') -> push(match.substring(1).toInt())
+            match.startsWith('l') -> push(-match.substring(1).toInt())
+            else -> push(peek(1))
+        }
+    }
 
     internal open fun maybeExplode() = Sequence(
         Optional(
@@ -87,22 +108,37 @@ open class DiceParser : BaseParser<Int>() {
 private fun rollDice(
     n: Int,
     d: Int,
+    keep: Int,
     explode: Boolean
 ): Int {
-    var total = 0
+    val rolls = ArrayList<Int>(n)
     for (i in 1..n) {
         var roll = rollDie(d)
         if (verbose) println("roll -> $roll")
-        total += roll
+        rolls += roll
 
         if (explode) while (roll == d) {
             roll = rollDie(d)
             if (verbose) println("!roll -> $roll")
-            total += roll
+            rolls += roll
         }
     }
 
-    return total
+    if (n == keep) return rolls.sum()
+
+    rolls.sort()
+
+    if (keep < 0) {
+        if (verbose) rolls.subList(-keep, rolls.size).forEach {
+            println("drop -> $it")
+        }
+        return rolls.subList(0, -keep).sum()
+    } else {
+        if (verbose) rolls.subList(0, n - keep).forEach {
+            println("drop -> $it")
+        }
+        return rolls.subList(n - keep, rolls.size).sum()
+    }
 }
 
 private fun rollDie(d: Int) = Random.nextInt(0, d) + 1
@@ -111,15 +147,21 @@ fun main() {
     val parser = Parboiled.createParser(DiceParser::class.java)
     val runner = RecoveringParseRunner<Int>(parser.diceExpression())
 
-    showRolls(runner.run("3d3!+100"))
-    showRolls(runner.run("3d6"))
-    showRolls(runner.run("d%"))
+    showRolls(runner, "3d3!+100")
+    showRolls(runner, "3d6")
+    showRolls(runner, "4d6h3")
+    showRolls(runner, "4d6l3")
+    showRolls(runner, "d%")
 }
 
-private fun showRolls(result: ParsingResult<Int>) {
+private fun showRolls(
+    runner: RecoveringParseRunner<Int>,
+    expression: String
+) {
+    val result = runner.run(expression)
     result.parseErrors.forEach {
         err.println(printParseError(it))
     }
     if (!result.hasErrors())
-        println(result.resultValue)
+        println("$expression -> ${result.resultValue}")
 }
