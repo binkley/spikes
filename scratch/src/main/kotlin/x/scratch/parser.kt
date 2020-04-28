@@ -14,22 +14,27 @@ import kotlin.random.Random
 
 private val verbose = true
 
-/** See [roll](https://github.com/matteocorti/roll#examples) */
+/**
+ * See [roll](https://github.com/matteocorti/roll#examples)
+ * See [_Dice Syntax_](https://rollem.rocks/syntax/)
+ * */
 @BuildParseTree
 open class DiceParser : BaseParser<Int>() {
     open fun diceExpression(): Rule = Sequence(
         rollCount(),
         'd',
         dieType(),
+        maybeExplode(),
         maybeAdjust(),
         rollTheDice()
     )
 
     internal fun rollTheDice(): Boolean {
         val adjust = pop()
+        val explode = pop() != 0
         val dieType = pop()
         val diceCount = pop()
-        return push(roll(diceCount, dieType, adjust))
+        return push(rollDice(diceCount, dieType, adjust, explode))
     }
 
     internal open fun rollCount() = Sequence(
@@ -43,6 +48,11 @@ open class DiceParser : BaseParser<Int>() {
             '%'
         ),
         push(matchDieType())
+    )
+
+    internal open fun maybeExplode() = Sequence(
+        Optional('!'),
+        push(matchExplode())
     )
 
     internal open fun maybeAdjust() = Sequence(
@@ -65,24 +75,40 @@ open class DiceParser : BaseParser<Int>() {
         "%" -> 100
         else -> match.toInt()
     }
+
+    internal fun matchExplode() = if (match() == null) 0 else 1
 }
 
-private fun roll(n: Int, d: Int, adjustment: Int): Int {
+private fun rollDice(
+    n: Int,
+    d: Int,
+    adjustment: Int,
+    explode: Boolean
+): Int {
     var total = 0
     for (i in 1..n) {
-        val roll = Random.nextInt(0, d) + 1
+        var roll = rollDie(d)
         if (verbose) println("roll -> $roll")
         total += roll
+
+        if (explode) while (roll == d) {
+            roll = rollDie(d)
+            if (verbose) println("*roll -> $roll")
+            total += roll
+        }
     }
 
     return total + adjustment
 }
 
+private fun rollDie(d: Int) = Random.nextInt(0, d) + 1
+
 fun main() {
     val parser = Parboiled.createParser(DiceParser::class.java)
     val runner = RecoveringParseRunner<Int>(parser.diceExpression())
 
-    showRolls(runner.run("3d6+100"))
+    showRolls(runner.run("3d3!+100"))
+    showRolls(runner.run("3d6"))
     showRolls(runner.run("d%"))
 }
 
