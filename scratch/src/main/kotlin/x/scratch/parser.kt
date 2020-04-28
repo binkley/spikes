@@ -1,3 +1,5 @@
+@file:Suppress("MemberVisibilityCanBePrivate")
+
 package x.scratch
 
 import org.parboiled.BaseParser
@@ -14,19 +16,32 @@ private val verbose = true
 @BuildParseTree
 open class DiceParser : BaseParser<Int>() {
     open fun diceExpression(): Rule = Sequence(
-        ZeroOrMore(number()),
-        push(matchInt()),
+        rollCount(),
         'd',
-        OneOrMore(number()),
-        push(roll(pop(), matchInt()))
+        dieType(),
+        rollTheDice()
     )
 
-    open fun number(): Rule = Sequence(
+    internal fun rollTheDice(): Boolean {
+        swap()
+        return push(roll(pop(), pop()))
+    }
+
+    internal open fun rollCount() = Sequence(
+        ZeroOrMore(number()),
+        push(matchInt())
+    )
+
+    internal open fun dieType() = Sequence(
+        OneOrMore(number()),
+        push(matchInt())
+    )
+
+    internal open fun number(): Rule = Sequence(
         OneOrMore(CharRange('1', '9')),
         ZeroOrMore(CharRange('0', '9'))
     )
 
-    @Suppress("MemberVisibilityCanBePrivate")
     internal fun matchInt() = (matchOrDefault("1")).toInt()
 }
 
