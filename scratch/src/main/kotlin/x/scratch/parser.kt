@@ -43,7 +43,7 @@ private fun roll(n: Int, d: Int): Int {
 fun main() {
     val parser = Parboiled.createParser(DiceParser::class.java)
     val runner = RecoveringParseRunner<Int>(parser.diceExpression())
-    val result = runner.run("FOO 3d6")
+    val result = runner.run("3d6")
 
     result.parseErrors.forEach {
         err.println(printParseError(it))
