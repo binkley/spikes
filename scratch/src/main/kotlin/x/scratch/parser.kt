@@ -10,23 +10,21 @@ import kotlin.random.Random
 
 @BuildParseTree
 open class DiceParser : BaseParser<Int>() {
-    open fun inputLine(): Rule = Sequence(
-        diceExpression(),
-        push(roll(pop(), pop()))
-    )
-
     open fun diceExpression(): Rule = Sequence(
         ZeroOrMore(number()),
-        push(3),
+        push(matchInt()),
         'd',
         OneOrMore(number()),
-        push(6)
+        push(roll(pop(), matchInt()))
     )
 
     open fun number(): Rule = Sequence(
         OneOrMore(CharRange('1', '9')),
         ZeroOrMore(CharRange('0', '9'))
     )
+
+    @Suppress("MemberVisibilityCanBePrivate")
+    internal fun matchInt() = (matchOrDefault("1")).toInt()
 }
 
 private fun roll(n: Int, d: Int): Int {
@@ -38,8 +36,8 @@ private fun roll(n: Int, d: Int): Int {
 
 fun main() {
     val parser = Parboiled.createParser(DiceParser::class.java)
-    val result = ReportingParseRunner<Int>(parser.inputLine()).run("1d2")
-    result.parseErrors.forEach { err.println(it) }
-    println(result.matched)
+    val result =
+        ReportingParseRunner<Int>(parser.diceExpression()).run("d2")
+    result.parseErrors.forEach { err.println("${it.inputBuffer}: ${it.errorMessage}") }
     println(result.resultValue)
 }
