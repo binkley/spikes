@@ -11,14 +11,16 @@ import org.parboiled.parserunners.RecoveringParseRunner
 import java.lang.System.err
 import kotlin.random.Random
 
-private val verbose = true
+internal var verbose = false
 
 /**
  * See [roll](https://github.com/matteocorti/roll#examples)
  * See [_Dice Syntax_](https://rollem.rocks/syntax/)
  * */
 @BuildParseTree
-open class DiceParser : BaseParser<Int>() {
+open class DiceParser(
+    private val random: Random = Random.Default
+) : BaseParser<Int>() {
     open fun diceExpression(): Rule = Sequence(
         rollExpression(),
         maybeRollMore(),
@@ -94,7 +96,7 @@ open class DiceParser : BaseParser<Int>() {
         val keep = pop()
         val dieType = pop()
         val diceCount = pop()
-        return push(rollDice(diceCount, dieType, 0, keep, explode))
+        return push(rollDice(diceCount, dieType, 0, keep, explode, random))
     }
 
     internal open fun carrySign() = push(
@@ -140,23 +142,26 @@ private fun rollDice(
     d: Int,
     reroll: Int,
     keep: Int,
-    explode: Boolean
+    explode: Boolean,
+    random: Random
 ): Int {
+    fun rollSpecialDie() = rollDie(d, random)
+
     val rolls = ArrayList<Int>(n)
     for (i in 1..n) {
-        var roll = rollDie(d)
+        var roll = rollSpecialDie()
         while (roll <= reroll) {
             if (verbose) println("*roll(d$d) -> $roll")
-            roll = rollDie(d)
+            roll = rollSpecialDie()
         }
         if (verbose) println("roll(d$d) -> $roll")
         rolls += roll
 
         if (explode) while (roll == d) {
-            roll = rollDie(d)
+            roll = rollSpecialDie()
             while (roll <= reroll) {
                 if (verbose) println("*roll(d$d) -> $roll")
-                roll = rollDie(d)
+                roll = rollSpecialDie()
             }
             if (verbose) println("!roll(d$d) -> $roll")
             rolls += roll
@@ -180,9 +185,12 @@ private fun rollDice(
     }
 }
 
-private fun rollDie(d: Int) = Random.nextInt(0, d) + 1
+private fun rollDie(d: Int, random: Random) =
+    random.nextInt(0, d) + 1
 
 fun main() {
+    verbose = true
+
     val rule = Parboiled.createParser(DiceParser::class.java).diceExpression()
     val runner = RecoveringParseRunner<Int>(rule)
 
