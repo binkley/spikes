@@ -22,7 +22,7 @@ private val verbose = true
 open class DiceParser : BaseParser<Int>() {
     open fun diceExpression(): Rule = Sequence(
         rollCount(),
-        'd',
+        Ch('d'),
         dieType(),
         maybeExplode(),
         maybeAdjust(),
@@ -34,7 +34,7 @@ open class DiceParser : BaseParser<Int>() {
         val explode = pop() != 0
         val dieType = pop()
         val diceCount = pop()
-        return push(rollDice(diceCount, dieType, adjust, explode))
+        return push(rollDice(diceCount, dieType, explode) + adjust)
     }
 
     internal open fun rollCount() = Sequence(
@@ -45,19 +45,24 @@ open class DiceParser : BaseParser<Int>() {
     internal open fun dieType() = Sequence(
         FirstOf(
             OneOrMore(number()),
-            '%'
+            Ch('%')
         ),
         push(matchDieType())
     )
 
     internal open fun maybeExplode() = Sequence(
-        Optional('!'),
+        Optional(
+            Ch('!')
+        ),
         push(matchExplode())
     )
 
     internal open fun maybeAdjust() = Sequence(
         Optional(
-            FirstOf('+', '-'),
+            FirstOf(
+                Ch('+'),
+                Ch('-')
+            ),
             number()
         ),
         push(matchInt(0))
@@ -76,13 +81,12 @@ open class DiceParser : BaseParser<Int>() {
         else -> match.toInt()
     }
 
-    internal fun matchExplode() = if (match() == null) 0 else 1
+    internal fun matchExplode() = if (match() == "") 0 else 1
 }
 
 private fun rollDice(
     n: Int,
     d: Int,
-    adjustment: Int,
     explode: Boolean
 ): Int {
     var total = 0
@@ -93,12 +97,12 @@ private fun rollDice(
 
         if (explode) while (roll == d) {
             roll = rollDie(d)
-            if (verbose) println("*roll -> $roll")
+            if (verbose) println("!roll -> $roll")
             total += roll
         }
     }
 
-    return total + adjustment
+    return total
 }
 
 private fun rollDie(d: Int) = Random.nextInt(0, d) + 1
