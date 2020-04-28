@@ -20,22 +20,41 @@ private val verbose = true
 @BuildParseTree
 open class DiceParser : BaseParser<Int>() {
     open fun diceExpression(): Rule = Sequence(
+        rollExpression(),
+        maybeRollMore(),
+        maybeAdjust()
+    )
+
+    internal open fun rollExpression() = Sequence(
         rollCount(),
         Ch('d'),
         dieType(),
         maybeKeepFewer(),
         maybeExplode(),
-        maybeAdjust(),
         rollTheDice()
     )
 
+    internal open fun maybeRollMore() = ZeroOrMore(
+        Sequence(
+            FirstOf(
+                Ch('+'),
+                Ch('-')
+            ),
+            carrySign(),
+            rollExpression(),
+            signNumber(),
+            keepAddingDice()
+        )
+    )
+
+    internal fun keepAddingDice() = push(pop() + pop())
+
     internal fun rollTheDice(): Boolean {
-        val adjust = pop()
         val explode = pop() != 0
         val keep = pop()
         val dieType = pop()
         val diceCount = pop()
-        return push(rollDice(diceCount, dieType, keep, explode) + adjust)
+        return push(rollDice(diceCount, dieType, keep, explode))
     }
 
     internal open fun rollCount() = Sequence(
@@ -84,10 +103,21 @@ open class DiceParser : BaseParser<Int>() {
                 Ch('+'),
                 Ch('-')
             ),
-            number()
+            carrySign(),
+            number(),
+            signNumber()
         ),
-        push(matchInt(0))
+        push(pop() + matchInt(0))
     )
+
+    internal open fun carrySign() = push(
+        when (match()) {
+            "+" -> 1
+            else -> -1
+        }
+    )
+
+    internal open fun signNumber() = push(pop() * pop())
 
     internal open fun number() = Sequence(
         OneOrMore(CharRange('1', '9')),
@@ -151,7 +181,7 @@ fun main() {
     showRolls(runner, "3d6")
     showRolls(runner, "4d6h3")
     showRolls(runner, "4d6l3")
-    showRolls(runner, "3d6+2d4")
+    showRolls(runner, "3d6+2d4-100")
     showRolls(runner, "d%")
 }
 
