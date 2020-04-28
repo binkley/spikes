@@ -8,6 +8,7 @@ import org.parboiled.Rule
 import org.parboiled.annotations.BuildParseTree
 import org.parboiled.errors.ErrorUtils.printParseError
 import org.parboiled.parserunners.RecoveringParseRunner
+import org.parboiled.support.ParsingResult
 import java.lang.System.err
 import kotlin.random.Random
 
@@ -37,8 +38,11 @@ open class DiceParser : BaseParser<Int>() {
     )
 
     internal open fun dieType() = Sequence(
-        OneOrMore(number()),
-        push(matchInt(1))
+        FirstOf(
+            OneOrMore(number()),
+            '%'
+        ),
+        push(matchDieType())
     )
 
     internal open fun maybeAdjust() = Sequence(
@@ -56,6 +60,11 @@ open class DiceParser : BaseParser<Int>() {
 
     internal fun matchInt(default: Int) =
         (matchOrDefault(default.toString())).toInt()
+
+    internal fun matchDieType() = when (val match = match()) {
+        "%" -> 100
+        else -> match.toInt()
+    }
 }
 
 private fun roll(n: Int, d: Int, adjustment: Int): Int {
@@ -72,8 +81,12 @@ private fun roll(n: Int, d: Int, adjustment: Int): Int {
 fun main() {
     val parser = Parboiled.createParser(DiceParser::class.java)
     val runner = RecoveringParseRunner<Int>(parser.diceExpression())
-    val result = runner.run("3d6+100")
 
+    showRolls(runner.run("3d6+100"))
+    showRolls(runner.run("d%"))
+}
+
+private fun showRolls(result: ParsingResult<Int>) {
     result.parseErrors.forEach {
         err.println(printParseError(it))
     }
