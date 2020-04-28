@@ -4,7 +4,8 @@ import org.parboiled.BaseParser
 import org.parboiled.Parboiled
 import org.parboiled.Rule
 import org.parboiled.annotations.BuildParseTree
-import org.parboiled.parserunners.ReportingParseRunner
+import org.parboiled.errors.ErrorUtils.printParseError
+import org.parboiled.parserunners.RecoveringParseRunner
 import java.lang.System.err
 import kotlin.random.Random
 
@@ -41,11 +42,12 @@ private fun roll(n: Int, d: Int): Int {
 
 fun main() {
     val parser = Parboiled.createParser(DiceParser::class.java)
-    val runner = ReportingParseRunner<Int>(parser.diceExpression())
-    val result = runner.run("3d6")
+    val runner = RecoveringParseRunner<Int>(parser.diceExpression())
+    val result = runner.run("FOO 3d6")
 
     result.parseErrors.forEach {
-        err.println("${it.inputBuffer}: ${it.errorMessage}")
+        err.println(printParseError(it))
     }
-    println(result.resultValue)
+    if (!result.hasErrors())
+        println(result.resultValue)
 }
