@@ -140,39 +140,37 @@ open class DiceParser(
         )
     }
 
-    internal fun carrySign() = push(
-        when (match()) {
-            "+" -> 1
-            else -> -1
-        }
-    )
-
-    internal fun signNumber() = push(pop() * pop())
-
     internal open fun maybeRollMore() = ZeroOrMore(
         Sequence(
-            FirstOf(
-                Ch('+'),
-                Ch('-')
-            ),
-            carrySign(),
+            recordAddOrSubtract(),
             rollExpression(),
-            signNumber(),
+            applyAddOrSubtract(),
             keepAddingDice()
         )
     )
+
+    internal open fun recordAddOrSubtract() = Sequence(
+        FirstOf(
+            Ch('+'),
+            Ch('-')
+        ),
+        push(matchSign())
+    )
+
+    internal fun matchSign() = when (match()) {
+        "+" -> 1
+        else -> -1
+    }
+
+    internal fun applyAddOrSubtract() = push(pop() * pop())
 
     internal fun keepAddingDice() = push(pop() + pop())
 
     internal open fun maybeAdjust() = Sequence(
         Optional(
-            FirstOf(
-                Ch('+'),
-                Ch('-')
-            ),
-            carrySign(),
+            recordAddOrSubtract(),
             number(),
-            signNumber()
+            applyAddOrSubtract()
         ),
         push(pop() + matchInt(0))
     )
