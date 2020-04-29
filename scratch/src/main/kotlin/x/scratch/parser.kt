@@ -52,7 +52,6 @@ open class DiceParser(
 
     internal open fun rollExpression() = Sequence(
         rollCount(),
-        Ch('d'),
         dieType(),
         maybeRerollSome(),
         maybeKeepFewer(),
@@ -73,8 +72,9 @@ open class DiceParser(
     )
 
     internal open fun dieType() = Sequence(
+        Ch('d'),
         FirstOf(
-            OneOrMore(number()),
+            number(),
             Ch('%')
         ),
         push(matchDieType())
@@ -93,12 +93,9 @@ open class DiceParser(
         push(matchRerollSome())
     )
 
-    internal fun matchRerollSome(): Int {
-        val match = match()
-        return when {
-            match.startsWith('r') -> match.substring(1).toInt()
-            else -> 0
-        }
+    internal fun matchRerollSome() = when (val match = match()) {
+        "" -> 0
+        else -> match.substring(1).toInt()
     }
 
     internal open fun maybeKeepFewer() = Sequence(
