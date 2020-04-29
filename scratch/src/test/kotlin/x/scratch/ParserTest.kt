@@ -8,7 +8,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 import org.parboiled.Parboiled.createParser
-import org.parboiled.parserunners.RecoveringParseRunner
+import org.parboiled.parserunners.ReportingParseRunner
 import java.util.stream.Stream
 import kotlin.random.Random
 
@@ -18,11 +18,11 @@ private fun stableSeedForEachTest() = Random(1L)
 internal class ParserTest {
     @MethodSource("args")
     @ParameterizedTest
-    fun `should parse`(expression: String, result: Int) {
+    fun `should parse`(expression: String, result: Int?) {
         val random = stableSeedForEachTest()
         val rule = createParser(DiceParser::class.java, random)
             .diceExpression()
-        val runner = RecoveringParseRunner<Int>(rule)
+        val runner = ReportingParseRunner<Int>(rule)
 
         expect(runner.run(expression).resultValue).toBe(result)
     }
@@ -41,6 +41,8 @@ internal class ParserTest {
             Arguments.of("d%", 66),
             Arguments.of("6d4l5!", 20),
             Arguments.of("3d3r1h2!", 10),
+            Arguments.of("bleh", null),
+            Arguments.of("d6", 4),
         )
     }
 }
