@@ -29,6 +29,8 @@ internal class ParserTest {
         @JvmStatic
         fun args() = Stream.of(
             Arguments.of("3d6", 10),
+            Arguments.of("3d6+1", 11),
+            Arguments.of("3d6-1", 9),
             Arguments.of("10d3!", 20),
             Arguments.of("4d6h3", 10),
             Arguments.of("4d6l3", 6),

@@ -145,7 +145,7 @@ open class DiceParser(
             recordAddOrSubtract(),
             rollExpression(),
             applyAddOrSubtract(),
-            keepAddingDice()
+            updateRunningTotal()
         )
     )
 
@@ -154,22 +154,23 @@ open class DiceParser(
             Ch('+'),
             Ch('-')
         ),
-        push(matchSign())
+        push(matchAddOrSubtract())
     )
 
-    internal fun matchSign() = if ("+" == match()) 1 else -1
+    internal fun matchAddOrSubtract() = if ("+" == match()) 1 else -1
 
     internal fun applyAddOrSubtract() = push(pop() * pop())
 
-    internal fun keepAddingDice() = push(pop() + pop())
+    internal fun updateRunningTotal() = push(pop() + pop())
 
-    internal open fun maybeAdjust() = Sequence(
-        Optional(
+    internal open fun maybeAdjust() = Optional(
+        Sequence(
             recordAddOrSubtract(),
             number(),
-            applyAddOrSubtract()
-        ),
-        push(pop() + matchInt(0))
+            push(matchInt(0)),
+            applyAddOrSubtract(),
+            updateRunningTotal()
+        )
     )
 }
 
