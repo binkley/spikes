@@ -14,6 +14,27 @@ import kotlin.random.Random
 internal var verbose = false
 
 /**
+ * *Dice expression syntax*
+ * ```
+ * [N]'d'D['r'R]['h'K|'l'K][!][+EXP|-EXP...][+A|-A]
+ * ```
+ * * N - number of dice, default 1
+ * * D - sides on the die, or '%' for percentile dice
+ * * R - reroll dice this or lower, eg, reroll 1s
+ * * K - keep highest ('h') or ('l') lowest rolls
+ * * ! - "exploding" dice
+ * * EXP - add/subtract more dice expressions
+ * * A - add/subtract this fixed amount to the result
+ *
+ * *Examples*
+ *
+ * * d6 -- roll 1 6-sided die
+ * * 2d%+1 -- roll percentile dice 2 times, sum, and add 1 to the result
+ * * 3d6r1! -- roll 3 6-sided dice, rerolling 1s, "explode" the results
+ * * 2d4+2d6h1 -- roll 2 4-sided dice, sum; roll 2 6-sided dice keeping the
+ *   highest 1; add both results
+ *
+ * *References*
  * See [roll](https://github.com/matteocorti/roll#examples)
  * See [_Dice Syntax_](https://rollem.rocks/syntax/)
  * */
