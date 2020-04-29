@@ -60,16 +60,15 @@ open class DiceParser(
 
     internal open fun rollCount() = Sequence(
         Optional(number()),
-        push(matchInt(1))
+        push(matchRollCount())
     )
+
+    internal fun matchRollCount() = matchOrDefault("1").toInt()
 
     internal open fun number() = Sequence(
         OneOrMore(CharRange('1', '9')),
         ZeroOrMore(CharRange('0', '9'))
     )
-
-    internal fun matchInt(default: Int) =
-        matchOrDefault(default.toString()).toInt()
 
     internal open fun dieType() = Sequence(
         FirstOf(
@@ -167,11 +166,13 @@ open class DiceParser(
         Sequence(
             recordAddOrSubtract(),
             number(),
-            push(matchInt(0)),
+            push(matchAdjustment()),
             applyAddOrSubtract(),
             updateRunningTotal()
         )
     )
+
+    internal fun matchAdjustment() = match().toInt()
 }
 
 private fun rollDice(
