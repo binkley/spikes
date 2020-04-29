@@ -31,6 +31,7 @@ open class DiceParser(
         rollCount(),
         Ch('d'),
         dieType(),
+        maybeRerollSome(),
         maybeKeepFewer(),
         maybeExplode(),
         rollTheDice()
@@ -62,6 +63,22 @@ open class DiceParser(
         else -> match.toInt()
     }
 
+    internal open fun maybeRerollSome() = Sequence(
+        Optional(
+            Ch('r'),
+            number()
+        ),
+        push(matchRerollSome())
+    )
+
+    internal fun matchRerollSome(): Int {
+        val match = match()
+        return when {
+            match.startsWith('r') -> match.substring(1).toInt()
+            else -> 0
+        }
+    }
+
     internal open fun maybeKeepFewer() = Sequence(
         Optional(
             FirstOf(
@@ -78,7 +95,7 @@ open class DiceParser(
         return when {
             match.startsWith('h') -> match.substring(1).toInt()
             match.startsWith('l') -> -match.substring(1).toInt()
-            else -> peek(1)
+            else -> peek(2)
         }
     }
 
@@ -94,9 +111,12 @@ open class DiceParser(
     internal fun rollTheDice(): Boolean {
         val explode = pop() != 0
         val keep = pop()
+        val reroll = pop()
         val dieType = pop()
         val diceCount = pop()
-        return push(rollDice(diceCount, dieType, 0, keep, explode, random))
+        return push(
+            rollDice(diceCount, dieType, reroll, keep, explode, random)
+        )
     }
 
     internal open fun carrySign() = push(
