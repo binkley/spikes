@@ -8,6 +8,7 @@ import org.parboiled.Rule
 import org.parboiled.annotations.BuildParseTree
 import org.parboiled.errors.ErrorUtils.printParseError
 import org.parboiled.parserunners.ReportingParseRunner
+import org.parboiled.support.ParsingResult
 import x.scratch.DiceParser.Companion.roll
 import java.lang.System.err
 import kotlin.random.Random
@@ -219,7 +220,7 @@ open class DiceParser(
          *
          * Note: an _expensive_ call: it recreates the parser for each call.
          */
-        fun roll(expression: String) =
+        fun roll(expression: String): ParsingResult<Int> =
             ReportingParseRunner<Int>(
                 createParser(DiceParser::class.java).diceExpression()
             ).run(expression)
