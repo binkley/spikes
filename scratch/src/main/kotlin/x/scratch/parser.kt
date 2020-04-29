@@ -292,13 +292,16 @@ fun main() {
     val rule = Parboiled.createParser(DiceParser::class.java).diceExpression()
     val runner = RecoveringParseRunner<Int>(rule)
 
-    showRolls(runner, "3d3!+100")
     showRolls(runner, "3d6")
+    showRolls(runner, "3d6+1")
+    showRolls(runner, "3d6-1")
+    showRolls(runner, "10d3!")
+    showRolls(runner, "10d3!2")
     showRolls(runner, "4d6h3")
     showRolls(runner, "4d6l3")
-    showRolls(runner, "6d4l5!")
-    showRolls(runner, "3d6+2d4-100")
+    showRolls(runner, "3d6+2d4")
     showRolls(runner, "d%")
+    showRolls(runner, "6d4l5!")
     showRolls(runner, "3d3r1h2!")
 }
 
