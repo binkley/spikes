@@ -223,7 +223,7 @@ private fun rollSpecialDie(
     if (verbose) println("${prefix}roll(d$d) -> $roll")
     while (roll <= reroll) {
         roll = rollDie(d, random)
-        if (verbose) println("${prefix}*roll(d$d) -> $roll")
+        if (verbose) println("${prefix}reroll(d$d) -> $roll")
     }
     return roll
 }
@@ -273,6 +273,7 @@ fun main() {
     showRolls(runner, "6d4l5!")
     showRolls(runner, "3d6+2d4-100")
     showRolls(runner, "d%")
+    showRolls(runner, "3d3r1h2!")
 }
 
 private fun showRolls(
