@@ -127,7 +127,7 @@ open class DiceParser(
         push(matchExplode())
     )
 
-    internal fun matchExplode() = if (match() == "") 0 else 1
+    internal fun matchExplode() = if ("!" == match()) 1 else 0
 
     internal fun rollTheDice(): Boolean {
         val explode = pop() != 0
@@ -157,10 +157,7 @@ open class DiceParser(
         push(matchSign())
     )
 
-    internal fun matchSign() = when (match()) {
-        "+" -> 1
-        else -> -1
-    }
+    internal fun matchSign() = if ("+" == match()) 1 else -1
 
     internal fun applyAddOrSubtract() = push(pop() * pop())
 
