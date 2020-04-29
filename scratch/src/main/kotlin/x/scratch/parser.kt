@@ -192,11 +192,9 @@ private fun rollDice(
 
     rolls.sort()
 
-    val kept: List<Int> = when {
-        n == keep -> rolls
-        keep < 0 -> keepLowest(rolls, n, keep)
-        else -> keepHighest(rolls, n, keep)
-    }
+    val kept: List<Int> =
+        if (keep < 0) keepLowest(rolls, n, keep)
+        else keepHighest(rolls, n, keep)
 
     return rollExplosions(kept, d, reroll, explode, random)
 }
