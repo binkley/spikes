@@ -3,11 +3,12 @@
 package x.scratch
 
 import org.parboiled.BaseParser
-import org.parboiled.Parboiled
+import org.parboiled.Parboiled.createParser
 import org.parboiled.Rule
 import org.parboiled.annotations.BuildParseTree
 import org.parboiled.errors.ErrorUtils.printParseError
-import org.parboiled.parserunners.RecoveringParseRunner
+import org.parboiled.parserunners.ReportingParseRunner
+import x.scratch.DiceParser.Companion.roll
 import java.lang.System.err
 import kotlin.random.Random
 
@@ -210,6 +211,19 @@ open class DiceParser(
     )
 
     internal fun matchAdjustment() = match().toInt()
+
+    companion object {
+        /**
+         * Creates a dice expression evaluator using the default random
+         * number generator.
+         *
+         * Note: an _expensive_ call: it recreates the parser for each call.
+         */
+        fun roll(expression: String) =
+            ReportingParseRunner<Int>(
+                createParser(DiceParser::class.java).diceExpression()
+            ).run(expression)
+    }
 }
 
 private fun rollDice(
@@ -289,29 +303,25 @@ private fun rollDie(d: Int, random: Random) =
 fun main() {
     verbose = true
 
-    val rule = Parboiled.createParser(DiceParser::class.java).diceExpression()
-    val runner = RecoveringParseRunner<Int>(rule)
-
-    showRolls(runner, "3d6")
-    showRolls(runner, "3d6+1")
-    showRolls(runner, "3d6-1")
-    showRolls(runner, "10d3!")
-    showRolls(runner, "10d3!2")
-    showRolls(runner, "4d6h3")
-    showRolls(runner, "4d6l3")
-    showRolls(runner, "3d6+2d4")
-    showRolls(runner, "d%")
-    showRolls(runner, "6d4l5!")
-    showRolls(runner, "3d3r1h2!")
+    showRolls("3d6")
+    showRolls("3d6+1")
+    showRolls("3d6-1")
+    showRolls("10d3!")
+    showRolls("10d3!2")
+    showRolls("4d6h3")
+    showRolls("4d6l3")
+    showRolls("3d6+2d4")
+    showRolls("d%")
+    showRolls("6d4l5!")
+    showRolls("3d3r1h2!")
+    showRolls("bleh")
+    showRolls("d6")
 }
 
-private fun showRolls(
-    runner: RecoveringParseRunner<Int>,
-    expression: String
-) {
+private fun showRolls(expression: String) {
     println("---")
     println("Rolling $expression")
-    val result = runner.run(expression)
+    val result = roll(expression)
     result.parseErrors.forEach {
         err.println(printParseError(it))
     }
