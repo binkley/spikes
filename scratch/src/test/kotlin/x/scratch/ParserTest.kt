@@ -1,5 +1,6 @@
 package x.scratch
 
+import ch.tutteli.atrium.api.fluent.en_GB.isNotEmpty
 import ch.tutteli.atrium.api.fluent.en_GB.toBe
 import ch.tutteli.atrium.api.verbs.expect
 import org.junit.jupiter.api.TestInstance
@@ -18,13 +19,15 @@ private fun stableSeedForEachTest() = Random(1L)
 internal class ParserTest {
     @MethodSource("args")
     @ParameterizedTest
-    fun `should parse`(expression: String, result: Int?) {
+    fun `should parse`(expression: String, expected: Int?) {
         val random = stableSeedForEachTest()
-        val rule = createParser(DiceParser::class.java, random)
-            .diceExpression()
-        val runner = ReportingParseRunner<Int>(rule)
+        val result = ReportingParseRunner<Int>(
+            createParser(DiceParser::class.java, random).diceExpression()
+        ).run(expression)
 
-        expect(runner.run(expression).resultValue).toBe(result)
+        expect(result.resultValue).toBe(expected)
+        if (null == expected)
+            expect(result.parseErrors).isNotEmpty()
     }
 
     internal companion object {
