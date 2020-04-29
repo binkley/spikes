@@ -315,7 +315,7 @@ fun main() {
     showRolls("d%")
     showRolls("6d4l5!")
     showRolls("3d3r1h2!")
-    showRolls("bleh")
+    showRolls("blah")
     showRolls("d6")
 }
 
