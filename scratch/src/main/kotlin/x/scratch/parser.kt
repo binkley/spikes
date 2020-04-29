@@ -116,7 +116,7 @@ open class DiceParser(
         return when {
             match.startsWith('h') -> match.substring(1).toInt()
             match.startsWith('l') -> -match.substring(1).toInt()
-            else -> peek(2)
+            else -> peek(2) // 2 down is the die type
         }
     }
 
