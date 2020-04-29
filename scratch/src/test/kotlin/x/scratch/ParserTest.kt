@@ -12,14 +12,16 @@ import org.parboiled.parserunners.RecoveringParseRunner
 import java.util.stream.Stream
 import kotlin.random.Random
 
+private fun stableSeedForEachTest() = Random(1L)
+
 @TestInstance(PER_CLASS)
 internal class ParserTest {
     @MethodSource("args")
     @ParameterizedTest
     fun `should parse`(expression: String, result: Int) {
-        val random = Random(1L)
-        val rule =
-            createParser(DiceParser::class.java, random).diceExpression()
+        val random = stableSeedForEachTest()
+        val rule = createParser(DiceParser::class.java, random)
+            .diceExpression()
         val runner = RecoveringParseRunner<Int>(rule)
 
         expect(runner.run(expression).resultValue).toBe(result)
@@ -32,6 +34,7 @@ internal class ParserTest {
             Arguments.of("3d6+1", 11),
             Arguments.of("3d6-1", 9),
             Arguments.of("10d3!", 20),
+            Arguments.of("10d3!2", 49),
             Arguments.of("4d6h3", 10),
             Arguments.of("4d6l3", 6),
             Arguments.of("3d6+2d4", 17),

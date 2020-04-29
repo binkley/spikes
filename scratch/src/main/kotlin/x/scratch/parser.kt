@@ -16,13 +16,14 @@ internal var verbose = false
 /**
  * *Dice expression syntax*
  * ```
- * [N]'d'D['r'R]['h'K|'l'K][!][+EXP|-EXP...][+A|-A]
+ * [N]'d'D['r'R]['h'K|'l'K][!|!Z][+EXP|-EXP...][+A|-A]
  * ```
  * * N - number of dice, default 1
  * * D - sides on the die, or '%' for percentile dice
  * * R - reroll dice this or lower, eg, reroll 1s
  * * K - keep highest ('h') or ('l') lowest rolls
- * * ! - "exploding" dice
+ * * Z - "explode" on die face or greater, default is to explode on max die
+ *   face
  * * EXP - add/subtract more dice expressions
  * * A - add/subtract this fixed amount to the result
  *
@@ -30,7 +31,8 @@ internal var verbose = false
  *
  * * d6 -- roll 1 6-sided die
  * * 2d%+1 -- roll percentile dice 2 times, sum, and add 1 to the result
- * * 3d6r1! -- roll 3 6-sided dice, rerolling 1s, "explode" the results
+ * * 3d6r1! -- roll 3 6-sided dice, rerolling 1s, "explode" on 6s
+ * * 3d6r1!5 -- roll 3 6-sided dice, rerolling 1s, "explode" on 5s or 6s
  * * 2d4+2d6h1 -- roll 2 4-sided dice, sum; roll 2 6-sided dice keeping the
  *   highest 1; add both results
  *
@@ -121,15 +123,20 @@ open class DiceParser(
 
     internal open fun maybeExplode() = Sequence(
         Optional(
-            Ch('!')
+            Ch('!'),
+            Optional(number())
         ),
         push(matchExplode())
     )
 
-    internal fun matchExplode() = if ("!" == match()) 1 else 0
+    internal fun matchExplode() = when (val match = match()) {
+        "" -> peek(2) + 1 // die type; no exploding
+        "!" -> peek(2) // die type; explode on max face
+        else -> match.substring(1).toInt()
+    }
 
     internal fun rollTheDice(): Boolean {
-        val explode = pop() != 0
+        val explode = pop()
         val keep = pop()
         val reroll = pop()
         val dieType = pop()
@@ -180,7 +187,7 @@ private fun rollDice(
     d: Int,
     reroll: Int,
     keep: Int,
-    explode: Boolean,
+    explode: Int,
     random: Random
 ): Int {
     val rolls = (1..n).map {
@@ -229,30 +236,22 @@ private fun rollExplosions(
     keep: List<Int>,
     d: Int,
     reroll: Int,
-    explode: Boolean,
+    explode: Int,
     random: Random
 ): Int {
     var total = keep.sum()
-    if (explode) keep.forEach {
-        total += rollExplosion(it, d, reroll, random)
+    keep.forEach {
+        var roll = it
+        while (roll >= explode) {
+            roll = rollExplosion(d, reroll, random)
+            total += roll
+        }
     }
     return total
 }
 
-private fun rollExplosion(
-    check: Int,
-    d: Int,
-    reroll: Int,
-    random: Random
-): Int {
-    var roll = check
-    var total = 0
-    while (d == roll) {
-        roll = rollSpecialDie("!", d, reroll, random)
-        total += roll
-    }
-    return total
-}
+private fun rollExplosion(d: Int, reroll: Int, random: Random) =
+    rollSpecialDie("!", d, reroll, random)
 
 private fun rollDie(d: Int, random: Random) =
     random.nextInt(0, d) + 1
