@@ -14,7 +14,17 @@ import kotlin.random.Random
 internal var verbose = false
 
 /**
+ * A dice expression has these parts:
+ *
+ * - 1 or more roll expressions, added/subtracted together
+ * - An optional adjustment, added/subtracted at the end
+ *
+ * The smallest roll expression is just a die type, eg, `d6` meaning roll 1
+ * 6-sided die.  See "Examples", below.
+ *
  * *Dice expression syntax*
+ * ===
+ *
  * ```
  * [N]'d'D['r'R]['h'K|'l'K][!|!Z][+EXP|-EXP...][+A|-A]
  * ```
@@ -28,6 +38,7 @@ internal var verbose = false
  * * A - add/subtract this fixed amount to the result
  *
  * *Examples*
+ * ===
  *
  * * d6 -- roll 1 6-sided die
  * * 2d%+1 -- roll percentile dice 2 times, sum, and add 1 to the result
@@ -36,10 +47,32 @@ internal var verbose = false
  * * 2d4+2d6h1 -- roll 2 4-sided dice, sum; roll 2 6-sided dice keeping the
  *   highest 1; add both results
  *
+ * *Code conventions*
+ * ===
+ *
+ * As each top-level part of a roll expression (eg, die type) parse, a numeric
+ * value is pushed onto a stack provided by the parser.  By the end of the
+ * roll expression, the stack contains from top down:
+ *
+ * - Adjustment, or 0 if none specified
+ * - Explosion limit, or "die type + 1" if none specified
+ * - Dice to keep, or "roll count" if none specified; a positive number is
+ *   keep highest, a negative number is keep lowest
+ * - Reroll value, or 0 if none specified; rolls of this value or lower are
+ *   rerolled
+ * - Die type, ie, number of die sides
+ * - Roll count, or 1 if none specified; ie, number of dice to roll
+ *
+ * Evaluating and individual roll expression clears the stack, leaving:
+ *
+ * - Running total of previous results
+ *
  * *References*
+ * ===
+ *
  * See [roll](https://github.com/matteocorti/roll#examples)
  * See [_Dice Syntax_](https://rollem.rocks/syntax/)
- * */
+ */
 @BuildParseTree
 open class DiceParser(
     private val random: Random = Random.Default
@@ -114,7 +147,7 @@ open class DiceParser(
         return when {
             match.startsWith('h') -> match.substring(1).toInt()
             match.startsWith('l') -> -match.substring(1).toInt()
-            else -> peek(2) // 2 down is the die type
+            else -> peek(2) // roll count
         }
     }
 
