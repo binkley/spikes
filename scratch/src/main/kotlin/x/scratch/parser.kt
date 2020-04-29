@@ -194,21 +194,25 @@ private fun rollDice(
 
     val kept: List<Int> = when {
         n == keep -> rolls
-        keep < 0 -> {
-            if (verbose) rolls.subList(-keep, rolls.size).forEach {
-                println("drop -> $it")
-            }
-            rolls.subList(0, -keep)
-        }
-        else -> {
-            if (verbose) rolls.subList(0, n - keep).forEach {
-                println("drop -> $it")
-            }
-            rolls.subList(n - keep, rolls.size)
-        }
+        keep < 0 -> keepLowest(rolls, n, keep)
+        else -> keepHighest(rolls, n, keep)
     }
 
     return rollExplosions(kept, d, reroll, explode, random)
+}
+
+private fun keepLowest(rolls: List<Int>, n: Int, keep: Int): List<Int> {
+    if (verbose) rolls.subList(-keep, n).forEach {
+        println("drop -> $it")
+    }
+    return rolls.subList(0, -keep)
+}
+
+private fun keepHighest(rolls: List<Int>, n: Int, keep: Int): List<Int> {
+    if (verbose) rolls.subList(0, n - keep).forEach {
+        println("drop -> $it")
+    }
+    return rolls.subList(n - keep, n)
 }
 
 private fun rollSpecialDie(
