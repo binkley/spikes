@@ -145,44 +145,73 @@ private fun rollDice(
     explode: Boolean,
     random: Random
 ): Int {
-    fun rollSpecialDie() = rollDie(d, random)
-
-    val rolls = ArrayList<Int>(n)
-    for (i in 1..n) {
-        var roll = rollSpecialDie()
-        while (roll <= reroll) {
-            if (verbose) println("*roll(d$d) -> $roll")
-            roll = rollSpecialDie()
-        }
-        if (verbose) println("roll(d$d) -> $roll")
-        rolls += roll
-
-        if (explode) while (roll == d) {
-            roll = rollSpecialDie()
-            while (roll <= reroll) {
-                if (verbose) println("*roll(d$d) -> $roll")
-                roll = rollSpecialDie()
-            }
-            if (verbose) println("!roll(d$d) -> $roll")
-            rolls += roll
-        }
-    }
-
-    if (n == keep) return rolls.sum()
+    val rolls = (1..n).map {
+        rollSpecialDie("", d, reroll, random)
+    }.toMutableList()
 
     rolls.sort()
 
-    return if (keep < 0) {
-        if (verbose) rolls.subList(-keep, rolls.size).forEach {
-            println("drop -> $it")
+    val kept: List<Int> = when {
+        n == keep -> rolls
+        keep < 0 -> {
+            if (verbose) rolls.subList(-keep, rolls.size).forEach {
+                println("drop -> $it")
+            }
+            rolls.subList(0, -keep)
         }
-        rolls.subList(0, -keep).sum()
-    } else {
-        if (verbose) rolls.subList(0, n - keep).forEach {
-            println("drop -> $it")
+        else -> {
+            if (verbose) rolls.subList(0, n - keep).forEach {
+                println("drop -> $it")
+            }
+            rolls.subList(n - keep, rolls.size)
         }
-        rolls.subList(n - keep, rolls.size).sum()
     }
+
+    return rollExplosions(kept, d, reroll, explode, random)
+}
+
+private fun rollSpecialDie(
+    prefix: String,
+    d: Int,
+    reroll: Int,
+    random: Random
+): Int {
+    var roll = rollDie(d, random)
+    if (verbose) println("${prefix}roll(d$d) -> $roll")
+    while (roll <= reroll) {
+        roll = rollDie(d, random)
+        if (verbose) println("${prefix}*roll(d$d) -> $roll")
+    }
+    return roll
+}
+
+private fun rollExplosions(
+    keep: List<Int>,
+    d: Int,
+    reroll: Int,
+    explode: Boolean,
+    random: Random
+): Int {
+    var total = keep.sum()
+    if (explode) keep.forEach {
+        total += rollExplosion(it, d, reroll, random)
+    }
+    return total
+}
+
+private fun rollExplosion(
+    check: Int,
+    d: Int,
+    reroll: Int,
+    random: Random
+): Int {
+    var roll = check
+    var total = 0
+    while (d == roll) {
+        roll = rollSpecialDie("!", d, reroll, random)
+        total += roll
+    }
+    return total
 }
 
 private fun rollDie(d: Int, random: Random) =
@@ -198,6 +227,7 @@ fun main() {
     showRolls(runner, "3d6")
     showRolls(runner, "4d6h3")
     showRolls(runner, "4d6l3")
+    showRolls(runner, "6d4l5!")
     showRolls(runner, "3d6+2d4-100")
     showRolls(runner, "d%")
 }

@@ -34,6 +34,7 @@ internal class ParserTest {
             Arguments.of("4d6l3", 6),
             Arguments.of("3d6+2d4", 17),
             Arguments.of("d%", 66),
+            Arguments.of("6d4l5!", 20),
         )
     }
 }
