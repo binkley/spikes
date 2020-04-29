@@ -230,7 +230,7 @@ private fun rollDice(
         if (keep < 0) keepLowest(rolls, n, keep)
         else keepHighest(rolls, n, keep)
 
-    return rollExplosions(kept, d, reroll, explode, random)
+    return kept.sum() + rollExplosions(kept, d, reroll, explode, random)
 }
 
 private fun keepLowest(rolls: List<Int>, n: Int, keep: Int): List<Int> {
@@ -269,7 +269,7 @@ private fun rollExplosions(
     explode: Int,
     random: Random
 ): Int {
-    var total = keep.sum()
+    var total = 0
     keep.forEach {
         var roll = it
         while (roll >= explode) {
