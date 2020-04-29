@@ -111,7 +111,7 @@ open class DiceParser(
         push(matchKeepFewer())
     )
 
-    internal open fun matchKeepFewer(): Int {
+    internal fun matchKeepFewer(): Int {
         val match = match()
         return when {
             match.startsWith('h') -> match.substring(1).toInt()
@@ -140,14 +140,14 @@ open class DiceParser(
         )
     }
 
-    internal open fun carrySign() = push(
+    internal fun carrySign() = push(
         when (match()) {
             "+" -> 1
             else -> -1
         }
     )
 
-    internal open fun signNumber() = push(pop() * pop())
+    internal fun signNumber() = push(pop() * pop())
 
     internal open fun maybeRollMore() = ZeroOrMore(
         Sequence(
