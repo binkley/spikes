@@ -278,10 +278,11 @@ private fun showRolls(
     expression: String
 ) {
     println("---")
+    println("Rolling $expression")
     val result = runner.run(expression)
     result.parseErrors.forEach {
         err.println(printParseError(it))
     }
     if (!result.hasErrors())
-        println("$expression -> ${result.resultValue}")
+        println("RESULT -> ${result.resultValue}")
 }
