@@ -59,7 +59,7 @@ open class DiceParser(
     )
 
     internal open fun rollCount() = Sequence(
-        ZeroOrMore(number()),
+        Optional(number()),
         push(matchInt(1))
     )
 
