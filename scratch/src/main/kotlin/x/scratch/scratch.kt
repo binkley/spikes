@@ -233,6 +233,18 @@ fun main() {
     }
     println("BEFORE: ${scanMe.toList()}")
     println("AFTER: ${scanned.toList()}")
+
+    println()
+    println("TRAP")
+
+    val trapReturn = {
+        println("THIS DOESN'T LOOK GOOD")
+        throw IllegalArgumentException("I DIED")
+    }.trap<IllegalArgumentException, Int> {
+        println("YEP, SOMETHING BAD HAPPENED: $it")
+        0
+    }
+    println(trapReturn)
 }
 
 const val EPSILON = 1e-16
@@ -287,8 +299,20 @@ fun foo(lock: Any) {
         x = 42 // Compiler knows that lambda passed to 'synchronize' is called
         // exactly once, so no reassignment is reported
     }
-    println(x) // Compiler knows that lambda will be definitely called, performing
+    println(x)
+    // Compiler knows that lambda will be definitely called, performing
     // initialization, so 'x' is considered to be initialized here
+}
+
+inline fun <reified E : Exception, R> (() -> R).trap(
+    action: (E) -> R
+): R {
+    return try {
+        this.invoke()
+    } catch (e: Exception) {
+        if (e is E) action.invoke(e)
+        else throw e
+    }
 }
 
 inline class WrappedInt(val value: Int) {
