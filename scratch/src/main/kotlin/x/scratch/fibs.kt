@@ -1,34 +1,23 @@
 package x.scratch
 
 fun main() {
-    val fib0 = fib(0)
-    println(fib0)
-    println(-fib0)
-    println(fib0 + fib0)
-    println(fib0 - fib0)
-    val fib1 = fib(1)
-    println(fib1)
-    println(-fib1)
-    println(fib1 + fib1)
-    println(fib1 - fib1)
-
-    println("== $Fib0")
+    println("== ${Fib0.fib}")
     println("1/F0 -> ${-Fib0}")
     println("F0^2 -> ${Fib0.pow(2)}")
     println("F0^-2 -> ${Fib0.pow(-2)}")
-    println("== $Fib1")
+    println("== ${Fib1.fib}")
     println("1/F1 -> ${-Fib1}")
     println("F1^2 -> ${Fib1.pow(2)}")
     println("F1^-2 -> ${Fib1.pow(-2)}")
-    println("== ${-Fib1}")
+    println("== ${(-Fib1).fib}")
     println("1/(1/F1) -> ${-(-Fib1)}")
     println("(1/F1)^2 -> ${(-Fib1).pow(2)}")
     println("(1/F1)^-2 -> ${(-Fib1).pow(-2)}")
 }
 
-val Fib0 = Fib(0, 1, 0, 0, 1)
-val Fib1 = Fib(1, 0, 1, 1, 1)
-val FibM1 = Fib(-1, -1, 1, 1, 0)
+private val Fib0 = Fib(0, 1, 0, 0, 1)
+private val Fib1 = Fib(1, 0, 1, 1, 1)
+private val FibM1 = Fib(-1, -1, 1, 1, 0)
 
 data class Fib(
     val n: Int,
