@@ -45,22 +45,8 @@ data class Fib(
         private val Fib1 = Fib(1, 0, 1, 1, 1)
         private val FibM1 = Fib(-1, -1, 1, 1, 0)
 
-        fun fib(n: Int): Fib {
-            val multiplicand = if (n < 0) FibM1 else Fib1
-            var fib = Fib0
-            var nn = n.absoluteValue
-            while (nn > 0) {
-                --nn
-                fib = Fib(
-                    n,
-                    fib.a * multiplicand.a + fib.b * multiplicand.c,
-                    fib.a * multiplicand.b + fib.b * multiplicand.d,
-                    fib.c * multiplicand.a + fib.d * multiplicand.c,
-                    fib.c * multiplicand.b + fib.d * multiplicand.d
-                )
-            }
-            return fib
-        }
+        fun fib(n: Int) =
+            fib0(n, if (n < 0) FibM1 else Fib1, n.absoluteValue, Fib0)
     }
 }
 
@@ -72,3 +58,24 @@ fun Fib.pow(p: Int) = fib(n * p)
 
 operator fun Fib.times(multiplicand: Fib) = fib(n + multiplicand.n)
 operator fun Fib.div(divisor: Fib) = fib(n - divisor.n)
+
+private tailrec fun fib0(
+    n: Int,
+    multiplicand: Fib,
+    i: Int,
+    fib_i: Fib
+): Fib {
+    return if (0 == i) fib_i
+    else fib0(
+        n,
+        multiplicand,
+        i - 1,
+        Fib(
+            n,
+            fib_i.a * multiplicand.a + fib_i.b * multiplicand.c,
+            fib_i.a * multiplicand.b + fib_i.b * multiplicand.d,
+            fib_i.c * multiplicand.a + fib_i.d * multiplicand.c,
+            fib_i.c * multiplicand.b + fib_i.d * multiplicand.d
+        )
+    )
+}
