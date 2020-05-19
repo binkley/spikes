@@ -38,10 +38,6 @@ class Fib internal constructor(
     val c: BigInteger,
     val d: BigInteger
 ) {
-    init {
-        assert(d == a + b)
-    }
-
     override fun equals(other: Any?) = this === other ||
             other is Fib &&
             n == other.n
