@@ -27,8 +27,8 @@ fun main() {
     println("(1/F1)^2 -> ${fib1.inv().pow(2)}")
     println("(1/F1)^-2 -> ${fib1.inv().pow(-2)}")
 
-    println("F100 -> ${fib(100)}")
-    println("F100 -> ${fib(100)}")
+    println("F100 -> ${Fib(100)}")
+    println("F100 -> ${Fib(100)}")
 }
 
 class Fib internal constructor(
@@ -50,24 +50,21 @@ class Fib internal constructor(
     override fun toString() = "F($n)[$a, $b; $c, $d]"
 }
 
-fun Fib(n: Int) = fib(n)
-
-private val Fib_1 = Fib(-1, (-1).big, 1.big, 1.big, 0.big)
-private val Fib0 = Fib(0, 1.big, 0.big, 0.big, 1.big)
-private val Fib1 = Fib(1, 0.big, 1.big, 1.big, 1.big)
-
 // TODO: Replace with divide-and-conquer algo using memoization
-private fun fib(n: Int) =
-    fib0(n, if (n < 0) Fib_1 else Fib1, n.absoluteValue, Fib0)
+fun Fib(n: Int) = fib0(n, if (n < 0) Fib_1 else Fib1, n.absoluteValue, Fib0)
 
 val Fib.fib get() = b
 val Fib.det get() = if (0 == n % 2) 1 else -1
 
-fun Fib.inv() = fib(-n)
-fun Fib.pow(p: Int) = fib(n * p)
+fun Fib.inv() = Fib(-n)
+fun Fib.pow(p: Int) = Fib(n * p)
 
-operator fun Fib.times(multiplicand: Fib) = fib(n + multiplicand.n)
-operator fun Fib.div(divisor: Fib) = fib(n - divisor.n)
+operator fun Fib.times(multiplicand: Fib) = Fib(n + multiplicand.n)
+operator fun Fib.div(divisor: Fib) = Fib(n - divisor.n)
+
+private val Fib_1 = Fib(-1, (-1).big, 1.big, 1.big, 0.big)
+private val Fib0 = Fib(0, 1.big, 0.big, 0.big, 1.big)
+private val Fib1 = Fib(1, 0.big, 1.big, 1.big, 1.big)
 
 private val memoized = HashMap<Int, Fib>()
 
