@@ -1,11 +1,12 @@
 package x.scratch
 
 import java.math.BigInteger
+import java.util.Objects.hash
 import kotlin.math.absoluteValue
 
 fun main() {
-    val fib0 = fib(0)
-    val fib1 = fib(1)
+    val fib0 = Fib(0)
+    val fib1 = Fib(1)
 
     println("== ${fib0.fib} det ${fib0.det}")
     println("F0 * F0 -> ${fib0 * fib0}")
@@ -30,7 +31,7 @@ fun main() {
     println("F100 -> ${fib(100)}")
 }
 
-data class Fib(
+class Fib internal constructor(
     val n: Int,
     val a: BigInteger,
     val b: BigInteger,
@@ -41,15 +42,22 @@ data class Fib(
         assert(d == a + b)
     }
 
+    override fun equals(other: Any?) = this === other ||
+            other is Fib &&
+            n == other.n
+
+    override fun hashCode() = hash(n)
     override fun toString() = "F($n)[$a, $b; $c, $d]"
 }
+
+fun Fib(n: Int) = fib(n)
 
 private val Fib_1 = Fib(-1, (-1).big, 1.big, 1.big, 0.big)
 private val Fib0 = Fib(0, 1.big, 0.big, 0.big, 1.big)
 private val Fib1 = Fib(1, 0.big, 1.big, 1.big, 1.big)
 
 // TODO: Replace with divide-and-conquer algo using memoization
-fun fib(n: Int) =
+private fun fib(n: Int) =
     fib0(n, if (n < 0) Fib_1 else Fib1, n.absoluteValue, Fib0)
 
 val Fib.fib get() = b
