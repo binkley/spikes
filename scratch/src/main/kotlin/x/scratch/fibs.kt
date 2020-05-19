@@ -1,6 +1,7 @@
 package x.scratch
 
 import x.scratch.Fib.Companion.fib
+import java.math.BigInteger
 import kotlin.math.absoluteValue
 
 fun main() {
@@ -25,14 +26,17 @@ fun main() {
     println("1/(1/F1) -> ${fib1.inv().inv()}")
     println("(1/F1)^2 -> ${fib1.inv().pow(2)}")
     println("(1/F1)^-2 -> ${fib1.inv().pow(-2)}")
+
+    println("F100 -> ${fib(100)}")
+    println("F100 -> ${fib(100)}")
 }
 
 data class Fib(
     val n: Int,
-    val a: Int,
-    val b: Int,
-    val c: Int,
-    val d: Int
+    val a: BigInteger,
+    val b: BigInteger,
+    val c: BigInteger,
+    val d: BigInteger
 ) {
     init {
         assert(d == a + b)
@@ -41,9 +45,9 @@ data class Fib(
     override fun toString() = "F($n)[$a, $b; $c, $d]"
 
     companion object {
-        private val Fib_1 = Fib(-1, -1, 1, 1, 0)
-        private val Fib0 = Fib(0, 1, 0, 0, 1)
-        private val Fib1 = Fib(1, 0, 1, 1, 1)
+        private val Fib_1 = Fib(-1, (-1).big, 1.big, 1.big, 0.big)
+        private val Fib0 = Fib(0, 1.big, 0.big, 0.big, 1.big)
+        private val Fib1 = Fib(1, 0.big, 1.big, 1.big, 1.big)
 
         // TODO: Replace with divide-and-conquer algo using memoization
         fun fib(n: Int) =
@@ -60,14 +64,19 @@ fun Fib.pow(p: Int) = fib(n * p)
 operator fun Fib.times(multiplicand: Fib) = fib(n + multiplicand.n)
 operator fun Fib.div(divisor: Fib) = fib(n - divisor.n)
 
-private tailrec fun fib0(
+private val memoized = HashMap<Int, Fib>()
+
+// TODO: NOT concurrent
+private fun fib0(
     n: Int,
     multiplicand: Fib,
     i: Int,
     fib_i: Fib
 ): Fib {
-    return if (0 == i) fib_i
-    else fib0(
+    if (0 == i) return fib_i
+    if (memoized.contains(n)) return memoized[n]!!
+
+    val fib = fib0(
         n,
         multiplicand,
         i - 1,
@@ -79,4 +88,9 @@ private tailrec fun fib0(
             fib_i.c * multiplicand.b + fib_i.d * multiplicand.d
         )
     )
+
+    memoized[n] = fib
+    return fib
 }
+
+private val Int.big get() = toBigInteger()
