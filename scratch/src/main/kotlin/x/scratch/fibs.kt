@@ -1,22 +1,34 @@
 package x.scratch
 
 fun main() {
-    println("XX == $Fib0")
-    println("XX 1/F0 -> ${Fib0.inv}")
-    println("XX F0^2 -> ${Fib0.pow(2)}")
-    println("XX F0^-2 -> ${Fib0.pow(-2)}")
+    val fib0 = fib(0)
+    println(fib0)
+    println(-fib0)
+    println(fib0 + fib0)
+    println(fib0 - fib0)
+    val fib1 = fib(1)
+    println(fib1)
+    println(-fib1)
+    println(fib1 + fib1)
+    println(fib1 - fib1)
+
+    println("== $Fib0")
+    println("1/F0 -> ${-Fib0}")
+    println("F0^2 -> ${Fib0.pow(2)}")
+    println("F0^-2 -> ${Fib0.pow(-2)}")
     println("== $Fib1")
-    println("1/F1 -> ${Fib1.inv}")
+    println("1/F1 -> ${-Fib1}")
     println("F1^2 -> ${Fib1.pow(2)}")
     println("F1^-2 -> ${Fib1.pow(-2)}")
-    println("== ${Fib1.inv}")
-    println("1/(1/F1) -> ${Fib1.inv.inv}")
-    println("(1/F1)^2 -> ${Fib1.inv.pow(2)}")
-    println("(1/F1)^-2 -> ${Fib1.inv.pow(-2)}")
+    println("== ${-Fib1}")
+    println("1/(1/F1) -> ${-(-Fib1)}")
+    println("(1/F1)^2 -> ${(-Fib1).pow(2)}")
+    println("(1/F1)^-2 -> ${(-Fib1).pow(-2)}")
 }
 
 val Fib0 = Fib(0, 1, 0, 0, 1)
 val Fib1 = Fib(1, 0, 1, 1, 1)
+val FibM1 = Fib(-1, -1, 1, 1, 0)
 
 data class Fib(
     val n: Int,
@@ -34,35 +46,49 @@ data class Fib(
 
 val Fib.fib get() = b
 val Fib.det get() = if (0 == n % 2) -1 else 1
-val Fib.inv
-    get() : Fib {
-        val det = det
-        return Fib(-n, det * d, det * -b, det * -c, det * a)
-    }
 
-fun Fib.pow(p: Int): Fib {
-    when (p) {
-        0 -> return Fib0
-        1 -> return this
-        -1 -> return inv
-    }
-
-    val f = if (p < 0) inv else this
-    var pp = if (p < 0) -p else p
-
-    var pow = f
-    while (pp > 0) {
-        --pp
-        pow *= f
-    }
-    return pow
+private fun fib(n: Int) = when {
+    0 == n -> Fib0
+    0 < n -> posFib(n)
+    else -> negFib(n)
 }
 
-operator fun Fib.times(multiplicand: Fib) =
-    Fib(
-        n + multiplicand.n,
-        a * multiplicand.a + b * multiplicand.c,
-        a * multiplicand.b + b * multiplicand.d,
-        c * multiplicand.a + d * multiplicand.c,
-        c * multiplicand.b + d * multiplicand.d
-    )
+private fun posFib(n: Int): Fib {
+    var posFib = Fib0
+    var nn = n
+    while (nn > 0) {
+        --nn
+        posFib = Fib(
+            n,
+            posFib.a * Fib1.a + posFib.b * Fib1.c,
+            posFib.a * Fib1.b + posFib.b * Fib1.d,
+            posFib.c * Fib1.a + posFib.d * Fib1.c,
+            posFib.c * Fib1.b + posFib.d * Fib1.d
+        )
+    }
+    return posFib
+}
+
+private fun negFib(n: Int): Fib {
+    var negFib = Fib0
+    var nn = -n
+    while (nn > 0) {
+        --nn
+        negFib = Fib(
+            n,
+            negFib.a * FibM1.a + negFib.b * FibM1.c,
+            negFib.a * FibM1.b + negFib.b * FibM1.d,
+            negFib.c * FibM1.a + negFib.d * FibM1.c,
+            negFib.c * FibM1.b + negFib.d * FibM1.d
+        )
+    }
+    return negFib
+}
+
+operator fun Fib.unaryPlus() = this
+operator fun Fib.unaryMinus() = fib(-n)
+
+fun Fib.pow(p: Int) = fib(n * p)
+
+operator fun Fib.plus(multiplicand: Fib) = fib(n + multiplicand.n)
+operator fun Fib.minus(divisor: Fib) = fib(n - divisor.n)
