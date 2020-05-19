@@ -4,23 +4,22 @@ import x.scratch.Fib.Companion.fib
 import kotlin.math.absoluteValue
 
 fun main() {
-    println("== ${Fib0.fib} det ${Fib0.det}")
-    println("1/F0 -> ${-Fib0}")
-    println("F0^2 -> ${Fib0.pow(2)}")
-    println("F0^-2 -> ${Fib0.pow(-2)}")
-    println("== ${Fib1.fib} det ${Fib1.det}")
-    println("1/F1 -> ${-Fib1}")
-    println("F1^2 -> ${Fib1.pow(2)}")
-    println("F1^-2 -> ${Fib1.pow(-2)}")
-    println("== ${(-Fib1).fib} det ${(-Fib1).det}")
-    println("1/(1/F1) -> ${-(-Fib1)}")
-    println("(1/F1)^2 -> ${(-Fib1).pow(2)}")
-    println("(1/F1)^-2 -> ${(-Fib1).pow(-2)}")
-}
+    val fib0 = fib(0)
+    val fib1 = fib(1)
 
-private val Fib0 = Fib(0, 1, 0, 0, 1)
-private val Fib1 = Fib(1, 0, 1, 1, 1)
-private val FibM1 = Fib(-1, -1, 1, 1, 0)
+    println("== ${fib0.fib} det ${fib0.det}")
+    println("1/F0 -> ${-fib0}")
+    println("F0^2 -> ${fib0.pow(2)}")
+    println("F0^-2 -> ${fib0.pow(-2)}")
+    println("== ${fib1.fib} det ${fib1.det}")
+    println("1/F1 -> ${-fib1}")
+    println("F1^2 -> ${fib1.pow(2)}")
+    println("F1^-2 -> ${fib1.pow(-2)}")
+    println("== ${(-fib1).fib} det ${(-fib1).det}")
+    println("1/(1/F1) -> ${-(-fib1)}")
+    println("(1/F1)^2 -> ${(-fib1).pow(2)}")
+    println("(1/F1)^-2 -> ${(-fib1).pow(-2)}")
+}
 
 data class Fib(
     val n: Int,
@@ -36,6 +35,10 @@ data class Fib(
     override fun toString() = "F($n)[$a, $b; $c, $d]"
 
     companion object {
+        private val Fib0 = Fib(0, 1, 0, 0, 1)
+        private val Fib1 = Fib(1, 0, 1, 1, 1)
+        private val FibM1 = Fib(-1, -1, 1, 1, 0)
+
         fun fib(n: Int): Fib {
             val multiplicand = if (n < 0) FibM1 else Fib1
             var fib = Fib0
