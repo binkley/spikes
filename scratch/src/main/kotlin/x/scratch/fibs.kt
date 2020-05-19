@@ -45,7 +45,7 @@ data class Fib(
         private val Fib0 = Fib(0, 1, 0, 0, 1)
         private val Fib1 = Fib(1, 0, 1, 1, 1)
 
-        // TODO: Replace with binary algo using memoization
+        // TODO: Replace with divide-and-conquer algo using memoization
         fun fib(n: Int) =
             fib0(n, if (n < 0) Fib_1 else Fib1, n.absoluteValue, Fib0)
     }
