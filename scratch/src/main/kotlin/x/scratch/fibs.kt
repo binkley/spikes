@@ -66,7 +66,11 @@ operator fun Fib.div(divisor: Fib) = fib(n - divisor.n)
 
 private val memoized = HashMap<Int, Fib>()
 
-// TODO: NOT concurrent
+/**
+ * @todo Note articles like
+ *   <a href="https://dzone.com/articles/avoid-recursion"><cite>Avoid Recursion in ConcurrentHashMap.computeIfAbsent()</cite></a>,
+ *   which remains true even now
+ */
 private fun fib0(
     n: Int,
     multiplicand: Fib,
