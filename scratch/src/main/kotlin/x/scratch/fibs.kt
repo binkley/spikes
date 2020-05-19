@@ -82,14 +82,16 @@ private tailrec fun fib0(
         n,
         multiplicand,
         i - 1,
-        Fib(
-            n,
-            fib_i.a * multiplicand.a + fib_i.b * multiplicand.c,
-            fib_i.a * multiplicand.b + fib_i.b * multiplicand.d,
-            fib_i.c * multiplicand.a + fib_i.d * multiplicand.c,
-            fib_i.c * multiplicand.b + fib_i.d * multiplicand.d
-        )
+        multiply0(n, fib_i, multiplicand)
     )
 }
+
+private fun multiply0(n: Int, left: Fib, right: Fib) = Fib(
+    n,
+    left.a * right.a + left.b * right.c,
+    left.a * right.b + left.b * right.d,
+    left.c * right.a + left.d * right.c,
+    left.c * right.b + left.d * right.d
+)
 
 private val Int.big get() = toBigInteger()
