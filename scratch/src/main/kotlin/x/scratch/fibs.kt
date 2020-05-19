@@ -38,40 +38,40 @@ val Fib.det get() = if (0 == n % 2) -1 else 1
 
 private fun fib(n: Int) = when {
     0 == n -> Fib0
-    0 < n -> posFib(n)
-    else -> negFib(n)
+    0 < n -> posFib(n, Fib1)
+    else -> negFib(n, FibM1)
 }
 
-private fun posFib(n: Int): Fib {
-    var posFib = Fib0
+private fun posFib(n: Int, base: Fib): Fib {
     var nn = n
+    var fib = Fib0
     while (nn > 0) {
         --nn
-        posFib = Fib(
+        fib = Fib(
             n,
-            posFib.a * Fib1.a + posFib.b * Fib1.c,
-            posFib.a * Fib1.b + posFib.b * Fib1.d,
-            posFib.c * Fib1.a + posFib.d * Fib1.c,
-            posFib.c * Fib1.b + posFib.d * Fib1.d
+            fib.a * base.a + fib.b * base.c,
+            fib.a * base.b + fib.b * base.d,
+            fib.c * base.a + fib.d * base.c,
+            fib.c * base.b + fib.d * base.d
         )
     }
-    return posFib
+    return fib
 }
 
-private fun negFib(n: Int): Fib {
-    var negFib = Fib0
+private fun negFib(n: Int, base: Fib): Fib {
     var nn = -n
+    var fib = Fib0
     while (nn > 0) {
         --nn
-        negFib = Fib(
+        fib = Fib(
             n,
-            negFib.a * FibM1.a + negFib.b * FibM1.c,
-            negFib.a * FibM1.b + negFib.b * FibM1.d,
-            negFib.c * FibM1.a + negFib.d * FibM1.c,
-            negFib.c * FibM1.b + negFib.d * FibM1.d
+            fib.a * base.a + fib.b * base.c,
+            fib.a * base.b + fib.b * base.d,
+            fib.c * base.a + fib.d * base.c,
+            fib.c * base.b + fib.d * base.d
         )
     }
-    return negFib
+    return fib
 }
 
 operator fun Fib.unaryPlus() = this
