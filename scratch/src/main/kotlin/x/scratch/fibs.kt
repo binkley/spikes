@@ -1,5 +1,7 @@
 package x.scratch
 
+import kotlin.math.absoluteValue
+
 fun main() {
     println("== ${Fib0.fib}")
     println("1/F0 -> ${-Fib0}")
@@ -36,39 +38,18 @@ data class Fib(
 val Fib.fib get() = b
 val Fib.det get() = if (0 == n % 2) -1 else 1
 
-private fun fib(n: Int) = when {
-    0 == n -> Fib0
-    0 < n -> posFib(n, Fib1)
-    else -> negFib(n, FibM1)
-}
-
-private fun posFib(n: Int, base: Fib): Fib {
-    var nn = n
+private fun fib(n: Int): Fib {
+    val multiplicand = if (n < 0) FibM1 else Fib1
     var fib = Fib0
+    var nn = n.absoluteValue
     while (nn > 0) {
         --nn
         fib = Fib(
             n,
-            fib.a * base.a + fib.b * base.c,
-            fib.a * base.b + fib.b * base.d,
-            fib.c * base.a + fib.d * base.c,
-            fib.c * base.b + fib.d * base.d
-        )
-    }
-    return fib
-}
-
-private fun negFib(n: Int, base: Fib): Fib {
-    var nn = -n
-    var fib = Fib0
-    while (nn > 0) {
-        --nn
-        fib = Fib(
-            n,
-            fib.a * base.a + fib.b * base.c,
-            fib.a * base.b + fib.b * base.d,
-            fib.c * base.a + fib.d * base.c,
-            fib.c * base.b + fib.d * base.d
+            fib.a * multiplicand.a + fib.b * multiplicand.c,
+            fib.a * multiplicand.b + fib.b * multiplicand.d,
+            fib.c * multiplicand.a + fib.d * multiplicand.c,
+            fib.c * multiplicand.b + fib.d * multiplicand.d
         )
     }
     return fib
