@@ -8,17 +8,23 @@ fun main() {
     val fib1 = fib(1)
 
     println("== ${fib0.fib} det ${fib0.det}")
-    println("1/F0 -> ${-fib0}")
+    println("F0 * F0 -> ${fib0 * fib0}")
+    println("F0 / F0 -> ${fib0 / fib0}")
+    println("1/F0 -> ${fib0.inv()}")
     println("F0^2 -> ${fib0.pow(2)}")
     println("F0^-2 -> ${fib0.pow(-2)}")
     println("== ${fib1.fib} det ${fib1.det}")
-    println("1/F1 -> ${-fib1}")
+    println("F1 * F1 -> ${fib1 * fib1}")
+    println("F1 / F1 -> ${fib1 / fib1}")
+    println("1/F1 -> ${fib1.inv()}")
     println("F1^2 -> ${fib1.pow(2)}")
     println("F1^-2 -> ${fib1.pow(-2)}")
-    println("== ${(-fib1).fib} det ${(-fib1).det}")
-    println("1/(1/F1) -> ${-(-fib1)}")
-    println("(1/F1)^2 -> ${(-fib1).pow(2)}")
-    println("(1/F1)^-2 -> ${(-fib1).pow(-2)}")
+    println("== ${fib1.inv().fib} det ${fib1.inv().det}")
+    println("1/F1 * 1/F1 -> ${fib1.inv() * fib1.inv()}")
+    println("1/F1 / 1/F1 -> ${fib1.inv() / fib1.inv()}")
+    println("1/(1/F1) -> ${fib1.inv().inv()}")
+    println("(1/F1)^2 -> ${fib1.inv().pow(2)}")
+    println("(1/F1)^-2 -> ${fib1.inv().pow(-2)}")
 }
 
 data class Fib(
@@ -61,10 +67,8 @@ data class Fib(
 val Fib.fib get() = b
 val Fib.det get() = if (0 == n % 2) 1 else -1
 
-operator fun Fib.unaryPlus() = this
-operator fun Fib.unaryMinus() = fib(-n)
-
+fun Fib.inv() = fib(-n)
 fun Fib.pow(p: Int) = fib(n * p)
 
-operator fun Fib.plus(multiplicand: Fib) = fib(n + multiplicand.n)
-operator fun Fib.minus(divisor: Fib) = fib(n - divisor.n)
+operator fun Fib.times(multiplicand: Fib) = fib(n + multiplicand.n)
+operator fun Fib.div(divisor: Fib) = fib(n - divisor.n)
