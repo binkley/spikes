@@ -41,13 +41,13 @@ data class Fib(
     override fun toString() = "F($n)[$a, $b; $c, $d]"
 
     companion object {
+        private val Fib_1 = Fib(-1, -1, 1, 1, 0)
         private val Fib0 = Fib(0, 1, 0, 0, 1)
         private val Fib1 = Fib(1, 0, 1, 1, 1)
-        private val FibM1 = Fib(-1, -1, 1, 1, 0)
 
         // TODO: Replace with binary algo using memoization
         fun fib(n: Int) =
-            fib0(n, if (n < 0) FibM1 else Fib1, n.absoluteValue, Fib0)
+            fib0(n, if (n < 0) Fib_1 else Fib1, n.absoluteValue, Fib0)
     }
 }
 
