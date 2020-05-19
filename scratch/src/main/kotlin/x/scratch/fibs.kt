@@ -29,6 +29,7 @@ fun main() {
 
     println("F100 -> ${Fib(100)}")
     println("F100 -> ${Fib(100)}")
+    println(memoized.keys)
 }
 
 class Fib internal constructor(
@@ -95,7 +96,7 @@ private fun fib0(
         )
     )
 
-    memoized[n] = fib
+    memoized[i] = fib
     return fib
 }
 
