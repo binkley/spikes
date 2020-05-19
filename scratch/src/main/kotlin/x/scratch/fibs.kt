@@ -1,6 +1,5 @@
 package x.scratch
 
-import x.scratch.Fib.Companion.fib
 import java.math.BigInteger
 import kotlin.math.absoluteValue
 
@@ -43,17 +42,15 @@ data class Fib(
     }
 
     override fun toString() = "F($n)[$a, $b; $c, $d]"
-
-    companion object {
-        private val Fib_1 = Fib(-1, (-1).big, 1.big, 1.big, 0.big)
-        private val Fib0 = Fib(0, 1.big, 0.big, 0.big, 1.big)
-        private val Fib1 = Fib(1, 0.big, 1.big, 1.big, 1.big)
-
-        // TODO: Replace with divide-and-conquer algo using memoization
-        fun fib(n: Int) =
-            fib0(n, if (n < 0) Fib_1 else Fib1, n.absoluteValue, Fib0)
-    }
 }
+
+private val Fib_1 = Fib(-1, (-1).big, 1.big, 1.big, 0.big)
+private val Fib0 = Fib(0, 1.big, 0.big, 0.big, 1.big)
+private val Fib1 = Fib(1, 0.big, 1.big, 1.big, 1.big)
+
+// TODO: Replace with divide-and-conquer algo using memoization
+fun fib(n: Int) =
+    fib0(n, if (n < 0) Fib_1 else Fib1, n.absoluteValue, Fib0)
 
 val Fib.fib get() = b
 val Fib.det get() = if (0 == n % 2) 1 else -1
