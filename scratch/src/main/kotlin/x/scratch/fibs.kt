@@ -29,7 +29,6 @@ fun main() {
 
     println("F100 -> ${Fib(100)}")
     println("F100 -> ${Fib(100)}")
-    println(memoized.keys)
 }
 
 class Fib internal constructor(
@@ -67,23 +66,19 @@ private val Fib_1 = Fib(-1, (-1).big, 1.big, 1.big, 0.big)
 private val Fib0 = Fib(0, 1.big, 0.big, 0.big, 1.big)
 private val Fib1 = Fib(1, 0.big, 1.big, 1.big, 1.big)
 
-private val memoized = HashMap<Int, Fib>()
-
 /**
  * @todo Note articles like
  *   <a href="https://dzone.com/articles/avoid-recursion"><cite>Avoid Recursion in ConcurrentHashMap.computeIfAbsent()</cite></a>,
  *   which remains true even now
  */
-private fun fib0(
+private tailrec fun fib0(
     n: Int,
     multiplicand: Fib,
     i: Int,
     fib_i: Fib
 ): Fib {
-    if (0 == i) return fib_i
-    if (memoized.contains(n)) return memoized[n]!!
-
-    val fib = fib0(
+    return if (0 == i) fib_i
+    else fib0(
         n,
         multiplicand,
         i - 1,
@@ -95,9 +90,6 @@ private fun fib0(
             fib_i.c * multiplicand.b + fib_i.d * multiplicand.d
         )
     )
-
-    memoized[i] = fib
-    return fib
 }
 
 private val Int.big get() = toBigInteger()
