@@ -1,5 +1,7 @@
 package x.scratch
 
+import com.github.ajalt.mordant.AnsiCode
+import com.github.ajalt.mordant.TermColors
 import x.scratch.Problem6.Companion.problem6
 import kotlin.math.log
 import kotlin.math.round
@@ -61,13 +63,16 @@ fun main() {
     println("---------------")
 
     // Sort by count descending; sub-sort by exponent descending
-    exponents
-        .groupingBy { it }.eachCount().toList()
-        .sortedBy { (exp, _) -> exp }
-        .sortedBy { (_, count) -> count }
-        .reversed().forEach { (exp, count) ->
-            println("$count → ${roundIfClose(exp)}")
-        }
+    with(TermColors()) {
+        exponents
+            .groupingBy { it }.eachCount().toList()
+            .sortedBy { (exp, _) -> exp }
+            .sortedBy { (_, count) -> count }
+            .reversed().forEach { (exponent, count) ->
+                val exp = roundIfClose(exponent)
+                println("$count → ${exponentColor(exp)(exp.toString())}")
+            }
+    }
 }
 
 /**
@@ -97,10 +102,22 @@ class Problem6 private constructor(val a: Long, val b: Long) {
     }
 }
 
-private fun Problem6.format(n: Long, exponent: Double) =
-    "#$n: ($a,$b) → $numerator／$denominator [${sqrt()}²] [^${roundIfClose(
-        exponent
-    )}]"
+private fun Problem6.format(n: Long, exponent: Double): String {
+    with(TermColors()) {
+        val exp = roundIfClose(exponent)
+        return "#$n: ($a,$b) → $numerator／$denominator [${sqrt()}²] [^${
+        exponentColor(exp)(exp.toString())}]"
+    }
+}
+
+private fun TermColors.exponentColor(exponent: Any): AnsiCode {
+    if (exponent is Double) return yellow
+    return when (exponent as Long) {
+        2L -> green
+        3L -> blue
+        else -> reset
+    }
+}
 
 private fun roundIfClose(d: Double): Any {
     val rounded = round(d)
