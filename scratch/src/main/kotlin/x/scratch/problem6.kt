@@ -11,9 +11,6 @@ private const val ROUND_AT = 0.000001 // Rule of thumb for epsilon
 
 fun main() {
     println("a >= b (UPPER DIAGONAL)")
-    println("IGNORING TRIVIAL CASES WHERE a OR b IS 0")
-
-    println()
     println("(a,b) → a²+b²／ab+1 [square²] [log_b(a)]")
     println("----------------------------------------")
 
