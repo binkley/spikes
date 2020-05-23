@@ -6,7 +6,7 @@ import kotlin.math.round
 import kotlin.math.sqrt
 
 /**
- * Empirically, the first 50 are quickly computable before they become too
+ * Empirically, the first 50 are quickly computable before becoming too
  * sparse.
  */
 private const val MAX_N = 50L
@@ -22,12 +22,13 @@ fun main() {
     println("(a,b) → a²+b²／ab+1 [square²] [log_b(a)]")
     println("----------------------------------------")
 
-    var i = 0L
-    var n = 0L
     // Tracking how sparse the squares become
     val sparseness = mutableListOf<Pair<Long, Long>>()
     // Tracking exponents for "a=b^EXP"
     val exponents = mutableListOf<Double>()
+
+    var i = 0L
+    var n = 0L
     var a = 0L
     loop@ while (true) {
         ++a
