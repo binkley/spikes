@@ -38,12 +38,11 @@ fun main() {
 
             ++n
             val exponent = value.exponent()
-            println(
-                "#$n: (${value.a},${value.b}) → ${value.numerator}／${value.denominator} [${value.sqrt()}²] [^$exponent]"
-            )
+
+            println(value.format(n, exponent))
 
             sparseness += n to i
-            exponents += (exponent as Number).toDouble()
+            exponents += exponent
 
             if (n == MAX_N) break@loop
         }
@@ -61,7 +60,8 @@ fun main() {
     println("---------------")
 
     // Sort by count descending; sub-sort by exponent descending
-    exponents.groupingBy { it }.eachCount().toList()
+    exponents
+        .groupingBy { it }.eachCount().toList()
         .sortedBy { (exp, _) -> exp }
         .sortedBy { (_, count) -> count }
         .reversed().forEach { (exp, count) ->
@@ -89,15 +89,17 @@ class Problem6 private constructor(val a: Long, val b: Long) {
      *
      * @return Int or Double
      */
-    fun exponent(): Any {
-        val exp = if (a == b) 0.0 else log(a.toDouble(), b.toDouble())
-        return roundIfClose(exp)
-    }
+    fun exponent() = if (a == b) 0.0 else log(a.toDouble(), b.toDouble())
 
     companion object {
         fun problem6(a: Long, b: Long) = Problem6(a, b)
     }
 }
+
+private fun Problem6.format(n: Long, exponent: Double) =
+    "#$n: ($a,$b) → $numerator／$denominator [${sqrt()}²] [^${roundIfClose(
+        exponent
+    )}]"
 
 private fun roundIfClose(d: Double): Any {
     val rounded = round(d)
