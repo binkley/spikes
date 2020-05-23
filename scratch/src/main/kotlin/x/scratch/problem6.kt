@@ -78,8 +78,7 @@ class Problem6 private constructor(val a: Long, val b: Long) {
     val denominator: Long = a * b + 1
 
     /** Checks that this is an integral value. */
-    val integral: Boolean
-        get() = 0L == numerator % denominator
+    val integral = 0L == numerator % denominator
 
     /** Returns the square root. */
     fun sqrt() = sqrt(numerator.toDouble() / denominator).toLong()
