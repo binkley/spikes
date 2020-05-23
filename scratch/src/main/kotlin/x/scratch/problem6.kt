@@ -39,7 +39,7 @@ fun main() {
             ++n
             val exponent = value.exponent()
             println(
-                "#$n: (${value.a},${value.b}) → ${value.numerator}／${value.denominator} [${value.root()}²] [^$exponent]"
+                "#$n: (${value.a},${value.b}) → ${value.numerator}／${value.denominator} [${value.sqrt()}²] [^$exponent]"
             )
 
             sparseness += n to i
@@ -82,7 +82,7 @@ class Problem6 private constructor(val a: Long, val b: Long) {
         get() = 0L == numerator % denominator
 
     /** Returns the square root. */
-    fun root() = sqrt(numerator.toDouble() / denominator).toLong()
+    fun sqrt() = sqrt(numerator.toDouble() / denominator).toLong()
 
     /**
      * Returns the integral _or_ floating point exponent `EXP` such that
