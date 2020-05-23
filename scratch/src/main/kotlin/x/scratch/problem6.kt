@@ -14,7 +14,7 @@ fun main() {
     println("IGNORING TRIVIAL CASES WHERE a OR b IS 0")
 
     println()
-    println("(a,b) -> a²+b²/ab+1 [square²] [log_b(a)]")
+    println("(a,b) → a²+b²／ab+1 [square²] [log_b(a)]")
     println("----------------------------------------")
 
     var i = 0L
@@ -32,7 +32,7 @@ fun main() {
                 ++n
                 val exponent = value.exponent()
                 println(
-                    "(${value.a},${value.b}) -> ${value.numerator}/${value.denominator} [${value.root()}²] [^$exponent]"
+                    "(${value.a},${value.b}) → ${value.numerator}／${value.denominator} [${value.root()}²] [^$exponent]"
                 )
 
                 frequencies += n to i
@@ -46,14 +46,14 @@ fun main() {
     }
 
     println()
-    println("Nth / CHECKED -> FREQ%")
-    println("----------------------")
+    println("Nth／CHECKED → FREQ%")
+    println("--------------------")
     frequencies.forEach { (n, i) ->
-        println("$n / $i -> ${n.toDouble() * 100 / i}%")
+        println("$n／$i → ${n.toDouble() * 100 / i}%")
     }
 
     println()
-    println("COUNT -> a=b^EXP")
+    println("COUNT → a=b^EXP")
     println("----------------")
 
     // Sort by count descending; subsort by exponent descending
@@ -68,7 +68,7 @@ fun main() {
         .reversed().toMap()
 
     for ((exp, count) in sortedExponents)
-        println("$count -> $exp")
+        println("$count → $exp")
 }
 
 /**
