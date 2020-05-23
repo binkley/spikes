@@ -27,7 +27,7 @@ fun main() {
     // Tracking how sparse the squares become
     val sparseness = mutableListOf<Pair<Long, Long>>()
     // Tracking exponents for "a=b^EXP"
-    val exponents = mutableListOf<Double>()
+    val exponents = mutableListOf<Any>()
 
     var i = 0L
     var n = 0L
@@ -40,7 +40,7 @@ fun main() {
             if (!value.integral) continue // Non-integer result
 
             ++n
-            val exponent = value.exponent()
+            val exponent = roundIfClose(value.exponent())
 
             println(value.format(n, exponent))
 
@@ -63,8 +63,15 @@ fun main() {
     println("---------------")
 
     // Sort by count descending; sub-sort by exponent descending
+    // Casting business is unfortunate to support typing for comparison
     with(TermColors()) {
         exponents
+            .map {
+                when (it) {
+                    is Long -> it.toDouble()
+                    else -> it as Double
+                }
+            }
             .groupingBy { it }.eachCount().toList()
             .sortedBy { (exp, _) -> exp }
             .sortedBy { (_, count) -> count }
@@ -102,12 +109,9 @@ class Problem6 private constructor(val a: Long, val b: Long) {
     }
 }
 
-private fun Problem6.format(n: Long, exponent: Double): String {
-    with(TermColors()) {
-        val exp = roundIfClose(exponent)
-        return "#$n: ($a,$b) → $numerator／$denominator [${sqrt()}²] [^${
-        exponentColor(exp)(exp.toString())}]"
-    }
+private fun Problem6.format(n: Long, exp: Any) = with(TermColors()) {
+    "#$n: ($a,$b) → $numerator／$denominator [${sqrt()}²] [^${
+    exponentColor(exp)(exp.toString())}]"
 }
 
 private fun TermColors.exponentColor(exponent: Any): AnsiCode {
