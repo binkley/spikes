@@ -110,15 +110,34 @@ class Problem6 private constructor(val a: Long, val b: Long) {
 }
 
 private fun Problem6.format(n: Long, exp: Any) = with(TermColors()) {
-    "#$n: ($a,$b) → $numerator／$denominator [${sqrt()}²] [^${
+    val sqrt = sqrt()
+    "#$n: ($a,${bColor(b, sqrt)(
+        b.toString()
+    )}) → $numerator／$denominator [${sqrtColor(b, sqrt)(
+        sqrt.toString()
+    )}²] [^${
     exponentColor(exp)(exp.toString())}]"
 }
 
-private fun TermColors.exponentColor(exponent: Any): AnsiCode {
-    if (exponent is Double) return yellow
-    return when (exponent as Long) {
-        2L -> green
-        3L -> blue
+private fun TermColors.bColor(b: Long, sqrt: Long) =
+    when (b) {
+        sqrt * sqrt * sqrt -> green
+        sqrt -> blue
+        else -> reset
+    }
+
+private fun TermColors.sqrtColor(b: Long, sqrt: Long) =
+    when (b) {
+        sqrt * sqrt * sqrt -> green
+        sqrt -> blue
+        else -> reset
+    }
+
+private fun TermColors.exponentColor(exp: Any): AnsiCode {
+    if (exp is Double) return yellow // non-integral
+    return when (exp as Long) {
+        2L -> green // b == sqrt^3
+        3L -> blue // b == sqrt
         else -> reset
     }
 }
