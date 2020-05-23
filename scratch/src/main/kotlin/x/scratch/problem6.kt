@@ -86,6 +86,8 @@ class Problem6 private constructor(val a: Long, val b: Long) {
     /**
      * Returns the integral _or_ floating point exponent `EXP` such that
      * `a=b^EXP`.
+     *
+     * @return Int or Double
      */
     fun exponent(): Any {
         val exp = if (a == b) 0.0 else log(a.toDouble(), b.toDouble())
