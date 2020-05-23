@@ -6,7 +6,7 @@ import kotlin.math.log
 import kotlin.math.round
 import kotlin.math.sqrt
 
-private const val MAX_N = 50 // Empirically, computable quickly
+private const val MAX_N = 50L // Empirically, computable quickly
 private const val ROUND_AT = 0.000001 // Rule of thumb for epsilon
 
 fun main() {
@@ -14,11 +14,11 @@ fun main() {
     println("(a,b) -> a²+b²/ab+1 [square²][log_b(a)] -> n/total")
     println("--------------------------------------------------")
 
-    var i = 0
-    var n = 0
+    var i = 0L
+    var n = 0L
     // TODO: Does Kotlin have a counting map in stdlib?
-    val stats = mutableMapOf<Any, Int>()
-    var a = 0
+    val stats = mutableMapOf<Any, Long>()
+    var a = 0L
     loop@ while (true) {
         ++a
         for (b in 1..a) {
@@ -44,7 +44,7 @@ fun main() {
     val sortedStats = stats.toList()
         .sortedBy { (exp, _) ->
             when {
-                exp is Int -> exp.toDouble()
+                exp is Long -> exp.toDouble()
                 else -> exp as Double
             }
         }
@@ -59,16 +59,16 @@ fun main() {
  * See https://youtu.be/Y30VF3cSIYQ
  * See https://youtu.be/L0Vj_7Y2-xY
  */
-class Problem6 private constructor(val a: Int, val b: Int) {
-    private val numerator: Int = a * a + b * b
-    private val denominator: Int = a * b + 1
+class Problem6 private constructor(val a: Long, val b: Long) {
+    private val numerator: Long = a * a + b * b
+    private val denominator: Long = a * b + 1
 
     init {
         if (integer && !square) error("Theorem is false")
     }
 
     val integer: Boolean
-        get() = 0 == numerator % denominator
+        get() = 0L == numerator % denominator
     val square: Boolean
         get() {
             if (!integer) return false
@@ -76,14 +76,14 @@ class Problem6 private constructor(val a: Int, val b: Int) {
             return 0.toDouble() == (root - floor(root))
         }
 
-    private fun root() = sqrt(numerator.toDouble() / denominator).toInt()
+    private fun root() = sqrt(numerator.toDouble() / denominator).toLong()
     private fun exponent() =
         if (a == b) 0.0 else log(a.toDouble(), b.toDouble())
 
     fun normalizedExponent(): Any {
         val x = exponent()
         val rounded = round(x)
-        return if (x - rounded <= ROUND_AT) rounded.toInt() else x
+        return if (x - rounded <= ROUND_AT) rounded.toLong() else x
     }
 
     override fun toString() =
@@ -91,6 +91,6 @@ class Problem6 private constructor(val a: Int, val b: Int) {
         if (square) "[${root()}²]" else ""}[^${normalizedExponent()}]"
 
     companion object {
-        fun problem6(a: Int, b: Int) = Problem6(a, b)
+        fun problem6(a: Long, b: Long) = Problem6(a, b)
     }
 }
