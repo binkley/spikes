@@ -21,7 +21,7 @@ private const val ROUND_AT = 0.000001
 
 fun main() {
     println("a >= b (UPPER DIAGONAL)")
-    println("(a,b) → a²+b²／ab+1 [square²] [log_b(a)]")
+    println("(a,b) → a²+b²⁄ab+1 [square²] [log_b(a)]")
     println("----------------------------------------")
 
     // Tracking how sparse the squares become
@@ -52,10 +52,10 @@ fun main() {
     }
 
     println()
-    println("Nth／CHECKED → FREQ%")
+    println("Nth⁄CHECKED → FREQ%")
     println("--------------------")
     sparseness.forEach { (n, i) ->
-        println("$n／$i → ${n.toDouble() * 100 / i}%")
+        println("$n⁄$i → ${n.toDouble() * 100 / i}%")
     }
 
     println()
@@ -113,7 +113,7 @@ private fun Problem6.format(n: Long, exp: Any) = with(TermColors()) {
     val sqrt = sqrt()
     "#$n: ($a,${bColor(b, sqrt)(
         b.toString()
-    )}) → $numerator／$denominator [${sqrtColor(b, sqrt)(
+    )}) → $numerator⁄$denominator [${sqrtColor(b, sqrt)(
         sqrt.toString()
     )}²] [^${
     exponentColor(exp)(exp.toString())}]"
