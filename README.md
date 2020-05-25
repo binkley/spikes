@@ -7,22 +7,33 @@
 Spikes are not to be considered stable.
 
 * [Amazon Java SDK logging demonstration](amazon-java-sdk-logging-demo/)
+* Domain persistence modeling &mdash; moved to
+  [https://github.com/binkley/domain-persistence-modeling]
 * [Custom Logback pattern](custom-logback-pattern/)
 * [Exploring Kotlin async](kotlin-async/)
 * [Google's Flogger](googles-flogger/)
 * [Gradle pre-push](gradle-pre-push/)
 * Gradle test sets &mdash; moved to
   [https://github.com/binkley/gradle-multiple-test-roots]
+* [Java 1.4 exploration](java14/)
 * [Kotlin blockchain](kotlin-blockchain/)
+* [Kotlin native](kotlin-native/)
 * [Layers in Kotlin](layers-kt/)
-* Domain persistence modeling &mdash; moved to
-  [https://github.com/binkley/domain-persistence-modeling]
+* [Lombok Superbuilder](lombok-superbuilder/)
 * [Micronaut hello world](micronaut-hello-world/)
+* [Micronaut kitchen sink](micronaut-kitchen-sink/)
+* [Micronaut retryable](micronaut-retryable/)
+* [Quarkus hello world](quarkus-hello/)
+* [Rust green threads](rust-green-threads/)
+* [Rust hello world](rust-hello-world/)
 * [Scratch](scratch/)
+* [Spring Boot 2.3][boot23/]
 * [Spring Boot async and Mockito spies](spring-boot-async-and-mockito-spies/)
 * [Spring Boot Etag support](spring-boot-etag-support/)
+* [Spring Boot with clouds versions](spring-boot-import-cloud-versions/)
 * [Spring Boot JMS client](spring-boot-jms-client/)
 * Spring Boot logging &mdash; moved to
   [https://github.com/binkley/spring-boot-logging]
+* [Spring Boot validation](spring-boot-validation/)
 * [Spring transactions](spring-transactions/)
 * [Spring XML support](xmlish/)
