@@ -32,6 +32,10 @@ fun main() {
     println("(1/F1)^2 -> ${fib1.inv().pow(2)}")
     println("(1/F1)^-2 -> ${fib1.inv().pow(-2)}")
     println()
+    println("== SEQUENCE")
+    for (n in -3..3)
+        println("Fib($n) -> ${Fib(n)}; Fib($n)^1 -> ${Fib(n).inv()}")
+    println()
     println("== BIG")
     println("F100 -> ${Fib(100)}")
     println("F100 -> ${Fib(100)}")
@@ -53,12 +57,18 @@ class Fib internal constructor(
 }
 
 // TODO: Replace with divide-and-conquer algo using memoization
-fun Fib(n: Int) = fib0(n, if (n < 0) Fib_1 else Fib1, n.absoluteValue, Fib0)
+fun Fib(n: Int) = fibN(n, if (n < 0) Fib_1 else Fib1, n.absoluteValue, Fib0)
 
 val Fib.fib get() = b
 val Fib.det get() = if (0 == n % 2) 1 else -1
 
-fun Fib.inv() = Fib(-n)
+fun Fib.inv() = when {
+    0 == n -> this
+    n < 0 -> Fib(-n, d.abs(), b.abs(), c.abs(), a.abs())
+    0 == n % 2 -> Fib(-n, d, -b, -c, a)
+    else -> Fib(-n, -d, b, c, -a)
+}
+
 fun Fib.pow(p: Int) = Fib(n * p)
 
 operator fun Fib.times(multiplicand: Fib) = Fib(n + multiplicand.n)
@@ -68,19 +78,25 @@ private val Fib_1 = Fib(-1, (-1).big, 1.big, 1.big, 0.big)
 private val Fib0 = Fib(0, 1.big, 0.big, 0.big, 1.big)
 private val Fib1 = Fib(1, 0.big, 1.big, 1.big, 1.big)
 
+private val CACHE = mutableMapOf(
+    -1 to Fib_1,
+    0 to Fib0,
+    1 to Fib1
+)
+
 /**
  * @todo Note articles like
  *   <a href="https://dzone.com/articles/avoid-recursion"><cite>Avoid Recursion in ConcurrentHashMap.computeIfAbsent()</cite></a>,
  *   which remains true even now
  */
-private tailrec fun fib0(
+private tailrec fun fibN(
     n: Int,
     multiplicand: Fib,
     i: Int,
     fib_i: Fib
 ): Fib {
     return if (0 == i) fib_i
-    else fib0(
+    else fibN(
         n,
         multiplicand,
         i - 1,
