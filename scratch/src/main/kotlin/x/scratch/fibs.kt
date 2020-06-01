@@ -2,6 +2,7 @@ package x.scratch
 
 import java.math.BigInteger
 import java.util.Objects.hash
+import kotlin.math.absoluteValue
 
 fun main() {
     val fib0 = Fib(0)
@@ -16,6 +17,7 @@ fun main() {
     println("1/F0 -> ${fib0.inv()}")
     println("F0^2 -> ${fib0.pow(2)}")
     println("F0^-2 -> ${fib0.pow(-2)}")
+    println("F0√2 -> ${fib0.root(2)}")
     println()
     println("== SCALAR FIB: ${fib1.fib}; DET ${fib1.det}")
     println("F1 * F1 -> ${fib1 * fib1}")
@@ -36,8 +38,14 @@ fun main() {
     println("F100 -> ${Fib(100)}")
     println()
     println("== SEQUENCE")
-    for (n in -3..3)
+    for (n in -3..-1)
         println("Fib($n) -> ${Fib(n)}; Fib($n)^1 -> ${Fib(n).inv()}")
+    for (n in 0..3)
+        println(
+            "Fib($n) -> ${Fib(n)}; Fib($n)^1 -> ${Fib(n).inv()}; √ -> ${Fib(
+                n
+            ).root(n.absoluteValue)}"
+        )
 }
 
 class Fib internal constructor(
@@ -77,6 +85,14 @@ fun Fib.inv() = when {
 }
 
 fun Fib.pow(p: Int) = Fib(n * p)
+fun Fib.root(p: Int) =
+    when {
+        0 > n -> error("Fib may not be complex")
+        0 == p -> Fib(0)
+        1 == p -> this
+        0 == n % p -> Fib(n / p)
+        else -> error("Fib may not be fractional")
+    }
 
 private val UNIT = Fib(0, 1.big, 0.big, 0.big, 1.big)
 private val GENERATOR = Fib(1, 0.big, 1.big, 1.big, 1.big)
