@@ -32,13 +32,13 @@ fun main() {
     println("(1/F1)^2 -> ${fib1.inv().pow(2)}")
     println("(1/F1)^-2 -> ${fib1.inv().pow(-2)}")
     println()
-    println("== SEQUENCE")
-    for (n in -3..3)
-        println("Fib($n) -> ${Fib(n)}; Fib($n)^1 -> ${Fib(n).inv()}")
-    println()
     println("== BIG")
     println("F100 -> ${Fib(100)}")
     println("F100 -> ${Fib(100)}")
+    println()
+    println("== SEQUENCE")
+    for (n in -3..3)
+        println("Fib($n) -> ${Fib(n)}; Fib($n)^1 -> ${Fib(n).inv()}")
 }
 
 class Fib internal constructor(
@@ -77,12 +77,6 @@ operator fun Fib.div(divisor: Fib) = Fib(n - divisor.n)
 private val Fib_1 = Fib(-1, (-1).big, 1.big, 1.big, 0.big)
 private val Fib0 = Fib(0, 1.big, 0.big, 0.big, 1.big)
 private val Fib1 = Fib(1, 0.big, 1.big, 1.big, 1.big)
-
-private val CACHE = mutableMapOf(
-    -1 to Fib_1,
-    0 to Fib0,
-    1 to Fib1
-)
 
 /**
  * @todo Note articles like
