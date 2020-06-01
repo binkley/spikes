@@ -38,14 +38,20 @@ fun main() {
     println("F100 -> ${Fib(100)}")
     println()
     println("== SEQUENCE")
-    for (n in -3..-1)
-        println("Fib($n) -> ${Fib(n)}; Fib($n)^1 -> ${Fib(n).inv()}")
-    for (n in 0..3)
+    for (n in -3..-1) {
+        val fib = Fib(n)
         println(
-            "Fib($n) -> ${Fib(n)}; Fib($n)^1 -> ${Fib(n).inv()}; √ -> ${Fib(
-                n
-            ).root(n.absoluteValue)}"
+            "Fib($n) -> $fib; Fib($n)^1 -> ${fib.inv()}; |Fib($n)| -> ${fib.absoluteValue}"
         )
+    }
+    for (n in 0..3) {
+        val fib = Fib(n)
+        println(
+            "Fib($n) -> $fib; Fib($n)^1 -> ${fib.inv()}; |Fib($n)| -> ${fib.absoluteValue}; √ -> ${fib.root(
+                n.absoluteValue
+            )}"
+        )
+    }
 }
 
 class Fib internal constructor(
@@ -73,6 +79,7 @@ fun Fib(n: Int): Fib = when {
 
 val Fib.fib get() = b
 val Fib.det get() = if (0 == n % 2) 1 else -1
+val Fib.absoluteValue get() = if (0 > n) inv() else this
 
 operator fun Fib.times(multiplicand: Fib) = Fib(n + multiplicand.n)
 operator fun Fib.div(divisor: Fib) = Fib(n - divisor.n)
