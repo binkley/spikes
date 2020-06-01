@@ -56,12 +56,11 @@ class Fib internal constructor(
 }
 
 // TODO: Replace with divide-and-conquer algo using memoization
-fun Fib(n: Int) = when {
-    -1 == n -> Fib_1
-    0 == n -> Fib0
-    1 == n -> Fib1
-    0 < n -> fibN(n, Fib1, n, Fib0)
-    else -> fibN(n, Fib_1, -n, Fib0)
+fun Fib(n: Int): Fib = when {
+    0 == n -> UNIT
+    1 == n -> GENERATOR
+    0 < n -> fibN(n, n, UNIT)
+    else -> Fib(-n).inv()
 }
 
 val Fib.fib get() = b
@@ -69,7 +68,7 @@ val Fib.det get() = if (0 == n % 2) 1 else -1
 
 fun Fib.inv() = when {
     0 == n -> this
-    n < 0 -> Fib(-n, d.abs(), b.abs(), c.abs(), a.abs())
+    0 > n -> Fib(-n, d.abs(), b.abs(), c.abs(), a.abs())
     0 == n % 2 -> Fib(-n, d, -b, -c, a)
     else -> Fib(-n, -d, b, c, -a)
 }
@@ -79,9 +78,8 @@ fun Fib.pow(p: Int) = Fib(n * p)
 operator fun Fib.times(multiplicand: Fib) = Fib(n + multiplicand.n)
 operator fun Fib.div(divisor: Fib) = Fib(n - divisor.n)
 
-private val Fib_1 = Fib(-1, (-1).big, 1.big, 1.big, 0.big)
-private val Fib0 = Fib(0, 1.big, 0.big, 0.big, 1.big)
-private val Fib1 = Fib(1, 0.big, 1.big, 1.big, 1.big)
+private val UNIT = Fib(0, 1.big, 0.big, 0.big, 1.big)
+private val GENERATOR = Fib(1, 0.big, 1.big, 1.big, 1.big)
 
 /**
  * @todo Note articles like
@@ -90,25 +88,23 @@ private val Fib1 = Fib(1, 0.big, 1.big, 1.big, 1.big)
  */
 private tailrec fun fibN(
     n: Int,
-    multiplicand: Fib,
     i: Int,
     fib_i: Fib
 ): Fib {
     return if (0 == i) fib_i
     else fibN(
         n,
-        multiplicand,
         i - 1,
-        multiply0(n, fib_i, multiplicand)
+        multiply0(n, fib_i)
     )
 }
 
-private fun multiply0(n: Int, left: Fib, right: Fib) = Fib(
+private fun multiply0(n: Int, left: Fib) = Fib(
     n,
-    left.a * right.a + left.b * right.c,
-    left.a * right.b + left.b * right.d,
-    left.c * right.a + left.d * right.c,
-    left.c * right.b + left.d * right.d
+    left.a * GENERATOR.a + left.b * GENERATOR.c,
+    left.a * GENERATOR.b + left.b * GENERATOR.d,
+    left.c * GENERATOR.a + left.d * GENERATOR.c,
+    left.c * GENERATOR.b + left.d * GENERATOR.d
 )
 
 private val Int.big get() = toBigInteger()
