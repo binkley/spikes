@@ -66,6 +66,9 @@ fun Fib(n: Int): Fib = when {
 val Fib.fib get() = b
 val Fib.det get() = if (0 == n % 2) 1 else -1
 
+operator fun Fib.times(multiplicand: Fib) = Fib(n + multiplicand.n)
+operator fun Fib.div(divisor: Fib) = Fib(n - divisor.n)
+
 fun Fib.inv() = when {
     0 == n -> this
     0 > n -> Fib(-n, d.abs(), b.abs(), c.abs(), a.abs())
@@ -74,9 +77,6 @@ fun Fib.inv() = when {
 }
 
 fun Fib.pow(p: Int) = Fib(n * p)
-
-operator fun Fib.times(multiplicand: Fib) = Fib(n + multiplicand.n)
-operator fun Fib.div(divisor: Fib) = Fib(n - divisor.n)
 
 private val UNIT = Fib(0, 1.big, 0.big, 0.big, 1.big)
 private val GENERATOR = Fib(1, 0.big, 1.big, 1.big, 1.big)
