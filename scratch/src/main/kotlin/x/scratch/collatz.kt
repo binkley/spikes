@@ -1,10 +1,22 @@
 package x.scratch
 
+import java.math.BigInteger
+import java.math.BigInteger.ONE
+import java.math.BigInteger.ZERO
+
 fun main() {
     println("== COLLATZ")
     for (n in 2..40) {
         val path = path(n, ArrayList(256))
         println(format(n, path))
+    }
+
+    var toggle = true
+    for (p in 1..100) {
+        val fast = fast(p)
+        if (fast == toggle) error("Did not alternate: $p")
+        println("$p -> $toggle")
+        toggle = fast
     }
 }
 
@@ -55,3 +67,7 @@ private fun primeFactorize(n: Int): List<Int> {
     }
     return factors
 }
+
+private val THREE = BigInteger.valueOf(3)
+private fun fast(p: Int) = ZERO == (pow2x(p) - ONE) % THREE
+private fun pow2x(p: Int) = ONE.shiftLeft(p)
