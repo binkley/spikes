@@ -1,5 +1,11 @@
 # Random Kotlin experiments
 
+## Kotlin bindings for `Path` and `Files`
+
+See [_Java & Files: An Introduction_](https://www.marcobehler.com/guides/java-files)
+
+A micro-experiment in `IO.kt`.
+
 ## Problem 6
 
 * See [_The Legend of Question Six - Numberphile_](https://youtu.be/Y30VF3cSIYQ)
