@@ -2,7 +2,6 @@ package x.scratch
 
 import java.math.BigInteger
 import java.util.Objects.hash
-import kotlin.math.absoluteValue
 
 fun main() {
     val fib0 = Fib(0)
@@ -52,12 +51,18 @@ class Fib internal constructor(
             other is Fib &&
             n == other.n
 
-    override fun hashCode() = hash(n)
+    override fun hashCode() = hash(javaClass, n)
     override fun toString() = "F($n)[$a, $b; $c, $d]"
 }
 
 // TODO: Replace with divide-and-conquer algo using memoization
-fun Fib(n: Int) = fibN(n, if (n < 0) Fib_1 else Fib1, n.absoluteValue, Fib0)
+fun Fib(n: Int) = when {
+    -1 == n -> Fib_1
+    0 == n -> Fib0
+    1 == n -> Fib1
+    0 < n -> fibN(n, Fib1, n, Fib0)
+    else -> fibN(n, Fib_1, -n, Fib0)
+}
 
 val Fib.fib get() = b
 val Fib.det get() = if (0 == n % 2) 1 else -1
