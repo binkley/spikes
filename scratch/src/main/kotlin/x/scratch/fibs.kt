@@ -33,9 +33,9 @@ fun main() {
     println("(1/F1)^2 -> ${fib1.inv().pow(2)}")
     println("(1/F1)^-2 -> ${fib1.inv().pow(-2)}")
     println()
-    println("== BIG")
-    println("F100 -> ${Fib(100)}")
-    println("F100 -> ${Fib(100)}")
+    println("== BIG DESTRUCTURED")
+    val (n, a, b, c, d) = Fib(100)
+    println("f$n -> $b OR $c; PRED: $a; SUCC: $d")
     println()
     println("== SEQUENCE")
     for (n in -3..0) {
@@ -94,6 +94,12 @@ val Fib.fib get() = b
  */
 val Fib.det get() = if (0 == n % 2) 1 else -1
 val Fib.absoluteValue get() = if (0 > n) inv() else this
+
+operator fun Fib.component1() = n
+operator fun Fib.component2() = a
+operator fun Fib.component3() = b
+operator fun Fib.component4() = c
+operator fun Fib.component5() = d
 
 operator fun Fib.times(multiplicand: Fib) = Fib(n + multiplicand.n)
 operator fun Fib.div(divisor: Fib) = Fib(n - divisor.n)
