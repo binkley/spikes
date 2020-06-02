@@ -11,13 +11,15 @@ fun main() {
         println(format(n, path))
     }
 
-    var toggle = true
-    for (p in 1..100) {
-        val fast = fast(p)
-        if (fast == toggle) error("Did not alternate: $p")
-        println("$p -> $toggle")
-        toggle = fast
+    println()
+    println("CHECKING THAT ALTERNATE MERSENNE NUMBERS ARE DIVISIBLE BY 3...")
+    var unexpected = true
+    for (p in 1..10000) {
+        val divisibleBy3 = divisibleBy3(p)
+        if (divisibleBy3 == unexpected) error("Did not alternate: $p")
+        unexpected = divisibleBy3
     }
+    println("PASSED THROUGH 2^10000-1")
 }
 
 private fun format(n: Int, path: List<Int>): String {
@@ -69,5 +71,5 @@ private fun primeFactorize(n: Int): List<Int> {
 }
 
 private val THREE = BigInteger.valueOf(3)
-private fun fast(p: Int) = ZERO == (pow2x(p) - ONE) % THREE
+private fun divisibleBy3(p: Int) = ZERO == (pow2x(p) - ONE) % THREE
 private fun pow2x(p: Int) = ONE.shiftLeft(p)
