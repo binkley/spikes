@@ -69,7 +69,16 @@ class Fib internal constructor(
     override fun toString() = "F($n)[$a, $b; $c, $d]"
 }
 
-// TODO: Replace with divide-and-conquer algo using memoization
+/**
+ * Creates the [n]th 2x2 Fibonacci matrix.  The matrix is of the form:
+ * `[fib(n-1), fib(n); fib(n), fib(n+1)]`.
+ *
+ * `Fib(0)` is `[1, 0; 0, 1]` (the unit matrix).  `Fib(1)` is
+ * `[0, 1; 1, 1]`, (the generator matrix).
+ *
+ * Successive Fibonacci matrices are given by _multiplying_ by the generator
+ * matrix for next, and _dividing_ for previous.
+ */
 fun Fib(n: Int): Fib = when {
     0 == n -> UNIT
     1 == n -> GENERATOR
@@ -78,12 +87,22 @@ fun Fib(n: Int): Fib = when {
 }
 
 val Fib.fib get() = b
+
+/**
+ * One of the nifty properties of the Fibonacci generator matrix is that the
+ * determinant alternates between 1 and -1, starting at 1 for the UNIT fib.
+ */
 val Fib.det get() = if (0 == n % 2) 1 else -1
 val Fib.absoluteValue get() = if (0 > n) inv() else this
 
 operator fun Fib.times(multiplicand: Fib) = Fib(n + multiplicand.n)
 operator fun Fib.div(divisor: Fib) = Fib(n - divisor.n)
 
+/**
+ * The multiplicative inverse of a Fibonacci matrix is found easily by:
+ * 1. Transpose along the minor diagonal (antidiagonal)
+ * 2. Flip the signs of the main diagonal
+ */
 fun Fib.inv() = when {
     0 == n -> this
     0 > n -> Fib(-n, d.abs(), b.abs(), c.abs(), a.abs())
@@ -108,6 +127,7 @@ private val GENERATOR = Fib(1, 0.big, 1.big, 1.big, 1.big)
  * @todo Note articles like
  *   <a href="https://dzone.com/articles/avoid-recursion"><cite>Avoid Recursion in ConcurrentHashMap.computeIfAbsent()</cite></a>,
  *   which remains true even now
+ * @todo Replace with divide-and-conquer algo using memoization
  */
 private tailrec fun fibN(
     n: Int,
