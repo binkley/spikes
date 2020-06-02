@@ -89,6 +89,11 @@ val Fib.fib get() = b
  * determinant alternates between 1 and -1, starting at 1 for the UNIT fib.
  */
 val Fib.det get() = if (0 == n % 2) 1 else -1
+
+/**
+ * @todo Absolute value makes sense for addition, but not multiplication.
+ *       This Fib matrix is unsure about the relationship
+ */
 val Fib.absoluteValue get() = if (0 > n) inv() else this
 
 operator fun Fib.component1() = n
