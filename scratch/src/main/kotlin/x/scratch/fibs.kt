@@ -2,7 +2,6 @@ package x.scratch
 
 import java.math.BigInteger
 import java.util.Objects.hash
-import kotlin.math.absoluteValue
 
 fun main() {
     val fib0 = Fib(0)
@@ -36,23 +35,18 @@ fun main() {
     println("== BIG DESTRUCTURED")
     val (n, a, b, c, d) = Fib(100)
     println("f$n -> $b OR $c; PRED: $a; SUCC: $d")
+
     println()
     println("== SEQUENCE")
-    for (n in -3..0) {
-        val fib = Fib(n)
-        println(
-            "Fib($n) -> $fib; Fib($n)^1 -> ${fib.inv()}; |Fib($n)| -> ${fib.absoluteValue}"
-        )
-    }
-    for (n in 1..3) {
-        val fib = Fib(n)
-        println(
-            "Fib($n) -> $fib; Fib($n)^1 -> ${fib.inv()}; |Fib($n)| -> ${fib.absoluteValue}; $n√ -> ${fib.root(
-                n.absoluteValue
-            )}"
-        )
-    }
+    for (n in -3..3) println(Fib(n).format())
 }
+
+private fun Fib.format() =
+    if (0 < n) "Fib($n) -> $this;" +
+            " Fib($n)^1 -> ${inv()};" +
+            " |Fib($n)| -> $absoluteValue;" +
+            " $n√ -> ${root(n)}"
+    else "Fib($n) -> $this; Fib($n)^1 -> ${inv()}; |Fib($n)| -> $absoluteValue"
 
 // Why not a data class?  Avoid the `copy` function, which would permit
 // construction of invalid Fib matrices.
