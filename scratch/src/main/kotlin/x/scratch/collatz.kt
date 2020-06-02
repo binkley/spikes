@@ -6,33 +6,46 @@ import java.math.BigInteger.ZERO
 
 fun main() {
     println("== COLLATZ")
-    for (n in 2..40) {
+    val buckets = mutableMapOf<Int, MutableSet<Int>>()
+    for (n in 2..100) {
         val path = path(n, ArrayList(256))
         println(format(n, path))
+        buckets.merge(path.size - 1, primeFactorize(n)) { old, new ->
+            old += new
+            old
+        }
     }
 
     println()
-    println("CHECKING THAT ALTERNATE MERSENNE NUMBERS ARE DIVISIBLE BY 3...")
+    println("ALTERNATING MERSENNE NUMBERS ARE DIVISIBLE BY 3...")
     var unexpected = true
     for (p in 1..10000) {
         val divisibleBy3 = divisibleBy3(p)
         if (divisibleBy3 == unexpected) error("Did not alternate: $p")
         unexpected = divisibleBy3
     }
-    println("PASSED THROUGH 2^10000-1")
+    println("PASSED UP TO 2^10000-1")
+
+    println()
+    println("PRIME FACTORS FOR GIVEN PATH LENGTH:")
+    buckets.toSortedMap().forEach { (k, v) ->
+        println("- $k: ${v.sorted()}")
+    }
 }
 
 private fun format(n: Int, path: List<Int>): String {
     var evens = 0
     var odds = 0
     for (i in path) {
-        if (1 == i) break
+        if (1 == i) break // Ignore terminal 1
         if (0 == i % 2) ++evens else ++odds
     }
-    val primeFactors = primeFactorize(n)
     val evenOddRatio = "%.1f".format(100 * evens.toDouble() / (evens + odds))
 
-    return "$n -> ${path.size} -> even/odd: $evenOddRatio% ($evens/$odds) -> prime factors: $primeFactors"
+    // Steps is size-1 to ignore the final 1
+    return "$n -> ${path.size - 1} steps" +
+            " -> prime factors: ${primeFactorize(n)}" +
+            " -> even/odd: $evenOddRatio% ($evens/$odds)"
 }
 
 private tailrec fun path(n: Int, ns: MutableList<Int>): List<Int> {
@@ -62,8 +75,8 @@ private val firstNPrimes = listOf(
 )
 
 /** @todo This is such an _amazingly naive_ implementation */
-private fun primeFactorize(n: Int): List<Int> {
-    val factors = mutableListOf<Int>()
+private fun primeFactorize(n: Int): MutableSet<Int> {
+    val factors = mutableSetOf<Int>()
     for (p in firstNPrimes) {
         if (0 == n % p) factors += p
     }

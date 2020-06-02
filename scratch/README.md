@@ -12,7 +12,9 @@ See [_Collatz conjecture_](https://en.wikipedia.org/wiki/Collatz_conjecture)
 
 Easy cases:
 
-1. Any of nth power of 2 reaches 1 in n steps.
+1. Any of nth power of 2 reaches 1 in n steps.  Powers of 2 are the
+"expressway" to terminating; all terminating Collatz sequences eventually
+reach it.
 2. For any nth power of 2, if n is even, 2^n-1 is divisible by 3, so the
 quotient in that case reaches 1 in n+1 steps.  (Quotient q is odd, and
 3q+1 goes next to the nth power of 2.  2^n-1 is a _Mersenne number_, not
