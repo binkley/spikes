@@ -38,16 +38,16 @@ fun main() {
     println("F100 -> ${Fib(100)}")
     println()
     println("== SEQUENCE")
-    for (n in -3..-1) {
+    for (n in -3..0) {
         val fib = Fib(n)
         println(
             "Fib($n) -> $fib; Fib($n)^1 -> ${fib.inv()}; |Fib($n)| -> ${fib.absoluteValue}"
         )
     }
-    for (n in 0..3) {
+    for (n in 1..3) {
         val fib = Fib(n)
         println(
-            "Fib($n) -> $fib; Fib($n)^1 -> ${fib.inv()}; |Fib($n)| -> ${fib.absoluteValue}; √ -> ${fib.root(
+            "Fib($n) -> $fib; Fib($n)^1 -> ${fib.inv()}; |Fib($n)| -> ${fib.absoluteValue}; $n√ -> ${fib.root(
                 n.absoluteValue
             )}"
         )
@@ -94,11 +94,11 @@ fun Fib.inv() = when {
 fun Fib.pow(p: Int) = Fib(n * p)
 fun Fib.root(p: Int) =
     when {
-        0 > n -> error("Fib may not be complex")
-        0 == p -> Fib(0)
+        0 > n -> throw ArithmeticException("Fib may not be complex")
+        0 == p -> throw ArithmeticException("Division by zero")
         1 == p -> this
         0 == n % p -> Fib(n / p)
-        else -> error("Fib may not be fractional")
+        else -> throw ArithmeticException("Fib may not be fractional")
     }
 
 private val UNIT = Fib(0, 1.big, 0.big, 0.big, 1.big)
