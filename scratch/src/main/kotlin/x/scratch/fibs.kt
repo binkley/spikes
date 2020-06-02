@@ -103,7 +103,10 @@ operator fun Fib.component3() = b
 operator fun Fib.component4() = c
 operator fun Fib.component5() = d
 
+/** The product of `Fib(m)` and `Fib(n)` is `Fib(m+n)`. */
 operator fun Fib.times(multiplicand: Fib) = Fib(n + multiplicand.n)
+
+/** The quotient of `Fib(m)` and `Fib(n)` is `Fib(m-n)` */
 operator fun Fib.div(divisor: Fib) = Fib(n - divisor.n)
 
 /**
