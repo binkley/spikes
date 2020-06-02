@@ -5,6 +5,16 @@ import java.math.BigInteger.ONE
 import java.math.BigInteger.ZERO
 
 fun main() {
+    println("== ALTERNATING MERSENNE NUMBERS ARE DIVISIBLE BY 3...")
+    var unexpected = true
+    for (p in 1..10000) {
+        val divisibleBy3 = divisibleBy3(p)
+        if (divisibleBy3 == unexpected) error("Did not alternate: $p")
+        unexpected = divisibleBy3
+    }
+    println("PASSED UP TO 2^10000-1")
+
+    println()
     println("== COLLATZ")
     val buckets = mutableMapOf<Int, MutableSet<Int>>()
     for (n in 2..100) {
@@ -17,21 +27,10 @@ fun main() {
     }
 
     println()
-    println("ALTERNATING MERSENNE NUMBERS ARE DIVISIBLE BY 3...")
-    var unexpected = true
-    for (p in 1..10000) {
-        val divisibleBy3 = divisibleBy3(p)
-        if (divisibleBy3 == unexpected) error("Did not alternate: $p")
-        unexpected = divisibleBy3
-    }
-    println("PASSED UP TO 2^10000-1")
-
-    println()
-    println("PRIME FACTORS FOR GIVEN PATH LENGTH:")
-    buckets.toSortedMap().forEach { (k, v) ->
-        println("- $k: ${v.sorted()}; path length/prime: ${k / v.size} ($k/${v.size})")
-    }
-    println("TODO: Rank path lengths by # of prime factors")
+    println("== PRIME FACTORS FOR GIVEN PATH LENGTH:")
+    buckets.toList()
+        .sortedByDescending { (_, k) -> k.size }
+        .forEach { (k, v) -> println(format(k, v)) }
 }
 
 private fun format(n: Int, path: List<Int>): String {
@@ -48,6 +47,16 @@ private fun format(n: Int, path: List<Int>): String {
             " -> prime factors: ${primeFactorize(n)}" +
             " -> even/odd: $evenOddRatio% ($evens/$odds)"
 }
+
+private fun format(k: Int, v: Set<Int>) =
+    if (1 < v.size)
+        "- $k: ${v.sorted()};" +
+                " count path/primes: ${k / v.size} ($k/${v.size});" +
+                " sum: ${v.sum()};" +
+                " product: ${v.fold(1, Int::times)}"
+    else
+        "- $k: ${v.sorted()};" +
+                " count path/primes: ${k / v.size} ($k/${v.size})"
 
 private tailrec fun path(n: Int, ns: MutableList<Int>): List<Int> {
     ns += n
