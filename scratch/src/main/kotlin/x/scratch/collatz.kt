@@ -29,8 +29,9 @@ fun main() {
     println()
     println("PRIME FACTORS FOR GIVEN PATH LENGTH:")
     buckets.toSortedMap().forEach { (k, v) ->
-        println("- $k: ${v.sorted()}")
+        println("- $k: ${v.sorted()}; path length/prime: ${k / v.size} ($k/${v.size})")
     }
+    println("TODO: Rank path lengths by # of prime factors")
 }
 
 private fun format(n: Int, path: List<Int>): String {
