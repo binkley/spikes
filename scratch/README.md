@@ -6,6 +6,18 @@ See [_Java & Files: An Introduction_](https://www.marcobehler.com/guides/java-fi
 
 A micro-experiment in `IO.kt`.
 
+## Collatz conjecture
+
+See [_Collatz conjecture_](https://en.wikipedia.org/wiki/Collatz_conjecture)
+
+Easy cases:
+
+1. Any of nth power of 2 reaches 1 in n steps.
+2. For any nth power of 2, if n is even, 2^n-1 is divisible by 3, so the
+quotient in that case reaches 1 in n+1 steps.  (Quotient q is odd, and
+3q+1 goes next to the nth power of 2.  2^n-1 is a _Mersenne number_, not
+prime in this case.)
+
 ## Problem 6
 
 * See [_The Legend of Question Six - Numberphile_](https://youtu.be/Y30VF3cSIYQ)
