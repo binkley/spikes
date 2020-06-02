@@ -54,6 +54,8 @@ fun main() {
     }
 }
 
+// Why not a data class?  Avoid the `copy` function, which would permit
+// construction of invalid Fib matrices.
 class Fib internal constructor(
     val n: Int,
     val a: BigInteger,
