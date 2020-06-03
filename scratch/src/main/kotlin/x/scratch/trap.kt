@@ -1,8 +1,8 @@
 package x.scratch
 
 import java.time.LocalDate
-import java.time.format.TextStyle
-import java.util.Locale
+import java.time.format.TextStyle.FULL_STANDALONE
+import java.util.Locale.ENGLISH
 
 fun main() {
     println("IT'S A TRAP!")
@@ -10,7 +10,7 @@ fun main() {
     val trapReturn = {
         println("THIS DOESN'T LOOK GOOD")
         val day = LocalDate.now().dayOfWeek.getDisplayName(
-            TextStyle.FULL_STANDALONE, Locale.ENGLISH
+            FULL_STANDALONE, ENGLISH
         )
         if (day.endsWith("y")) throw IllegalArgumentException("I DIED")
         else 1
