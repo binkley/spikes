@@ -199,20 +199,6 @@ fun main() {
     )
 
     println()
-    println("ADAPTERS")
-
-    val aBob = ABob(2, "apple")
-    println(
-        """
-        $aBob vs ${aBob.toAdaptedBob()}
-        ${aBob.toAdaptedBob().foo()}
-        equals? ${aBob.toAdaptedBob() == aBob.toAdaptedBob()}
-        hashCode? ${aBob.toAdaptedBob().hashCode() == aBob.toAdaptedBob()
-            .hashCode()}
-    """.trimIndent()
-    )
-
-    println()
     println("BUILDERS")
 
     val bs = buildString {
