@@ -3,14 +3,14 @@ package x.scratch
 import java.nio.file.Path
 
 fun main() {
-    println("PATHS API")
+    println("== PATHS API")
     val etc = Path.of("/etc")
-    println("/etc -> $etc")
-    println(etc.exists)
-    println(etc.lastModifiedTime)
-    println(etc.owner)
-    println(etc.posixFilePermissions)
+    println("PATH -> $etc")
+    println("EXISTS -> ${etc.exists}")
+    println("LAST-MODIFIED-TIME -> ${etc.lastModifiedTime}")
+    println("OWNER -> ${etc.owner}")
+    println("POSIX-FILE-PERMISSIONS -> ${etc.posixFilePermissions}")
     etc.list().use {
-        println(it.findFirst().get())
+        println("LIST FIND-FIRST -> ${it.findFirst().get()}")
     }
 }
