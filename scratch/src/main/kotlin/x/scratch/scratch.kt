@@ -1,9 +1,6 @@
 package x.scratch
 
 import java.math.BigInteger
-import java.time.LocalDate.now
-import java.time.format.TextStyle.FULL_STANDALONE
-import java.util.Locale.ENGLISH
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind.EXACTLY_ONCE
 import kotlin.contracts.contract
@@ -222,31 +219,6 @@ fun main() {
     }
     println("BEFORE: ${scanMe.toList()}")
     println("AFTER: ${scanned.toList()}")
-
-    println()
-    println("TRAP")
-
-    val trapReturn = {
-        println("THIS DOESN'T LOOK GOOD")
-        val day = now().dayOfWeek.getDisplayName(FULL_STANDALONE, ENGLISH)
-        if (day.endsWith("y")) throw IllegalArgumentException("I DIED")
-        else 1
-    }.trap<IllegalArgumentException, Int> {
-        println("YEP, SOMETHING BAD HAPPENED: $it")
-        0
-    }
-    println(trapReturn)
-}
-
-inline fun <reified E : Exception, R> (() -> R).trap(
-    action: (E) -> R
-): R {
-    return try {
-        this.invoke()
-    } catch (e: Exception) {
-        if (e is E) action.invoke(e)
-        else throw e
-    }
 }
 
 const val EPSILON = 1e-16
