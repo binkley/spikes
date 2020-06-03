@@ -18,7 +18,7 @@ fun main() {
 }
 
 interface Group<T : Ring<T>> {
-    val plusIdentity: T
+    val additiveIdentity: T
 
     @Suppress("UNCHECKED_CAST")
     operator fun unaryPlus(): T = this as T
@@ -28,15 +28,15 @@ interface Group<T : Ring<T>> {
 }
 
 interface Ring<T : Ring<T>> : Group<T> {
-    val timesIdentity: T
+    val multiplicativeIdentity: T
 
     operator fun times(other: T): T
 }
 
 inline class MathInt(val value: Int) : Ring<MathInt> {
-    override val plusIdentity: MathInt
+    override val additiveIdentity: MathInt
         get() = MathInt(0)
-    override val timesIdentity: MathInt
+    override val multiplicativeIdentity: MathInt
         get() = MathInt(1)
 
     override fun unaryMinus() = MathInt(-value)
