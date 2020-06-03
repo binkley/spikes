@@ -172,18 +172,6 @@ fun main() {
     println("Summing is ${sumCos(1.0)}")
 
     println()
-    println("VECTORS")
-
-    val rv0 = RowVector2.of(1, 2)
-    println(rv0)
-    println(rv0.transpose())
-    val cv0 = ColVector2.of(3, 4)
-    println(cv0)
-    println(cv0.transpose())
-    println(rv0 * cv0)
-    println(cv0 * rv0)
-
-    println()
     println("OVERFLOW/UNDERFLOW")
 
     @Suppress("INTEGER_OVERFLOW")

@@ -2,6 +2,21 @@ package x.scratch
 
 import java.util.Objects.hash
 
+fun main() {
+    println("VECTORS")
+
+    val rv0 = RowVector2.of(1, 2)
+    println("ROW VECTOR - $rv0")
+    println("TRANSPOSE - ${rv0.transpose()}")
+    val cv0 = ColVector2.of(3, 4)
+    println("COL VECTOR - $cv0")
+    println("TRANSPOSE - ${cv0.transpose()}")
+    println("ROW * COL - ${rv0 * cv0}")
+    val mat0 = cv0 * rv0
+    println("COL * ROW - $mat0")
+    println("DET - ${mat0.det}")
+}
+
 interface Group<T : Ring<T>> {
     val plusIdentity: T
 
@@ -31,26 +46,26 @@ inline class MathInt(val value: Int) : Ring<MathInt> {
     override fun toString() = value.toString()
 }
 
-open class Vector2<T : Ring<T>>(
+open class Vector2Base<T : Ring<T>>(
     val a0: T,
     val a1: T
 ) {
     operator fun component0() = a0
     operator fun component1() = a1
-
-    override fun equals(other: Any?) = this === other ||
-            other is Vector2<*> &&
-            a0 == other.a0 &&
-            a1 == other.a1
-
-    override fun hashCode() = hash(a0, a1)
-    override fun toString() = "[$a0, $a1]"
 }
 
 class RowVector2<T : Ring<T>>(
     a0: T,
     a1: T
-) : Vector2<T>(a0, a1) {
+) : Vector2Base<T>(a0, a1) {
+    override fun equals(other: Any?) = this === other ||
+            other is RowVector2<*> &&
+            a0 == other.a0 &&
+            a1 == other.a1
+
+    override fun hashCode() = hash(javaClass, a0, a1)
+    override fun toString() = "[$a0, $a1]"
+
     companion object {
         fun of(a0: Int, a1: Int) =
             RowVector2(MathInt(a0), MathInt(a1))
@@ -60,8 +75,14 @@ class RowVector2<T : Ring<T>>(
 class ColVector2<T : Ring<T>>(
     a0: T,
     a1: T
-) : Vector2<T>(a0, a1) {
-    override fun toString() = super.toString() + "\uD835\uDDB3" // Math "T"
+) : Vector2Base<T>(a0, a1) {
+    override fun equals(other: Any?) = this === other ||
+            other is ColVector2<*> &&
+            a0 == other.a0 &&
+            a1 == other.a1
+
+    override fun hashCode() = hash(javaClass, a0, a1)
+    override fun toString() = "[$a0; $a1]"
 
     companion object {
         fun of(a0: Int, a1: Int) =
@@ -87,7 +108,7 @@ open class Matrix2<T : Ring<T>>(
             c == other.c &&
             d == other.d
 
-    override fun hashCode() = hash(a, b, c, d)
+    override fun hashCode() = hash(javaClass, a, b, c, d)
     override fun toString() = "[$a, $b; $c, $d]"
 }
 
