@@ -96,7 +96,7 @@ class Pi : Iterator<Int> {
     override fun next() = nextDigitOfPi()
 
     /**
-     * See <a href="https://rosettacode.org/wiki/Pi><cite>Pi - Rosetta Code</cite></a>
+     * See <a href="https://rosettacode.org/wiki/Pi"><cite>Pi - Rosetta Code</cite></a>
      */
     private fun nextDigitOfPi(): Int {
         var nn: BigInteger
