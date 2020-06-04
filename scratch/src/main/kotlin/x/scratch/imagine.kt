@@ -5,11 +5,11 @@ fun main() {
     println("i -> $I")
     println("i::class -> ${I::class}")
     println("i.javaClass -> ${I.javaClass}")
-    println(".real -> ${I.toInt()}")
+    println("i.value -> ${I.value}")
     val z = 1 + 1.i
     println("z -> $z")
-    println(".real -> ${z.real}")
-    println(".imag -> ${z.imag}")
+    println("z.real -> ${z.real}")
+    println("z.imag -> ${z.imag}")
     println("z* -> ${z.conjugate}")
     println("+z -> ${+z}")
     println("-z -> ${-z}")
@@ -42,35 +42,34 @@ fun main() {
     }
 }
 
-inline class Imaginary(val real: Int) {
-    override fun toString() = "${real}i"
+inline class Imaginary(val value: Int) {
+    override fun toString() = "${value}i"
 }
 
 val I = 1.i
 fun Int.toImaginary() = Imaginary(this)
 val Int.i get() = toImaginary()
-fun Imaginary.toInt() = real
 
 operator fun Imaginary.unaryPlus() = this
-operator fun Imaginary.unaryMinus() = (-real).toImaginary()
+operator fun Imaginary.unaryMinus() = (-value).toImaginary()
 
 operator fun Imaginary.plus(addend: Imaginary) =
-    (real + addend.real).toImaginary()
+    (value + addend.value).toImaginary()
 
 operator fun Imaginary.minus(subtrahend: Imaginary) =
-    (real - subtrahend.real).toImaginary()
+    (value - subtrahend.value).toImaginary()
 
 operator fun Imaginary.times(multiplicand: Imaginary) =
-    -(real * multiplicand.real)
+    -(value * multiplicand.value)
 
 operator fun Imaginary.times(multiplicand: Int) =
-    (real * multiplicand).toImaginary()
+    (value * multiplicand).toImaginary()
 
 operator fun Int.times(multiplicand: Imaginary) = multiplicand * this
 
 data class Complex(val real: Int, val imag: Imaginary) {
     override fun toString() =
-        if (imag.real < 0) "$real-${-imag}" else "$real+$imag"
+        if (imag.value < 0) "$real-${-imag}" else "$real+$imag"
 }
 
 operator fun Int.plus(imag: Imaginary) = Complex(this, imag)
