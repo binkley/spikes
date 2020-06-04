@@ -29,7 +29,17 @@ fun main() {
     println("z * 2i -> ${z * 2.i}")
     println("2i * z -> ${2.i * z}")
     println("(1+0i).toInt() -> ${(1 + 0.i).toInt()}")
+    try {
+        (0 + 1.i).toInt()
+    } catch (e: ArithmeticException) {
+        println("(0+1i).toInt() -> $e")
+    }
     println("(0+1i).toImaginary() -> ${(0 + 1.i).toImaginary()}")
+    try {
+        (1 + 0.i).toImaginary()
+    } catch (e: ArithmeticException) {
+        println("(1+0i).toImaginary() -> $e")
+    }
 }
 
 inline class Imaginary(val real: Int) {
