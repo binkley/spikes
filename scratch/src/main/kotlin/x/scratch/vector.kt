@@ -17,6 +17,7 @@ fun main() {
     println("DET - ${mat0.det}")
 }
 
+// TODO: Whoops ... Ring<->Group<->Ring via generics
 interface Group<T : Ring<T>> {
     val additiveIdentity: T
 
