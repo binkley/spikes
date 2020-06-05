@@ -27,6 +27,8 @@ fun main() {
     println()
     println("MATHS")
 
+    println("FLOATING POINT (0.1 + 0.2): ${0.1 + 0.2}")
+
     println(
         "GCD pos to pos: ${BigInteger.valueOf(3).gcd(BigInteger.valueOf(2))}"
     )
