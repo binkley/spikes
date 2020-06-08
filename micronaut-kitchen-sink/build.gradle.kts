@@ -1,3 +1,4 @@
+import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import org.gradle.api.tasks.wrapper.Wrapper.DistributionType.ALL
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -101,6 +102,12 @@ ktlint {
 }
 
 tasks {
+    withType<DependencyUpdatesTask> {
+        rejectVersionIf {
+            isNonStable(candidate.version) && !isNonStable(currentVersion)
+        }
+    }
+
     withType<KotlinCompile> {
         kotlinOptions {
             jvmTarget = "11"
@@ -153,4 +160,13 @@ tasks {
         gradleVersion = gradleWrapperVersion
         distributionType = ALL
     }
+}
+
+fun isNonStable(version: String): Boolean {
+    val stableKeyword = listOf("RELEASE", "FINAL", "GA").any {
+        version.toUpperCase().contains(it)
+    }
+    val regex = "^[0-9,.v-]+(-r)?$".toRegex()
+    val isStable = stableKeyword || regex.matches(version)
+    return isStable.not()
 }

@@ -50,5 +50,6 @@ private fun defaultMicronautFormat(lc: LoggerContext) =
         """.trim()
     }.also { it.start() }
 
+@Suppress("UnusedPrivateMember") // Detekt gets this wrong
 private operator fun Logger.plusAssign(appender: Appender<ILoggingEvent>) =
     addAppender(appender)
