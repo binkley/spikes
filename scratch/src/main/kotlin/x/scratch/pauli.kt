@@ -79,7 +79,7 @@ class Pauli private constructor(
     }
 
     override fun toString() = when {
-        this == sigmaI -> "I"
+        U == a && Z == b && Z == c && U == d -> "I"
         this == sigmaX -> "σ₁"
         this == sigmaY -> "σ₂"
         this == sigmaZ -> "σ₃"
