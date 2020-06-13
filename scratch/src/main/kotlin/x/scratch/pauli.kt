@@ -10,7 +10,7 @@ fun main() {
     println("σ₀ -> ${sigmaI.toFullString()}")
     println("σ₁ -> ${sigmaX.toFullString()}")
     println("σ₁² -> ${sigmaX * sigmaX}")
-    println("σ₁σ₂ -> ${sigmaX * sigmaY}")
+    println("σ₁σ₂ -> ${sigmaX * sigmaY} (-σ₂σ₁ -> ${-sigmaY * sigmaX})")
     println("σ₁σ₃ -> ${sigmaX * sigmaZ}")
     println("σ₂ -> ${sigmaY.toFullString()}")
     println("σ₂² -> ${sigmaY * sigmaY}")
@@ -38,6 +38,8 @@ data class Complex(val a: Int, val b: Int) : Ring<Complex> {
         a * other.b + b * other.a
     )
 
+    val conjugate: Complex get() = Complex(a, -b)
+
     override fun toString() = when {
         0 == b -> "$a"
         0 == a -> when (b) {
@@ -64,6 +66,14 @@ class Pauli private constructor(
     val det: Complex get() = a * d - b * c
     val tr: Complex get() = a + d
     val complexConjugate: Pauli get() = -sigmaY * this * sigmaY
+    val conjugateTranspose: Pauli
+        get() = Pauli(
+            -1,
+            a.conjugate,
+            c.conjugate,
+            b.conjugate,
+            d.conjugate
+        )
 
     operator fun unaryPlus() = this
     operator fun unaryMinus() = Pauli(-n, -a, -b, -c, -d)
@@ -89,7 +99,7 @@ class Pauli private constructor(
     fun toMatrixString() = "[$a, $b; $c, $d]"
 
     fun toFullString() =
-        "${toMatrixString()}; det=$det; tr=$tr; c.c.=$complexConjugate"
+        "${toMatrixString()}; det=$det; tr=$tr; c.c.=$complexConjugate, c.t.=$conjugateTranspose"
 
     companion object {
         val sigmaI = Pauli(0, U, Z, Z, U)
