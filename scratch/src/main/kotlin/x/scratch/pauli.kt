@@ -27,12 +27,11 @@ private val U = Complex(1, 0)
 private val i = Complex(0, 1)
 
 data class Complex(val a: Int, val b: Int) : Ring<Complex> {
-    override val additiveIdentity: Complex get() = Z
+    override val companion = ComplexCompanion
     override fun unaryMinus(): Complex = Complex(-a, -b)
     override fun plus(other: Complex): Complex =
         Complex(a + other.a, b + other.b)
 
-    override val multiplicativeIdentity: Complex get() = U
     override fun times(other: Complex): Complex = Complex(
         a * other.a - b * other.b,
         a * other.b + b * other.a
@@ -53,6 +52,11 @@ data class Complex(val a: Int, val b: Int) : Ring<Complex> {
             0 > b -> "$a-${b}i"
             else -> "$a+${b}i"
         }
+    }
+
+    companion object ComplexCompanion : RingCompanion<Complex> {
+        override val additiveIdentity = Z
+        override val multiplicativeIdentity = U
     }
 }
 

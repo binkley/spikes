@@ -17,9 +17,12 @@ fun main() {
     println("DET - ${mat0.det}")
 }
 
-// TODO: Whoops ... Ring<->Group<->Ring via generics
-interface Group<T : Ring<T>> {
+interface GroupCompanion<T : Group<T>> {
     val additiveIdentity: T
+}
+
+interface Group<T : Group<T>> {
+    val companion: GroupCompanion<T>
 
     @Suppress("UNCHECKED_CAST")
     operator fun unaryPlus(): T = this as T
@@ -28,23 +31,29 @@ interface Group<T : Ring<T>> {
     operator fun minus(other: T): T = this + -other
 }
 
-interface Ring<T : Ring<T>> : Group<T> {
+interface RingCompanion<T : Ring<T>> : GroupCompanion<T> {
     val multiplicativeIdentity: T
+}
+
+interface Ring<T : Ring<T>> : Group<T> {
+    override val companion: RingCompanion<T>
 
     operator fun times(other: T): T
 }
 
 inline class MathInt(val value: Int) : Ring<MathInt> {
-    override val additiveIdentity: MathInt
-        get() = MathInt(0)
-    override val multiplicativeIdentity: MathInt
-        get() = MathInt(1)
+    override val companion: MathIntCompanion get() = MathIntCompanion
 
     override fun unaryMinus() = MathInt(-value)
     override fun plus(other: MathInt) = MathInt(value + other.value)
     override fun times(other: MathInt) = MathInt(value * other.value)
 
     override fun toString() = value.toString()
+
+    companion object MathIntCompanion : RingCompanion<MathInt> {
+        override val additiveIdentity = MathInt(0)
+        override val multiplicativeIdentity = MathInt(1)
+    }
 }
 
 open class Vector2Base<T : Ring<T>>(
