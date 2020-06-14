@@ -18,7 +18,7 @@ fun main() {
 }
 
 interface GroupCompanion<T : Group<T>> {
-    val additiveIdentity: T
+    val ZERO: T
 }
 
 interface Group<T : Group<T>> {
@@ -32,7 +32,7 @@ interface Group<T : Group<T>> {
 }
 
 interface RingCompanion<T : Ring<T>> : GroupCompanion<T> {
-    val multiplicativeIdentity: T
+    val UNIT: T
 }
 
 interface Ring<T : Ring<T>> : Group<T> {
@@ -51,8 +51,8 @@ inline class MathInt(val value: Int) : Ring<MathInt> {
     override fun toString() = value.toString()
 
     companion object MathIntCompanion : RingCompanion<MathInt> {
-        override val additiveIdentity = MathInt(0)
-        override val multiplicativeIdentity = MathInt(1)
+        override val ZERO = MathInt(0)
+        override val UNIT = MathInt(1)
     }
 }
 
