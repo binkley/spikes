@@ -27,24 +27,24 @@ private fun demonstrate(propRef: KProperty1<Array<Int>, Int>) {
 
 val Array<Int>.signature: Int
     get() {
-        var inversions = 0
+        var parity = 1
         for (i in 0 until size) {
             val n = this[i]
             for (j in i + 1 until size)
-                if (n > this[j]) ++inversions
+                if (n > this[j]) parity *= -1
         }
-        return if (0 == inversions % 2) 1 else -1
+        return parity
     }
 
 val Array<Int>.leviCevita: Int
     get() {
-        var inversions = 0
+        var parity = 1
         for (i in 0 until size) {
             val n = this[i]
             for (j in i + 1 until size) when {
                 n == this[j] -> return 0
-                n > this[j] -> ++inversions
+                n > this[j] -> parity *= -1
             }
         }
-        return if (0 == inversions % 2) 1 else -1
+        return parity
     }
