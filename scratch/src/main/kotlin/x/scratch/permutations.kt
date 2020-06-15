@@ -1,47 +1,28 @@
 package x.scratch
 
+import kotlin.reflect.KProperty1
+
 fun main() {
     println("== PERMUTATIONS")
-    println(
-        "SIGNATURE ${arrayOf(1, 2, 3).contentToString()} -> ${arrayOf(
-            1, 2, 3
-        ).signature}"
-    )
-    println(
-        "SIGNATURE ${arrayOf(2, 1, 3).contentToString()} -> ${arrayOf(
-            2, 1, 3
-        ).signature}"
-    )
-    println(
-        "SIGNATURE ${arrayOf(2, 3, 1).contentToString()} -> ${arrayOf(
-            2, 3, 1
-        ).signature}"
-    )
-    println(
-        "SIGNATURE ${arrayOf(1, 1, 1).contentToString()} -> ${arrayOf(
-            1, 1, 1
-        ).signature}"
-    )
-    println(
-        "LEVI-CEVITA ${arrayOf(1, 2, 3).contentToString()} -> ${arrayOf(
-            1, 2, 3
-        ).leviCevita}"
-    )
-    println(
-        "LEVI-CEVITA ${arrayOf(2, 1, 3).contentToString()} -> ${arrayOf(
-            2, 1, 3
-        ).leviCevita}"
-    )
-    println(
-        "LEVI-CEVITA ${arrayOf(2, 3, 1).contentToString()} -> ${arrayOf(
-            2, 3, 1
-        ).leviCevita}"
-    )
-    println(
-        "LEVI-CEVITA ${arrayOf(1, 1, 1).contentToString()} -> ${arrayOf(
-            1, 1, 1
-        ).leviCevita}"
-    )
+    println()
+    demonstrate(Array<Int>::signature)
+    println()
+    demonstrate(Array<Int>::leviCevita)
+}
+
+private fun demonstrate(propRef: KProperty1<Array<Int>, Int>) {
+    val header: String = when (propRef) {
+        Array<Int>::signature -> "SIGNATURE"
+        Array<Int>::leviCevita -> "LEVI-CEVITA"
+        else -> error("New method: ${propRef.name}")
+    }
+
+    for (a in arrayOf(
+        arrayOf(1, 2, 3),
+        arrayOf(2, 1, 3),
+        arrayOf(2, 3, 1),
+        arrayOf(1, 1, 1),
+    )) println("$header ${a.contentToString()} -> ${propRef.get(a)}")
 }
 
 val Array<Int>.signature: Int
