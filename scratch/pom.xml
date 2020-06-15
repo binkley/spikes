@@ -13,6 +13,7 @@
         <!-- @formatter:off -->
         <atrium.version>0.12.0</atrium.version>
         <indriya.version>2.0.2</indriya.version>
+        <jackson.version>2.11.0</jackson.version>
         <java.charset>UTF-8</java.charset>
         <java.version>11</java.version>
         <junit.version>5.7.0-M1</junit.version>
@@ -98,6 +99,23 @@
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-script-runtime</artifactId>
             <version>${kotlin.version}</version>
+        </dependency>
+
+        <!-- YAML -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-yaml</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.module</groupId>
+            <artifactId>jackson-module-kotlin</artifactId>
+            <version>${jackson.version}</version>
         </dependency>
 
         <!-- Units, money, et al -->
