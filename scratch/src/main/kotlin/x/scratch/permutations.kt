@@ -1,5 +1,6 @@
 package x.scratch
 
+import java.lang.IllegalStateException
 import kotlin.reflect.KProperty1
 
 fun main() {
@@ -8,13 +9,19 @@ fun main() {
     demonstrate(Array<Int>::signature)
     println()
     demonstrate(Array<Int>::leviCevita)
+    println()
+    try {
+        demonstrate(Array<Int>::intentionalFailure)
+    } catch (e: IllegalStateException) {
+        println(e)
+    }
 }
 
 private fun demonstrate(propRef: KProperty1<Array<Int>, Int>) {
     val header: String = when (propRef) {
         Array<Int>::signature -> "SIGNATURE"
         Array<Int>::leviCevita -> "LEVI-CEVITA"
-        else -> error("New method: ${propRef.name}")
+        else -> error("New property: ${propRef.name}")
     }
 
     for (a in arrayOf(
@@ -48,3 +55,5 @@ val Array<Int>.leviCevita: Int
         }
         return parity
     }
+
+val Array<Int>.intentionalFailure: Int get() = 1
