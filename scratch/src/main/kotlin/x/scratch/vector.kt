@@ -1,9 +1,10 @@
 package x.scratch
 
 import java.util.Objects.hash
+import kotlin.math.absoluteValue
 
 fun main() {
-    println("VECTORS")
+    println("== VECTORS")
 
     val rv0 = RowVector2.of(1, 2)
     println("ROW VECTOR - $rv0")
@@ -15,6 +16,14 @@ fun main() {
     val mat0 = cv0 * rv0
     println("COL * ROW - $mat0")
     println("DET - ${mat0.det}")
+
+    println()
+    println("== MOD3 MATH")
+    println("-1 (constructor) -> ${Mod3Int.of(-1)}")
+    println("-1 (inverse) -> ${-Mod3Int.UNIT}")
+    println("3-4 -> ${Mod3Int.of(3) - Mod3Int.of(4)}")
+    println("3+4 -> ${Mod3Int.of(3) + Mod3Int.of(4)}")
+    println("3*4 -> ${Mod3Int.of(3) * Mod3Int.of(4)}")
 }
 
 interface GroupCompanion<T : Group<T>> {
@@ -27,8 +36,8 @@ interface Group<T : Group<T>> {
     @Suppress("UNCHECKED_CAST")
     operator fun unaryPlus(): T = this as T
     operator fun unaryMinus(): T
-    operator fun plus(other: T): T
-    operator fun minus(other: T): T = this + -other
+    operator fun plus(addend: T): T
+    operator fun minus(subtrahend: T): T = this + -subtrahend
 }
 
 interface RingCompanion<T : Ring<T>> : GroupCompanion<T> {
@@ -38,21 +47,61 @@ interface RingCompanion<T : Ring<T>> : GroupCompanion<T> {
 interface Ring<T : Ring<T>> : Group<T> {
     override val companion: RingCompanion<T>
 
-    operator fun times(other: T): T
+    operator fun times(multiplicand: T): T
+}
+
+interface FieldCompanion<T : Field<T>> : RingCompanion<T>
+
+interface Field<T : Field<T>> : Ring<T> {
+    override val companion: FieldCompanion<T>
+
+    // No such thing as `operator unaryDiv`
+    fun inv(): T
+
+    operator fun div(divisor: T): T = this * divisor.inv()
 }
 
 inline class MathInt(val value: Int) : Ring<MathInt> {
     override val companion: MathIntCompanion get() = MathIntCompanion
 
     override fun unaryMinus() = MathInt(-value)
-    override fun plus(other: MathInt) = MathInt(value + other.value)
-    override fun times(other: MathInt) = MathInt(value * other.value)
+    override fun plus(addend: MathInt) = MathInt(value + addend.value)
+    override fun times(multiplicand: MathInt) =
+        MathInt(value * multiplicand.value)
 
     override fun toString() = value.toString()
 
     companion object MathIntCompanion : RingCompanion<MathInt> {
         override val ZERO = MathInt(0)
         override val UNIT = MathInt(1)
+    }
+}
+
+class Mod3Int private constructor(val value: Int) : Ring<Mod3Int> {
+    override val companion = Mod3IntCompanion
+
+    override fun unaryMinus() = Mod3Int(value + 3 * (value / 3) + 1)
+    override fun plus(addend: Mod3Int) = Mod3Int(value + addend.value)
+    override fun times(multiplicand: Mod3Int) =
+        Mod3Int(value * multiplicand.value)
+
+    override fun equals(other: Any?) = this === other ||
+            other is Mod3Int &&
+            value == other.value
+
+    override fun hashCode() = value.hashCode()
+    override fun toString() = value.toString()
+
+    companion object Mod3IntCompanion : RingCompanion<Mod3Int> {
+        fun of(value: Int): Mod3Int {
+            return when {
+                0 > value -> -Mod3Int(value.absoluteValue)
+                else -> Mod3Int(value % 3)
+            }
+        }
+
+        override val ZERO = Mod3Int(0)
+        override val UNIT = Mod3Int(1)
     }
 }
 

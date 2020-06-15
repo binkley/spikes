@@ -29,12 +29,12 @@ private val i = Complex(0, 1)
 data class Complex(val a: Int, val b: Int) : Ring<Complex> {
     override val companion = ComplexCompanion
     override fun unaryMinus(): Complex = Complex(-a, -b)
-    override fun plus(other: Complex): Complex =
-        Complex(a + other.a, b + other.b)
+    override fun plus(addend: Complex): Complex =
+        Complex(a + addend.a, b + addend.b)
 
-    override fun times(other: Complex): Complex = Complex(
-        a * other.a - b * other.b,
-        a * other.b + b * other.a
+    override fun times(multiplicand: Complex): Complex = Complex(
+        a * multiplicand.a - b * multiplicand.b,
+        a * multiplicand.b + b * multiplicand.a
     )
 
     val conjugate: Complex get() = Complex(a, -b)
