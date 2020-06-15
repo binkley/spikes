@@ -17,11 +17,8 @@ fun main() {
 
 private data class Qux(val q: Int)
 
-private inline fun <reified T> load(yaml: String): T {
-    val mapper = ObjectMapper(YAMLFactory()) // Enable YAML parsing
-    mapper.registerModule(KotlinModule()) // Enable Kotlin support
-
-    return yaml.reader().use {
-        mapper.readValue(it, T::class.java)
-    }
+private inline fun <reified T> load(yaml: String) = yaml.reader().use {
+    ObjectMapper(YAMLFactory()).apply {
+        registerModule(KotlinModule())
+    }.readValue(it, T::class.java)
 }
