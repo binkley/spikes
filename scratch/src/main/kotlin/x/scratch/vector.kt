@@ -16,14 +16,6 @@ fun main() {
     val mat0 = cv0 * rv0
     println("COL * ROW - $mat0")
     println("DET - ${mat0.det}")
-
-    println()
-    println("== MOD3 MATH")
-    println("-1 (constructor) -> ${Mod3Int.of(-1)}")
-    println("-1 (inverse) -> ${-Mod3Int.ONE}")
-    println("3-4 -> ${Mod3Int.of(3) - Mod3Int.of(4)}")
-    println("3+4 -> ${Mod3Int.of(3) + Mod3Int.of(4)}")
-    println("3*4 -> ${Mod3Int.of(3) * Mod3Int.of(4)}")
 }
 
 interface GroupCompanion<T : Group<T>> {
@@ -74,37 +66,6 @@ inline class MathInt(val value: Int) : Ring<MathInt> {
     companion object MathIntCompanion : RingCompanion<MathInt> {
         override val ZERO = MathInt(0)
         override val ONE = MathInt(1)
-    }
-}
-
-class Mod3Int private constructor(val value: Int) : Ring<Mod3Int> {
-    override val companion = Mod3IntCompanion
-
-    override fun unaryMinus() = of(-value)
-    override fun plus(addend: Mod3Int) = of(value + addend.value)
-    override fun times(multiplicand: Mod3Int) = of(value * multiplicand.value)
-
-    override fun equals(other: Any?) = this === other
-    override fun hashCode() = value.hashCode()
-    override fun toString() = value.toString()
-
-    companion object Mod3IntCompanion : RingCompanion<Mod3Int> {
-        fun of(value: Int): Mod3Int {
-            val n =
-                if (0 > value) value.absoluteValue % 3 + 1
-                else value % 3
-
-            return when (n) {
-                0 -> ZERO
-                1 -> ONE
-                2 -> TWO
-                else -> error("BUG: $n is not mod3")
-            }
-        }
-
-        override val ZERO = Mod3Int(0)
-        override val ONE = Mod3Int(1)
-        val TWO = Mod3Int(2)
     }
 }
 
