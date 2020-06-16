@@ -56,7 +56,7 @@ data class Complex(val a: Int, val b: Int) : Ring<Complex> {
 
     companion object ComplexCompanion : RingCompanion<Complex> {
         override val ZERO = Z
-        override val UNIT = U
+        override val ONE = U
     }
 }
 
