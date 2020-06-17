@@ -27,8 +27,6 @@ fun main() {
     println()
     println("MATHS")
 
-    println("FLOATING POINT (0.1 + 0.2): ${0.1 + 0.2}")
-
     println(
         "GCD pos to pos: ${BigInteger.valueOf(3).gcd(BigInteger.valueOf(2))}"
     )
@@ -127,14 +125,6 @@ fun main() {
     println("Test clock advanced since mark by ${tm.elapsedNow()}")
 
     println(Bob(3).aaa(listOf("fruits")))
-
-    println()
-    println("NAN")
-
-    println("Kotlin floating point is Java's")
-    @Suppress("ConvertNaNEquality")
-    println("NaN comparison: ${Double.NaN == Double.NaN}")
-    println("NaN check: ${Double.NaN.isNaN()}")
 
     // How to trigger IntelliJ suggestion use of sequence?
     val qqq = listOf("a", "b", "c").filter {
