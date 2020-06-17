@@ -1,31 +1,14 @@
 package x.scratch
 
+import java.math.BigDecimal
 import java.math.BigInteger
 import java.math.BigInteger.ONE
 import java.math.BigInteger.TEN
-import kotlin.Double.Companion.MAX_VALUE
-import kotlin.Double.Companion.MIN_VALUE
-import kotlin.Double.Companion.NaN
 
 fun main() {
     println("== FLOATING POINT")
 
-    println()
-    println("FP 0.1 -> ${0.1}")
-    println("FP 0.1 + 0.2 -> ${0.1 + 0.2}")
-    println("(0.1+0.2).toBig -> ${(0.1 + 0.2).toBigDecimal()}")
-    println(
-        "(0.1+0.2).toBig.toFP -> ${(0.1 + 0.2).toBigDecimal().toDouble()}"
-    )
-
-    println()
-    println("NAN")
-    @Suppress("ConvertNaNEquality")
-    println("NaN == NaN -> ${NaN == NaN}")
-    println("NaN.isNan -> ${NaN.isNaN()}")
-
-    println()
-    println("RATIOS")
+    println("RATIOS OF DOUBLES")
 
     for (d in listOf(
         10.0,
@@ -42,30 +25,59 @@ fun main() {
         printRoundTrip(d)
 
     println("MAX_VALUE")
-    printRoundTrip(MAX_VALUE)
+    printRoundTrip(Double.MAX_VALUE)
 
     println("MIN_VALUE")
-    printRoundTrip(MIN_VALUE)
+    printRoundTrip(Double.MIN_VALUE)
+
+    println()
+    println("RATIOS OF FLOATS")
+
+    for (d in listOf(
+        10.0f,
+        1.0f,
+        0.0f,
+        0.1f,
+        0.01f,
+        0.1f + 0.2f,
+        2.0f / 3.0f,
+        -1.0f,
+        -0.1f,
+        -0.0f
+    ))
+        printRoundTrip(d)
+
+    println("MAX_VALUE")
+    printRoundTrip(Float.MAX_VALUE)
+
+    println("MIN_VALUE")
+    printRoundTrip(Float.MIN_VALUE)
 }
 
-private fun printRoundTrip(d: Double) {
-    val ratio = d.toRatio()
+private fun printRoundTrip(floatingPoint: Double) {
+    val ratio = floatingPoint.toBigDecimal().toRatio()
     val backAgain = ratio.toDouble()
-    println("$d -> $ratio -> $backAgain")
-    if (d != backAgain) error("DID NOT ROUNDTRIP: $d")
+    println("$floatingPoint -> $ratio -> $backAgain")
+    if (floatingPoint != backAgain) error("DID NOT ROUNDTRIP: $floatingPoint")
 }
 
-private fun Double.toRatio(): Pair<BigInteger, BigInteger> {
-    val big = toBigDecimal()
-    val scale = big.scale()
+private fun printRoundTrip(floatingPoint: Float) {
+    val ratio = floatingPoint.toBigDecimal().toRatio()
+    val backAgain = ratio.toFloat()
+    println("$floatingPoint -> $ratio -> $backAgain")
+    if (floatingPoint != backAgain) error("DID NOT ROUNDTRIP: $floatingPoint")
+}
+
+private fun BigDecimal.toRatio(): Pair<BigInteger, BigInteger> {
+    val scale = scale()
 
     val numerator: BigInteger
     val denominator: BigInteger
     if (scale < 0) {
-        numerator = big.unscaledValue() * TEN.pow(-scale)
+        numerator = unscaledValue() * TEN.pow(-scale)
         denominator = ONE
     } else {
-        numerator = big.unscaledValue()
+        numerator = unscaledValue()
         denominator = TEN.pow(scale)
     }
 
@@ -76,3 +88,6 @@ private fun Double.toRatio(): Pair<BigInteger, BigInteger> {
 
 private fun Pair<BigInteger, BigInteger>.toDouble() =
     first.toBigDecimal().divide(second.toBigDecimal()).toDouble()
+
+private fun Pair<BigInteger, BigInteger>.toFloat() =
+    first.toBigDecimal().divide(second.toBigDecimal()).toFloat()
