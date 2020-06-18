@@ -1,5 +1,8 @@
 package x.scratch
 
+import x.scratch.BigRational.Companion.NEGATIVE_INFINITY
+import x.scratch.BigRational.Companion.NaN
+import x.scratch.BigRational.Companion.POSITIVE_INFINITY
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.math.BigInteger.ONE
@@ -11,9 +14,22 @@ import java.util.Objects.hash
 fun main() {
     println("== FLOATING POINT")
 
+    println()
     println("FOO-AND-REMAINDER FUNCTIONS")
+
     println("√2 -> ${TWO.sqrtAndRemainder()!!.contentToString()}")
 
+    println()
+    println("RATIOS OF NON-FINITE VALUES")
+
+    for (r in listOf(POSITIVE_INFINITY, NEGATIVE_INFINITY, NaN))
+        for (s in listOf(POSITIVE_INFINITY, NEGATIVE_INFINITY, NaN)) {
+            println("EQ? ${r.display} ${s.display} -> ${r == s}")
+            println("LT? ${r.display} ${s.display} -> ${r < s}")
+            println("GT? ${r.display} ${s.display} -> ${r > s}")
+        }
+
+    println()
     println("RATIOS OF DOUBLES")
 
     for (d in listOf(
@@ -58,6 +74,14 @@ fun main() {
         printRoundTrip(d)
 }
 
+private val BigRational.display
+    get() = when {
+        POSITIVE_INFINITY == this -> "+∞"
+        NEGATIVE_INFINITY == this -> "-∞"
+        isNaN() -> "NaN"
+        else -> toString()
+    }
+
 private fun printRoundTrip(floatingPoint: Double) {
     val ratio = floatingPoint.toRatio()
     val backAgain = ratio.toDouble()
@@ -88,8 +112,14 @@ private class BigRational private constructor(
     val numerator: BigInteger,
     val denominator: BigInteger
 ) : Comparable<BRat> {
+    fun isNaN() = BInt.ZERO == numerator && BInt.ZERO == denominator
+
     override fun compareTo(other: BRat) = when {
+        isNaN() -> 1 // NaN sorts after all other values
+        other.isNaN() -> -1
         this === other -> 0 // Sort stability for constants
+        POSITIVE_INFINITY == this -> 1
+        NEGATIVE_INFINITY == this -> -1
         else -> {
             val a = numerator * other.denominator
             val b = other.numerator * denominator
@@ -97,8 +127,9 @@ private class BigRational private constructor(
         }
     }
 
-    override fun equals(other: Any?) = this === other ||
+    override fun equals(other: Any?) = !isNaN() && this === other ||
             other is BRat &&
+            !other.isNaN() &&
             numerator == other.numerator &&
             denominator == other.denominator
 
@@ -143,7 +174,7 @@ private class BigRational private constructor(
             n /= gcd
             d /= gcd
 
-            return if (BInt.ONE == d) when(n) {
+            return if (BInt.ONE == d) when (n) {
                 BInt.ONE -> ONE
                 BInt.TWO -> TWO
                 BInt.TEN -> TEN
