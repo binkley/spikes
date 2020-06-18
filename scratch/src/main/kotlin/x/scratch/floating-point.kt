@@ -4,9 +4,13 @@ import java.math.BigDecimal
 import java.math.BigInteger
 import java.math.BigInteger.ONE
 import java.math.BigInteger.TEN
+import java.math.BigInteger.TWO
 
 fun main() {
     println("== FLOATING POINT")
+
+    println("FOO-AND-REMAINDER FUNCTIONS")
+    println("√2 -> ${TWO.sqrtAndRemainder()!!.contentToString()}")
 
     println("RATIOS OF DOUBLES")
 
