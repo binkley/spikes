@@ -58,37 +58,23 @@ fun main() {
 }
 
 private fun printRoundTrip(floatingPoint: Double) {
-    fun Double.display() = when (this) {
-        Double.MAX_VALUE -> "MAX_VALUE"
-        Double.MIN_VALUE -> "MIN_VALUE"
-        else -> floatingPoint.toString()
-    }
-
     val ratio = floatingPoint.toRatio()
     val backAgain = ratio.toDouble()
 
-    println("${floatingPoint.display()} -> $ratio -> ${backAgain.display()}")
+    println("${floatingPoint.print} -> $ratio -> ${backAgain.print}")
 
-    if (floatingPoint == backAgain) return
-    if (backAgain.isNaN() and floatingPoint.isNaN()) return
+    if (floatingPoint eq backAgain) return
 
     error("DID NOT ROUND TRIP: $floatingPoint")
 }
 
 private fun printRoundTrip(floatingPoint: Float) {
-    fun Float.display() = when (this) {
-        Float.MAX_VALUE -> "MAX_VALUE"
-        Float.MIN_VALUE -> "MIN_VALUE"
-        else -> floatingPoint.toString()
-    }
-
     val ratio = floatingPoint.toRatio()
     val backAgain = ratio.toFloat()
 
-    println("${floatingPoint.display()} -> $ratio -> ${backAgain.display()}")
+    println("${floatingPoint.print} -> $ratio -> ${backAgain.print}")
 
-    if (floatingPoint == backAgain) return
-    if (backAgain.isNaN() and floatingPoint.isNaN()) return
+    if (floatingPoint eq backAgain) return
 
     error("DID NOT ROUND TRIP: $floatingPoint")
 }
@@ -146,3 +132,24 @@ private fun Pair<BigInteger, BigInteger>.toFloat() = when (second) {
     }
     else -> first.toBigDecimal().divide(second.toBigDecimal()).toFloat()
 }
+
+private val Double.print
+    get() = when (this) {
+        Double.MAX_VALUE -> "MAX_VALUE"
+        Double.MIN_VALUE -> "MIN_VALUE"
+        else -> toString()
+    }
+
+private infix fun Double.eq(other: Double) =
+    this == other || this.isNaN() && other.isNaN()
+
+private val Float.print
+    get() = when (this) {
+        Float.MAX_VALUE -> "MAX_VALUE"
+        Float.MIN_VALUE -> "MIN_VALUE"
+        else -> toString()
+    }
+
+private infix fun Float.eq(other: Float) =
+    this == other || this.isNaN() && other.isNaN()
+
