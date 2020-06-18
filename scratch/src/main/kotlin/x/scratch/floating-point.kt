@@ -26,9 +26,16 @@ fun main() {
 
     println("MAX_VALUE")
     printRoundTrip(Double.MAX_VALUE)
-
     println("MIN_VALUE")
     printRoundTrip(Double.MIN_VALUE)
+    if (false) {
+        println("POSITIVE_INFINITY")
+        printRoundTrip(Double.POSITIVE_INFINITY)
+        println("NEGATIVE_INFINITY")
+        printRoundTrip(Double.NEGATIVE_INFINITY)
+        println("NaN")
+        printRoundTrip(Double.NaN)
+    }
 
     println()
     println("RATIOS OF FLOATS")
@@ -49,9 +56,16 @@ fun main() {
 
     println("MAX_VALUE")
     printRoundTrip(Float.MAX_VALUE)
-
     println("MIN_VALUE")
     printRoundTrip(Float.MIN_VALUE)
+    if (false) {
+        println("POSITIVE_INFINITY")
+        printRoundTrip(Float.POSITIVE_INFINITY)
+        println("NEGATIVE_INFINITY")
+        printRoundTrip(Float.NEGATIVE_INFINITY)
+        println("NaN")
+        printRoundTrip(Float.NaN)
+    }
 }
 
 private fun printRoundTrip(floatingPoint: Double) {
