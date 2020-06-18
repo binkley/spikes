@@ -6,6 +6,7 @@ import java.math.BigInteger.ONE
 import java.math.BigInteger.TEN
 import java.math.BigInteger.TWO
 import java.math.BigInteger.ZERO
+import java.util.Objects.hash
 
 fun main() {
     println("== FLOATING POINT")
@@ -79,25 +80,101 @@ private fun printRoundTrip(floatingPoint: Float) {
     error("DID NOT ROUND TRIP: $floatingPoint")
 }
 
-private fun Double.toRatio(): Pair<BigInteger, BigInteger> {
+private typealias BInt = BigInteger
+private typealias BDouble = BigDecimal
+private typealias BRat = BigRational
+
+private class BigRational private constructor(
+    val numerator: BigInteger,
+    val denominator: BigInteger
+) : Comparable<BRat> {
+    override fun compareTo(other: BRat) = when {
+        this === other -> 0 // Sort stability for constants
+        else -> {
+            val a = numerator * other.denominator
+            val b = other.numerator * denominator
+            a.compareTo(b)
+        }
+    }
+
+    override fun equals(other: Any?) = this === other ||
+            other is BRat &&
+            numerator == other.numerator &&
+            denominator == other.denominator
+
+    override fun hashCode() = hash(javaClass, numerator, denominator)
+
+    override fun toString() = when {
+        BInt.ZERO == denominator -> when {
+            BInt.ONE == numerator -> "Infinity"
+            -BInt.ONE == numerator -> "-Infinity"
+            else -> "NaN"
+        }
+        BInt.ONE == denominator -> numerator.toString()
+        else -> "$numerator/$denominator"
+    }
+
+    companion object {
+        val ZERO = BRat(BInt.ZERO, BInt.ONE)
+        val ONE = BRat(BInt.ONE, BInt.ONE)
+        val TWO = BRat(BInt.TWO, BInt.ONE)
+        val TEN = BRat(BInt.TEN, BInt.ONE)
+        val POSITIVE_INFINITY = BRat(BInt.ONE, BInt.ZERO)
+        val NEGATIVE_INFINITY = BRat(-BInt.ONE, BInt.ZERO)
+        val NaN = BRat(BInt.ZERO, BInt.ZERO)
+
+        fun valueOf(numerator: BigInteger, denominator: BigInteger): BRat {
+            if (BInt.ZERO == denominator) return when {
+                numerator.signum() == 1 -> POSITIVE_INFINITY
+                numerator.signum() == -1 -> NEGATIVE_INFINITY
+                else -> NaN
+            }
+
+            if (BInt.ZERO == numerator) return ZERO
+
+            var n = numerator
+            var d = denominator
+            if (-1 == d.signum()) {
+                n = n.negate()
+                d = d.negate()
+            }
+
+            val gcd = n.gcd(d)
+            n /= gcd
+            d /= gcd
+
+            return if (BInt.ONE == d) when(n) {
+                BInt.ONE -> ONE
+                BInt.TWO -> TWO
+                BInt.TEN -> TEN
+                else -> BRat(n, d)
+            } else BRat(n, d)
+        }
+    }
+}
+
+private infix fun BInt.over(denominator: BInt) =
+    BRat.valueOf(this, denominator)
+
+private fun Double.toRatio(): BRat {
     return when {
-        isNaN() -> ZERO to ZERO
-        Double.POSITIVE_INFINITY == this -> ONE to ZERO
-        Double.NEGATIVE_INFINITY == this -> -ONE to ZERO
+        isNaN() -> ZERO over ZERO
+        Double.POSITIVE_INFINITY == this -> ONE over ZERO
+        Double.NEGATIVE_INFINITY == this -> -ONE over ZERO
         else -> toBigDecimal().toRatio()
     }
 }
 
-private fun Float.toRatio(): Pair<BigInteger, BigInteger> {
+private fun Float.toRatio(): BRat {
     return when {
-        isNaN() -> ZERO to ZERO
-        Float.POSITIVE_INFINITY == this -> ONE to ZERO
-        Float.NEGATIVE_INFINITY == this -> -ONE to ZERO
+        isNaN() -> ZERO over ZERO
+        Float.POSITIVE_INFINITY == this -> ONE over ZERO
+        Float.NEGATIVE_INFINITY == this -> -ONE over ZERO
         else -> toBigDecimal().toRatio()
     }
 }
 
-private fun BigDecimal.toRatio(): Pair<BigInteger, BigInteger> {
+private fun BigDecimal.toRatio(): BRat {
     val scale = scale()
 
     val numerator: BigInteger
@@ -112,25 +189,27 @@ private fun BigDecimal.toRatio(): Pair<BigInteger, BigInteger> {
 
     val gcd = numerator.gcd(denominator)
 
-    return numerator / gcd to denominator / gcd
+    return numerator / gcd over denominator / gcd
 }
 
-private fun Pair<BigInteger, BigInteger>.toDouble() = when (second) {
-    ZERO -> when (first) {
+private fun BRat.toDouble() = when (denominator) {
+    ZERO -> when (numerator) {
         ZERO -> Double.NaN
         ONE -> Double.POSITIVE_INFINITY
         else -> Double.NEGATIVE_INFINITY
     }
-    else -> first.toBigDecimal().divide(second.toBigDecimal()).toDouble()
+    else -> numerator.toBigDecimal().divide(denominator.toBigDecimal())
+        .toDouble()
 }
 
-private fun Pair<BigInteger, BigInteger>.toFloat() = when (second) {
-    ZERO -> when (first) {
+private fun BRat.toFloat() = when (denominator) {
+    ZERO -> when (numerator) {
         ZERO -> Float.NaN
         ONE -> Float.POSITIVE_INFINITY
         else -> Float.NEGATIVE_INFINITY
     }
-    else -> first.toBigDecimal().divide(second.toBigDecimal()).toFloat()
+    else -> numerator.toBigDecimal().divide(denominator.toBigDecimal())
+        .toFloat()
 }
 
 private val Double.print
@@ -152,4 +231,3 @@ private val Float.print
 
 private infix fun Float.eq(other: Float) =
     this == other || this.isNaN() && other.isNaN()
-
