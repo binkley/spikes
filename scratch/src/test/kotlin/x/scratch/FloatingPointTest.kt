@@ -4,8 +4,6 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
-private typealias BRat = BigRational
-
 internal class FloatingPointTest {
     @Test
     fun `should compare like double for positive infinity`() {
