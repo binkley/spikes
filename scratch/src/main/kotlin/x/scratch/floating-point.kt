@@ -14,13 +14,33 @@ import java.util.Objects.hash
 fun main() {
     println("== FLOATING POINT")
 
-    println()
-    println("FOO-AND-REMAINDER FUNCTIONS")
+    fun header(text: String) {
+        println()
+        println(text)
+    }
+
+    header("PRELIMINARIES")
+
+    for (d in listOf(
+        Double.POSITIVE_INFINITY,
+        Double.NEGATIVE_INFINITY,
+        Double.NaN
+    ))
+        for (e in listOf(
+            Double.POSITIVE_INFINITY,
+            Double.NEGATIVE_INFINITY,
+            Double.NaN
+        )) {
+            println("EQ? $d $e -> ${d == e}")
+            println("LT? $d $e -> ${d < e}")
+            println("GT? $d $e -> ${d > e}")
+        }
+
+    header("FOO-AND-REMAINDER FUNCTIONS")
 
     println("√2 -> ${TWO.sqrtAndRemainder()!!.contentToString()}")
 
-    println()
-    println("RATIOS OF NON-FINITE VALUES")
+    header("RATIOS OF BIG RATIO NON-FINITE VALUES")
 
     for (r in listOf(POSITIVE_INFINITY, NEGATIVE_INFINITY, NaN))
         for (s in listOf(POSITIVE_INFINITY, NEGATIVE_INFINITY, NaN)) {
@@ -29,8 +49,40 @@ fun main() {
             println("GT? ${r.display} ${s.display} -> ${r > s}")
         }
 
-    println()
-    println("RATIOS OF DOUBLES")
+    header("COMPARE PRIMITIVES TO RATIOS")
+
+    println("+∞ COMPARED")
+    println(
+        "EQ? ${(Double.POSITIVE_INFINITY == Double.POSITIVE_INFINITY)
+                == (POSITIVE_INFINITY == POSITIVE_INFINITY)}"
+    )
+    println(
+        "LT? ${(Double.POSITIVE_INFINITY < Double.POSITIVE_INFINITY)
+                == (POSITIVE_INFINITY < POSITIVE_INFINITY)}"
+    )
+    println(
+        "GT? ${(Double.POSITIVE_INFINITY > Double.POSITIVE_INFINITY)
+                == (POSITIVE_INFINITY > POSITIVE_INFINITY)}"
+    )
+    println("-∞ COMPARED")
+    println(
+        "EQ? ${(Double.NEGATIVE_INFINITY == Double.NEGATIVE_INFINITY)
+                == (NEGATIVE_INFINITY == NEGATIVE_INFINITY)}"
+    )
+    println(
+        "LT? ${(Double.NEGATIVE_INFINITY < Double.NEGATIVE_INFINITY)
+                == (NEGATIVE_INFINITY < NEGATIVE_INFINITY)}"
+    )
+    println(
+        "GT? ${(Double.NEGATIVE_INFINITY > Double.NEGATIVE_INFINITY)
+                == (NEGATIVE_INFINITY > NEGATIVE_INFINITY)}"
+    )
+    println("NaN COMPARED")
+    println("EQ? ${(Double.NaN == Double.NaN) == (NaN == NaN)}")
+    println("LT? ${(Double.NaN < Double.NaN) == (NaN < NaN)}")
+    println("GT? ${(Double.NaN > Double.NaN) == (NaN > NaN)}")
+
+    header("RATIOS OF DOUBLES")
 
     for (d in listOf(
         10.0,
@@ -51,8 +103,7 @@ fun main() {
     ))
         printRoundTrip(d)
 
-    println()
-    println("RATIOS OF FLOATS")
+    header("RATIOS OF FLOATS")
 
     for (d in listOf(
         10.0f,
