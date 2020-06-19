@@ -41,12 +41,13 @@ internal class BigRational private constructor(
     }
 
     override fun compareTo(other: BRat) = when {
+        isNaN() -> 1 // NaN sorts to end
+        other.isNaN() -> -1
         this === other -> 0 // Sort stability for constants
         POSITIVE_INFINITY == this -> 1
         POSITIVE_INFINITY == other -> -1
         NEGATIVE_INFINITY == this -> -1
-        NEGATIVE_INFINITY == other -> -1
-        isNaN() || other.isNaN() -> 0 // NaN stays where it is
+        NEGATIVE_INFINITY == other -> 1
         else -> {
             val a = numerator * other.denominator
             val b = other.numerator * denominator
