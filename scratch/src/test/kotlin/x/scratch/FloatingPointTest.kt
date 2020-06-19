@@ -1,6 +1,7 @@
 package x.scratch
 
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 private typealias BRat = BigRational
@@ -51,6 +52,32 @@ internal class FloatingPointTest {
         assertEquals(
             Double.NaN > Double.NaN,
             BRat.NaN > BRat.NaN
+        )
+    }
+
+    @Test
+    fun `should round trip to and from double`() {
+        for (d in listOf(
+            10.0,
+            1.0,
+            0.0,
+            0.1,
+            0.01,
+            0.1 + 0.2,
+            2.0 / 3.0,
+            -1.0,
+            -0.1,
+            // -0.0, -- TODO: What to do about "negative 0"?
+            Double.MAX_VALUE,
+            -Double.MAX_VALUE,
+            Double.MIN_VALUE,
+            -Double.MIN_VALUE,
+            Double.POSITIVE_INFINITY,
+            Double.NEGATIVE_INFINITY
+        )) assertEquals(d, d.toBigRational().toDouble())
+
+        assertTrue(
+            Double.NaN.toBigRational().toDouble().isNaN()
         )
     }
 }
