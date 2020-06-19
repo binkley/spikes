@@ -159,18 +159,19 @@ private typealias BInt = BigInteger
 private typealias BDouble = BigDecimal
 private typealias BRat = BigRational
 
-private class BigRational private constructor(
+internal class BigRational private constructor(
     val numerator: BigInteger,
     val denominator: BigInteger
 ) : Comparable<BRat> {
     fun isNaN() = BInt.ZERO == numerator && BInt.ZERO == denominator
 
     override fun compareTo(other: BRat) = when {
-        isNaN() -> 1 // NaN sorts after all other values
-        other.isNaN() -> -1
         this === other -> 0 // Sort stability for constants
         POSITIVE_INFINITY == this -> 1
+        POSITIVE_INFINITY == other -> -1
         NEGATIVE_INFINITY == this -> -1
+        NEGATIVE_INFINITY == other -> -1
+        isNaN() || other.isNaN() -> 0 // NaN stays where it is
         else -> {
             val a = numerator * other.denominator
             val b = other.numerator * denominator
@@ -207,8 +208,8 @@ private class BigRational private constructor(
 
         fun valueOf(numerator: BigInteger, denominator: BigInteger): BRat {
             if (BInt.ZERO == denominator) return when {
-                numerator.signum() == 1 -> POSITIVE_INFINITY
-                numerator.signum() == -1 -> NEGATIVE_INFINITY
+                1 == numerator.signum() -> POSITIVE_INFINITY
+                -1 == numerator.signum() -> NEGATIVE_INFINITY
                 else -> NaN
             }
 
@@ -225,12 +226,13 @@ private class BigRational private constructor(
             n /= gcd
             d /= gcd
 
-            return if (BInt.ONE == d) when (n) {
-                BInt.ONE -> ONE
-                BInt.TWO -> TWO
-                BInt.TEN -> TEN
-                else -> BRat(n, d)
-            } else BRat(n, d)
+            if (BInt.ONE == d) when (n) {
+                BInt.ONE -> return ONE
+                BInt.TWO -> return TWO
+                BInt.TEN -> return TEN
+            }
+
+            return BRat(n, d)
         }
     }
 }
