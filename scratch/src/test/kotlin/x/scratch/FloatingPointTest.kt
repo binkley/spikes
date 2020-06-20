@@ -130,7 +130,7 @@ internal class FloatingPointTest {
     }
 
     @Test
-    fun `should find remainder`() {
+    fun `should have no remainder as division is exact`() {
         assertEquals(ZERO, (2 over 3) % (3 over 5))
     }
 
