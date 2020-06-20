@@ -3,10 +3,6 @@ package x.scratch
 import x.scratch.BigRational.Companion.NEGATIVE_INFINITY
 import x.scratch.BigRational.Companion.NaN
 import x.scratch.BigRational.Companion.POSITIVE_INFINITY
-import java.math.BigDecimal
-import java.math.BigInteger
-import java.math.BigInteger.ONE
-import java.math.BigInteger.TEN
 import java.math.BigInteger.TWO
 
 fun main() {
@@ -19,20 +15,15 @@ fun main() {
 
     header("PRELIMINARIES")
 
-    for (d in listOf(
+    listOf(
         Double.POSITIVE_INFINITY,
         Double.NEGATIVE_INFINITY,
         Double.NaN
-    ))
-        for (e in listOf(
-            Double.POSITIVE_INFINITY,
-            Double.NEGATIVE_INFINITY,
-            Double.NaN
-        )) {
-            println("EQ? $d $e -> ${d == e}")
-            println("LT? $d $e -> ${d < e}")
-            println("GT? $d $e -> ${d > e}")
-        }
+    ).cartesian().forEach { (d, e) ->
+        println("EQ? $d $e -> ${d == e}")
+        println("LT? $d $e -> ${d < e}")
+        println("GT? $d $e -> ${d > e}")
+    }
 
     header("FOO-AND-REMAINDER FUNCTIONS")
 
@@ -126,6 +117,9 @@ fun main() {
     ))
         printRoundTrip(d)
 }
+
+private fun <T> List<T>.cartesian() =
+    flatMap { outer -> map { inner -> outer to inner } }
 
 private val BigRational.display
     get() = when {
