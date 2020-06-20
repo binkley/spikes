@@ -1,3 +1,5 @@
+@file:Suppress("NOTHING_TO_INLINE")
+
 package x.scratch
 
 import x.scratch.BigRational.Companion.NEGATIVE_INFINITY
@@ -7,25 +9,27 @@ import java.math.BigDecimal
 import java.math.BigInteger
 import java.util.Objects
 
-internal typealias BRat = BigRational
-internal typealias BInt = BigInteger
-internal typealias BDouble = BigDecimal
+typealias BRat = BigRational
+typealias BInt = BigInteger
+typealias BDouble = BigDecimal
 
-internal class BigRational private constructor(
+class BigRational private constructor(
     val numerator: BInt,
     val denominator: BInt
-) : Comparable<BRat> {
+) : Comparable<BRat>, Number() {
     val reciprocal: BRat get() = unaryDiv()
 
     fun isNaN() =
         BInt.ZERO == numerator && BInt.ZERO == denominator
+
+    fun isInteger() = BInt.ONE == denominator
 
     fun toBigDecimal() = when (denominator) {
         BInt.ZERO -> throw ArithmeticException("Not finite.")
         else -> numerator.toBigDecimal().divide(denominator.toBigDecimal())
     }
 
-    fun toDouble() = when (denominator) {
+    override fun toDouble() = when (denominator) {
         BInt.ZERO -> when (numerator) {
             BInt.ZERO -> Double.NaN
             BInt.ONE -> Double.POSITIVE_INFINITY
@@ -35,7 +39,7 @@ internal class BigRational private constructor(
             .toDouble()
     }
 
-    fun toFloat() = when (denominator) {
+    override fun toFloat() = when (denominator) {
         BInt.ZERO -> when (numerator) {
             BInt.ZERO -> Float.NaN
             BInt.ONE -> Float.POSITIVE_INFINITY
@@ -44,6 +48,16 @@ internal class BigRational private constructor(
         else -> numerator.toBigDecimal().divide(denominator.toBigDecimal())
             .toFloat()
     }
+
+    fun toBigInteger() =
+        if (isInteger()) numerator
+        else numerator / denominator
+
+    override fun toLong() = toBigInteger().toLong()
+    override fun toInt() = toBigInteger().toInt()
+    override fun toShort() = throw UnsupportedOperationException()
+    override fun toChar() = throw UnsupportedOperationException()
+    override fun toByte() = throw UnsupportedOperationException()
 
     override fun compareTo(other: BRat) = when {
         isNaN() || other.isNaN() -> 0 // Sorts like primitives for NaN
@@ -59,26 +73,8 @@ internal class BigRational private constructor(
         }
     }
 
-    operator fun unaryPlus() = this
     operator fun unaryMinus() =
         BRat(-numerator, denominator) // Careful, ok to skip valueOf here
-
-    fun unaryDiv() =
-        BRat.valueOf(denominator, numerator) // No such operator :)
-
-    operator fun plus(addend: BRat) = BRat.valueOf(
-        numerator * addend.denominator + addend.numerator * denominator,
-        denominator * addend.denominator
-    )
-
-    operator fun minus(subtrahend: BRat) = this + -subtrahend
-    operator fun times(multiplicand: BRat) = BRat.valueOf(
-        numerator * multiplicand.numerator,
-        denominator * multiplicand.denominator
-    )
-
-    operator fun div(dividend: BRat) = this * dividend.unaryDiv()
-    operator fun rem(dividend: BRat) = ZERO // All divisions are exact
 
     override fun equals(other: Any?) = !isNaN() && this === other ||
             other is BRat &&
@@ -142,13 +138,13 @@ internal class BigRational private constructor(
 
 // TODO: How to handle the combinatorial explosion of overloads for `over`?
 
-internal infix fun BInt.over(denominator: BInt) =
+infix fun BInt.over(denominator: BInt) =
     BRat.valueOf(this, denominator)
 
-internal infix fun Int.over(denominator: Int) =
+infix fun Int.over(denominator: Int) =
     toBigInteger() over denominator.toBigInteger()
 
-internal fun BDouble.toBigRational(): BRat {
+fun BDouble.toBigRational(): BRat {
     val scale = scale() // Key: read the javadoc for this call
 
     val numerator: BInt
@@ -166,20 +162,40 @@ internal fun BDouble.toBigRational(): BRat {
     return BRat.valueOf(numerator / gcd, denominator / gcd)
 }
 
-internal fun Double.toBigRational() = when {
+fun Double.toBigRational() = when {
     Double.POSITIVE_INFINITY == this -> POSITIVE_INFINITY
     Double.NEGATIVE_INFINITY == this -> NEGATIVE_INFINITY
     isNaN() -> NaN
     else -> toBigDecimal().toBigRational()
 }
 
-internal fun Float.toBigRational() = when {
+fun Float.toBigRational() = when {
     Float.POSITIVE_INFINITY == this -> POSITIVE_INFINITY
     Float.NEGATIVE_INFINITY == this -> NEGATIVE_INFINITY
     isNaN() -> NaN
     else -> toBigDecimal().toBigRational()
 }
 
-internal fun BInt.toBigRational() = BRat.valueOf(this, BInt.ONE)
-internal fun Long.toBigRational() = toBigInteger().toBigRational()
-internal fun Int.toBigRational() = toBigInteger().toBigRational()
+fun BInt.toBigRational() = BRat.valueOf(this, BInt.ONE)
+fun Long.toBigRational() = toBigInteger().toBigRational()
+fun Int.toBigRational() = toBigInteger().toBigRational()
+
+inline operator fun BRat.unaryPlus() = this
+
+inline fun BRat.unaryDiv() =
+    BRat.valueOf(denominator, numerator) // No such operator :)
+
+inline operator fun BRat.plus(addend: BRat) = BRat.valueOf(
+    numerator * addend.denominator + addend.numerator * denominator,
+    denominator * addend.denominator
+)
+
+inline operator fun BRat.minus(subtrahend: BRat) = this + -subtrahend
+inline operator fun BRat.times(multiplicand: BRat) = BRat.valueOf(
+    numerator * multiplicand.numerator,
+    denominator * multiplicand.denominator
+)
+
+inline operator fun BRat.div(dividend: BRat) = this * dividend.unaryDiv()
+inline operator fun BRat.rem(dividend: BRat) =
+    BigRational.ZERO // All divisions are exact

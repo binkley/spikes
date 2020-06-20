@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import x.scratch.BigRational.Companion.NEGATIVE_INFINITY
 import x.scratch.BigRational.Companion.NaN
 import x.scratch.BigRational.Companion.ONE
@@ -20,7 +21,7 @@ internal class FloatingPointTest {
             BDouble.valueOf(1, 1), // 0.1
             BDouble.valueOf(1, 2), // 0.01
             BDouble.valueOf(1, 1) + BDouble.valueOf(2, 1), // 0.1+0.2
-            BDouble.valueOf(2, 1) / BDouble.valueOf(3, 1), // 0.2/0.3
+            BDouble.valueOf(2,) / BDouble.valueOf(3), // 2.0/3.0
             -BDouble.ONE,
             -BDouble.valueOf(1, 1) // -0.1
         )) assertEquals(
@@ -51,7 +52,7 @@ internal class FloatingPointTest {
             Double.NaN
         )) assertTrue(
             n.eq(n.toBigRational().toDouble()),
-            "EQ? primitive <-> rational -> $n"
+            "EQ? double <-> rational -> $n"
         )
     }
 
@@ -77,8 +78,71 @@ internal class FloatingPointTest {
             Float.NaN
         )) assertTrue(
             n.eq(n.toBigRational().toFloat()),
-            "EQ? primitive <-> rational -> $n"
+            "EQ? float <-> rational -> $n"
         )
+    }
+
+    @Test
+    fun `should round trip from and to big integer`() {
+        for (n in listOf(
+            BInt.TEN,
+            BInt.ONE,
+            BInt.ZERO,
+            -BInt.ONE
+        )) assertEquals(
+            n,
+            n.toBigRational().toBigInteger(),
+            "EQ? big integer <-> rational -> $n"
+        )
+    }
+
+    @Test
+    fun `should round trip from and to long`() {
+        for (n in listOf(
+            10L,
+            1L,
+            0L,
+            -1L
+        )) assertEquals(
+            n,
+            n.toBigRational().toLong(),
+            "EQ? long <-> rational -> $n"
+        )
+    }
+
+    @Test
+    fun `should round trip from and to int`() {
+        for (n in listOf(
+            10,
+            1,
+            0,
+            -1
+        )) assertEquals(
+            n,
+            n.toBigRational().toInt(),
+            "EQ? int <-> rational -> $n"
+        )
+    }
+
+    @Test
+    fun `should round trip from and to short`() {
+        assertThrows<UnsupportedOperationException> {
+            ONE.toShort()
+        }
+    }
+
+    @Test
+    fun `should round trip from and to char`() {
+        assertThrows<UnsupportedOperationException> {
+            ONE.toChar()
+        }
+    }
+
+    @Test
+    fun `should round trip from and to byte`() {
+        assertThrows<UnsupportedOperationException> {
+            ONE.toByte()
+        }
     }
 
     @Test
