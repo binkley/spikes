@@ -12,7 +12,7 @@ import x.scratch.BigRational.Companion.ONE
 import x.scratch.BigRational.Companion.POSITIVE_INFINITY
 import x.scratch.BigRational.Companion.ZERO
 
-internal class FloatingPointTest {
+internal class BigRationalTest {
     @Nested
     inner class Conversions {
         @Test
