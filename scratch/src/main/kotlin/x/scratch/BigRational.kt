@@ -124,11 +124,11 @@ internal infix fun BInt.over(denominator: BInt) =
     BRat.valueOf(this, denominator)
 
 internal fun BDouble.toBigRational(): BRat {
-    val scale = scale()
+    val scale = scale() // Key: read the javadoc for this call
 
     val numerator: BInt
     val denominator: BInt
-    if (scale < 0) {
+    if (0 > scale) {
         numerator = unscaledValue() * BInt.TEN.pow(-scale)
         denominator = BInt.ONE
     } else {
