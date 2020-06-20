@@ -2,61 +2,40 @@ package x.scratch
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import x.scratch.BigRational.Companion.NEGATIVE_INFINITY
 import x.scratch.BigRational.Companion.NaN
 import x.scratch.BigRational.Companion.POSITIVE_INFINITY
 import x.scratch.BigRational.Companion.ZERO
 
+private val Pair<Double, BRat>.primitive get() = first
+private val Pair<Double, BRat>.rational get() = second
+
 internal class FloatingPointTest {
     @Test
-    fun `should compare like double for positive infinity`() {
-        assertEquals(
-            Double.POSITIVE_INFINITY == Double.POSITIVE_INFINITY,
-            POSITIVE_INFINITY == POSITIVE_INFINITY
-        )
-        assertEquals(
-            Double.POSITIVE_INFINITY < Double.POSITIVE_INFINITY,
-            POSITIVE_INFINITY < POSITIVE_INFINITY
-        )
-        assertEquals(
-            Double.POSITIVE_INFINITY > Double.POSITIVE_INFINITY,
-            POSITIVE_INFINITY > POSITIVE_INFINITY
-        )
-    }
-
-    @Test
-    fun `should compare like double for negative infinity`() {
-        assertEquals(
-            Double.NEGATIVE_INFINITY == Double.NEGATIVE_INFINITY,
-            NEGATIVE_INFINITY == NEGATIVE_INFINITY
-        )
-        assertEquals(
-            Double.NEGATIVE_INFINITY < Double.NEGATIVE_INFINITY,
-            NEGATIVE_INFINITY < NEGATIVE_INFINITY
-        )
-        assertEquals(
-            Double.NEGATIVE_INFINITY > Double.NEGATIVE_INFINITY,
-            NEGATIVE_INFINITY > NEGATIVE_INFINITY
-        )
-    }
-
-    @Disabled("Sorting seems to work, but why does this fail?")
-    @Test
-    fun `should compare like double for not-a-number`() {
-        assertEquals(
-            Double.NaN == Double.NaN,
-            NaN == NaN
-        )
-        assertEquals(
-            Double.NaN < Double.NaN,
-            NaN < NaN
-        )
-        assertEquals(
-            Double.NaN > Double.NaN,
-            NaN > NaN
-        )
+    fun `should compare like double`() {
+        listOf(
+            0.0 to ZERO,
+            Double.POSITIVE_INFINITY to POSITIVE_INFINITY,
+            Double.NEGATIVE_INFINITY to NEGATIVE_INFINITY,
+            Double.NaN to NaN
+        ).cartesian().forEach { (a, b) ->
+            assertEquals(
+                a.primitive == b.primitive,
+                a.rational == b.rational,
+                "EQ? -> ${a.rational} == ${b.rational}"
+            )
+            assertEquals(
+                a.primitive > b.primitive,
+                a.rational > b.rational,
+                "GT? -> ${a.rational} > ${b.rational}"
+            )
+            assertEquals(
+                a.primitive < b.primitive,
+                a.rational < b.rational,
+                "LT? -> ${a.rational} < ${b.rational}"
+            )
+        }
     }
 
     @Test
@@ -83,31 +62,5 @@ internal class FloatingPointTest {
         assertTrue(
             Double.NaN.toBigRational().toDouble().isNaN()
         )
-    }
-
-    @Test
-    fun `should sort like double`() {
-        val sorted = listOf(
-            POSITIVE_INFINITY,
-            NaN,
-            ZERO,
-            POSITIVE_INFINITY,
-            NaN,
-            NEGATIVE_INFINITY,
-            ZERO,
-            NEGATIVE_INFINITY
-        ).sorted()
-        val doubleSorted = listOf(
-            Double.POSITIVE_INFINITY,
-            Double.NaN,
-            0.0,
-            Double.POSITIVE_INFINITY,
-            Double.NaN,
-            Double.NEGATIVE_INFINITY,
-            0.0,
-            Double.NEGATIVE_INFINITY
-        ).sorted()
-
-        assertEquals(doubleSorted, sorted.map { it.toDouble() })
     }
 }

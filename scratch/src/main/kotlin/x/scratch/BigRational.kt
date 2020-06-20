@@ -44,8 +44,7 @@ internal class BigRational private constructor(
     }
 
     override fun compareTo(other: BRat) = when {
-        isNaN() -> 1 // NaN sorts to end
-        other.isNaN() -> -1 // TODO: How to test this correctly?
+        isNaN() || other.isNaN() -> 0 // Sorts like primitives for NaN
         this === other -> 0 // Sort stability for constants
         POSITIVE_INFINITY == this -> 1
         POSITIVE_INFINITY == other -> -1

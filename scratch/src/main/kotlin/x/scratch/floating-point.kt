@@ -16,20 +16,8 @@ fun main() {
     header("PRELIMINARIES")
 
     listOf(
-        Double.POSITIVE_INFINITY,
-        Double.NEGATIVE_INFINITY,
-        Double.NaN
-    ).cartesian().forEach { (d, e) ->
-        val eq = d == e
-        val lt = d < e
-        val gt = d > e
-        val count = listOf(eq, lt, gt).filter { it }.count()
-
-        println("TRUE JUST ONCE? -> $count for $d vs $e")
-        println("- EQ? $d $e -> $eq")
-        println("- LT? $d $e -> $lt")
-        println("- GT? $d $e -> $gt")
-    }
+        Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NaN
+    ).printRelations()
 
     header("FOO-AND-REMAINDER FUNCTIONS")
 
@@ -37,12 +25,7 @@ fun main() {
 
     header("RATIOS OF BIG RATIO NON-FINITE VALUES")
 
-    for (r in listOf(POSITIVE_INFINITY, NEGATIVE_INFINITY, NaN))
-        for (s in listOf(POSITIVE_INFINITY, NEGATIVE_INFINITY, NaN)) {
-            println("EQ? ${r.display} ${s.display} -> ${r == s}")
-            println("LT? ${r.display} ${s.display} -> ${r < s}")
-            println("GT? ${r.display} ${s.display} -> ${r > s}")
-        }
+    listOf(POSITIVE_INFINITY, NEGATIVE_INFINITY, NaN).printRelations()
 
     header("COMPARE PRIMITIVES TO RATIOS")
 
@@ -124,8 +107,21 @@ fun main() {
         printRoundTrip(d)
 }
 
-private fun <T> List<T>.cartesian() =
+internal fun <T> List<T>.cartesian() =
     flatMap { outer -> map { inner -> outer to inner } }
+
+private fun <T : Comparable<T>> List<T>.printRelations() =
+    cartesian().forEach { (a, b) ->
+        val eq = a == b
+        val lt = a < b
+        val gt = a > b
+        val count = listOf(eq, lt, gt).filter { it }.count()
+
+        println("TRUE JUST ONCE? -> $count for $a vs $b")
+        println("- EQ? $a $b -> $eq")
+        println("- LT? $a $b -> $lt")
+        println("- GT? $a $b -> $gt")
+    }
 
 private val BigRational.display
     get() = when {
