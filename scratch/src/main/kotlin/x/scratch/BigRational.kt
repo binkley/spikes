@@ -57,6 +57,9 @@ internal class BigRational private constructor(
         }
     }
 
+    operator fun unaryPlus() = this
+    operator fun unaryMinus() = BRat(-numerator, denominator)
+
     override fun equals(other: Any?) = !isNaN() && this === other ||
             other is BRat &&
             !other.isNaN() &&
@@ -120,20 +123,6 @@ internal class BigRational private constructor(
 internal infix fun BInt.over(denominator: BInt) =
     BRat.valueOf(this, denominator)
 
-internal fun Double.toBigRational() = when {
-    Double.POSITIVE_INFINITY == this -> POSITIVE_INFINITY
-    Double.NEGATIVE_INFINITY == this -> NEGATIVE_INFINITY
-    isNaN() -> NaN
-    else -> toBigDecimal().toBigRational()
-}
-
-internal fun Float.toBigRational() = when {
-    Float.POSITIVE_INFINITY == this -> POSITIVE_INFINITY
-    Float.NEGATIVE_INFINITY == this -> NEGATIVE_INFINITY
-    isNaN() -> NaN
-    else -> toBigDecimal().toBigRational()
-}
-
 internal fun BDouble.toBigRational(): BRat {
     val scale = scale()
 
@@ -151,3 +140,19 @@ internal fun BDouble.toBigRational(): BRat {
 
     return numerator / gcd over denominator / gcd
 }
+
+internal fun Double.toBigRational() = when {
+    Double.POSITIVE_INFINITY == this -> POSITIVE_INFINITY
+    Double.NEGATIVE_INFINITY == this -> NEGATIVE_INFINITY
+    isNaN() -> NaN
+    else -> toBigDecimal().toBigRational()
+}
+
+internal fun Float.toBigRational() = when {
+    Float.POSITIVE_INFINITY == this -> POSITIVE_INFINITY
+    Float.NEGATIVE_INFINITY == this -> NEGATIVE_INFINITY
+    isNaN() -> NaN
+    else -> toBigDecimal().toBigRational()
+}
+
+internal fun BInt.toBigRational() = this over BInt.ONE

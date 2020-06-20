@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import x.scratch.BigRational.Companion.NEGATIVE_INFINITY
 import x.scratch.BigRational.Companion.NaN
+import x.scratch.BigRational.Companion.ONE
 import x.scratch.BigRational.Companion.POSITIVE_INFINITY
 import x.scratch.BigRational.Companion.ZERO
 
@@ -16,6 +17,8 @@ internal class FloatingPointTest {
     fun `should compare like double`() {
         listOf(
             0.0 to ZERO,
+            +1.0 to +ONE,
+            -1.0 to -ONE,
             Double.POSITIVE_INFINITY to POSITIVE_INFINITY,
             Double.NEGATIVE_INFINITY to NEGATIVE_INFINITY,
             Double.NaN to NaN
