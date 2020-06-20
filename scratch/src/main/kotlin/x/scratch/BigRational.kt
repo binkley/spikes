@@ -138,7 +138,7 @@ internal fun BDouble.toBigRational(): BRat {
 
     val gcd = numerator.gcd(denominator)
 
-    return numerator / gcd over denominator / gcd
+    return BRat.valueOf(numerator / gcd, denominator / gcd)
 }
 
 internal fun Double.toBigRational() = when {
@@ -155,4 +155,4 @@ internal fun Float.toBigRational() = when {
     else -> toBigDecimal().toBigRational()
 }
 
-internal fun BInt.toBigRational() = this over BInt.ONE
+internal fun BInt.toBigRational() = BRat.valueOf(this, BInt.ONE)
