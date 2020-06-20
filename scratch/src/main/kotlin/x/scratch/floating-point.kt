@@ -20,9 +20,15 @@ fun main() {
         Double.NEGATIVE_INFINITY,
         Double.NaN
     ).cartesian().forEach { (d, e) ->
-        println("EQ? $d $e -> ${d == e}")
-        println("LT? $d $e -> ${d < e}")
-        println("GT? $d $e -> ${d > e}")
+        val eq = d == e
+        val lt = d < e
+        val gt = d > e
+        val count = listOf(eq, lt, gt).filter { it }.count()
+
+        println("TRUE JUST ONCE? -> $count for $d vs $e")
+        println("- EQ? $d $e -> $eq")
+        println("- LT? $d $e -> $lt")
+        println("- GT? $d $e -> $gt")
     }
 
     header("FOO-AND-REMAINDER FUNCTIONS")
