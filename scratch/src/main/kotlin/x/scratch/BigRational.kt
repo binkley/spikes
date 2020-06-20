@@ -7,7 +7,7 @@ import x.scratch.BigRational.Companion.NaN
 import x.scratch.BigRational.Companion.POSITIVE_INFINITY
 import java.math.BigDecimal
 import java.math.BigInteger
-import java.util.Objects
+import java.util.Objects.hash
 
 typealias BRat = BigRational
 typealias BInt = BigInteger
@@ -80,9 +80,7 @@ class BigRational private constructor(
             numerator == other.numerator &&
             denominator == other.denominator
 
-    override fun hashCode() = Objects.hash(
-        javaClass, numerator, denominator
-    )
+    override fun hashCode() = hash(javaClass, numerator, denominator)
 
     override fun toString() = when {
         BInt.ZERO == denominator -> when {
