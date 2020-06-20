@@ -145,9 +145,6 @@ internal class BigRational private constructor(
 internal infix fun BInt.over(denominator: BInt) =
     BRat.valueOf(this, denominator)
 
-internal infix fun Long.over(denominator: Long) =
-    toBigInteger() over denominator.toBigInteger()
-
 internal infix fun Int.over(denominator: Int) =
     toBigInteger() over denominator.toBigInteger()
 
