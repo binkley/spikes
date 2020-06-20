@@ -15,6 +15,15 @@ fun main() {
 
     header("PRELIMINARIES")
 
+    println(
+        "-(Infinity) == -Infinity? ->" +
+                " ${-Double.POSITIVE_INFINITY == Double.NEGATIVE_INFINITY}"
+    )
+    println(
+        "-(-Infinity) == Infinity? ->" +
+                " ${-Double.NEGATIVE_INFINITY == Double.POSITIVE_INFINITY}"
+    )
+
     listOf(
         Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.NaN
     ).printRelations()
@@ -123,14 +132,6 @@ private fun <T : Comparable<T>> List<T>.printRelations() =
         println("- GT? $a $b -> $gt")
     }
 
-private val BigRational.display
-    get() = when {
-        POSITIVE_INFINITY == this -> "+∞"
-        NEGATIVE_INFINITY == this -> "-∞"
-        isNaN() -> "NaN"
-        else -> toString()
-    }
-
 private fun printRoundTrip(floatingPoint: Double) {
     val ratio = floatingPoint.toBigRational()
     val backAgain = ratio.toDouble()
@@ -162,8 +163,8 @@ private val Double.print
         else -> toString()
     }
 
-private infix fun Double.eq(other: Double) =
-    this == other || this.isNaN() && other.isNaN()
+internal infix fun Double.eq(other: Double) =
+    this == other || isNaN() && other.isNaN()
 
 private val Float.print
     get() = when (this) {
@@ -174,5 +175,5 @@ private val Float.print
         else -> toString()
     }
 
-private infix fun Float.eq(other: Float) =
+internal infix fun Float.eq(other: Float) =
     this == other || this.isNaN() && other.isNaN()

@@ -15,6 +15,8 @@ internal class BigRational private constructor(
     val numerator: BInt,
     val denominator: BInt
 ) : Comparable<BRat> {
+    val reciprocal: BRat get() = unaryDiv()
+
     fun isNaN() =
         BInt.ZERO == numerator && BInt.ZERO == denominator
 
@@ -58,7 +60,25 @@ internal class BigRational private constructor(
     }
 
     operator fun unaryPlus() = this
-    operator fun unaryMinus() = BRat(-numerator, denominator)
+    operator fun unaryMinus() =
+        BRat(-numerator, denominator) // Careful, ok to skip valueOf here
+
+    fun unaryDiv() =
+        BRat.valueOf(denominator, numerator) // No such operator :)
+
+    operator fun plus(addend: BRat) = BRat.valueOf(
+        numerator * addend.denominator + addend.numerator * denominator,
+        denominator * addend.denominator
+    )
+
+    operator fun minus(subtrahend: BRat) = this + -subtrahend
+    operator fun times(multiplicand: BRat) = BRat.valueOf(
+        numerator * multiplicand.numerator,
+        denominator * multiplicand.denominator
+    )
+
+    operator fun div(dividend: BRat) = this * dividend.unaryDiv()
+    operator fun rem(dividend: BRat) = ZERO // All divisions are exact
 
     override fun equals(other: Any?) = !isNaN() && this === other ||
             other is BRat &&
@@ -120,8 +140,16 @@ internal class BigRational private constructor(
     }
 }
 
+// TODO: How to handle the combinatorial explosion of overloads for `over`?
+
 internal infix fun BInt.over(denominator: BInt) =
     BRat.valueOf(this, denominator)
+
+internal infix fun Long.over(denominator: Long) =
+    toBigInteger() over denominator.toBigInteger()
+
+internal infix fun Int.over(denominator: Int) =
+    toBigInteger() over denominator.toBigInteger()
 
 internal fun BDouble.toBigRational(): BRat {
     val scale = scale() // Key: read the javadoc for this call
@@ -156,3 +184,5 @@ internal fun Float.toBigRational() = when {
 }
 
 internal fun BInt.toBigRational() = BRat.valueOf(this, BInt.ONE)
+internal fun Long.toBigRational() = toBigInteger().toBigRational()
+internal fun Int.toBigRational() = toBigInteger().toBigRational()
