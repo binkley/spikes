@@ -10,6 +10,7 @@ import x.scratch.BigRational.Companion.NEGATIVE_INFINITY
 import x.scratch.BigRational.Companion.NaN
 import x.scratch.BigRational.Companion.ONE
 import x.scratch.BigRational.Companion.POSITIVE_INFINITY
+import x.scratch.BigRational.Companion.TWO
 import x.scratch.BigRational.Companion.ZERO
 
 internal class BigRationalTest {
@@ -19,6 +20,7 @@ internal class BigRationalTest {
         fun `should round trip from and to big decimal`() {
             for (n in listOf(
                 BDouble.TEN,
+                BDouble.valueOf(2),
                 BDouble.ONE,
                 BDouble.ZERO,
                 BDouble.valueOf(1, 1), // 0.1
@@ -31,12 +33,23 @@ internal class BigRationalTest {
                 n, n.toBigRational().toBigDecimal(),
                 "EQ? -> big decimal <-> rational"
             )
+
+            assertThrows<ArithmeticException> {
+                POSITIVE_INFINITY.toBigDecimal()
+            }
+            assertThrows<ArithmeticException> {
+                NEGATIVE_INFINITY.toBigDecimal()
+            }
+            assertThrows<ArithmeticException> {
+                NaN.toBigDecimal()
+            }
         }
 
         @Test
         fun `should round trip from and to double`() {
             for (n in listOf(
                 10.0,
+                2.0,
                 1.0,
                 0.0,
                 0.1,
@@ -63,6 +76,7 @@ internal class BigRationalTest {
         fun `should round trip from and to float`() {
             for (n in listOf(
                 10.0f,
+                2.0f,
                 1.0f,
                 0.0f,
                 0.1f,
@@ -89,6 +103,7 @@ internal class BigRationalTest {
         fun `should round trip from and to big integer`() {
             for (n in listOf(
                 BInt.TEN,
+                BInt.TWO,
                 BInt.ONE,
                 BInt.ZERO,
                 -BInt.ONE
@@ -97,12 +112,18 @@ internal class BigRationalTest {
                 n.toBigRational().toBigInteger(),
                 "EQ? big integer <-> rational -> $n"
             )
+
+            assertEquals(
+                BInt.TWO / BInt.valueOf(3),
+                (2 over 3).toBigInteger()
+            )
         }
 
         @Test
         fun `should round trip from and to long`() {
             for (n in listOf(
                 10L,
+                2L,
                 1L,
                 0L,
                 -1L
@@ -111,12 +132,18 @@ internal class BigRationalTest {
                 n.toBigRational().toLong(),
                 "EQ? long <-> rational -> $n"
             )
+
+            assertEquals(
+                2L / 3L,
+                (2 over 3).toLong()
+            )
         }
 
         @Test
         fun `should round trip from and to int`() {
             for (n in listOf(
                 10,
+                2,
                 1,
                 0,
                 -1
@@ -124,6 +151,11 @@ internal class BigRationalTest {
                 n,
                 n.toBigRational().toInt(),
                 "EQ? int <-> rational -> $n"
+            )
+
+            assertEquals(
+                2 / 3,
+                (2 over 3).toInt()
             )
         }
 
@@ -157,6 +189,7 @@ internal class BigRationalTest {
                 0.0 to ZERO,
                 +1.0 to +ONE,
                 -1.0 to -ONE,
+                2.0 to TWO,
                 Double.POSITIVE_INFINITY to POSITIVE_INFINITY,
                 Double.NEGATIVE_INFINITY to NEGATIVE_INFINITY,
                 Double.NaN to NaN
@@ -177,32 +210,6 @@ internal class BigRationalTest {
                     "LT? -> ${a.rational} < ${b.rational}"
                 )
             }
-        }
-
-        @Test
-        fun `should treat negation of non-finite values as primitive do`() {
-            assertEquals(NEGATIVE_INFINITY, -POSITIVE_INFINITY)
-            assertEquals(POSITIVE_INFINITY, -NEGATIVE_INFINITY)
-            assertNotEquals(-NaN, -NaN)
-        }
-
-        @Test
-        fun `should print as primitives do`() {
-            assertEquals("${Double.POSITIVE_INFINITY}", "$POSITIVE_INFINITY")
-            assertEquals("${Double.NEGATIVE_INFINITY}", "$NEGATIVE_INFINITY")
-            assertEquals("${Double.NaN}", "$NaN")
-        }
-    }
-
-    @Nested
-    inner class Stringifying {
-        @Test
-        fun `should print nicely`() {
-            assertEquals("0", "$ZERO")
-            assertEquals("1", "$ONE")
-            assertEquals("-1", "${-ONE}")
-            assertEquals("1/10", "${1 over 10}")
-            assertEquals("-1/10", "${-1 over 10}")
         }
     }
 
@@ -232,6 +239,32 @@ internal class BigRationalTest {
         fun `should have no remainder as division is exact`() {
             assertEquals(ZERO, (2 over 3) % (3 over 5))
         }
+
+        @Test
+        fun `should treat negation of non-finite values as primitive do`() {
+            assertEquals(NEGATIVE_INFINITY, -POSITIVE_INFINITY)
+            assertEquals(POSITIVE_INFINITY, -NEGATIVE_INFINITY)
+            assertNotEquals(-NaN, -NaN)
+        }
+    }
+
+    @Nested
+    inner class Stringifying {
+        @Test
+        fun `should print nicely`() {
+            assertEquals("0", "$ZERO")
+            assertEquals("1", "$ONE")
+            assertEquals("-1", "${-ONE}")
+            assertEquals("1/10", "${1 over 10}")
+            assertEquals("-1/10", "${-1 over 10}")
+        }
+
+        @Test
+        fun `should print as primitives do`() {
+            assertEquals("${Double.POSITIVE_INFINITY}", "$POSITIVE_INFINITY")
+            assertEquals("${Double.NEGATIVE_INFINITY}", "$NEGATIVE_INFINITY")
+            assertEquals("${Double.NaN}", "$NaN")
+        }
     }
 
     @Nested
@@ -244,6 +277,51 @@ internal class BigRationalTest {
             assertEquals(POSITIVE_INFINITY, (3 over 4).gcd(NEGATIVE_INFINITY))
             assertTrue(NaN.gcd(ONE).isNaN(), "NaN does not grok GCD")
             assertTrue(ONE.gcd(NaN).isNaN(), "NaN does not grok GCD")
+        }
+    }
+
+    @Nested
+    inner class OddsAndEnds {
+        @Test
+        fun `should normalize`() {
+            assertEquals(1 over -1, -ONE, "Negative denominator")
+            assertEquals(NEGATIVE_INFINITY, -1_000_000 over 0)
+        }
+
+        @Test
+        fun `should reciprocate`() {
+            assertEquals(3 over 2, (2 over 3).reciprocal)
+            assertEquals(
+                ZERO,
+                POSITIVE_INFINITY.reciprocal,
+                "Inverse of +∞ is 0"
+            )
+            assertEquals(
+                ZERO,
+                NEGATIVE_INFINITY.reciprocal,
+                "Inverse of -∞ is 0"
+            )
+            assertTrue(
+                NaN.reciprocal.isNaN(),
+                "Inverse of NaN remains NaN"
+            )
+        }
+
+        @Test
+        fun `should hash`() {
+            listOf(ZERO, ONE, POSITIVE_INFINITY, NEGATIVE_INFINITY, NaN)
+                .cartesian().forEach { (a, b) ->
+                    if (a == b || a.isNaN() && b.isNaN()) assertEquals(
+                        a.hashCode(),
+                        b.hashCode(),
+                        "Hash codes of $a and $b"
+                    )
+                    else assertNotEquals(
+                        a.hashCode(),
+                        b.hashCode(),
+                        "Hash codes of $a and $b"
+                    )
+                }
         }
     }
 }
