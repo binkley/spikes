@@ -19,9 +19,7 @@ class BigRational private constructor(
 ) : Comparable<BRat>, Number() {
     val reciprocal: BRat get() = unaryDiv()
 
-    fun isNaN() =
-        BInt.ZERO == numerator && BInt.ZERO == denominator
-
+    fun isNaN() = BInt.ZERO == numerator && BInt.ZERO == denominator
     fun isInteger() = BInt.ONE == denominator
 
     fun toBigDecimal() = when (denominator) {
