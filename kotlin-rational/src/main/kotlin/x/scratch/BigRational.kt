@@ -9,9 +9,9 @@ import java.math.BigDecimal
 import java.math.BigInteger
 import java.util.Objects.hash
 
-typealias BRat = BigRational
-typealias BInt = BigInteger
-typealias BDouble = BigDecimal
+internal typealias BRat = BigRational
+internal typealias BInt = BigInteger
+internal typealias BDouble = BigDecimal
 
 class BigRational private constructor(
     val numerator: BInt,
