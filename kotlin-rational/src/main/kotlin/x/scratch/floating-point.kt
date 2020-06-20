@@ -4,7 +4,9 @@ import x.scratch.BigRational.Companion.NEGATIVE_INFINITY
 import x.scratch.BigRational.Companion.NaN
 import x.scratch.BigRational.Companion.POSITIVE_INFINITY
 import java.math.BigInteger.TWO
+import javax.annotation.processing.Generated
 
+@Generated // Lie to JaCoCo
 fun main() {
     println("== FLOATING POINT")
 

@@ -233,6 +233,19 @@ internal class BigRationalTest {
             assertEquals(ZERO, (2 over 3) % (3 over 5))
         }
     }
+
+    @Nested
+    inner class Extras {
+        @Test
+        fun `should compute gcd`() {
+            assertEquals(1 over 12, (13 over 6).gcd(3 over 4))
+            assertEquals(POSITIVE_INFINITY, POSITIVE_INFINITY.gcd(3 over 4))
+            assertEquals(POSITIVE_INFINITY, (3 over 4).gcd(POSITIVE_INFINITY))
+            assertEquals(POSITIVE_INFINITY, (3 over 4).gcd(NEGATIVE_INFINITY))
+            assertTrue(NaN.gcd(ONE).isNaN(), "NaN does not grok GCD")
+            assertTrue(ONE.gcd(NaN).isNaN(), "NaN does not grok GCD")
+        }
+    }
 }
 
 private val Pair<Double, BRat>.primitive get() = first

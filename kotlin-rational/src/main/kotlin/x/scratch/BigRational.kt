@@ -1,10 +1,9 @@
-@file:Suppress("NOTHING_TO_INLINE")
-
 package x.scratch
 
 import x.scratch.BigRational.Companion.NEGATIVE_INFINITY
 import x.scratch.BigRational.Companion.NaN
 import x.scratch.BigRational.Companion.POSITIVE_INFINITY
+import x.scratch.BigRational.Companion.ZERO
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.util.Objects.hash
@@ -176,22 +175,26 @@ fun BInt.toBigRational() = BRat.valueOf(this, BInt.ONE)
 fun Long.toBigRational() = toBigInteger().toBigRational()
 fun Int.toBigRational() = toBigInteger().toBigRational()
 
-inline operator fun BRat.unaryPlus() = this
+operator fun BRat.unaryPlus() = this
 
-inline fun BRat.unaryDiv() =
+fun BRat.unaryDiv() =
     BRat.valueOf(denominator, numerator) // No such operator :)
 
-inline operator fun BRat.plus(addend: BRat) = BRat.valueOf(
+operator fun BRat.plus(addend: BRat) = BRat.valueOf(
     numerator * addend.denominator + addend.numerator * denominator,
     denominator * addend.denominator
 )
 
-inline operator fun BRat.minus(subtrahend: BRat) = this + -subtrahend
-inline operator fun BRat.times(multiplicand: BRat) = BRat.valueOf(
+operator fun BRat.minus(subtrahend: BRat) = this + -subtrahend
+operator fun BRat.times(multiplicand: BRat) = BRat.valueOf(
     numerator * multiplicand.numerator,
     denominator * multiplicand.denominator
 )
 
-inline operator fun BRat.div(dividend: BRat) = this * dividend.unaryDiv()
-inline operator fun BRat.rem(dividend: BRat) =
-    BigRational.ZERO // All divisions are exact
+operator fun BRat.div(dividend: BRat) = this * dividend.unaryDiv()
+operator fun BRat.rem(dividend: BRat) = ZERO // All divisions are exact
+
+fun BRat.gcd(other: BRat) = BRat.valueOf(
+    (numerator * other.denominator).gcd(other.numerator * denominator),
+    denominator * other.denominator
+)
