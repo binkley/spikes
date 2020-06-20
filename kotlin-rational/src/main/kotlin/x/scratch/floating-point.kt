@@ -1,3 +1,5 @@
+@file:Generated // Lie to JaCoCo -- TODO: JaCoCo does not grok
+
 package x.scratch
 
 import x.scratch.BigRational.Companion.NEGATIVE_INFINITY
@@ -6,14 +8,8 @@ import x.scratch.BigRational.Companion.POSITIVE_INFINITY
 import java.math.BigInteger.TWO
 import javax.annotation.processing.Generated
 
-@Generated // Lie to JaCoCo
 fun main() {
     println("== FLOATING POINT")
-
-    fun header(text: String) {
-        println()
-        println(text)
-    }
 
     header("PRELIMINARIES")
 
@@ -116,6 +112,12 @@ fun main() {
         Float.NaN
     ))
         printRoundTrip(d)
+}
+
+private fun header(text: String) {
+    // TODO: Not an inner function to `main`: JaCoCo does not understand
+    println()
+    println(text)
 }
 
 internal fun <T> List<T>.cartesian() =
