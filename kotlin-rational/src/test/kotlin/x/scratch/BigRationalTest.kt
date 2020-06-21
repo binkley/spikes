@@ -4,6 +4,8 @@ package x.scratch
 
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
+import org.junit.jupiter.api.Assertions.assertNotSame
+import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -12,6 +14,7 @@ import x.scratch.BigRational.Companion.NEGATIVE_INFINITY
 import x.scratch.BigRational.Companion.NaN
 import x.scratch.BigRational.Companion.ONE
 import x.scratch.BigRational.Companion.POSITIVE_INFINITY
+import x.scratch.BigRational.Companion.TEN
 import x.scratch.BigRational.Companion.TWO
 import x.scratch.BigRational.Companion.ZERO
 
@@ -291,7 +294,7 @@ internal class BigRationalTest {
     }
 
     @Nested
-    inner class Extras {
+    inner class Functions {
         @Test
         fun `should compute gcd`() {
             assertEquals(1 over 12, (13 over 6).gcd(3 over 4))
@@ -375,6 +378,23 @@ internal class BigRationalTest {
         fun `should normalize`() {
             assertEquals(1 over -1, -ONE, "Negative denominator")
             assertEquals(NEGATIVE_INFINITY, -1_000_000 over 0)
+        }
+
+        @Test
+        fun `should use constants`() {
+            assertSame(ZERO, 0 over 1)
+            assertSame(ONE, 1 over 1)
+            assertSame(TWO, 2 over 1)
+            assertSame(TEN, 10 over 1)
+            assertSame(POSITIVE_INFINITY, 2 over 0)
+            assertSame(NEGATIVE_INFINITY, -2 over 0)
+            assertSame(NaN, 0 over 0)
+            assertNotSame(3 over 1, 3 over 1)
+        }
+
+        @Test
+        fun `should reduce to lowest terms`() {
+            assertEquals(3 over 1, 6 over 2)
         }
 
         @Test
