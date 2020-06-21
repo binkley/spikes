@@ -8,6 +8,7 @@ import x.scratch.BigRational.Companion.ZERO
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.util.Objects.hash
+import kotlin.math.sign
 
 internal typealias BRat = BigRational
 internal typealias BInt = BigInteger
@@ -143,14 +144,24 @@ infix fun Int.over(denominator: Int) =
 fun BDouble.toBigRational(): BRat {
     val scale = scale() // Key: read the javadoc for this call
 
+    // This could be pulled out to a function returning a Pair, however I do
+    // not want the garbage overhead of an additional ephemeral object.
+    // TODO: Rethink performance vs clarity
     val numerator: BInt
     val denominator: BInt
-    if (0 > scale) {
-        numerator = unscaledValue() * BInt.TEN.pow(-scale)
-        denominator = BInt.ONE
-    } else {
-        numerator = unscaledValue()
-        denominator = BInt.TEN.pow(scale)
+    when (scale.sign) {
+        0 -> {
+            numerator = unscaledValue()
+            denominator = BInt.ONE
+        }
+        -1 -> {
+            numerator = unscaledValue() * BInt.TEN.pow(-scale)
+            denominator = BInt.ONE
+        }
+        else -> {
+            numerator = unscaledValue()
+            denominator = BInt.TEN.pow(scale)
+        }
     }
 
     val gcd = numerator.gcd(denominator)
@@ -206,7 +217,7 @@ fun BRat.floor() = when {
     NEGATIVE_INFINITY == this -> this
     isNaN() -> this
     isInteger() -> this
-    ZERO <= this -> truncate()
+    ZERO < this -> truncate()
     else -> truncate() - ONE
 }
 
@@ -215,7 +226,7 @@ fun BRat.ceil() = when {
     NEGATIVE_INFINITY == this -> this
     isNaN() -> this
     isInteger() -> this
-    ZERO <= this -> truncate() + ONE
+    ZERO < this -> truncate() + ONE
     else -> truncate()
 }
 

@@ -240,6 +240,9 @@
                 <artifactId>pitest-maven</artifactId>
                 <version>${pitest-maven.version}</version>
                 <configuration>
+                    <avoidCallsTo>
+                        <avoidCallsTo>kotlin.jvm.internal</avoidCallsTo>
+                    </avoidCallsTo>
                     <excludedClasses>
                         <excludedClass>x.scratch.Floating_pointKt
                         </excludedClass>

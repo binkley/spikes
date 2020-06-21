@@ -275,7 +275,7 @@ internal class BigRationalTest {
     }
 
     @Nested
-    inner class Stringifying {
+    inner class Strings {
         @Test
         fun `should print nicely`() {
             assertEquals("0", "$ZERO")
