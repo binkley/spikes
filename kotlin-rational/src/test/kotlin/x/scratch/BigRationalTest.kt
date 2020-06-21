@@ -1,3 +1,5 @@
+@file:Suppress("RedundantInnerClassModifier")
+
 package x.scratch
 
 import org.junit.jupiter.api.Assertions.assertEquals
