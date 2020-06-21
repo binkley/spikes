@@ -2,6 +2,7 @@ package x.scratch
 
 import x.scratch.BigRational.Companion.NEGATIVE_INFINITY
 import x.scratch.BigRational.Companion.NaN
+import x.scratch.BigRational.Companion.ONE
 import x.scratch.BigRational.Companion.POSITIVE_INFINITY
 import x.scratch.BigRational.Companion.ZERO
 import java.math.BigDecimal
@@ -186,15 +187,48 @@ operator fun BRat.plus(addend: BRat) = BRat.valueOf(
 )
 
 operator fun BRat.minus(subtrahend: BRat) = this + -subtrahend
-operator fun BRat.times(multiplicand: BRat) = BRat.valueOf(
-    numerator * multiplicand.numerator,
-    denominator * multiplicand.denominator
+operator fun BRat.times(multiplier: BRat) = BRat.valueOf(
+    numerator * multiplier.numerator,
+    denominator * multiplier.denominator
 )
 
-operator fun BRat.div(dividend: BRat) = this * dividend.unaryDiv()
-operator fun BRat.rem(dividend: BRat) = ZERO // All divisions are exact
+operator fun BRat.div(divisor: BRat) = this * divisor.unaryDiv()
+operator fun BRat.rem(divisor: BRat) = ZERO // All divisions are exact
 
 fun BRat.gcd(other: BRat) = BRat.valueOf(
     (numerator * other.denominator).gcd(other.numerator * denominator),
     denominator * other.denominator
 )
+
+fun BRat.floor() = when {
+    POSITIVE_INFINITY == this -> this
+    NEGATIVE_INFINITY == this -> this
+    isNaN() -> this
+    isInteger() -> this
+    ZERO <= this -> round()
+    else -> round() - ONE
+}
+
+fun BRat.ceil() = when {
+    POSITIVE_INFINITY == this -> this
+    NEGATIVE_INFINITY == this -> this
+    isNaN() -> this
+    isInteger() -> this
+    ZERO <= this -> round() + ONE
+    else -> round()
+}
+
+fun BRat.round() = when {
+    POSITIVE_INFINITY == this -> this
+    NEGATIVE_INFINITY == this -> this
+    isNaN() -> this
+    isInteger() -> this
+    else -> BRat.valueOf(numerator / denominator, BInt.ONE)
+}
+
+fun BRat.divideAndRemainder(other: BigRational): Pair<BRat, BRat> {
+    val quotient = (this / other).round()
+    val remainder = this - other * quotient
+
+    return quotient to remainder
+}

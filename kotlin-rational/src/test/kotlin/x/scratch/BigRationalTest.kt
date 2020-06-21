@@ -241,6 +241,27 @@ internal class BigRationalTest {
         }
 
         @Test
+        fun `should provide quotient and remainder`() {
+            listOf(
+                3 over 2 to (ONE to (1 over 2)),
+                ONE to (ONE to ZERO),
+                ZERO to (ZERO to ZERO),
+                -ONE to (-ONE to ZERO),
+                -3 over 2 to (-ONE to (1 over 2)),
+                POSITIVE_INFINITY to (POSITIVE_INFINITY to ZERO),
+                NEGATIVE_INFINITY to (NEGATIVE_INFINITY to ZERO)
+            )
+
+            val (quotientA, remainderA) = NaN.divideAndRemainder(ONE)
+            assertTrue(quotientA.isNaN(), "NaN does not have a quotient")
+            assertTrue(remainderA.isNaN(), "NaN does not have a remainder")
+
+            val (quotientB, remainderB) = NaN.divideAndRemainder(NaN)
+            assertTrue(quotientB.isNaN(), "NaN does not have a quotient")
+            assertTrue(remainderB.isNaN(), "NaN does not have a remainder")
+        }
+
+        @Test
         fun `should treat negation of non-finite values as primitive do`() {
             assertEquals(NEGATIVE_INFINITY, -POSITIVE_INFINITY)
             assertEquals(POSITIVE_INFINITY, -NEGATIVE_INFINITY)
@@ -277,6 +298,72 @@ internal class BigRationalTest {
             assertEquals(POSITIVE_INFINITY, (3 over 4).gcd(NEGATIVE_INFINITY))
             assertTrue(NaN.gcd(ONE).isNaN(), "NaN does not grok GCD")
             assertTrue(ONE.gcd(NaN).isNaN(), "NaN does not grok GCD")
+        }
+    }
+
+    @Nested
+    inner class Rounding {
+        @Test
+        fun `should round towards zero`() {
+            listOf(
+                3 over 2 to ONE,
+                ONE to ONE,
+                ZERO to ZERO,
+                -ONE to -ONE,
+                -3 over 2 to -ONE,
+                POSITIVE_INFINITY to POSITIVE_INFINITY,
+                NEGATIVE_INFINITY to NEGATIVE_INFINITY
+            ).forEach { (value, expected) ->
+                assertEquals(
+                    expected,
+                    value.round(),
+                    "$value rounds towards zero ($expected)"
+                )
+            }
+
+            assertTrue(NaN.round().isNaN(), "NaN does not round")
+        }
+
+        @Test
+        fun `should round towards floor`() {
+            listOf(
+                3 over 2 to ONE,
+                ONE to ONE,
+                ZERO to ZERO,
+                -ONE to -ONE,
+                -3 over 2 to -TWO,
+                POSITIVE_INFINITY to POSITIVE_INFINITY,
+                NEGATIVE_INFINITY to NEGATIVE_INFINITY
+            ).forEach { (value, expected) ->
+                assertEquals(
+                    expected,
+                    value.floor(),
+                    "$value rounds towards floor ($expected)"
+                )
+            }
+
+            assertTrue(NaN.floor().isNaN(), "NaN does not round")
+        }
+
+        @Test
+        fun `should round towards ceiling`() {
+            listOf(
+                3 over 2 to TWO,
+                ONE to ONE,
+                ZERO to ZERO,
+                -ONE to -ONE,
+                -3 over 2 to -ONE,
+                POSITIVE_INFINITY to POSITIVE_INFINITY,
+                NEGATIVE_INFINITY to NEGATIVE_INFINITY
+            ).forEach { (value, expected) ->
+                assertEquals(
+                    expected,
+                    value.ceil(),
+                    "$value rounds towards ceiling ($expected)"
+                )
+            }
+
+            assertTrue(NaN.ceil().isNaN(), "NaN does not round")
         }
     }
 
