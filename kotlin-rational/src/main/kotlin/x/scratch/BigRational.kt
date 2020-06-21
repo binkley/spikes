@@ -205,8 +205,8 @@ fun BRat.floor() = when {
     NEGATIVE_INFINITY == this -> this
     isNaN() -> this
     isInteger() -> this
-    ZERO <= this -> round()
-    else -> round() - ONE
+    ZERO <= this -> truncate()
+    else -> truncate() - ONE
 }
 
 fun BRat.ceil() = when {
@@ -214,11 +214,11 @@ fun BRat.ceil() = when {
     NEGATIVE_INFINITY == this -> this
     isNaN() -> this
     isInteger() -> this
-    ZERO <= this -> round() + ONE
-    else -> round()
+    ZERO <= this -> truncate() + ONE
+    else -> truncate()
 }
 
-fun BRat.round() = when {
+fun BRat.truncate() = when {
     POSITIVE_INFINITY == this -> this
     NEGATIVE_INFINITY == this -> this
     isNaN() -> this
@@ -227,7 +227,7 @@ fun BRat.round() = when {
 }
 
 fun BRat.divideAndRemainder(other: BigRational): Pair<BRat, BRat> {
-    val quotient = (this / other).round()
+    val quotient = (this / other).truncate()
     val remainder = this - other * quotient
 
     return quotient to remainder

@@ -318,12 +318,12 @@ internal class BigRationalTest {
             ).forEach { (value, expected) ->
                 assertEquals(
                     expected,
-                    value.round(),
+                    value.truncate(),
                     "$value rounds towards zero ($expected)"
                 )
             }
 
-            assertTrue(NaN.round().isNaN(), "NaN does not round")
+            assertTrue(NaN.truncate().isNaN(), "NaN does not round")
         }
 
         @Test
