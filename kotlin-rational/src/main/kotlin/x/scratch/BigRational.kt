@@ -84,8 +84,20 @@ class BigRational private constructor(
         }
     }
 
-    operator fun unaryMinus() =
-        BRat(-numerator, denominator) // Careful, ok to skip valueOf here
+    /** Tricksy to preserve object identity of constants. */
+    operator fun unaryMinus() = when {
+        ZERO === this -> ZERO
+        ONE === this -> NEGATIVE_ONE
+        NEGATIVE_ONE === this -> ONE
+        TWO === this -> NEGATIVE_TWO
+        NEGATIVE_TWO === this -> TWO
+        TEN === this -> NEGATIVE_TEN
+        NEGATIVE_TEN === this -> TEN
+        POSITIVE_INFINITY === this -> NEGATIVE_INFINITY
+        NEGATIVE_INFINITY === this -> POSITIVE_INFINITY
+        NaN === this -> NaN
+        else -> BRat(-numerator, denominator)
+    }
 
     override fun equals(other: Any?) = !isNaN() && this === other ||
             other is BRat &&
@@ -137,6 +149,9 @@ class BigRational private constructor(
             n /= gcd
             d /= gcd
 
+            // Note: BigInteger is sloppy about returning constants: test by
+            // value rather than identity, even though identity would be
+            // correct given the existence of the constants
             if (BInt.ONE == d) when (n) {
                 BInt.ONE -> return ONE
                 -BInt.ONE -> return NEGATIVE_ONE

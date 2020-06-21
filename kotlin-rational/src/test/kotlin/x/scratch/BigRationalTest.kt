@@ -433,23 +433,54 @@ internal class BigRationalTest {
     inner class OddsAndEnds {
         @Test
         fun `should normalize`() {
+            assertEquals(-2 over 3, 6 over -9)
             assertEquals(1 over -1, NEGATIVE_ONE, "Negative denominator")
+            assertEquals(POSITIVE_INFINITY, 1_000_000 over 0)
             assertEquals(NEGATIVE_INFINITY, -1_000_000 over 0)
+            assertTrue((0 over 0).isNaN(), "Division by zero")
         }
 
         @Test
         fun `should use constants`() {
-            assertSame(ZERO, 0 over 1)
-            assertSame(ONE, 1 over 1)
-            assertSame(NEGATIVE_ONE, -1 over 1)
-            assertSame(TWO, 2 over 1)
-            assertSame(NEGATIVE_TWO, -2 over 1)
-            assertSame(TEN, 10 over 1)
-            assertSame(NEGATIVE_TEN, -10 over 1)
-            assertSame(POSITIVE_INFINITY, 2 over 0)
-            assertSame(NEGATIVE_INFINITY, -2 over 0)
-            assertSame(NaN, 0 over 0)
-            assertNotSame(3 over 1, 3 over 1)
+            assertSame(ZERO, 0 over 1, "Zero is a constant")
+            assertSame(ONE, 1 over 1, "One is a constant")
+            assertSame(NEGATIVE_ONE, -1 over 1, "Negative one is a constant")
+            assertSame(NEGATIVE_ONE, -ONE, "Negating one is a constant")
+            assertSame(
+                ONE, -NEGATIVE_ONE, "Negating negative one is a constant"
+            )
+            assertSame(TWO, 2 over 1, "Two is a constant")
+            assertSame(NEGATIVE_TWO, -2 over 1, "Negative two is a constant")
+            assertSame(NEGATIVE_TWO, -TWO, "Negating two is a constant")
+            assertSame(
+                TWO, -NEGATIVE_TWO, "Negating negative two is a constant"
+            )
+            assertSame(TEN, 10 over 1, "Ten is a constant")
+            assertSame(NEGATIVE_TEN, -10 over 1, "Negative ten is a constant")
+            assertSame(NEGATIVE_TEN, -TEN, "Negating ten is a constant")
+            assertSame(
+                TEN, -NEGATIVE_TEN, "Negating negative ten is a constant"
+            )
+            assertSame(POSITIVE_INFINITY, 2 over 0, "Infinity is a constant")
+            assertSame(
+                POSITIVE_INFINITY, -NEGATIVE_INFINITY,
+                "Negating negative infinity is a constant"
+            )
+            assertSame(
+                NEGATIVE_INFINITY, -2 over 0,
+                "Negative infinity is a constant"
+            )
+            assertSame(
+                NEGATIVE_INFINITY, -POSITIVE_INFINITY,
+                "Negating infinity is a constant"
+            )
+            assertSame(NaN, 0 over 0, "NaN is a constant")
+            assertSame(NaN, -NaN, "Negating NaN is a constant")
+            assertNotSame(
+                3 over 1, 3 over 1, "Non-constants are separate objects"
+            )
+
+            // TODO: Similar tests for functions, eg, gcd
         }
 
         @Test
