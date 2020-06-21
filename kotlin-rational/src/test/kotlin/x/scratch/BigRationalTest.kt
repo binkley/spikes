@@ -397,6 +397,26 @@ internal class BigRationalTest {
         }
 
         @Test
+        fun `should understand equality`() {
+            listOf(
+                3 over 2,
+                ONE,
+                ZERO,
+                -ONE,
+                -3 over 2,
+                POSITIVE_INFINITY,
+                NEGATIVE_INFINITY,
+                NaN
+            ).cartesian().forEach { (a, b) ->
+                when {
+                    a.isNaN() || b.isNaN() -> assertNotEquals(a, b)
+                    a === b -> assertEquals(a, b)
+                    else -> assertNotEquals(a, b)
+                }
+            }
+        }
+
+        @Test
         fun `should hash`() {
             listOf(ZERO, ONE, POSITIVE_INFINITY, NEGATIVE_INFINITY, NaN)
                 .cartesian().forEach { (a, b) ->

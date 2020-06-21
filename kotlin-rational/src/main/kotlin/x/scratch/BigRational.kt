@@ -22,7 +22,7 @@ class BigRational private constructor(
     fun isNaN() = BInt.ZERO == numerator && BInt.ZERO == denominator
     fun isInteger() = BInt.ONE == denominator
 
-    fun toBigDecimal() = when (denominator) {
+    fun toBigDecimal(): BigDecimal = when (denominator) {
         BInt.ZERO -> throw ArithmeticException("Not finite.")
         else -> numerator.toBigDecimal().divide(denominator.toBigDecimal())
     }
@@ -193,7 +193,8 @@ operator fun BRat.times(multiplier: BRat) = BRat.valueOf(
 )
 
 operator fun BRat.div(divisor: BRat) = this * divisor.unaryDiv()
-operator fun BRat.rem(divisor: BRat) = ZERO // All divisions are exact
+operator fun BRat.rem(@Suppress("UNUSED_PARAMETER") divisor: BRat) =
+    ZERO // All divisions are exact
 
 fun BRat.gcd(other: BRat) = BRat.valueOf(
     (numerator * other.denominator).gcd(other.numerator * denominator),
