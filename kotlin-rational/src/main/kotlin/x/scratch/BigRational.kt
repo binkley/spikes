@@ -84,21 +84,6 @@ class BigRational private constructor(
         }
     }
 
-    /** Tricksy to preserve object identity of constants. */
-    operator fun unaryMinus() = when {
-        ZERO === this -> ZERO
-        ONE === this -> NEGATIVE_ONE
-        NEGATIVE_ONE === this -> ONE
-        TWO === this -> NEGATIVE_TWO
-        NEGATIVE_TWO === this -> TWO
-        TEN === this -> NEGATIVE_TEN
-        NEGATIVE_TEN === this -> TEN
-        POSITIVE_INFINITY === this -> NEGATIVE_INFINITY
-        NEGATIVE_INFINITY === this -> POSITIVE_INFINITY
-        NaN === this -> NaN
-        else -> BRat(-numerator, denominator)
-    }
-
     override fun equals(other: Any?) = !isNaN() && this === other ||
             other is BRat &&
             !other.isNaN() &&
@@ -221,9 +206,10 @@ fun Long.toBigRational() = toBigInteger().toBigRational()
 fun Int.toBigRational() = toBigInteger().toBigRational()
 
 operator fun BRat.unaryPlus() = this
+operator fun BRat.unaryMinus() = BRat.valueOf(-numerator, denominator)
 
-fun BRat.unaryDiv() =
-    BRat.valueOf(denominator, numerator) // No such operator :)
+/** No such operator :) */
+fun BRat.unaryDiv() = BRat.valueOf(denominator, numerator)
 
 operator fun BRat.plus(addend: BRat) = BRat.valueOf(
     numerator * addend.denominator + addend.numerator * denominator,
