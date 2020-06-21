@@ -17,6 +17,7 @@ import x.scratch.BigRational.Companion.POSITIVE_INFINITY
 import x.scratch.BigRational.Companion.TEN
 import x.scratch.BigRational.Companion.TWO
 import x.scratch.BigRational.Companion.ZERO
+import kotlin.math.sign
 
 internal class BigRationalTest {
     @Nested
@@ -373,6 +374,49 @@ internal class BigRationalTest {
     }
 
     @Nested
+    inner class Properties {
+        @Test
+        fun `should have a sign`() {
+            listOf(
+                -2.0 to -TWO,
+                -0.5 to (-1 over 2),
+                0.0 to ZERO,
+                0.5 to (1 over 2),
+                2.0 to TWO,
+                Double.POSITIVE_INFINITY to POSITIVE_INFINITY,
+                Double.NEGATIVE_INFINITY to NEGATIVE_INFINITY
+            ).forEach { (p, r)  ->
+                assertEquals(
+                    p.sign,
+                    r.sign.toDouble(),
+                    "Rational $r is as primitive $p for signum"
+                )
+            }
+
+            assertTrue(NaN.sign.isNaN(), "NaN does not have a sign")
+        }
+
+        @Test
+        fun `should reciprocate`() {
+            assertEquals(3 over 2, (2 over 3).reciprocal)
+            assertEquals(
+                ZERO,
+                POSITIVE_INFINITY.reciprocal,
+                "Inverse of +∞ is 0"
+            )
+            assertEquals(
+                ZERO,
+                NEGATIVE_INFINITY.reciprocal,
+                "Inverse of -∞ is 0"
+            )
+            assertTrue(
+                NaN.reciprocal.isNaN(),
+                "Inverse of NaN remains NaN"
+            )
+        }
+    }
+
+    @Nested
     inner class OddsAndEnds {
         @Test
         fun `should normalize`() {
@@ -395,25 +439,6 @@ internal class BigRationalTest {
         @Test
         fun `should reduce to lowest terms`() {
             assertEquals(3 over 1, 6 over 2)
-        }
-
-        @Test
-        fun `should reciprocate`() {
-            assertEquals(3 over 2, (2 over 3).reciprocal)
-            assertEquals(
-                ZERO,
-                POSITIVE_INFINITY.reciprocal,
-                "Inverse of +∞ is 0"
-            )
-            assertEquals(
-                ZERO,
-                NEGATIVE_INFINITY.reciprocal,
-                "Inverse of -∞ is 0"
-            )
-            assertTrue(
-                NaN.reciprocal.isNaN(),
-                "Inverse of NaN remains NaN"
-            )
         }
 
         @Test

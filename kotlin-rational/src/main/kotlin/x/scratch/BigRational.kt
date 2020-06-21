@@ -18,8 +18,19 @@ class BigRational private constructor(
     val numerator: BInt,
     val denominator: BInt
 ) : Comparable<BRat>, Number() {
+    val sign
+        get() = when {
+            isNaN() -> NaN
+            else -> when (numerator.signum()) {
+                -1 -> -ONE
+                0 -> ZERO
+                else -> ONE
+            }
+        }
+
     val reciprocal: BRat get() = unaryDiv()
 
+    fun signum() = sign // primitives and BInt differ here :(
     fun isNaN() = BInt.ZERO == numerator && BInt.ZERO == denominator
     fun isInteger() = BInt.ONE == denominator
 
