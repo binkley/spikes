@@ -3,6 +3,7 @@
 package x.scratch
 
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.Assertions.assertNotSame
 import org.junit.jupiter.api.Assertions.assertSame
@@ -299,6 +300,15 @@ internal class BigRationalTest {
 
     @Nested
     inner class Functions {
+        @Test
+        fun `should test if an integer`() {
+            assertTrue(ZERO.isInteger(), "Zero is an integer")
+            assertFalse((3 over 2).isInteger(), "3/2 is not an integer")
+            assertFalse(POSITIVE_INFINITY.isInteger(), "+∞ is not an integer")
+            assertFalse(NEGATIVE_INFINITY.isInteger(), "-∞ is not an integer")
+            assertFalse(NaN.isInteger(), "NaN is not an integer")
+        }
+
         @Test
         fun `should compute gcd`() {
             assertEquals(1 over 12, (13 over 6).gcd(3 over 4))

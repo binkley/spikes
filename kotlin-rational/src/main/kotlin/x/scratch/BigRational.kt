@@ -31,6 +31,7 @@ class BigRational private constructor(
     val reciprocal: BRat get() = unaryDiv()
 
     fun signum() = sign // primitives and BInt differ here :(
+    fun isFinite() = BInt.ZERO != denominator
     fun isNaN() = BInt.ZERO == numerator && BInt.ZERO == denominator
     fun isInteger() = BInt.ONE == denominator
 
@@ -230,28 +231,19 @@ fun BRat.gcd(other: BRat) = BRat.valueOf(
 )
 
 fun BRat.floor() = when {
-    POSITIVE_INFINITY == this -> this
-    NEGATIVE_INFINITY == this -> this
-    isNaN() -> this
-    isInteger() -> this
-    ZERO < this -> truncate()
+    !isFinite() || isInteger() -> this
+    ONE == sign -> truncate()
     else -> truncate() - ONE
 }
 
 fun BRat.ceil() = when {
-    POSITIVE_INFINITY == this -> this
-    NEGATIVE_INFINITY == this -> this
-    isNaN() -> this
-    isInteger() -> this
-    ZERO < this -> truncate() + ONE
+    !isFinite() || isInteger() -> this
+    ONE == sign -> truncate() + ONE
     else -> truncate()
 }
 
 fun BRat.truncate() = when {
-    POSITIVE_INFINITY == this -> this
-    NEGATIVE_INFINITY == this -> this
-    isNaN() -> this
-    isInteger() -> this
+    !isFinite() || isInteger() -> this
     else -> BRat.valueOf(numerator / denominator, BInt.ONE)
 }
 
