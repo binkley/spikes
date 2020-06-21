@@ -251,6 +251,18 @@ internal class BigRationalTest {
         }
 
         @Test
+        fun `should increment`() {
+            var n = ZERO
+            assertEquals(ONE, ++n)
+        }
+
+        @Test
+        fun `should decrement`() {
+            var n = ONE
+            assertEquals(ZERO, --n)
+        }
+
+        @Test
         fun `should provide quotient and remainder`() {
             listOf(
                 3 over 2 to (ONE to (1 over 2)),

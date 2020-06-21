@@ -226,6 +226,9 @@ operator fun BRat.div(divisor: BRat) = this * divisor.unaryDiv()
 operator fun BRat.rem(@Suppress("UNUSED_PARAMETER") divisor: BRat) =
     ZERO // All divisions are exact
 
+operator fun BRat.inc() = this + ONE
+operator fun BRat.dec() = this - ONE
+
 fun BRat.gcd(other: BRat) = BRat.valueOf(
     (numerator * other.denominator).gcd(other.numerator * denominator),
     denominator * other.denominator
