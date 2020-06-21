@@ -11,6 +11,9 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import x.scratch.BigRational.Companion.NEGATIVE_INFINITY
+import x.scratch.BigRational.Companion.NEGATIVE_ONE
+import x.scratch.BigRational.Companion.NEGATIVE_TEN
+import x.scratch.BigRational.Companion.NEGATIVE_TWO
 import x.scratch.BigRational.Companion.NaN
 import x.scratch.BigRational.Companion.ONE
 import x.scratch.BigRational.Companion.POSITIVE_INFINITY
@@ -194,7 +197,7 @@ internal class BigRationalTest {
             listOf(
                 0.0 to ZERO,
                 +1.0 to +ONE,
-                -1.0 to -ONE,
+                -1.0 to NEGATIVE_ONE,
                 2.0 to TWO,
                 Double.POSITIVE_INFINITY to POSITIVE_INFINITY,
                 Double.NEGATIVE_INFINITY to NEGATIVE_INFINITY,
@@ -252,8 +255,8 @@ internal class BigRationalTest {
                 3 over 2 to (ONE to (1 over 2)),
                 ONE to (ONE to ZERO),
                 ZERO to (ZERO to ZERO),
-                -ONE to (-ONE to ZERO),
-                -3 over 2 to (-ONE to (1 over 2)),
+                NEGATIVE_ONE to (NEGATIVE_ONE to ZERO),
+                -3 over 2 to (NEGATIVE_ONE to (1 over 2)),
                 POSITIVE_INFINITY to (POSITIVE_INFINITY to ZERO),
                 NEGATIVE_INFINITY to (NEGATIVE_INFINITY to ZERO)
             )
@@ -281,7 +284,7 @@ internal class BigRationalTest {
         fun `should print nicely`() {
             assertEquals("0", "$ZERO")
             assertEquals("1", "$ONE")
-            assertEquals("-1", "${-ONE}")
+            assertEquals("-1", "${NEGATIVE_ONE}")
             assertEquals("1/10", "${1 over 10}")
             assertEquals("-1/10", "${-1 over 10}")
         }
@@ -315,8 +318,8 @@ internal class BigRationalTest {
                 3 over 2 to ONE,
                 ONE to ONE,
                 ZERO to ZERO,
-                -ONE to -ONE,
-                -3 over 2 to -ONE,
+                NEGATIVE_ONE to NEGATIVE_ONE,
+                -3 over 2 to NEGATIVE_ONE,
                 POSITIVE_INFINITY to POSITIVE_INFINITY,
                 NEGATIVE_INFINITY to NEGATIVE_INFINITY
             ).forEach { (value, expected) ->
@@ -336,7 +339,7 @@ internal class BigRationalTest {
                 3 over 2 to ONE,
                 ONE to ONE,
                 ZERO to ZERO,
-                -ONE to -ONE,
+                NEGATIVE_ONE to NEGATIVE_ONE,
                 -3 over 2 to -TWO,
                 POSITIVE_INFINITY to POSITIVE_INFINITY,
                 NEGATIVE_INFINITY to NEGATIVE_INFINITY
@@ -357,8 +360,8 @@ internal class BigRationalTest {
                 3 over 2 to TWO,
                 ONE to ONE,
                 ZERO to ZERO,
-                -ONE to -ONE,
-                -3 over 2 to -ONE,
+                NEGATIVE_ONE to NEGATIVE_ONE,
+                -3 over 2 to NEGATIVE_ONE,
                 POSITIVE_INFINITY to POSITIVE_INFINITY,
                 NEGATIVE_INFINITY to NEGATIVE_INFINITY
             ).forEach { (value, expected) ->
@@ -385,10 +388,10 @@ internal class BigRationalTest {
                 2.0 to TWO,
                 Double.POSITIVE_INFINITY to POSITIVE_INFINITY,
                 Double.NEGATIVE_INFINITY to NEGATIVE_INFINITY
-            ).forEach { (p, r)  ->
+            ).forEach { (p, r) ->
                 assertEquals(
                     p.sign,
-                    r.sign.toDouble(),
+                    r.signum().toDouble(),
                     "Rational $r is as primitive $p for signum"
                 )
             }
@@ -420,7 +423,7 @@ internal class BigRationalTest {
     inner class OddsAndEnds {
         @Test
         fun `should normalize`() {
-            assertEquals(1 over -1, -ONE, "Negative denominator")
+            assertEquals(1 over -1, NEGATIVE_ONE, "Negative denominator")
             assertEquals(NEGATIVE_INFINITY, -1_000_000 over 0)
         }
 
@@ -428,8 +431,11 @@ internal class BigRationalTest {
         fun `should use constants`() {
             assertSame(ZERO, 0 over 1)
             assertSame(ONE, 1 over 1)
+            assertSame(NEGATIVE_ONE, -1 over 1)
             assertSame(TWO, 2 over 1)
+            assertSame(NEGATIVE_TWO, -2 over 1)
             assertSame(TEN, 10 over 1)
+            assertSame(NEGATIVE_TEN, -10 over 1)
             assertSame(POSITIVE_INFINITY, 2 over 0)
             assertSame(NEGATIVE_INFINITY, -2 over 0)
             assertSame(NaN, 0 over 0)
@@ -447,7 +453,7 @@ internal class BigRationalTest {
                 3 over 2,
                 ONE,
                 ZERO,
-                -ONE,
+                NEGATIVE_ONE,
                 -3 over 2,
                 POSITIVE_INFINITY,
                 NEGATIVE_INFINITY,

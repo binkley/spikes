@@ -22,7 +22,7 @@ class BigRational private constructor(
         get() = when {
             isNaN() -> NaN
             else -> when (numerator.signum()) {
-                -1 -> -ONE
+                -1 -> NEGATIVE_ONE
                 0 -> ZERO
                 else -> ONE
             }
@@ -107,8 +107,11 @@ class BigRational private constructor(
     companion object {
         val ZERO = BRat(BInt.ZERO, BInt.ONE)
         val ONE = BRat(BInt.ONE, BInt.ONE)
+        val NEGATIVE_ONE = BRat(-BInt.ONE, BInt.ONE) // Much used
         val TWO = BRat(BInt.TWO, BInt.ONE)
+        val NEGATIVE_TWO = BRat(-BInt.TWO, BInt.ONE)
         val TEN = BRat(BInt.TEN, BInt.ONE)
+        val NEGATIVE_TEN = BRat(-BInt.TEN, BInt.ONE)
         val POSITIVE_INFINITY = BRat(BInt.ONE, BInt.ZERO)
         val NEGATIVE_INFINITY = BRat(-BInt.ONE, BInt.ZERO)
         val NaN = BRat(BInt.ZERO, BInt.ZERO)
@@ -135,8 +138,11 @@ class BigRational private constructor(
 
             if (BInt.ONE == d) when (n) {
                 BInt.ONE -> return ONE
+                -BInt.ONE -> return NEGATIVE_ONE
                 BInt.TWO -> return TWO
+                -BInt.TWO -> return NEGATIVE_TWO
                 BInt.TEN -> return TEN
+                -BInt.TEN -> return NEGATIVE_TEN
             }
 
             return BRat(n, d)
