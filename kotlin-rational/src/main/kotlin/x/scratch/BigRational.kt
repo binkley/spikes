@@ -71,8 +71,8 @@ class BigRational private constructor(
     override fun toByte() = throw UnsupportedOperationException()
 
     override fun compareTo(other: BRat) = when {
-        isNaN() || other.isNaN() -> 0 // Sorts like primitives for NaN
         this === other -> 0 // Sort stability for constants
+        isNaN() || other.isNaN() -> 0 // Sorts like primitives for NaN
         POSITIVE_INFINITY == this -> 1
         POSITIVE_INFINITY == other -> -1
         NEGATIVE_INFINITY == this -> -1
