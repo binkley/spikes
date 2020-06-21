@@ -243,10 +243,13 @@
                     <avoidCallsTo>
                         <avoidCallsTo>kotlin.jvm.internal</avoidCallsTo>
                     </avoidCallsTo>
+                    <coverageThreshold>100</coverageThreshold>
                     <excludedClasses>
                         <excludedClass>x.scratch.Floating_pointKt
                         </excludedClass>
                     </excludedClasses>
+                    <!-- TODO: How can find a reasonable threshold? -->
+                    <mutationThreshold>84</mutationThreshold>
                 </configuration>
                 <executions>
                     <execution>
