@@ -35,7 +35,7 @@ class BigRational private constructor(
     fun isNaN() = BInt.ZERO == numerator && BInt.ZERO == denominator
     fun isInteger() = BInt.ONE == denominator
 
-    fun toBigDecimal(): BigDecimal = when (denominator) {
+    fun toBigDecimal(): BDouble = when (denominator) {
         BInt.ZERO -> throw ArithmeticException("Not finite.")
         else -> numerator.toBigDecimal().divide(denominator.toBigDecimal())
     }
