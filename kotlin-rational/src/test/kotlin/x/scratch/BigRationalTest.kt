@@ -330,6 +330,40 @@ internal class BigRationalTest {
             assertTrue(NaN.gcd(ONE).isNaN(), "NaN does not grok GCD")
             assertTrue(ONE.gcd(NaN).isNaN(), "NaN does not grok GCD")
         }
+
+        @Test
+        fun `should compute mediant`() {
+            assertEquals(5 over 7, (2 over 3).mediant(3 over 4))
+            listOf(
+                ZERO to ONE,
+                ONE to TWO,
+                NEGATIVE_ONE to ZERO,
+                POSITIVE_INFINITY to POSITIVE_INFINITY,
+                NEGATIVE_INFINITY to ZERO
+            ).forEach { (other, expected) ->
+                assertEquals(expected, POSITIVE_INFINITY.mediant(other))
+            }
+            listOf(
+                ZERO to NEGATIVE_ONE,
+                ONE to ZERO,
+                NEGATIVE_ONE to NEGATIVE_TWO,
+                POSITIVE_INFINITY to ZERO,
+                NEGATIVE_INFINITY to NEGATIVE_INFINITY
+            ).forEach { (other, expected) ->
+                assertEquals(expected, NEGATIVE_INFINITY.mediant(other))
+            }
+            listOf(
+                ZERO,
+                ONE,
+                NEGATIVE_ONE,
+                POSITIVE_INFINITY,
+                NEGATIVE_INFINITY,
+                NaN
+            ).forEach { other ->
+                assertTrue(NaN.mediant(other).isNaN())
+                assertTrue(other.mediant(NaN).isNaN())
+            }
+        }
     }
 
     @Nested
@@ -491,8 +525,6 @@ internal class BigRationalTest {
             assertNotSame(
                 3 over 1, 3 over 1, "Non-constants are separate objects"
             )
-
-            // TODO: Similar tests for functions, eg, gcd
         }
 
         @Test

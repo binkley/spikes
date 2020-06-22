@@ -229,6 +229,16 @@ operator fun BRat.rem(@Suppress("UNUSED_PARAMETER") divisor: BRat) =
 operator fun BRat.inc() = this + ONE
 operator fun BRat.dec() = this - ONE
 
+fun BRat.mediant(other: BRat) = when {
+    isNaN() || other.isNaN() -> NaN
+    (POSITIVE_INFINITY == this && NEGATIVE_INFINITY == other) ||
+            (NEGATIVE_INFINITY == this && POSITIVE_INFINITY == other) -> ZERO
+    else -> BRat.valueOf(
+        numerator + other.numerator,
+        denominator + other.denominator
+    )
+}
+
 fun BRat.gcd(other: BRat) = BRat.valueOf(
     (numerator * other.denominator).gcd(other.numerator * denominator),
     denominator * other.denominator
