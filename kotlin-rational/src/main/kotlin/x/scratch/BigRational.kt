@@ -223,8 +223,10 @@ operator fun BRat.times(multiplier: BRat) = BRat.valueOf(
 )
 
 operator fun BRat.div(divisor: BRat) = this * divisor.unaryDiv()
-operator fun BRat.rem(@Suppress("UNUSED_PARAMETER") divisor: BRat) =
-    ZERO // All divisions are exact
+operator fun BRat.rem(@Suppress("UNUSED_PARAMETER") divisor: BRat) = when {
+    isNaN() || divisor.isNaN() -> NaN
+    else -> ZERO // All divisions are exact
+}
 
 operator fun BRat.inc() = this + ONE
 operator fun BRat.dec() = this - ONE

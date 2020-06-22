@@ -248,6 +248,11 @@ internal class BigRationalTest {
         @Test
         fun `should have no remainder as division is exact`() {
             assertEquals(ZERO, (2 over 3) % (3 over 5))
+            assertEquals(ZERO, POSITIVE_INFINITY % ONE)
+            assertEquals(ZERO, ONE % POSITIVE_INFINITY)
+            assertEquals(ZERO, ONE % NEGATIVE_INFINITY)
+            assertTrue((NaN % ONE).isNaN())
+            assertTrue((ONE % NaN).isNaN())
         }
 
         @Test
