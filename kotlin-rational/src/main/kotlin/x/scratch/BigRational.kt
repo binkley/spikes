@@ -182,9 +182,7 @@ fun BDouble.toBigRational(): BRat {
         }
     }
 
-    val gcd = numerator.gcd(denominator)
-
-    return BRat.valueOf(numerator / gcd, denominator / gcd)
+    return BRat.valueOf(numerator, denominator)
 }
 
 fun Double.toBigRational() = when {

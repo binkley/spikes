@@ -21,6 +21,7 @@ import x.scratch.BigRational.Companion.POSITIVE_INFINITY
 import x.scratch.BigRational.Companion.TEN
 import x.scratch.BigRational.Companion.TWO
 import x.scratch.BigRational.Companion.ZERO
+import java.math.BigDecimal
 import kotlin.math.sign
 
 internal class BigRationalTest {
@@ -534,6 +535,10 @@ internal class BigRationalTest {
 
         @Test
         fun `should reduce to lowest terms`() {
+            assertEquals(
+                21 over 20,
+                BigDecimal.valueOf(105, 2).toBigRational()
+            )
             assertEquals(3 over 1, 6 over 2)
         }
 
