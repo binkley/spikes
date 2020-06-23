@@ -114,7 +114,13 @@ class BigRational private constructor(
         val NEGATIVE_INFINITY = BRat(-BInt.ONE, BInt.ZERO)
         val NaN = BRat(BInt.ZERO, BInt.ZERO)
 
+        private val NegBIntONE = -BInt.ONE
+        private val NegBIntTWO = -BInt.TWO
+        private val NegBIntTEN = -BInt.TEN
+
         fun valueOf(numerator: BInt, denominator: BInt): BRat {
+            // Not a function returning pair -- avoid extra function call
+            // and destructuring
             var n = numerator
             var d = denominator
             if (-1 == d.signum()) {
@@ -139,11 +145,11 @@ class BigRational private constructor(
             // correct given the existence of the constants
             if (BInt.ONE == d) when (n) {
                 BInt.ONE -> return ONE
-                -BInt.ONE -> return NEGATIVE_ONE
+                NegBIntONE -> return NEGATIVE_ONE
                 BInt.TWO -> return TWO
-                -BInt.TWO -> return NEGATIVE_TWO
+                NegBIntTWO -> return NEGATIVE_TWO
                 BInt.TEN -> return TEN
-                -BInt.TEN -> return NEGATIVE_TEN
+                NegBIntTEN -> return NEGATIVE_TEN
             }
 
             return BRat(n, d)
