@@ -115,20 +115,20 @@ class BigRational private constructor(
         val NaN = BRat(BInt.ZERO, BInt.ZERO)
 
         fun valueOf(numerator: BInt, denominator: BInt): BRat {
-            if (BInt.ZERO == denominator) return when {
-                1 == numerator.signum() -> POSITIVE_INFINITY
-                -1 == numerator.signum() -> NEGATIVE_INFINITY
-                else -> NaN
-            }
-
-            if (BInt.ZERO == numerator) return ZERO
-
             var n = numerator
             var d = denominator
             if (-1 == d.signum()) {
                 n = n.negate()
                 d = d.negate()
             }
+
+            if (BInt.ZERO == d) return when {
+                1 == n.signum() -> POSITIVE_INFINITY
+                -1 == n.signum() -> NEGATIVE_INFINITY
+                else -> NaN
+            }
+
+            if (BInt.ZERO == n) return ZERO
 
             val gcd = n.gcd(d)
             n /= gcd
