@@ -290,10 +290,22 @@ internal class BigRationalTest {
         }
 
         @Test
+        fun `should respect the continuum`() {
+            assertEquals(POSITIVE_INFINITY, POSITIVE_INFINITY + ONE)
+            assertEquals(POSITIVE_INFINITY, POSITIVE_INFINITY - ONE)
+            assertEquals(POSITIVE_INFINITY, POSITIVE_INFINITY * TWO)
+            assertEquals(POSITIVE_INFINITY, POSITIVE_INFINITY / TWO)
+            assertEquals(NEGATIVE_INFINITY, NEGATIVE_INFINITY + ONE)
+            assertEquals(NEGATIVE_INFINITY, NEGATIVE_INFINITY - ONE)
+            assertEquals(NEGATIVE_INFINITY, NEGATIVE_INFINITY * TWO)
+            assertEquals(NEGATIVE_INFINITY, NEGATIVE_INFINITY / TWO)
+        }
+
+        @Test
         fun `should treat negation of non-finite values as primitive do`() {
             assertEquals(NEGATIVE_INFINITY, -POSITIVE_INFINITY)
             assertEquals(POSITIVE_INFINITY, -NEGATIVE_INFINITY)
-            assertNotEquals(-NaN, -NaN)
+            assertSame(NaN, -NaN)
         }
     }
 
