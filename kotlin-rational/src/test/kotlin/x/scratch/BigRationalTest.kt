@@ -270,13 +270,13 @@ internal class BigRationalTest {
 
         @Test
         fun `should raise`() {
-            assertEquals(4 over 9, (2 over 3).pow(2))
-            assertEquals(9 over 4, (2 over 3).pow(-2))
-            assertEquals(ONE, (2 over 3).pow(0))
-            assertEquals(POSITIVE_INFINITY, POSITIVE_INFINITY.pow(2))
-            assertEquals(POSITIVE_INFINITY, NEGATIVE_INFINITY.pow(2))
-            assertEquals(NEGATIVE_INFINITY, NEGATIVE_INFINITY.pow(3))
-            assertTrue(NaN.pow(2).isNaN(), "NaN has no powers")
+            assertEquals(4 over 9, (2 over 3) `**` 2)
+            assertEquals(9 over 4, (2 over 3) `**` -2)
+            assertEquals(ONE, (2 over 3) `**` 0)
+            assertEquals(POSITIVE_INFINITY, POSITIVE_INFINITY `**` 2)
+            assertEquals(POSITIVE_INFINITY, NEGATIVE_INFINITY `**` 2)
+            assertEquals(NEGATIVE_INFINITY, NEGATIVE_INFINITY `**` 3)
+            assertTrue((NaN `**` 2).isNaN(), "NaN has no powers")
         }
 
         /** See https://mathworld.wolfram.com/RationalNumber.html */
@@ -286,12 +286,12 @@ internal class BigRationalTest {
             val b = 5 over 7
             val c = 11 over 13
 
-            val actual = ((a.pow(2) + b.pow(2) + c.pow(2)
+            val actual = (((a `**` 2) + (b `**` 2) + (c `**` 2)
                     - a * b - b * c - c * a) /
-                    ((a - b) * (b - c) * (c - a))).pow(2)
-            val expected = (a - b).pow(2).unaryDiv() +
-                    (b - c).pow(2).unaryDiv() +
-                    (c - a).pow(2).unaryDiv()
+                    ((a - b) * (b - c) * (c - a))) `**` 2
+            val expected = ((a - b) `**` 2).unaryDiv() +
+                    ((b - c) `**` 2).unaryDiv() +
+                    ((c - a) `**` 2).unaryDiv()
 
             assertEquals(expected, actual)
         }

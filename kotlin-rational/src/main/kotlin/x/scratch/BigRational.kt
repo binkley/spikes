@@ -248,6 +248,9 @@ fun BRat.pow(exponent: Int) = when {
     else -> BRat.valueOf(numerator.pow(exponent), denominator.pow(exponent))
 }
 
+@Suppress("FunctionName")
+infix fun BRat.`**`(exponent: Int) = pow(exponent)
+
 fun BRat.mediant(other: BRat) = when {
     isNaN() || other.isNaN() -> NaN
     (POSITIVE_INFINITY == this && NEGATIVE_INFINITY == other) ||
