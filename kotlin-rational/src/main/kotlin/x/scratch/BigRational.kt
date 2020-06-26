@@ -236,13 +236,15 @@ operator fun BRat.inc() = this + ONE
 operator fun BRat.dec() = this - ONE
 
 fun BRat.pow(exponent: Int) = when {
-    0 > exponent -> throw ArithmeticException("No roots of rationals (yet)")
     isNaN() -> NaN
     POSITIVE_INFINITY == this -> POSITIVE_INFINITY
     NEGATIVE_INFINITY == this ->
         if (exponent.isEven()) POSITIVE_INFINITY
         else NEGATIVE_INFINITY
     0 == exponent -> ONE
+    0 > exponent -> BRat.valueOf(
+        denominator.pow(-exponent), numerator.pow(-exponent)
+    )
     else -> BRat.valueOf(numerator.pow(exponent), denominator.pow(exponent))
 }
 
