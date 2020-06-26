@@ -281,6 +281,23 @@ internal class BigRationalTest {
             }
         }
 
+        /** See https://mathworld.wolfram.com/RationalNumber.html */
+        @Test
+        fun `should obey Hornsberger theorem`() {
+            val a = 2 over 3
+            val b = 5 over 7
+            val c = 11 over 13
+
+            val actual = ((a.pow(2) + b.pow(2) + c.pow(2)
+                    - a * b - b * c - c * a) /
+                    ((a - b) * (b - c) * (c - a))).pow(2)
+            val expected = (a - b).pow(2).unaryDiv() +
+                    (b - c).pow(2).unaryDiv() +
+                    (c - a).pow(2).unaryDiv()
+
+            assertEquals(expected, actual)
+        }
+
         @Test
         fun `should provide quotient and remainder`() {
             listOf(
