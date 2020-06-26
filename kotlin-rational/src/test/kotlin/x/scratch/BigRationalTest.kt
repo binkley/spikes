@@ -45,13 +45,13 @@ internal class BigRationalTest {
                 "EQ? -> big decimal <-> rational"
             )
 
-            assertThrows<ArithmeticException> {
+            assertThrows<ArithmeticException>("No BigDecimal for +∞") {
                 POSITIVE_INFINITY.toBigDecimal()
             }
-            assertThrows<ArithmeticException> {
+            assertThrows<ArithmeticException>("No BigDecimal for -∞") {
                 NEGATIVE_INFINITY.toBigDecimal()
             }
-            assertThrows<ArithmeticException> {
+            assertThrows<ArithmeticException>("No BigDecimal for NaN") {
                 NaN.toBigDecimal()
             }
         }
@@ -193,7 +193,7 @@ internal class BigRationalTest {
     }
 
     @Nested
-    inner class FidelityToPrimities {
+    inner class FidelityToPrimitives {
         @Test
         fun `should compare as primitives do`() {
             listOf(
@@ -366,8 +366,14 @@ internal class BigRationalTest {
                 NEGATIVE_INFINITY,
                 NaN
             ).forEach { other ->
-                assertTrue(NaN.mediant(other).isNaN())
-                assertTrue(other.mediant(NaN).isNaN())
+                assertTrue(
+                    NaN.mediant(other).isNaN(),
+                    "Mediants including NaN are NaN"
+                )
+                assertTrue(
+                    other.mediant(NaN).isNaN(),
+                    "Mediants including NaN are NaN"
+                )
             }
         }
     }
