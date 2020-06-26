@@ -269,6 +269,19 @@ internal class BigRationalTest {
         }
 
         @Test
+        fun `should raise`() {
+            assertEquals(4 over 9, (2 over 3).pow(2))
+            assertEquals(POSITIVE_INFINITY, POSITIVE_INFINITY.pow(2))
+            assertEquals(POSITIVE_INFINITY, NEGATIVE_INFINITY.pow(2))
+            assertEquals(NEGATIVE_INFINITY, NEGATIVE_INFINITY.pow(3))
+            assertTrue(NaN.pow(2).isNaN(), "NaN has no powers")
+
+            assertThrows<ArithmeticException>("No roots (yet)") {
+                (2 over 3).pow(-1)
+            }
+        }
+
+        @Test
         fun `should provide quotient and remainder`() {
             listOf(
                 3 over 2 to (ONE to (1 over 2)),

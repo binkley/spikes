@@ -235,6 +235,16 @@ operator fun BRat.rem(@Suppress("UNUSED_PARAMETER") divisor: BRat) = when {
 operator fun BRat.inc() = this + ONE
 operator fun BRat.dec() = this - ONE
 
+fun BRat.pow(exponent: Int) = when {
+    0 > exponent -> throw ArithmeticException("No roots of rationals (yet)")
+    isNaN() -> NaN
+    POSITIVE_INFINITY == this -> POSITIVE_INFINITY
+    NEGATIVE_INFINITY == this ->
+        if (exponent.isEven()) POSITIVE_INFINITY
+        else NEGATIVE_INFINITY
+    else -> BRat.valueOf(numerator.pow(exponent), denominator.pow(exponent))
+}
+
 fun BRat.mediant(other: BRat) = when {
     isNaN() || other.isNaN() -> NaN
     (POSITIVE_INFINITY == this && NEGATIVE_INFINITY == other) ||
@@ -273,3 +283,5 @@ fun BRat.divideAndRemainder(other: BigRational): Pair<BRat, BRat> {
 
     return quotient to remainder
 }
+
+private fun Int.isEven() = 0 == this % 2
