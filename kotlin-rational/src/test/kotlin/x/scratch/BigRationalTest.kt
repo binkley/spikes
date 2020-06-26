@@ -271,6 +271,7 @@ internal class BigRationalTest {
         @Test
         fun `should raise`() {
             assertEquals(4 over 9, (2 over 3).pow(2))
+            assertEquals(ONE, (2 over 3).pow(0))
             assertEquals(POSITIVE_INFINITY, POSITIVE_INFINITY.pow(2))
             assertEquals(POSITIVE_INFINITY, NEGATIVE_INFINITY.pow(2))
             assertEquals(NEGATIVE_INFINITY, NEGATIVE_INFINITY.pow(3))

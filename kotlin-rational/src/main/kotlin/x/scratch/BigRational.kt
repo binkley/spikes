@@ -242,6 +242,7 @@ fun BRat.pow(exponent: Int) = when {
     NEGATIVE_INFINITY == this ->
         if (exponent.isEven()) POSITIVE_INFINITY
         else NEGATIVE_INFINITY
+    0 == exponent -> ONE
     else -> BRat.valueOf(numerator.pow(exponent), denominator.pow(exponent))
 }
 
