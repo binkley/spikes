@@ -261,6 +261,8 @@ fun BRat.abs() = when {
     }
 }
 
+fun BRat.absoluteDifference(other: BRat) = (this - other).absoluteValue
+
 fun BRat.mediant(other: BRat) = when {
     isNaN() || other.isNaN() -> NaN
     (POSITIVE_INFINITY == this && NEGATIVE_INFINITY == other) ||

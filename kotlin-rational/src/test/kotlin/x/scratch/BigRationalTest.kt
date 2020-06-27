@@ -519,6 +519,20 @@ internal class BigRationalTest {
         }
 
         @Test
+        fun `should have a metric`() {
+            assertEquals(ONE, TWO.absoluteDifference(ONE))
+            assertEquals(ONE, ONE.absoluteDifference(TWO))
+            assertTrue(
+                NaN.absoluteDifference(ONE).isNaN(),
+                "NaN does not have an absolute difference"
+            )
+            assertTrue(
+                ONE.absoluteDifference(NaN).isNaN(),
+                "NaN does not have an absolute difference"
+            )
+        }
+
+        @Test
         fun `should have a characteristic`() {
             assertEquals(ZERO, BRat.characteristic)
         }
