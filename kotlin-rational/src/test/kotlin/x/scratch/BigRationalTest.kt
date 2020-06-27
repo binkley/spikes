@@ -508,6 +508,11 @@ internal class BigRationalTest {
         }
 
         @Test
+        fun `should have a characteristic`() {
+            assertEquals(ZERO, BRat.characteristic)
+        }
+
+        @Test
         fun `should reciprocate`() {
             assertEquals(3 over 2, (2 over 3).reciprocal)
             assertEquals(

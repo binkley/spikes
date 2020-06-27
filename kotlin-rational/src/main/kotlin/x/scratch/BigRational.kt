@@ -114,6 +114,8 @@ class BigRational private constructor(
         val NEGATIVE_INFINITY = BRat(-BInt.ONE, BInt.ZERO)
         val NaN = BRat(BInt.ZERO, BInt.ZERO)
 
+        val characteristic = ZERO
+
         private val NegBIntONE = -BInt.ONE
         private val NegBIntTWO = -BInt.TWO
         private val NegBIntTEN = -BInt.TEN
