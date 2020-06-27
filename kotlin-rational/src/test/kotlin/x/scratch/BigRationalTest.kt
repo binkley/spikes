@@ -508,6 +508,17 @@ internal class BigRationalTest {
         }
 
         @Test
+        fun `should have an absolute value`() {
+            assertEquals(ONE, ONE.absoluteValue)
+            assertEquals(ZERO, ZERO.absoluteValue)
+            assertEquals(ONE, NEGATIVE_ONE.absoluteValue)
+            assertTrue(
+                NaN.absoluteValue.isNaN(),
+                "NaN does not have an absolute value"
+            )
+        }
+
+        @Test
         fun `should have a characteristic`() {
             assertEquals(ZERO, BRat.characteristic)
         }
