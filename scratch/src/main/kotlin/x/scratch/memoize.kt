@@ -40,6 +40,6 @@ private class Memoize<in T, out R>(
     }
 
     companion object {
-        fun <T, R> ((T) -> R).memoize() = Memoize<T, R>(this)
+        fun <T, R> ((T) -> R).memoize() = Memoize(this)
     }
 }
