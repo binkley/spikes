@@ -8,44 +8,40 @@ private var NOISY = false
 fun main() {
     println("==MEMOIZATION")
 
+    println()
+    println("MEMOIZED -> 10! -> EXPECT 3628800")
+    NOISY = false
+    println(factorial(10))
     NOISY = true
-
-    println()
-    println("NO MEMOIZATION")
-    println(factorial(10))
-
-    println()
-    println("MEMOIZED")
-    val factorial = { n: Long -> factorial(n) }.memoize()
-    println(factorial(10))
+    println("MEMOIZED -> 5! -> EXPECT 120")
+    println(factorial(5))
+    println("MEMOIZED -> 6! -> EXPECT 720")
+    println(factorial(6))
 }
 
-/** Not the Gamma or Pi functions. */
-private fun factorial(n: Long): Long = factorial0(n, 1)
+private fun factorial(n: Long): Long = memoizableFactorial(n, 1)
 
-/**
- * @todo This does *not* actually memoize as expected.  Since it counts
- *       _down_, it does not capture smaller inputs in the memoization.
- *       Ideally, we'd capture the 1..n inputs, and not just the n<sup>th
- */
-private tailrec fun factorial0(n: Long, a: Long): Long = when (n) {
-    1L -> a
+private val mF = ::memoizableFactorial.memoize()
+
+/** Not the Gamma or Pi functions. */
+private fun memoizableFactorial(n: Long, a: Long): Long = when (n) {
+    1L -> 1L
     else -> {
-        println("... computing $n given $a")
-        factorial0(n - 1, n * a)
+        if (NOISY) println("... non-tailrec of $n with $a")
+        n * mF(n - 1, n * a)
     }
 }
 
-private class Memoize<in T, out R>(
-    private val f: (T) -> R
-) : (T) -> R {
-    private val memoized = ConcurrentHashMap<T, R>()
+private class Memoize<in T, in U, out R>(
+    private val f: (T, U) -> R
+) : (T, U) -> R {
+    private val cache = ConcurrentHashMap<T, R>()
 
-    override fun invoke(n: T): R = memoized.getOrPut(n) {
-        f(n)
+    override fun invoke(t: T, u: U): R = cache.getOrPut(t) {
+        f(t, u)
     }
 
     companion object {
-        fun <T, R> ((T) -> R).memoize() = Memoize(this)
+        fun <T, U, R> ((T, U) -> R).memoize() = Memoize(this)
     }
 }
