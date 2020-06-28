@@ -3,9 +3,12 @@ package x.scratch
 import x.scratch.Memoize.Companion.memoize
 import java.util.concurrent.ConcurrentHashMap
 
+private var NOISY = false
+
 fun main() {
-    // See https://en.wikipedia.org/wiki/Primality_test#Pseudocode
     println("==MEMOIZATION")
+
+    NOISY = true
 
     println()
     println("NO MEMOIZATION")
@@ -27,7 +30,10 @@ private fun factorial(n: Long): Long = factorial0(n, 1)
  */
 private tailrec fun factorial0(n: Long, a: Long): Long = when (n) {
     1L -> a
-    else -> factorial0(n - 1, n * a)
+    else -> {
+        println("... computing $n given $a")
+        factorial0(n - 1, n * a)
+    }
 }
 
 private class Memoize<in T, out R>(
