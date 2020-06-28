@@ -1,6 +1,7 @@
 package x.scratch
 
 import x.scratch.Memoize.Companion.memoize
+import java.util.concurrent.ConcurrentHashMap
 
 fun main() {
     // See https://en.wikipedia.org/wiki/Primality_test#Pseudocode
@@ -29,10 +30,12 @@ private tailrec fun factorial0(n: Long, a: Long): Long = when (n) {
     else -> factorial0(n - 1, n * a)
 }
 
-private class Memoize<in T, out R>(private val f: (T) -> R) : (T) -> R {
-    private val results = mutableMapOf<T, R>()
+private class Memoize<in T, out R>(
+    private val f: (T) -> R
+) : (T) -> R {
+    private val memoized = ConcurrentHashMap<T, R>()
 
-    override fun invoke(n: T): R = results.getOrPut(n) {
+    override fun invoke(n: T): R = memoized.getOrPut(n) {
         f(n)
     }
 
