@@ -19,6 +19,11 @@ fun main() {
 /** Not the Gamma or Pi functions. */
 private fun factorial(n: Long): Long = factorial0(n, 1)
 
+/**
+ * @todo This does *not* actually memoize as expected.  Since it counts
+ *       _down_, it does not capture smaller inputs in the memoization.
+ *       Ideally, we'd capture the 1..n inputs, and not just the n<sup>th
+ */
 private tailrec fun factorial0(n: Long, a: Long): Long = when (n) {
     1L -> a
     else -> factorial0(n - 1, n * a)
