@@ -9,32 +9,37 @@ fun main() {
     println("==MEMOIZATION")
 
     println()
+    println("FACTORIAL")
     var answer: Long
-    println("MEMOIZING -> 10! -> EXPECT 3628800 -> ${
+    println("MEMOIZING -> 10! -> EXPECT (nanos, 3628800) -> ${
     measureNanoTime { answer = factorial(10) } to answer
     }")
-    println("MEMOIZED -> 10! -> EXPECT 3628800 -> ${
+    println("MEMOIZED -> 10! -> EXPECT (nanos, 3628800) -> ${
     measureNanoTime { answer = factorial(10) } to answer
     }")
-    println("MEMOIZING -> 5! -> EXPECT 120 -> ${
+    println("MEMOIZING -> 5! -> EXPECT (nanos, 120) -> ${
     measureNanoTime { answer = factorial(5) } to answer
     }")
-    println("MEMOIZED -> 6! -> EXPECT 720 -> ${
+    println("MEMOIZED -> 6! -> EXPECT (nanos, 720) -> ${
     measureNanoTime { answer = factorial(6) } to answer
     }")
 
     println()
-
+    println("FIBONACCI")
     lateinit var fib: (Long) -> Long
     fib = { n: Long ->
         if (2 > n) n else fib(n - 1) + fib(n - 2)
     }
-    println("PLAIN -> Fib(10) -> ${measureNanoTime { fib(10) }}")
+    println("PLAIN -> Fib(10) -> EXPECT (nanos, 55) -> ${
+    measureNanoTime { answer = fib(10) } to answer
+    }")
     lateinit var mfib: (Long) -> Long
     mfib = { n: Long ->
         if (2 > n) n else mfib(n - 1) + mfib(n - 2)
     }.memoize()
-    println("MEMOIZED -> Fib(10) -> ${measureNanoTime { mfib(10) }}")
+    println("MEMOIZED -> Fib(10) -> EXPECT (nanos, 55) -> ${
+    measureNanoTime { answer = mfib(10) } to answer
+    }")
 }
 
 private class MemoizedFactorial : (Long, Long) -> Long {
