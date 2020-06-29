@@ -1,6 +1,7 @@
 package x.scratch
 
 import x.scratch.Memoize.Companion.memoize
+import x.scratch.MemoizedFactorial.Companion.factorial
 import java.util.concurrent.ConcurrentHashMap
 
 private var NOISY = false
@@ -19,16 +20,31 @@ fun main() {
     println(factorial(6))
 }
 
-private fun factorial(n: Long): Long = mF(n, 1)
+private class MemoizedFactorial : (Long, Long) -> Long {
+    /**
+     * Track the memoized function so that invoke can call back to it without
+     * re-memoizing.
+     */
+    private val mF = this::invoke.memoize()
 
-private val mF = ::memoizableFactorial.memoize()
+    /** Not the Gamma or Pi functions. */
+    override fun invoke(n: Long, a: Long): Long = when (n) {
+        1L -> 1L
+        else -> {
+            if (NOISY) println("... memoizing $n with $a so far")
+            // Careful here _not_ to call ourselves, but the memoized function
+            n * mF(n - 1, n * a)
+        }
+    }
 
-/** Not the Gamma or Pi functions. */
-private fun memoizableFactorial(n: Long, a: Long): Long = when (n) {
-    1L -> 1L
-    else -> {
-        if (NOISY) println("... memoizing $n with $a so far")
-        n * mF(n - 1, n * a)
+    companion object {
+        private val cached = MemoizedFactorial()
+
+        /**
+         * Quirky, but use the memoized function for the first call, not a
+         * call to invoke, so that even the first call can skip computation.
+         */
+        fun factorial(n: Long): Long = cached.mF(n, 1)
     }
 }
 
