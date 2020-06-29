@@ -9,17 +9,16 @@ fun main() {
     println("==MEMOIZATION")
 
     println()
-    println("MEMOIZED -> 10! -> EXPECT 3628800")
-    NOISY = false
-    println(factorial(10))
     NOISY = true
+    println("MEMOIZED -> 10! -> EXPECT 3628800")
+    println(factorial(10))
     println("MEMOIZED -> 5! -> EXPECT 120")
     println(factorial(5))
     println("MEMOIZED -> 6! -> EXPECT 720")
     println(factorial(6))
 }
 
-private fun factorial(n: Long): Long = memoizableFactorial(n, 1)
+private fun factorial(n: Long): Long = mF(n, 1)
 
 private val mF = ::memoizableFactorial.memoize()
 
@@ -27,7 +26,7 @@ private val mF = ::memoizableFactorial.memoize()
 private fun memoizableFactorial(n: Long, a: Long): Long = when (n) {
     1L -> 1L
     else -> {
-        if (NOISY) println("... non-tailrec of $n with $a")
+        if (NOISY) println("... memoizing $n with $a so far")
         n * mF(n - 1, n * a)
     }
 }
