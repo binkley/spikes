@@ -4,20 +4,24 @@ import x.scratch.MemoizedFactorial.Companion.factorial
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.system.measureNanoTime
 
-private var NOISY = false
-
 /** See https://jorgecastillo.dev/kotlin-purity-and-function-memoization */
 fun main() {
     println("==MEMOIZATION")
 
-    NOISY = true
     println()
-    println("MEMOIZED -> 10! -> EXPECT 3628800")
-    println(factorial(10))
-    println("MEMOIZED -> 5! -> EXPECT 120")
-    println(factorial(5))
-    println("MEMOIZED -> 6! -> EXPECT 720")
-    println(factorial(6))
+    var answer: Long
+    println("MEMOIZING -> 10! -> EXPECT 3628800 -> ${
+    measureNanoTime { answer = factorial(10) } to answer
+    }")
+    println("MEMOIZED -> 10! -> EXPECT 3628800 -> ${
+    measureNanoTime { answer = factorial(10) } to answer
+    }")
+    println("MEMOIZING -> 5! -> EXPECT 120 -> ${
+    measureNanoTime { answer = factorial(5) } to answer
+    }")
+    println("MEMOIZED -> 6! -> EXPECT 720 -> ${
+    measureNanoTime { answer = factorial(6) } to answer
+    }")
 
     println()
 
@@ -44,7 +48,6 @@ private class MemoizedFactorial : (Long, Long) -> Long {
     override fun invoke(n: Long, a: Long): Long = when (n) {
         1L -> 1L
         else -> {
-            if (NOISY) println("... memoizing $n with $a so far")
             // Careful here _not_ to call ourselves, but the memoized function
             n * mF(n - 1, n * a)
         }
