@@ -5,6 +5,7 @@ import java.util.concurrent.ConcurrentHashMap
 
 private var NOISY = false
 
+/** See https://jorgecastillo.dev/kotlin-purity-and-function-memoization */
 fun main() {
     println("==MEMOIZATION")
 
