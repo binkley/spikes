@@ -1,8 +1,8 @@
 package x.scratch
 
-import x.scratch.Memoize.Companion.memoize
 import x.scratch.MemoizedFactorial.Companion.factorial
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.system.measureNanoTime
 
 private var NOISY = false
 
@@ -10,14 +10,27 @@ private var NOISY = false
 fun main() {
     println("==MEMOIZATION")
 
-    println()
     NOISY = true
+    println()
     println("MEMOIZED -> 10! -> EXPECT 3628800")
     println(factorial(10))
     println("MEMOIZED -> 5! -> EXPECT 120")
     println(factorial(5))
     println("MEMOIZED -> 6! -> EXPECT 720")
     println(factorial(6))
+
+    println()
+
+    lateinit var fib: (Long) -> Long
+    fib = { n: Long ->
+        if (2 > n) n else fib(n - 1) + fib(n - 2)
+    }
+    println("PLAIN -> Fib(10) -> ${measureNanoTime { fib(10) }}")
+    lateinit var mfib: (Long) -> Long
+    mfib = { n: Long ->
+        if (2 > n) n else mfib(n - 1) + mfib(n - 2)
+    }.memoize()
+    println("MEMOIZED -> Fib(10) -> ${measureNanoTime { mfib(10) }}")
 }
 
 private class MemoizedFactorial : (Long, Long) -> Long {
@@ -48,7 +61,19 @@ private class MemoizedFactorial : (Long, Long) -> Long {
     }
 }
 
-private class Memoize<in T, in U, out R>(
+private class Memoize1<in T, out R>(
+    private val f: (T) -> R
+) : (T) -> R {
+    private val cache = ConcurrentHashMap<T, R>()
+
+    override fun invoke(t: T): R = cache.getOrPut(t) {
+        f(t)
+    }
+}
+
+private fun <T, R> ((T) -> R).memoize() = Memoize1(this)
+
+private class Memoize2<in T, in U, out R>(
     private val f: (T, U) -> R
 ) : (T, U) -> R {
     private val cache = ConcurrentHashMap<T, R>()
@@ -56,8 +81,6 @@ private class Memoize<in T, in U, out R>(
     override fun invoke(t: T, u: U): R = cache.getOrPut(t) {
         f(t, u)
     }
-
-    companion object {
-        fun <T, U, R> ((T, U) -> R).memoize() = Memoize(this)
-    }
 }
+
+private fun <T, U, R> ((T, U) -> R).memoize() = Memoize2(this)
