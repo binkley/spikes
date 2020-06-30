@@ -8,9 +8,10 @@ import kotlin.system.measureNanoTime
 fun main() {
     println("==MEMOIZATION")
 
+    var answer: Long
+
     println()
     println("FACTORIAL")
-    var answer: Long
     println("MEMOIZING -> 10! -> EXPECT (nanos, 3628800) -> ${
     measureNanoTime { answer = factorial(10) } to answer
     }")
