@@ -78,13 +78,12 @@ class Pauli private constructor(
 
         private fun sigma(n: Int) = Pauli(
             n,
-            Complex(δ(n, 3), 0),
-            Complex(δ(n, 1), -δ(n, 2)),
-            Complex(δ(n, 1), δ(n, 2)),
-            Complex(-δ(n, 3), 0)
+            Complex(dirac(n, 3), 0),
+            Complex(dirac(n, 1), -dirac(n, 2)),
+            Complex(dirac(n, 1), dirac(n, 2)),
+            Complex(-dirac(n, 3), 0)
         )
     }
 }
 
-@Suppress("FunctionName", "NonAsciiCharacters")
-private fun δ(a: Int, b: Int) = if (a == b) 1 else 0
+fun dirac(a: Int, b: Int) = if (a == b) 1 else 0
