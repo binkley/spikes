@@ -1,7 +1,6 @@
 package x.scratch
 
 import java.util.Objects.hash
-import kotlin.math.absoluteValue
 
 fun main() {
     println("== VECTORS")
