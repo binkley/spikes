@@ -13,7 +13,7 @@ fun main() {
     println("== SCALAR FIB: ${fib0.fib}; DET: ${fib0.det}")
     println("F0 * F0 -> ${fib0 * fib0}")
     println("F0 / F0 -> ${fib0 / fib0}")
-    println("1/F0 -> ${fib0.inv()}")
+    println("1/F0 -> ${fib0.unaryDiv()}")
     println("F0^2 -> ${fib0.pow(2)}")
     println("F0^-2 -> ${fib0.pow(-2)}")
     println("F0√2 -> ${fib0.root(2)}")
@@ -21,16 +21,16 @@ fun main() {
     println("== SCALAR FIB: ${fib1.fib}; DET ${fib1.det}")
     println("F1 * F1 -> ${fib1 * fib1}")
     println("F1 / F1 -> ${fib1 / fib1}")
-    println("1/F1 -> ${fib1.inv()}")
+    println("1/F1 -> ${fib1.unaryDiv()}")
     println("F1^2 -> ${fib1.pow(2)}")
     println("F1^-2 -> ${fib1.pow(-2)}")
     println()
-    println("== SCALAR INV FIB: ${fib1.inv().fib}; DET ${fib1.inv().det}")
-    println("1/F1 * 1/F1 -> ${fib1.inv() * fib1.inv()}")
-    println("1/F1 / 1/F1 -> ${fib1.inv() / fib1.inv()}")
-    println("1/(1/F1) -> ${fib1.inv().inv()}")
-    println("(1/F1)^2 -> ${fib1.inv().pow(2)}")
-    println("(1/F1)^-2 -> ${fib1.inv().pow(-2)}")
+    println("== SCALAR INV FIB: ${fib1.unaryDiv().fib}; DET ${fib1.unaryDiv().det}")
+    println("1/F1 * 1/F1 -> ${fib1.unaryDiv() * fib1.unaryDiv()}")
+    println("1/F1 / 1/F1 -> ${fib1.unaryDiv() / fib1.unaryDiv()}")
+    println("1/(1/F1) -> ${fib1.unaryDiv().unaryDiv()}")
+    println("(1/F1)^2 -> ${fib1.unaryDiv().pow(2)}")
+    println("(1/F1)^-2 -> ${fib1.unaryDiv().pow(-2)}")
     println()
     println("== BIG DESTRUCTURED")
     val (n, a, b, c, d) = Fib(100)
@@ -43,10 +43,10 @@ fun main() {
 
 private fun Fib.format() =
     if (0 < n) "Fib($n) -> $this;" +
-            " Fib($n)^1 -> ${inv()};" +
+            " Fib($n)^1 -> ${unaryDiv()};" +
             " |Fib($n)| -> $absoluteValue;" +
             " $n√ -> ${root(n)}"
-    else "Fib($n) -> $this; Fib($n)^1 -> ${inv()}; |Fib($n)| -> $absoluteValue"
+    else "Fib($n) -> $this; Fib($n)^1 -> ${unaryDiv()}; |Fib($n)| -> $absoluteValue"
 
 // Why not a data class?  Avoid the `copy` function, which would permit
 // construction of invalid Fib matrices.
@@ -79,7 +79,7 @@ fun Fib(n: Int): Fib = when {
     0 == n -> UNIT
     1 == n -> GENERATOR
     0 < n -> fibN(n, n, UNIT)
-    else -> Fib(-n).inv()
+    else -> Fib(-n).unaryDiv()
 }
 
 val Fib.fib get() = b
@@ -94,7 +94,7 @@ val Fib.det get() = if (0 == n % 2) 1 else -1
  * @todo Absolute value makes sense for addition, but not multiplication.
  *       This Fib matrix is unsure about the relationship
  */
-val Fib.absoluteValue get() = if (0 > n) inv() else this
+val Fib.absoluteValue get() = if (0 > n) unaryDiv() else this
 
 operator fun Fib.component1() = n
 operator fun Fib.component2() = a
@@ -113,7 +113,7 @@ operator fun Fib.div(divisor: Fib) = Fib(n - divisor.n)
  * 1. Transpose along the minor diagonal (antidiagonal)
  * 2. Flip the signs of the main diagonal
  */
-fun Fib.inv() = when {
+fun Fib.unaryDiv() = when {
     0 == n -> this
     0 > n -> Fib(-n, d.abs(), b.abs(), c.abs(), a.abs())
     0 == n % 2 -> Fib(-n, d, -b, -c, a)
