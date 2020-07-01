@@ -5,6 +5,9 @@ import x.scratch.Pauli.Companion.sigmaX
 import x.scratch.Pauli.Companion.sigmaY
 import x.scratch.Pauli.Companion.sigmaZ
 
+private val Z = Complex.ZERO
+private val U = Complex.ONE
+
 fun main() {
     println("== PAULI")
     println("σ₀ -> ${sigmaI.toFullString()}")

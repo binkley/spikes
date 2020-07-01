@@ -1,9 +1,5 @@
 package x.scratch
 
-val Z = Complex(0, 0)
-val U = Complex(1, 0)
-val I = Complex(0, 1)
-
 data class Complex(val a: Int, val b: Int) : Ring<Complex> {
     override val companion = ComplexCompanion
     override fun unaryMinus(): Complex = Complex(-a, -b)
@@ -33,7 +29,8 @@ data class Complex(val a: Int, val b: Int) : Ring<Complex> {
     }
 
     companion object ComplexCompanion : RingCompanion<Complex> {
-        override val ZERO = Z
-        override val ONE = U
+        override val ZERO = Complex(0, 0)
+        override val ONE = Complex(1, 0)
+        val I = Complex(0, 1)
     }
 }
