@@ -16,7 +16,7 @@ fun main() {
         else 1
     }.trap<IllegalArgumentException, Int> {
         println("YEP, SOMETHING BAD HAPPENED: $it")
-        0
+        -1
     }
     println(trapReturn)
 }
