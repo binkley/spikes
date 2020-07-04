@@ -4,7 +4,6 @@ import lombok.Generated
 import x.scratch.BigRational.Companion.ZERO
 
 fun BRat.toContinuedFraction() = ContinuedFraction.valueOf(this)
-fun ContinuedFraction.toBigRational() = backAgain()
 
 @Generated // Lie to JaCoCo -- "All 6 branches missed"?!
 class ContinuedFraction(
@@ -13,6 +12,14 @@ class ContinuedFraction(
     val integerPart: BInt get() = first()
     val fractionalParts: List<BInt> get() = subList(1, lastIndex + 1)
     val reciprocal: ContinuedFraction get() = unaryDiv()
+
+    fun toBigRational() = subList(0, size - 1)
+        .asReversed()
+        .asSequence()
+        .map { it.toBigRational() }
+        .fold(last().toBigRational()) { previous, a_ni ->
+            previous.unaryDiv() + a_ni
+        }
 
     fun unaryDiv() = if (BInt.ZERO == integerPart)
         ContinuedFraction(fractionalParts)
@@ -47,11 +54,3 @@ private fun BRat.toParts(): Pair<BInt, BRat> {
     val i = floor()
     return i.toBigInteger() to (this - i)
 }
-
-private fun ContinuedFraction.backAgain() = subList(0, size - 1)
-    .asReversed()
-    .asSequence()
-    .map { it.toBigRational() }
-    .fold(last().toBigRational()) { previous, a_ni ->
-        previous.unaryDiv() + a_ni
-    }
