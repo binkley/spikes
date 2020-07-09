@@ -1,6 +1,7 @@
 package x.scratch
 
 import x.scratch.BigRational.Companion.NEGATIVE_INFINITY
+import x.scratch.BigRational.Companion.NEGATIVE_ONE
 import x.scratch.BigRational.Companion.NaN
 import x.scratch.BigRational.Companion.ONE
 import x.scratch.BigRational.Companion.POSITIVE_INFINITY
@@ -230,7 +231,7 @@ operator fun BRat.dec() = this - ONE
 
 fun BRat.pow(exponent: Int) = when {
     isNaN() -> NaN
-    0 == exponent -> when(this) {
+    0 == exponent -> when (this) {
         POSITIVE_INFINITY -> NaN
         NEGATIVE_INFINITY -> NaN
         else -> ONE
@@ -251,7 +252,7 @@ infix fun BRat.`**`(exponent: Int) = pow(exponent)
 fun BRat.signum() = when {
     isNaN() -> NaN
     else -> when (numerator.signum()) {
-        -1 -> BigRational.NEGATIVE_ONE
+        -1 -> NEGATIVE_ONE
         0 -> ZERO
         else -> ONE
     }
@@ -284,20 +285,23 @@ fun BRat.gcd(other: BRat) = BRat.valueOf(
 
 fun BRat.floor() = when {
     !isFinite() || isInteger() -> this
-    ONE == sign -> truncate()
-    else -> truncate() - ONE
+    ONE == sign -> truncate0()
+    else -> truncate0() - ONE
 }
 
 fun BRat.ceil() = when {
     !isFinite() || isInteger() -> this
-    ONE == sign -> truncate() + ONE
-    else -> truncate()
+    ONE == sign -> truncate0() + ONE
+    else -> truncate0()
 }
 
 fun BRat.truncate() = when {
     !isFinite() || isInteger() -> this
-    else -> BRat.valueOf(numerator / denominator, BInt.ONE)
+    else -> truncate0()
 }
+
+private fun BRat.truncate0() =
+    BRat.valueOf(numerator / denominator, BInt.ONE)
 
 fun BRat.divideAndRemainder(other: BigRational): Pair<BRat, BRat> {
     val quotient = (this / other).truncate()
