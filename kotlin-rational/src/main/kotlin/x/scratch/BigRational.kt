@@ -220,7 +220,7 @@ operator fun BRat.times(multiplier: BRat) = BRat.valueOf(
 )
 
 operator fun BRat.div(divisor: BRat) = this * divisor.unaryDiv()
-operator fun BRat.rem(@Suppress("UNUSED_PARAMETER") divisor: BRat) = when {
+operator fun BRat.rem(divisor: BRat) = when {
     isNaN() || divisor.isNaN() -> NaN
     else -> ZERO // All divisions are exact
 }
@@ -230,11 +230,15 @@ operator fun BRat.dec() = this - ONE
 
 fun BRat.pow(exponent: Int) = when {
     isNaN() -> NaN
+    0 == exponent -> when(this) {
+        POSITIVE_INFINITY -> NaN
+        NEGATIVE_INFINITY -> NaN
+        else -> ONE
+    }
     POSITIVE_INFINITY == this -> POSITIVE_INFINITY
     NEGATIVE_INFINITY == this ->
         if (exponent.isEven()) POSITIVE_INFINITY
         else NEGATIVE_INFINITY
-    0 == exponent -> ONE
     0 > exponent -> BRat.valueOf(
         denominator.pow(-exponent), numerator.pow(-exponent)
     )

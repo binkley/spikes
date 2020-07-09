@@ -37,7 +37,7 @@ internal class BigRationalTest {
                 BDouble.valueOf(1, 1), // 0.1
                 BDouble.valueOf(1, 2), // 0.01
                 BDouble.valueOf(1, 1) + BDouble.valueOf(2, 1), // 0.1+0.2
-                BDouble.valueOf(2,) / BDouble.valueOf(3), // 2.0/3.0
+                BDouble.valueOf(2) / BDouble.valueOf(3), // 2.0/3.0
                 -BDouble.ONE,
                 -BDouble.valueOf(1, 1) // -0.1
             )) assertEquals(
@@ -277,6 +277,14 @@ internal class BigRationalTest {
             assertEquals(POSITIVE_INFINITY, NEGATIVE_INFINITY `**` 2)
             assertEquals(NEGATIVE_INFINITY, NEGATIVE_INFINITY `**` 3)
             assertTrue((NaN `**` 2).isNaN(), "NaN has no powers")
+            assertTrue(
+                (POSITIVE_INFINITY `**` 0).isNaN(),
+                "Indeterminate form"
+            )
+            assertTrue(
+                (NEGATIVE_INFINITY `**` 0).isNaN(),
+                "Indeterminate form"
+            )
         }
 
         /** See https://mathworld.wolfram.com/RationalNumber.html */
