@@ -304,9 +304,9 @@ fun BRat.truncate() = when {
 private fun BRat.truncate0() =
     BRat.valueOf(numerator / denominator, BInt.ONE)
 
-fun BRat.divideAndRemainder(other: BigRational): Pair<BRat, BRat> {
-    val quotient = (this / other).truncate()
-    val remainder = this - other * quotient
+fun BRat.divideAndRemainder(divisor: BigRational): Pair<BRat, BRat> {
+    val quotient = (this / divisor).truncate()
+    val remainder = this - divisor * quotient
 
     return quotient to remainder
 }

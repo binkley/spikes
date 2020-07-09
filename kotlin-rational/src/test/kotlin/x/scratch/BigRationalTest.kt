@@ -309,23 +309,42 @@ internal class BigRationalTest {
 
         @Test
         fun `should provide quotient and remainder`() {
-            listOf(
-                3 over 2 to (ONE to (1 over 2)),
-                ONE to (ONE to ZERO),
-                ZERO to (ZERO to ZERO),
-                NEGATIVE_ONE to (NEGATIVE_ONE to ZERO),
-                -3 over 2 to (NEGATIVE_ONE to (1 over 2)),
-                POSITIVE_INFINITY to (POSITIVE_INFINITY to ZERO),
-                NEGATIVE_INFINITY to (NEGATIVE_INFINITY to ZERO)
+            data class Case(
+                val dividend: BRat,
+                val divisor: BRat,
+                val quotient: BRat,
+                val remainder: BRat
             )
+
+            listOf(
+                Case(3 over 2, 1 over 2, 3 over 1, ZERO),
+                Case(-3 over 2, 1 over 2, -3 over 1, ZERO),
+                Case(3 over 2, -1 over 2, -3 over 1, ZERO),
+                Case(-3 over 2, -1 over 2, 3 over 1, ZERO),
+                Case(3 over 2, 1 over 3, 4 over 1, 1 over 6)
+            ).forEach {
+                val (quotient, remainder) =
+                    it.dividend.divideAndRemainder(it.divisor)
+
+                assertEquals(
+                    it.dividend, it.divisor * quotient + remainder,
+                    "Invertible: $it"
+                )
+                assertEquals(quotient, it.quotient, "Quotient: $it")
+                assertEquals(remainder, it.remainder, "Remainder: $it")
+            }
 
             val (quotientA, remainderA) = NaN.divideAndRemainder(ONE)
             assertTrue(quotientA.isNaN(), "NaN does not have a quotient")
             assertTrue(remainderA.isNaN(), "NaN does not have a remainder")
 
-            val (quotientB, remainderB) = NaN.divideAndRemainder(NaN)
+            val (quotientB, remainderB) = ONE.divideAndRemainder(NaN)
             assertTrue(quotientB.isNaN(), "NaN does not have a quotient")
             assertTrue(remainderB.isNaN(), "NaN does not have a remainder")
+
+            val (quotientC, remainderC) = NaN.divideAndRemainder(NaN)
+            assertTrue(quotientC.isNaN(), "NaN does not have a quotient")
+            assertTrue(remainderC.isNaN(), "NaN does not have a remainder")
         }
 
         @Test
