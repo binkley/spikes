@@ -38,7 +38,9 @@ class BigRational private constructor(
             BInt.ONE -> Double.POSITIVE_INFINITY
             else -> Double.NEGATIVE_INFINITY
         }
-        else -> numerator.toBigDecimal().divide(denominator.toBigDecimal())
+        else -> numerator.toBigDecimal()
+            // Cannot use / (div) -- it rounds
+            .divide(denominator.toBigDecimal())
             .toDouble()
     }
 
@@ -48,7 +50,9 @@ class BigRational private constructor(
             BInt.ONE -> Float.POSITIVE_INFINITY
             else -> Float.NEGATIVE_INFINITY
         }
-        else -> numerator.toBigDecimal().divide(denominator.toBigDecimal())
+        else -> numerator.toBigDecimal()
+            // Cannot use / (div) -- it rounds
+            .divide(denominator.toBigDecimal())
             .toFloat()
     }
 
