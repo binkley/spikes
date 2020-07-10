@@ -274,8 +274,10 @@ internal class BigRationalTest {
             assertEquals(9 over 4, (2 over 3) `**` -2)
             assertEquals(ONE, (2 over 3) `**` 0)
             assertEquals(POSITIVE_INFINITY, POSITIVE_INFINITY `**` 2)
+            assertEquals(ZERO, POSITIVE_INFINITY `**` -1)
             assertEquals(POSITIVE_INFINITY, NEGATIVE_INFINITY `**` 2)
             assertEquals(NEGATIVE_INFINITY, NEGATIVE_INFINITY `**` 3)
+            assertEquals(ZERO, NEGATIVE_INFINITY `**` -1)
             assertTrue((NaN `**` 2).isNaN(), "NaN has no powers")
             assertTrue(
                 (POSITIVE_INFINITY `**` 0).isNaN(),

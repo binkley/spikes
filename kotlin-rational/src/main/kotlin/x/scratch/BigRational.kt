@@ -17,7 +17,7 @@ internal typealias BDouble = BigDecimal
 
 class BigRational private constructor(
     val numerator: BInt,
-    val denominator: BInt
+    val denominator: BInt,
 ) : Comparable<BRat>, Number() {
     val sign: BRat get() = signum()
     val absoluteValue: BRat get() = abs()
@@ -235,18 +235,20 @@ operator fun BRat.dec() = this - ONE
 
 fun BRat.pow(exponent: Int) = when {
     isNaN() -> NaN
-    0 == exponent -> when (this) {
-        POSITIVE_INFINITY -> NaN
-        NEGATIVE_INFINITY -> NaN
-        else -> ONE
+    POSITIVE_INFINITY == this -> when {
+        0 == exponent -> NaN
+        0 > exponent -> ZERO
+        else -> POSITIVE_INFINITY
     }
-    POSITIVE_INFINITY == this -> POSITIVE_INFINITY
-    NEGATIVE_INFINITY == this ->
-        if (exponent.isEven()) POSITIVE_INFINITY
-        else NEGATIVE_INFINITY
+    NEGATIVE_INFINITY == this -> when {
+        0 == exponent -> NaN
+        0 > exponent -> ZERO
+        exponent.isEven() -> POSITIVE_INFINITY
+        else -> NEGATIVE_INFINITY
+    }
     0 > exponent -> BRat.valueOf(
-        denominator.pow(-exponent), numerator.pow(-exponent)
-    )
+        numerator.pow(-exponent), denominator.pow(-exponent)
+    ).unaryDiv()
     else -> BRat.valueOf(numerator.pow(exponent), denominator.pow(exponent))
 }
 
