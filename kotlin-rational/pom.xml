@@ -231,8 +231,16 @@
                         <excludedClass>x.scratch.Floating_pointKt
                         </excludedClass>
                     </excludedClasses>
-                    <!-- TODO: How can find a reasonable threshold? -->
-                    <mutationThreshold>80</mutationThreshold>
+                    <excludedMethods>
+                        <excludedMethod>byteValue</excludedMethod>
+                        <excludedMethod>doubleValue</excludedMethod>
+                        <excludedMethod>floatValue</excludedMethod>
+                        <excludedMethod>intValue</excludedMethod>
+                        <excludedMethod>longValue</excludedMethod>
+                        <excludedMethod>shortValue</excludedMethod>
+                    </excludedMethods>
+                    <!-- TODO: How to make mutation testing happy? -->
+                    <mutationThreshold>91</mutationThreshold>
                 </configuration>
                 <executions>
                     <execution>
