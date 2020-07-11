@@ -235,21 +235,16 @@ operator fun BRat.dec() = this - ONE
 
 fun BRat.pow(exponent: Int) = when {
     isNaN() -> NaN
-    POSITIVE_INFINITY == this -> when {
-        0 == exponent -> NaN
-        0 > exponent -> ZERO
-        else -> POSITIVE_INFINITY
-    }
-    NEGATIVE_INFINITY == this -> when {
-        0 == exponent -> NaN
-        0 > exponent -> ZERO
-        exponent.isEven() -> POSITIVE_INFINITY
-        else -> NEGATIVE_INFINITY
-    }
+    !isFinite() && 0 == exponent -> NaN
+    0 == exponent -> ONE
     0 > exponent -> BRat.valueOf(
-        numerator.pow(-exponent), denominator.pow(-exponent)
-    ).unaryDiv()
-    else -> BRat.valueOf(numerator.pow(exponent), denominator.pow(exponent))
+        denominator.pow(-exponent),
+        numerator.pow(-exponent)
+    )
+    else -> BRat.valueOf(
+        numerator.pow(exponent),
+        denominator.pow(exponent)
+    )
 }
 
 @Suppress("FunctionName")

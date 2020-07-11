@@ -273,6 +273,7 @@ internal class BigRationalTest {
             assertEquals(4 over 9, (2 over 3) `**` 2)
             assertEquals(9 over 4, (2 over 3) `**` -2)
             assertEquals(ONE, (2 over 3) `**` 0)
+            assertEquals(ONE, (-2 over 3) `**` 0)
             assertEquals(POSITIVE_INFINITY, POSITIVE_INFINITY `**` 2)
             assertEquals(ZERO, POSITIVE_INFINITY `**` -1)
             assertEquals(POSITIVE_INFINITY, NEGATIVE_INFINITY `**` 2)

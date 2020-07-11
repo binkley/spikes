@@ -232,7 +232,7 @@
                         </excludedClass>
                     </excludedClasses>
                     <!-- TODO: How can find a reasonable threshold? -->
-                    <mutationThreshold>84</mutationThreshold>
+                    <mutationThreshold>80</mutationThreshold>
                 </configuration>
                 <executions>
                     <execution>
