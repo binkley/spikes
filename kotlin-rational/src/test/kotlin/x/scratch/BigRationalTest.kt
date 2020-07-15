@@ -25,10 +25,15 @@ import java.math.BigDecimal
 import kotlin.math.sign
 
 internal class BigRationalTest {
+    private val Pair<Double, BRat>.primitive get() = first
+    private val Pair<Double, BRat>.rational get() = second
+
     @Nested
     inner class Conversions {
         @Test
         fun `should round trip from and to big decimal`() {
+            assertEquals(ONE, BDouble.ONE over BDouble.ONE)
+
             for (n in listOf(
                 BDouble.TEN,
                 BDouble.valueOf(2),
@@ -58,6 +63,8 @@ internal class BigRationalTest {
 
         @Test
         fun `should round trip from and to double`() {
+            assertEquals(ONE, 1.0 over 1.0)
+
             for (n in listOf(
                 10.0,
                 2.0,
@@ -85,6 +92,8 @@ internal class BigRationalTest {
 
         @Test
         fun `should round trip from and to float`() {
+            assertEquals(ONE, 1.0f over 1.0f)
+
             for (n in listOf(
                 10.0f,
                 2.0f,
@@ -313,7 +322,7 @@ internal class BigRationalTest {
                 val dividend: BRat,
                 val divisor: BRat,
                 val quotient: BRat,
-                val remainder: BRat
+                val remainder: BRat,
             )
 
             listOf(
@@ -650,6 +659,7 @@ internal class BigRationalTest {
 
         @Test
         fun `should understand equality`() {
+            assertFalse((3 over 2).equals(this))
             listOf(
                 3 over 2,
                 ONE,
@@ -686,6 +696,3 @@ internal class BigRationalTest {
         }
     }
 }
-
-private val Pair<Double, BRat>.primitive get() = first
-private val Pair<Double, BRat>.rational get() = second

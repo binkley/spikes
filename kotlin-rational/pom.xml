@@ -205,11 +205,10 @@
                         <configuration>
                             <rules>
                                 <rule>
-                                    <element>CLASS</element>
                                     <limits>
                                         <limit>
-                                            <!-- TODO: Lie until JaCoCo groks -->
-                                            <minimum>98%</minimum>
+                                            <!-- TODO: Kotlin vs JaCoCo -->
+                                            <minimum>99%</minimum>
                                         </limit>
                                     </limits>
                                 </rule>

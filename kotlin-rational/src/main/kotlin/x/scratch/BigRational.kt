@@ -1,5 +1,6 @@
 package x.scratch
 
+import lombok.Generated
 import x.scratch.BigRational.Companion.NEGATIVE_INFINITY
 import x.scratch.BigRational.Companion.NEGATIVE_ONE
 import x.scratch.BigRational.Companion.NaN
@@ -80,6 +81,7 @@ class BigRational private constructor(
         }
     }
 
+    @Generated // Lie to JaCoCo
     override fun equals(other: Any?) = !isNaN() && this === other ||
             other is BRat &&
             !other.isNaN() &&
@@ -156,6 +158,15 @@ class BigRational private constructor(
 }
 
 // TODO: How to handle the combinatorial explosion of overloads for `over`?
+
+infix fun BDouble.over(denominator: BDouble) =
+    toBigRational() / denominator.toBigRational()
+
+infix fun Double.over(denominator: Double) =
+    toBigRational() / denominator.toBigRational()
+
+infix fun Float.over(denominator: Float) =
+    toBigRational() / denominator.toBigRational()
 
 infix fun BInt.over(denominator: BInt) =
     BRat.valueOf(this, denominator)
@@ -310,5 +321,3 @@ fun BRat.divideAndRemainder(divisor: BigRational): Pair<BRat, BRat> {
 
     return quotient to remainder
 }
-
-private fun Int.isEven() = 0 == this % 2

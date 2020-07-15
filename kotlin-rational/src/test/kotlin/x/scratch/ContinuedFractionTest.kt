@@ -1,8 +1,11 @@
 package x.scratch
 
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import x.scratch.BigRational.Companion.ONE
+import x.scratch.BigRational.Companion.TEN
 import x.scratch.BigRational.Companion.TWO
 import x.scratch.BigRational.Companion.ZERO
 
@@ -11,6 +14,29 @@ private val FOUR = BInt.valueOf(4)
 private val TWELVE = BInt.valueOf(12)
 
 internal class ContinuedFractionTest {
+    @Test
+    fun `should be a JDK list`() {
+        val two = BInt.TWO
+        val ten = BInt.TEN
+
+        val c = (145 over 7).toContinuedFraction()
+
+        println("C -> $c")
+
+        assertTrue(c.contains(two), "Missing parts: 2")
+        assertFalse(c.contains(ten), "Unexpected part: 10")
+        // TODO: For JaCoCo coverage only -- Kotlin strongly dislikes
+        assertFalse(c.contains(this))
+        assertEquals(2, c.indexOf(two), "First part 2 in the wrong place")
+        assertEquals(-1, c.indexOf(ten), "10 should not be a part")
+        // TODO: For JaCoCo coverage only -- Kotlin strongly dislikes
+        assertEquals(-1, c.indexOf(this))
+        assertEquals(3, c.lastIndexOf(two), "Last part 2 in the wrong place")
+        assertEquals(-1, c.lastIndexOf(ten), "10 should not be a part")
+        // TODO: For JaCoCo coverage only -- Kotlin strongly dislikes
+        assertEquals(-1, c.lastIndexOf(this))
+    }
+
     @Test
     fun `should round trip continued fractions`() {
         val cfA = (3245 over 1000).toContinuedFraction()
