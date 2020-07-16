@@ -27,6 +27,10 @@ class RangesTest {
             (zeroToOne step (1 over 2)).hashCode(),
             (zeroToOne step (1 over 2)).hashCode()
         )
+        assertNotEquals(
+            (zeroToOne step (1 over 2)).hashCode(),
+            (zeroToOne step (1 over 3)).hashCode()
+        )
     }
 
     @Test

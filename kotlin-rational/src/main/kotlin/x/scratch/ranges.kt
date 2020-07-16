@@ -76,7 +76,7 @@ class BigRationalProgression(
     override fun hashCode() = hash(javaClass, start, endInclusive, step)
 
     override fun toString() =
-        if (step < ZERO) "$start downTo $endInclusive step $step"
+        if (ZERO > step) "$start downTo $endInclusive step $step"
         else "$start..$endInclusive step $step"
 }
 
