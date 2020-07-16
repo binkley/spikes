@@ -5,18 +5,16 @@ import x.scratch.BigRational.Companion.ZERO
 import java.util.Objects.hash
 
 private sealed class BigRationalIterator(
-    first: BigRational,
+    protected var current: BigRational,
     protected val last: BigRational,
     private val step: BigRational,
 ) : Iterator<BigRational> {
     init {
         if (!step.isFinite()) error("Non-finite step.")
-        if (!first.isFinite() || !last.isFinite())
+        if (!current.isFinite() || !last.isFinite())
             error("Non-finite bounds.")
-        if (step == ZERO) error("Step must be non-zero.")
+        if (ZERO == step) error("Step must be non-zero.")
     }
-
-    protected var current = first
 
     override fun next(): BigRational {
         val next = current
@@ -26,9 +24,7 @@ private sealed class BigRationalIterator(
 }
 
 private class IncrementingBigRationalIterator(
-    /** The first element in the progression. */
     first: BigRational,
-    /** The last element in the progression. */
     last: BigRational,
     step: BigRational,
 ) : BigRationalIterator(first, last, step) {
@@ -41,9 +37,7 @@ private class IncrementingBigRationalIterator(
 }
 
 private class DecrementingBigRationalIterator(
-    /** The first element in the progression. */
     first: BigRational,
-    /** The last element in the progression. */
     last: BigRational,
     step: BigRational,
 ) : BigRationalIterator(first, last, step) {
