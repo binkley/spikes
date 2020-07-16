@@ -11,7 +11,7 @@ import x.scratch.BigRational.Companion.ONE
 import x.scratch.BigRational.Companion.TWO
 import x.scratch.BigRational.Companion.ZERO
 
-class RangesTest {
+internal class RangesTest {
     @Suppress("ReplaceCallWithBinaryOperator")
     @Test
     fun `should be itself`() {

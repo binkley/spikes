@@ -4,7 +4,7 @@ import x.scratch.BigRational.Companion.ONE
 import x.scratch.BigRational.Companion.ZERO
 import java.util.Objects.hash
 
-sealed class BigRationalIterator(
+private sealed class BigRationalIterator(
     first: BigRational,
     protected val last: BigRational,
     private val step: BigRational,
@@ -25,7 +25,7 @@ sealed class BigRationalIterator(
     }
 }
 
-class IncrementingBigRationalIterator(
+private class IncrementingBigRationalIterator(
     /** The first element in the progression. */
     first: BigRational,
     /** The last element in the progression. */
@@ -40,7 +40,7 @@ class IncrementingBigRationalIterator(
     override fun hasNext() = current <= last
 }
 
-class DecrementingBigRationalIterator(
+private class DecrementingBigRationalIterator(
     /** The first element in the progression. */
     first: BigRational,
     /** The last element in the progression. */
@@ -55,11 +55,13 @@ class DecrementingBigRationalIterator(
     override fun hasNext() = current >= last
 }
 
-class BigRationalProgression(
+interface BigRationalRange : Iterable<BigRational>, ClosedRange<BigRational>
+
+private class BigRationalProgression(
     override val start: BigRational,
     override val endInclusive: BigRational,
     private val step: BigRational,
-) : Iterable<BigRational>, ClosedRange<BigRational> {
+) : BigRationalRange {
     override fun iterator() =
         if (step < ZERO)
             DecrementingBigRationalIterator(start, endInclusive, step)
@@ -81,7 +83,9 @@ class BigRationalProgression(
 }
 
 /** Creates a range from this value to [endInclusive]. */
-operator fun BigRational.rangeTo(endInclusive: BigRational) =
+operator fun BigRational.rangeTo(
+    endInclusive: BigRational,
+): BigRationalRange =
     BigRationalProgression(this, endInclusive, ONE)
 
 /** Creates a range from this value to [endInclusive]. */
@@ -133,29 +137,29 @@ operator fun Int.rangeTo(endInclusive: BigRational) =
     toBigRational()..endInclusive
 
 /** Creates a range from this value _down_ to [endInclusive]. */
-infix fun BigRational.downTo(endInclusive: BigRational) =
+infix fun BigRational.downTo(endInclusive: BigRational): BigRationalRange =
     BigRationalProgression(this, endInclusive, -ONE)
 
 /** Creates a range from this value _down_ to [endInclusive]. */
-infix fun BInt.downTo(endInclusive: BigRational) =
+infix fun BInt.downTo(endInclusive: BigRational): BigRationalRange =
     toBigRational() downTo endInclusive
 
 /** Creates a range from this value _down_ to [endInclusive]. */
-infix fun Long.downTo(endInclusive: BigRational) =
+infix fun Long.downTo(endInclusive: BigRational): BigRationalRange =
     toBigRational() downTo endInclusive
 
 /** Creates a range from this value _down_ to [endInclusive]. */
-infix fun Int.downTo(endInclusive: BigRational) =
+infix fun Int.downTo(endInclusive: BigRational): BigRationalRange =
     toBigRational() downTo endInclusive
 
-infix fun BigRationalProgression.step(step: BigRational) =
+infix fun BigRationalRange.step(step: BigRational): BigRationalRange =
     BigRationalProgression(start, endInclusive, step)
 
-infix fun BigRationalProgression.step(step: BInt) =
+infix fun BigRationalRange.step(step: BInt): BigRationalRange =
     BigRationalProgression(start, endInclusive, step.toBigRational())
 
-infix fun BigRationalProgression.step(step: Long) =
+infix fun BigRationalRange.step(step: Long): BigRationalRange =
     BigRationalProgression(start, endInclusive, step.toBigRational())
 
-infix fun BigRationalProgression.step(step: Int) =
+infix fun BigRationalRange.step(step: Int): BigRationalRange =
     BigRationalProgression(start, endInclusive, step.toBigRational())
