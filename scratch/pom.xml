@@ -219,7 +219,7 @@
                     <args>
                         <arg>-progressive</arg>
                         <arg>-Xjsr305=strict</arg>
-                        <arg>-Xjvm-default=enable</arg>
+                        <arg>-Xjvm-default=all</arg>
                         <arg>-Xinline-classes</arg>
                     </args>
                 </configuration>
