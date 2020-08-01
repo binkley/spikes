@@ -221,6 +221,7 @@
                         <arg>-Xjsr305=strict</arg>
                         <arg>-Xjvm-default=all</arg>
                         <arg>-Xinline-classes</arg>
+                        <arg>-Xopt-in=kotlin.RequiresOptIn</arg>
                     </args>
                 </configuration>
                 <executions>
