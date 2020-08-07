@@ -1,9 +1,6 @@
 package x.scratch
 
 import java.lang.System.identityHashCode
-import java.math.BigInteger
-import java.math.BigInteger.ONE
-import java.math.BigInteger.ZERO
 
 fun main() {
     println("==ARRAY SLICE")
