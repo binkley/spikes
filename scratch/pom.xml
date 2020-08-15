@@ -13,7 +13,7 @@
         <!-- @formatter:off -->
         <atrium.version>0.12.0</atrium.version>
         <indriya.version>2.0.4</indriya.version>
-        <jackson.version>2.11.1</jackson.version>
+        <jackson.version>2.11.2</jackson.version>
         <java.charset>UTF-8</java.charset>
         <java.version>11</java.version>
         <junit.version>5.7.0-M1</junit.version>
@@ -21,17 +21,17 @@
         <kotlin.compiler.jvmTarget>${java.version}</kotlin.compiler.jvmTarget>
         <kotlin.compiler.languageVersion>1.4</kotlin.compiler.languageVersion>
         <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
-        <kotlin.version>1.4.0-rc</kotlin.version>
-        <kotlinx-coroutines.version>1.3.8</kotlinx-coroutines.version>
+        <kotlin.version>1.4.0</kotlin.version>
+        <kotlinx-coroutines.version>1.3.9</kotlinx-coroutines.version>
         <maven-assembly-plugin.version>3.3.0</maven-assembly-plugin.version>
         <maven-clean-plugin.version>3.1.0</maven-clean-plugin.version>
         <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
         <maven-dependency-plugin.version>3.1.2</maven-dependency-plugin.version>
         <maven-enforcer-plugin.version>3.0.0-M3</maven-enforcer-plugin.version>
         <maven-jar-plugin.version>3.2.0</maven-jar-plugin.version>
-        <maven-resources-plugin.version>3.1.0</maven-resources-plugin.version>
+        <maven-resources-plugin.version>3.2.0</maven-resources-plugin.version>
         <maven-surefire-plugin.version>3.0.0-M5</maven-surefire-plugin.version>
-        <maven-versions-plugin.version>2.7</maven-versions-plugin.version>
+        <maven-versions-plugin.version>2.8.1</maven-versions-plugin.version>
         <main.class>x.scratch.ScratchKt</main.class>
         <moneta.version>1.4.2</moneta.version>
         <mordant.version>1.2.1</mordant.version>
@@ -93,7 +93,7 @@
         <dependency>
             <groupId>org.jetbrains.kotlinx</groupId>
             <artifactId>kotlinx-coroutines-core</artifactId>
-            <version>${kotlinx-coroutines.version}-${kotlin.version}</version>
+            <version>${kotlinx-coroutines.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
