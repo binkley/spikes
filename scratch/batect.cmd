@@ -6,7 +6,7 @@ rem For more information, visit https://github.com/batect/batect.
 
 setlocal EnableDelayedExpansion
 
-set "version=0.57.1"
+set "version=0.58.1"
 
 if "%BATECT_CACHE_DIR%" == "" (
     set "BATECT_CACHE_DIR=%USERPROFILE%\.batect\cache"
@@ -22,7 +22,7 @@ $ErrorActionPreference = 'Stop'^
 
 ^
 
-$Version='0.57.1'^
+$Version='0.58.1'^
 
 ^
 
@@ -48,7 +48,7 @@ $UrlEncodedVersion = [Uri]::EscapeDataString($Version)^
 
 $DownloadUrl = getValueOrDefault $env:BATECT_DOWNLOAD_URL "$DownloadUrlRoot/$UrlEncodedVersion/bin/batect-$UrlEncodedVersion.jar"^
 
-$ExpectedChecksum = getValueOrDefault $env:BATECT_DOWNLOAD_CHECKSUM '1e6a8cac2ddcfb2aaa5409cc93149931bcdabfa18d0d9c87be91fb1eab7f80d0'^
+$ExpectedChecksum = getValueOrDefault $env:BATECT_DOWNLOAD_CHECKSUM '6c85bdcbfe4f211fde3e29b7fee1eb0eeb523827593da3f4a05e78b2611450d7'^
 
 ^
 
@@ -58,6 +58,8 @@ $VersionCacheDir = "$RootCacheDir\$Version"^
 
 $JarPath = "$VersionCacheDir\batect-$Version.jar"^
 
+$DidDownload = 'false'^
+
 ^
 
 function main() {^
@@ -65,6 +67,8 @@ function main() {^
     if (-not (haveVersionCachedLocally)) {^
 
         download^
+
+        $DidDownload = 'true'^
 
     }^
 
@@ -189,6 +193,8 @@ function runApplication() {^
     $env:HOSTNAME = $env:COMPUTERNAME^
 
     $env:BATECT_WRAPPER_CACHE_DIR = $RootCacheDir^
+
+    $env:BATECT_WRAPPER_DID_DOWNLOAD = $DidDownload^
 
 ^
 
