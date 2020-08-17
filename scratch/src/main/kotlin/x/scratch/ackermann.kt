@@ -11,7 +11,7 @@ import java.math.BigInteger.ZERO
 fun main() {
     println("==ACKERMANN")
     for (m in 0..3) // 4 overflows the stack! :)
-        for (n in 0..3)
+        for (n in 0..4)
             println(
                 "$m,$n -> ${ackermann(m.toBigInteger(), n.toBigInteger())}"
             )
