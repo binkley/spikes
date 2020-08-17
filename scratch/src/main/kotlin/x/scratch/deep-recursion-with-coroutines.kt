@@ -2,7 +2,8 @@ package x.scratch
 
 /**
  * See https://medium.com/@elizarov/deep-recursion-with-coroutines-7c53e15993e3
- * See https://blog.jetbrains.com/kotlin/2020/07/kotlin-1-4-rc-debugging-coroutines/?ref=codebldr
+ *
+ * See https://blog.jetbrains.com/kotlin/2020/07/kotlin-1-4-rc-debugging-coroutines/
  */
 fun main() {
     println("==DEEP RECURSION WITH COROUTINES")
