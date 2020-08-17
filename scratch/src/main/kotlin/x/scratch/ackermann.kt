@@ -21,7 +21,5 @@ tailrec fun ackermann(m: BigInteger, n: BigInteger): BigInteger =
     when (ZERO) {
         m -> n + ONE
         n -> ackermann(m - ONE, ONE)
-        else -> ackermann(m - ONE, ackermann0(m, n - ONE))
+        else -> ackermann(m - ONE, ackermann(m, n - ONE))
     }
-
-private fun ackermann0(m: BigInteger, n: BigInteger) = ackermann(m, n)
