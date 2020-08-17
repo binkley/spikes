@@ -15,9 +15,12 @@ fun main() {
         println(it)
     }
 
-    val metadata = Class.forName(Nancy::class.jvmName)
-        .getAnnotation(Metadata::class.java)
-    println(metadata.pretty)
+    println("NANCY ->")
+    println(Class.forName(Nancy::class.jvmName)
+        .getAnnotation(Metadata::class.java).pretty)
+    println("BOB ->")
+    println(Class.forName(BobHead::class.jvmName)
+        .getAnnotation(Metadata::class.java).pretty)
 }
 
 private val Metadata.pretty
