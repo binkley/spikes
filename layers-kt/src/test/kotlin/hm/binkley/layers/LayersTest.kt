@@ -11,8 +11,9 @@ import java.nio.file.Path
 internal class LayersTest {
     @Test
     internal fun `should run tests`() {
-        // TODO: Why isn't Maven running tests?
-        if (false) fail<Nothing>("PROVE TESTS RUN")
+        // TODO: Why isn't Maven running tests?  This fails when run from
+        //       inside IDE, but cmd line passes
+        if (true) fail<Nothing>("PROVE TESTS RUN")
     }
 
     @Test
