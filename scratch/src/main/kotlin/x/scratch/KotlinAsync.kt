@@ -1,4 +1,4 @@
-package x.scratch;
+package x.scratch
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi

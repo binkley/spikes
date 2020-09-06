@@ -22,7 +22,7 @@ fun main() {
     dump("EDIT WITHOUT KEEPING", layers)
 
     layers.reset()
-    dump("RESETING", layers)
+    dump("RESETTING", layers)
 
     layers.top.reset("should be unseen")
     layers.reset("also edit me")

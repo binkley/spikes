@@ -1,9 +1,6 @@
 package x.scratch
 
 import java.lang.IllegalStateException
-import java.math.BigInteger
-import java.math.BigInteger.ONE
-import java.math.BigInteger.ZERO
 
 /** See https://youtrack.jetbrains.com/issue/KT-30330 */
 fun main(args: Array<String>) {
