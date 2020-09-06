@@ -14,11 +14,9 @@ fun main() {
         Right("DAVE", "6"), // common, changed
     )
 
-    val engine = DifferenceEngine<String, Left, Right>(
-        { it.key },
-        { it.key },
-        { a, b -> a.key == b.key && "${a.satelliteData}" == b.satelliteData }
-    )
+    val engine = DifferenceEngine(Left::key, Right::key) { a, b ->
+        a.key == b.key && "${a.satelliteData}" == b.satelliteData
+    }
     val diff = engine.diff(ours, theirs)
 
     println()
@@ -30,11 +28,11 @@ fun main() {
 class DifferenceEngine<KEY, OURS, THEIRS>(
     private val ourCommonKey: (OURS) -> KEY,
     private val theirCommonKey: (THEIRS) -> KEY,
-    private val equivalent: (OURS, THEIRS) -> Boolean
+    private val equivalent: (OURS, THEIRS) -> Boolean,
 ) {
     fun diff(
         ours: Collection<OURS>,
-        theirs: Collection<THEIRS>
+        theirs: Collection<THEIRS>,
     ): Difference<KEY, OURS, THEIRS> {
         return Difference(
             ourCommonKey,
@@ -51,7 +49,7 @@ class Difference<KEY, OURS, THEIRS>(
     theirCommonKey: (THEIRS) -> KEY,
     equivalent: (OURS, THEIRS) -> Boolean,
     ours: Collection<OURS>,
-    theirs: Collection<THEIRS>
+    theirs: Collection<THEIRS>,
 ) {
     val addedByUs: List<OURS>
     val removedByUs: List<THEIRS>
