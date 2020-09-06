@@ -15,7 +15,7 @@ fun main() {
     )
 
     val engine = DifferenceEngine(Left::key, Right::key) { a, b ->
-        a.key == b.key && "${a.satelliteData}" == b.satelliteData
+        "${a.satelliteData}" == b.satelliteData
     }
     val diff = engine.diff(ours, theirs)
 
