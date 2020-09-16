@@ -34,7 +34,7 @@
         <dependency>
             <scope>test</scope>
             <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
+            <artifactId>mockito-inline</artifactId>
             <version>${mockito.version}</version>
         </dependency>
     </dependencies>
