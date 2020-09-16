@@ -11,10 +11,13 @@
 
     <properties>
         <!-- @formatter:off -->
-        <compiler-plugin.version>3.8.1</compiler-plugin.version>
+        <java.version>14</java.version>
+        <junit.version>5.7.0</junit.version>
+        <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
         <maven.compiler.parameters>true</maven.compiler.parameters>
         <maven.compiler.source>14</maven.compiler.source>
         <maven.compiler.target>14</maven.compiler.target>
+        <mockito.version>3.5.10</mockito.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
@@ -22,6 +25,18 @@
     </properties>
 
     <dependencies>
+        <dependency>
+            <scope>test</scope>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit.version}</version>
+        </dependency>
+        <dependency>
+            <scope>test</scope>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${mockito.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -29,12 +44,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>${compiler-plugin.version}</version>
+                <version>${maven-compiler-plugin.version}</version>
                 <configuration>
-                    <release>14</release>
+                    <release>${java.version}</release>
                     <compilerArgs>--enable-preview</compilerArgs>
-                    <source>14</source>
-                    <target>14</target>
                 </configuration>
             </plugin>
 
