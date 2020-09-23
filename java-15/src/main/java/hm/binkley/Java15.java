@@ -13,7 +13,11 @@ public class Java15 {
         if (null != javaVersion) x = """
                 Uncle
                 Bob says: %s""".formatted(javaVersion);
-        if (x instanceof String msg) out.println(new Fooby<>(3, msg));
+        if (x instanceof String msg) {
+            out.println(new Fooby<>(3, msg));
+            out.printf("Blank? %b%n", msg.isBlank());
+            out.printf("Empty? %b%n", msg.isEmpty());
+        }
 
         out.println("minMax = " +
                 minMax(List.of(3, 2, 1, 5), Integer::compareTo));
