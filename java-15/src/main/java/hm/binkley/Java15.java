@@ -1,5 +1,7 @@
 package hm.binkley;
 
+import org.eclipse.collections.impl.string.immutable.CharAdapter;
+
 import java.util.Comparator;
 import java.util.List;
 
@@ -15,8 +17,12 @@ public class Java15 {
                 Bob says: %s""".formatted(javaVersion);
         if (x instanceof String msg) {
             out.println(new Fooby<>(3, msg));
+
+            // See https://stuartmarks.wordpress.com/2020/09/22/incompatibilities-with-jdk-15-charsequence-isempty/
             out.printf("Blank? %b%n", msg.isBlank());
             out.printf("Empty? %b%n", msg.isEmpty());
+            final var adapted = new CharAdapter(msg);
+            out.printf("Empty? %b%n", adapted.isEmpty());
         }
 
         out.println("minMax = " +

@@ -11,6 +11,7 @@
 
     <properties>
         <!-- @formatter:off -->
+        <eclipse-collections.version>10.4.0</eclipse-collections.version>
         <java.version>15</java.version>
         <junit.version>5.7.0</junit.version>
         <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
@@ -25,6 +26,17 @@
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>org.eclipse.collections</groupId>
+            <artifactId>eclipse-collections-api</artifactId>
+            <version>${eclipse-collections.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.collections</groupId>
+            <artifactId>eclipse-collections</artifactId>
+            <version>${eclipse-collections.version}</version>
+        </dependency>
+
         <dependency>
             <scope>test</scope>
             <groupId>org.junit.jupiter</groupId>
