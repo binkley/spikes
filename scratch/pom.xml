@@ -220,6 +220,7 @@
                         <arg>-Xjvm-default=all</arg>
                         <arg>-Xinline-classes</arg>
                         <arg>-Xopt-in=kotlin.RequiresOptIn</arg>
+                        <arg>-Xopt-in=kotlin.io.path.ExperimentalPathApi</arg>
                         <arg>-Xstring-concat=indy-with-constants</arg>
                     </args>
                 </configuration>
