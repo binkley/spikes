@@ -32,4 +32,3 @@ fun main() {
         println("$n/$d -> ${round(n, d)}")
     }
 }
-
