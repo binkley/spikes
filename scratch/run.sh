@@ -11,7 +11,7 @@ function mangle-classname() {
     local last="${parts[-1]}"
 
     case "$last" in
-    *-*|*Kt) ;;
+    *-* | *Kt) ;;
     *) last="${last}Kt" ;;
     esac
     last="${last//-/_}"
@@ -27,15 +27,14 @@ function rebuild-if-needed() {
 }
 
 case $# in
-0) class="-jar $jar" ;;
-1) class="-cp $jar $package.$(mangle-classname "$1")" ;;
+0) set - -jar "$jar" ;;
 *)
-    echo "Usage: $0 [FILE-NAME]" >&2
-    exit 2
+    class="$1"
+    shift
+    set - -cp "$jar" "$(mangle-classname "$package.$class")" "$@"
     ;;
 esac
 
 rebuild-if-needed && ./mvnw -C package
 
-# shellcheck disable=SC2086
-exec java $class
+exec java "$@"
