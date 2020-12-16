@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 
+package=x.scratch
 jar=target/scratch-0-SNAPSHOT-jar-with-dependencies.jar
 
-test -r $jar || ./mvnw -C package
+function rebuild-if-needed() {
+    [[ ! -e "$jar" || -n "$(find src -type f -newer "$jar")" ]]
+}
 
 function mangle-classname() {
     local IFS=.
@@ -25,11 +28,13 @@ function mangle-classname() {
 
 case $# in
 0) class="-jar $jar" ;;
-1) class="-cp $jar x.scratch.$(mangle-classname "$1")" ;;
+1) class="-cp $jar $package.$(mangle-classname "$1")" ;;
 *)
     echo "Usage: $0 [FILE-NAME]" >&2
     exit 2
     ;;
 esac
 
-exec java $class
+rebuild-if-needed && ./mvnw -C package
+
+exec java "$class"
