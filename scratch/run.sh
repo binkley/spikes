@@ -37,4 +37,5 @@ esac
 
 rebuild-if-needed && ./mvnw -C package
 
-exec java "$class"
+# shellcheck disable=SC2086
+exec java $class
