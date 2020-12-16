@@ -8,7 +8,8 @@ set -u
 set -o pipefail
 
 package=x.scratch
-jar=target/scratch-0-SNAPSHOT-jar-with-dependencies.jar
+artifactId=scratch
+version=0-SNAPSHOT
 
 function mangle-classname() {
     local IFS=.
@@ -44,6 +45,8 @@ done
 shift $((OPTIND - 1))
 
 $debug && set -x
+
+readonly jar=target/$artifactId-$version-jar-with-dependencies.jar
 
 case $# in
 0) set - -jar "$jar" ;;
