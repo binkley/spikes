@@ -3,10 +3,6 @@
 package=x.scratch
 jar=target/scratch-0-SNAPSHOT-jar-with-dependencies.jar
 
-function rebuild-if-needed() {
-    [[ ! -e "$jar" || -n "$(find src -type f -newer "$jar")" ]]
-}
-
 function mangle-classname() {
     local IFS=.
 
@@ -24,6 +20,10 @@ function mangle-classname() {
     parts[-1]="$last"
 
     echo "${parts[*]}"
+}
+
+function rebuild-if-needed() {
+    [[ ! -e "$jar" || -n "$(find src -type f -newer "$jar")" ]]
 }
 
 case $# in
