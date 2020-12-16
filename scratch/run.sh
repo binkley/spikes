@@ -31,7 +31,9 @@ function mangle-classname() {
 }
 
 function rebuild-if-needed() {
-    [[ ! -e "$jar" || -n "$(find src -type f -newer "$jar")" ]]
+    [[ -e "$jar" && -z "$(find src -type f -newer "$jar")" ]] && return
+
+    ./mvnw -C -Dmaven.test.skip=true package
 }
 
 debug=false
@@ -58,6 +60,6 @@ case $# in
 esac
 $debug && set -x # "set - ..." clears the -x flag
 
-rebuild-if-needed && ./mvnw -C package
+rebuild-if-needed
 
 exec java "$@"
