@@ -15,10 +15,10 @@
         <detekt-maven-plugin.version>1.9.1</detekt-maven-plugin.version>
         <jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
         <java.charset>UTF-8</java.charset>
-        <java.version>11</java.version>
+        <jdk.version>11</jdk.version>
         <junit.version>5.7.0-M1</junit.version>
         <kotlin.compiler.apiVersion>1.4</kotlin.compiler.apiVersion>
-        <kotlin.compiler.jvmTarget>${java.version}</kotlin.compiler.jvmTarget>
+        <kotlin.compiler.jvmTarget>${jdk.version}</kotlin.compiler.jvmTarget>
         <kotlin.compiler.languageVersion>1.4</kotlin.compiler.languageVersion>
         <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
         <kotlin.version>1.4-M3</kotlin.version>
