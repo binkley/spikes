@@ -53,7 +53,7 @@
         <kotlin.compiler.jvmTarget>${jdk.version}</kotlin.compiler.jvmTarget>
         <kotlin.compiler.languageVersion>1.4</kotlin.compiler.languageVersion>
         <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
-        <kotlin.version>1.4.10</kotlin.version>
+        <kotlin.version>1.4.30</kotlin.version>
         <ktlint.version>0.38.0-alpha01</ktlint.version>
         <lombok.version>1.18.12</lombok.version>
         <main.class>hm.binkley.layers.MainKt</main.class>
