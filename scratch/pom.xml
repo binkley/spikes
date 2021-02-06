@@ -11,16 +11,16 @@
 
     <properties>
         <!-- @formatter:off -->
-        <atrium.version>0.14.0</atrium.version>
+        <atrium.version>0.15.0</atrium.version>
         <indriya.version>2.1.1</indriya.version>
-        <jackson.version>2.11.2</jackson.version>
+        <jackson.version>2.12.1</jackson.version>
         <java.charset>UTF-8</java.charset>
         <jdk.version>11</jdk.version>
-        <junit.version>5.7.0</junit.version>
+        <junit.version>5.7.1</junit.version>
         <kotlin.compiler.jvmTarget>${jdk.version}</kotlin.compiler.jvmTarget>
         <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
         <kotlin.version>1.4.30</kotlin.version>
-        <kotlinx-coroutines.version>1.4.1</kotlinx-coroutines.version>
+        <kotlinx-coroutines.version>1.4.2-native-mt</kotlinx-coroutines.version>
         <maven-assembly-plugin.version>3.3.0</maven-assembly-plugin.version>
         <maven-clean-plugin.version>3.1.0</maven-clean-plugin.version>
         <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
