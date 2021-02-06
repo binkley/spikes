@@ -27,8 +27,6 @@ Spikes are not to be considered stable.
 * [Rust green threads](rust-green-threads/)
 * [Rust hello world](rust-hello-world/)
 * [Scratch](scratch/)
-* [Spring Boot 2.3][boot23/]
-* [Spring Boot async and Mockito spies](spring-boot-async-and-mockito-spies/)
 * [Spring Boot Etag support](spring-boot-etag-support/)
 * [Spring Boot with clouds versions](spring-boot-import-cloud-versions/)
 * [Spring Boot JMS client](spring-boot-jms-client/)

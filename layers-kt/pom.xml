@@ -40,7 +40,7 @@
 
     <properties>
         <!-- @formatter:off -->
-        <assertj.version>3.16.1</assertj.version>
+        <assertj.version>3.19.0</assertj.version>
         <exec-maven-plugin.version>1.6.0</exec-maven-plugin.version>
         <exec.mainClass>hm.binkley.layers.MainKt</exec.mainClass>
         <generateBackupPoms>false</generateBackupPoms>
@@ -48,14 +48,14 @@
         <jacoco-minimum-coverage>100%</jacoco-minimum-coverage>
         <java.charset>UTF-8</java.charset>
         <jdk.version>11</jdk.version>
-        <jgit.version>5.8.1.202007141445-r</jgit.version>
-        <junit5.version>5.7.0-RC1</junit5.version>
+        <jgit.version>5.10.0.202012080955-r</jgit.version>
+        <junit5.version>5.7.1</junit5.version>
         <kotlin.compiler.jvmTarget>${jdk.version}</kotlin.compiler.jvmTarget>
         <kotlin.compiler.languageVersion>1.4</kotlin.compiler.languageVersion>
         <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
         <kotlin.version>1.4.30</kotlin.version>
-        <ktlint.version>0.38.0-alpha01</ktlint.version>
-        <lombok.version>1.18.12</lombok.version>
+        <ktlint.version>0.40.0</ktlint.version>
+        <lombok.version>1.18.18</lombok.version>
         <main.class>hm.binkley.layers.MainKt</main.class>
         <maven-assembly-plugin.version>3.2.0</maven-assembly-plugin.version>
         <maven-clean-plugin.version>3.1.0</maven-clean-plugin.version>
@@ -64,12 +64,12 @@
         <maven-enforcer-plugin.version>3.0.0-M3</maven-enforcer-plugin.version>
         <maven-jar-plugin.version>3.2.0</maven-jar-plugin.version>
         <maven-shade-plugin.version>3.2.4</maven-shade-plugin.version>
-        <maven-surefire-plugin.version>3.0.0-M4</maven-surefire-plugin.version>
+        <maven-surefire-plugin.version>3.0.0-M5</maven-surefire-plugin.version>
         <project.build.outputEncoding>${java.charset}</project.build.outputEncoding>
         <project.build.sourceEncoding>${java.charset}</project.build.sourceEncoding>
         <project.reporting.outputEncoding>${java.charset}</project.reporting.outputEncoding>
         <project.reporting.sourceEncoding>${java.charset}</project.reporting.sourceEncoding>
-        <versions-maven-plugin.version>2.7</versions-maven-plugin.version>
+        <versions-maven-plugin.version>2.8.1</versions-maven-plugin.version>
         <versions-maven-plugin.phase>none</versions-maven-plugin.phase>
         <!-- @formatter:on -->
     </properties>
