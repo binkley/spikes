@@ -19,7 +19,7 @@
         <junit.version>5.7.0</junit.version>
         <kotlin.compiler.jvmTarget>${jdk.version}</kotlin.compiler.jvmTarget>
         <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
-        <kotlin.version>1.4.20</kotlin.version>
+        <kotlin.version>1.4.30</kotlin.version>
         <kotlinx-coroutines.version>1.4.1</kotlinx-coroutines.version>
         <maven-assembly-plugin.version>3.3.0</maven-assembly-plugin.version>
         <maven-clean-plugin.version>3.1.0</maven-clean-plugin.version>
