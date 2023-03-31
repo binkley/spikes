@@ -13,7 +13,7 @@
         <!-- @formatter:off -->
         <atrium.version>0.15.0</atrium.version>
         <indriya.version>2.1.1</indriya.version>
-        <jackson.version>2.13.4.1</jackson.version>
+        <jackson.version>2.13.4.2</jackson.version>
         <java.charset>UTF-8</java.charset>
         <jdk.version>11</jdk.version>
         <junit.version>5.7.1</junit.version>
