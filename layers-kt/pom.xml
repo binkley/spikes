@@ -48,7 +48,7 @@
         <jacoco-minimum-coverage>100%</jacoco-minimum-coverage>
         <java.charset>UTF-8</java.charset>
         <jdk.version>11</jdk.version>
-        <jgit.version>5.10.0.202012080955-r</jgit.version>
+        <jgit.version>6.6.1.202309021850-r</jgit.version>
         <junit5.version>5.7.1</junit5.version>
         <kotlin.compiler.jvmTarget>${jdk.version}</kotlin.compiler.jvmTarget>
         <kotlin.compiler.languageVersion>1.4</kotlin.compiler.languageVersion>
